@@ -1,0 +1,16 @@
+{
+  "name": "life-os-wellness",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "packageManager": "npm@11.17.0",
+  "scripts": {
+    "db:up": "docker compose up -d db",
+    "db:migrate": "node db/migrate.js",
+    "dev:api": "npm run dev -w @wellness/api",
+    "dev:web": "npm run dev -w @wellness/web",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
