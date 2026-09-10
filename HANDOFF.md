@@ -111,6 +111,13 @@ gerçek alan adı değil; bu bağlantıların ömrü sınırlı.
 - Nefes hızı ölçülmüyor; mikrofonla güvenilir değil.
 - Gece süreleri duty cycle'dan ölçeklenmiş tahmin (`estimated: true`).
 
+## Yarının işi: `docs/PLAN-F1.md`
+
+10 Eylül akşamı telefonda ilk gerçek kullanım oldu. Dört istek çıktı: Eva geçmişi bilsin
+ve eksiği istesin, haftalık antrenman ajandası (göğüs günü / bacak günü), saatten okusun,
+"öğrensin". Sıra ve maliyet o dosyada; ilk madde `context` alanını doldurmak (API'de yeri
+zaten var, web hiç göndermiyor) ve en çok faydayı en az işle veren o.
+
 ## Sıradaki iş (öncelik sırası)
 
 1. Cihazda duman testi + pil ölçümü (`npm run link` → QR → Bugün ekranı)
