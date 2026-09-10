@@ -56,15 +56,17 @@ services:
   # Ev disindan erisim. Kendi tuneli var, netmovies'inkine binmiyor: origin
   # `http://localhost:3011` cunku api'nin ag namespace'ini paylasiyor, ve netmovies
   # dustugunde Eva'nin telefonla konusmasi etkilenmiyor.
-  # Acmak icin: CF_TUNNEL_TOKEN ver + `docker compose --profile tunnel up -d`
+  # Acmak icin: CF_TUNNEL_CREDENTIALS ver + `docker compose --profile tunnel up -d`
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: wellness-tunnel
     restart: unless-stopped
     # UDP/QUIC bu makinede erisilebilir degil; TCP/HTTP2 ile baglan.
     command: tunnel --no-autoupdate --protocol http2 run
-    environment:
-      TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
+    volumes:
+      - ./ops/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      # Tunelin kimligi. Repoda degil, cloudflared'in kendi dizininde durur.
+      - ${CF_TUNNEL_CREDENTIALS:-/dev/null}:/etc/cloudflared/creds.json:ro
     depends_on:
       - api
     network_mode: "service:api"

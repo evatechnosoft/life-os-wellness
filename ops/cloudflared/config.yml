@@ -1,0 +1,10 @@
+# Bu tunel CLI ile olusturuldu, yani ayarlari burada durur (dashboard'da degil).
+# Konteyner api'nin ag namespace'ini paylasiyor -> localhost dogrudan api'ye denk gelir.
+tunnel: 59988d1b-9d18-4afc-a6a7-710eea009e9b
+credentials-file: /etc/cloudflared/creds.json
+
+ingress:
+  - hostname: fit.evaitec.com
+    service: http://localhost:3011
+  # Eslesmeyen her istek: tunel acik diye baska bir sey servis etmeyelim.
+  - service: http_status:404
