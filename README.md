@@ -15,6 +15,20 @@ ekranından JSON olarak dışa aktarılır. Ayar ekranına bir API token girerse
 kendi sunucuna senkronlamaya başlar (token girilmeden önce yazılan kayıtlar geride kalır).
 `dev` dalına her push Pages'e yeniden dağıtır.
 
+## Android (saat verisi)
+
+APK: **https://github.com/evatechnosoft/life-os-wellness/releases/latest** — telefona kur,
+Health Connect izinlerini ver. Saatten okunanlar: **adım, aktif kalori, kilo ve saatin
+kendi algıladığı antrenmanlar**. Uygulama açıkken 15 dakikada bir okur.
+
+Plugin sınırı (`capacitor-health` type tanımlarından doğrulandı): `queryAggregated` yalnız
+`steps | active-calories | mindfulness` kabul ediyor → **toplam kalori ve nabız günlük
+okunamıyor**; **uyku ve beslenme (Nutrition) plugin kapsamında hiç yok**. Alınan kaloriyi
+Samsung Health'ten çekmek için kendi Health Connect eklentimizi yazmak gerekir.
+
+Yerel APK: `npm run apk` (JDK 21+ otomatik seçilir). CI: `v*` tag'i push edilince
+APK build edilip release'e eklenir.
+
 ## Durum
 
 F0 Sprint 1-3 bitti: şema + CRUD API, Bugün/Hafta/Ayar ekranları, offline kuyruk,
