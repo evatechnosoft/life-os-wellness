@@ -13,6 +13,7 @@
     "dev:web": "npm run dev -w @wellness/web",
     "test": "npm run test --workspaces --if-present",
     "start": "node ops/up.mjs",
+    "link": "node ops/phone_link.mjs",
     "apk": "node ops/build_apk.mjs"
   }
 }

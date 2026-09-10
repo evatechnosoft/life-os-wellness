@@ -78,8 +78,14 @@ origin'i ve Vite. `*` değil, çünkü token header'da gidiyor. Preflight auth h
 yaratılınca tünel 502 vermeye başlıyor. `docker compose --profile tunnel up -d cloudflared`
 düzeltiyor.
 
+**Telefonu bağlamak: `npm run link`.** Token elle yazılmaz. Komut `.env`'deki
+`API_TOKEN`'ı linkin içine koyup QR olarak basar; telefon okutunca uygulama token'ı
+kaydedip adres çubuğundan siler (`apps/web/src/main.tsx`). `--lan` eklersen link ayrıca
+`?api=http://<lan-ip>:3011` taşır, telefon ev ağındayken tünele çıkmaz. Link düz metin
+basılmaz (terminal çıktısı loglara düşüyor), gerçekten gerekiyorsa `--show`.
+
 ⚠️ Tarayıcıda `https://fit.evaitec.com` açmak `{"error":"unauthorized"}` verir. Bu doğru
-davranış — orası web sitesi değil API. Uygulamayı açıp Ayarlar'a token'ı gir.
+davranış — orası web sitesi değil API.
 
 Sırada: ZimaOS'a taşı (şu an ping'e yanıt vermiyor). Taşınırsa tünel origin'i orayı
 gösterecek şekilde `ops/cloudflared/config.yml` güncellenir.
@@ -107,7 +113,7 @@ gerçek alan adı değil; bu bağlantıların ömrü sınırlı.
 
 ## Sıradaki iş (öncelik sırası)
 
-1. Cihazda duman testi + pil ölçümü (telefonda Ayarlar → token gir, sonra Bugün ekranı)
+1. Cihazda duman testi + pil ölçümü (`npm run link` → QR → Bugün ekranı)
 2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın
 3. Kendi Health Connect eklentimiz: uyku + Nutrition + toplam kalori
 4. Hatırlatmalar (sabah tartı, akşam retro)
