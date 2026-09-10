@@ -26,33 +26,39 @@ APK derleniyor ve izinleri doğru (aapt2 dump), ama **hiçbir özellik gerçek t
 
 ## Eva (sohbet) nasıl kurulu
 
-Tek uç: `POST /api/chat` — resmi `@anthropic-ai/sdk`, model `claude-opus-5`, adaptive
-thinking, `effort: low`. Web araması server tool olarak açık (`web_search_20260209`,
-`max_uses: 3`); kaynak başlıkları yanıtla birlikte dönüp sohbette link olarak görünür.
-Fotoğraf aynı uca base64 gider. Yanıtın sonundaki `<kayit>{...}</kayit>` bloğu ayrıştırılıp
+Tek uç: `POST /api/chat` — OpenAI-uyumlu istemci, LiteLLM proxy'de `wellness-chat`
+alias'ı, arkasında `gemini/gemini-2.5-flash`. Anthropic SDK `f8d3fa9`'da kaldırıldı.
+Fotoğraf aynı uca base64 gider (`wellness-vision`). Yanıtın sonundaki `<kayit>{...}</kayit>` bloğu ayrıştırılıp
 "Günlüğe kaydet" düğmesine dönüşür — onaylanmadan hiçbir şey yazılmaz.
 
 Öğrenme: model eğitimi yok. Her istekte son 7 günün özeti (`buildContext`) system'e
 ekleniyor — cevaplar kullanıcının kendi sayılarına dayanıyor.
 
-## Model erişimi: LiteLLM proxy (karar verildi, key bekliyor)
+## Model erişimi: LiteLLM proxy (kuruldu, çalışıyor)
 
 Uygulama hiçbir sağlayıcıya doğrudan bağlanmaz. `apps/api/src/llm.ts` yalnız iki şey bilir:
 OpenAI-uyumlu bir base URL ve bir alias (`wellness-chat`, `wellness-vision`). Gerçek model
 ve tüm sağlayıcı key'leri `config/litellm.yaml` + litellm container'ında. Sağlayıcı
 değiştirmek = tek satır YAML, uygulamada sıfır değişiklik. RAG katmanı da oraya gelecek.
 
-**Tek eksik: `GEMINI_API_KEY`.** `.env`'e koyunca sohbet, fotoğraf okuma ve sesli notun
-anlama kısmı açılır. Anthropic key kullanılmıyor (Dean istemedi).
+`GEMINI_API_KEY` `.env`'e kondu, sohbet ve fotoğraf okuma açıldı. Anthropic key
+kullanılmıyor (Dean istemedi).
 
-Doğrulanan zincir (2026-09-10):
-- `docker compose up -d db api litellm` → üçü de ayakta
+**Key'in tek kopyası NetMovies yönetim panelinde:** `netmovies/data/admin.json` →
+`gemini_api_key`. Azure Key Vault kopyası ölü (`~/.ai/vg.env` notu). Bu dosya kaybolursa
+key kurtarılamaz, AI Studio'dan yenisi alınır.
+
+Doğrulanan zincir (2026-09-10, key sonrası):
 - `GET :3011/health` → `200 {"ok":true}`
-- `GET :4000/v1/models` → `wellness-chat`, `wellness-vision` alias'ları listeleniyor
-- `POST :3011/api/chat` → 502 (beklenen: Gemini key yok, zincir çalışıyor)
+- `GET :4000/v1/models` (Bearer proxy) → `wellness-chat`, `wellness-vision`
+- `POST :3011/api/chat` → `200 {"text":"Merhaba, ben Eva, Dean'in sağlık günlüğünde
+  sana yardımcı oluyorum.","draft":null,"sources":[]}`
+- `POST :3011/api/estimate` (2x2 düz kırmızı PNG) → `200 {"items":[],"kcal":0,
+  "confidence":"low","note":"Fotoğrafta herhangi bir yiyecek görünmüyor..."}`
 
-Sırada: key → ZimaOS'a taşı → telefon ev dışındayken erişim için Tailscale/Cloudflare
-Tunnel (bu çözülmeden Eva sadece ev ağında konuşur).
+Sırada: ZimaOS'a taşı → telefon ev dışındayken erişim için Tailscale/Cloudflare
+Tunnel (bu çözülmeden Eva sadece ev ağında konuşur). ZimaOS 2026-09-10'da ping'e
+yanıt vermiyordu, önce onu ayağa kaldır.
 
 **Web araması kayboldu.** Anthropic'in `web_search_20260209` server tool'uydu; Gemini/
 LiteLLM yolunda karşılığı yok. Sohbetteki `sources` alanı duruyor ama boş dönüyor —
@@ -71,7 +77,7 @@ proxy'ye RAG/arama eklenince oradan doldurulacak.
 ## Sıradaki iş (öncelik sırası)
 
 1. Cihazda duman testi + pil ölçümü
-2. API'yi bir yere deploy et → foto tahmini ve sesli not açılır
+2. API'yi bir yere deploy et (ZimaOS) → ev dışından erişim
 3. Kendi Health Connect eklentimiz: uyku + Nutrition + toplam kalori
 4. Hatırlatmalar (sabah tartı, akşam retro)
 5. Gözlük (evaglass) köprüsü — aşağıya bak
