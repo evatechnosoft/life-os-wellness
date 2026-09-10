@@ -5,6 +5,7 @@ import { db, type WorkoutType } from '../lib/db'
 import { useGoals } from '../lib/settings'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
 import { Card, NumberField } from './Field'
+import { Watch } from './Watch'
 
 const PULSES = [30, 35, 40]
 const TYPES: { id: WorkoutType; label: string }[] = [
@@ -50,7 +51,7 @@ export function Today({ date }: { date: string }) {
           defaultValue={retro?.[field] ?? ''}
           placeholder={['Bugün ne iyi gitti?', 'Nerede zorlandım?', 'Yarın küçük deney?'][i]}
           onBlur={(e) => void saveRetro(date, { [field]: e.target.value || null })}
-          className="mt-2 w-full rounded-lg bg-slate-900 p-3 text-sm outline-none focus:ring-2 focus:ring-sky-500"
+          className="mt-2 w-full rounded-field bg-glass-inset p-3 text-sm outline-none focus:ring-2 focus:ring-a1"
         />
       ))}
     </Card>
@@ -63,11 +64,11 @@ export function Today({ date }: { date: string }) {
       <Card title="Protein">
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-semibold tabular-nums">{protein}</span>
-          <span className="text-sm text-slate-500">/ {goals.protein_g} g</span>
+          <span className="text-sm text-ink-faint">/ {goals.protein_g} g</span>
         </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-800">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-glass-strong">
           <div
-            className="h-full bg-sky-500 transition-[width]"
+            className="h-full bg-a1 transition-[width]"
             style={{ width: `${Math.min(100, (protein / goals.protein_g) * 100)}%` }}
           />
         </div>
@@ -77,7 +78,7 @@ export function Today({ date }: { date: string }) {
               key={g}
               type="button"
               onClick={() => void addProtein(date, g)}
-              className="flex-1 rounded-xl bg-sky-600 py-3 text-sm font-medium active:bg-sky-700"
+              className="flex-1 rounded-field bg-a1/90 py-3 text-sm font-medium active:bg-a1"
             >
               +{g}
             </button>
@@ -86,7 +87,7 @@ export function Today({ date }: { date: string }) {
             type="button"
             onClick={() => void addProtein(date, -PULSES[0]!)}
             disabled={protein === 0}
-            className="rounded-xl bg-slate-800 px-4 text-sm text-slate-400 disabled:opacity-40"
+            className="rounded-field bg-glass-strong px-4 text-sm text-ink-dim disabled:opacity-40"
           >
             −
           </button>
@@ -115,7 +116,7 @@ export function Today({ date }: { date: string }) {
               key={t.id}
               type="button"
               onClick={() => setType(t.id)}
-              className={`flex-1 rounded-lg py-2 text-xs ${type === t.id ? 'bg-slate-700 text-slate-100' : 'bg-slate-900 text-slate-500'}`}
+              className={`flex-1 rounded-field py-2 text-xs ${type === t.id ? 'bg-glass-strong text-ink' : 'bg-glass-inset text-ink-faint'}`}
             >
               {t.label}
             </button>
@@ -129,7 +130,7 @@ export function Today({ date }: { date: string }) {
                 key={m}
                 type="button"
                 onClick={() => setGroups((g) => (g.includes(m) ? g.filter((x) => x !== m) : [...g, m]))}
-                className={`rounded-full px-3 py-1 text-xs ${groups.includes(m) ? 'bg-sky-600' : 'bg-slate-900 text-slate-500'}`}
+                className={`rounded-full px-3 py-1 text-xs ${groups.includes(m) ? 'bg-a1/90' : 'bg-glass-inset text-ink-faint'}`}
               >
                 {m}
               </button>
@@ -144,19 +145,19 @@ export function Today({ date }: { date: string }) {
             placeholder={type === 'resistance' ? 'set' : 'dk'}
             value={type === 'resistance' ? sets : minutes}
             onChange={(e) => (type === 'resistance' ? setSets : setMinutes)(e.target.value)}
-            className="w-24 rounded-lg bg-slate-900 px-3 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-24 rounded-field bg-glass-inset px-3 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
           />
           <button
             type="button"
             onClick={() => void submitWorkout()}
-            className="flex-1 rounded-lg bg-slate-800 py-2 text-sm active:bg-slate-700"
+            className="flex-1 rounded-field bg-glass-strong py-2 text-sm active:bg-glass-strong"
           >
             Ekle
           </button>
         </div>
 
         {workouts.length > 0 && (
-          <ul className="mt-3 space-y-1 text-xs text-slate-400">
+          <ul className="mt-3 space-y-1 text-xs text-ink-dim">
             {workouts.map((w) => (
               <li key={w.id} className="flex items-center justify-between">
                 <span>
@@ -165,7 +166,7 @@ export function Today({ date }: { date: string }) {
                   {w.duration_min ? ` · ${w.duration_min} dk` : ''}
                   {w.muscle_groups.length > 0 ? ` · ${w.muscle_groups.join(', ')}` : ''}
                 </span>
-                <button type="button" onClick={() => void deleteWorkout(w.id)} className="px-2 text-slate-600">
+                <button type="button" onClick={() => void deleteWorkout(w.id)} className="px-2 text-ink-faint">
                   sil
                 </button>
               </li>
@@ -173,6 +174,8 @@ export function Today({ date }: { date: string }) {
           </ul>
         )}
       </Card>
+
+      <Watch date={date} />
 
       {!eveningFirst && retroCard}
     </div>

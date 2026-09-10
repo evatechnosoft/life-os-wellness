@@ -1,9 +1,81 @@
 @import "tailwindcss";
 
+/*
+ * Aurora Glass — evaglass design tokens, 1:1 from
+ * D:/projects/evaglass/design/tokens/evaglass.tokens.json (themes.aurora + base).
+ * Keep this file the only place that restates them.
+ */
+@theme {
+  --color-bg: #0b0d12;
+  --color-bg-deep: #05060a;
+  --color-solid: #0d1017;
+  --color-glass: rgba(255, 255, 255, 0.06);
+  --color-glass-strong: rgba(255, 255, 255, 0.1);
+  --color-glass-inset: rgba(255, 255, 255, 0.05);
+  --color-ink: #f4f6fb;
+  --color-ink-dim: rgba(244, 246, 251, 0.62);
+  --color-ink-faint: rgba(244, 246, 251, 0.38);
+  --color-edge: rgba(255, 255, 255, 0.14);
+  --color-edge-soft: rgba(255, 255, 255, 0.07);
+  --color-a1: #2dd4bf;
+  --color-a2: #6366f1;
+  --color-a3: #ec4899;
+
+  --radius-card: 26px;
+  --radius-field: 16px;
+  --radius-pill: 100px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 :root {
   color-scheme: dark;
+  --accent-gradient: linear-gradient(92deg, #2dd4bf, #6366f1 55%, #ec4899);
+  --elev-card: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 20px 40px rgba(0, 0, 0, 0.35);
+  --elev-nav: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply text-ink antialiased;
+  background: var(--color-bg);
+}
+
+/* Aurora glow: two soft brand-coloured lights behind the content, no animation cost. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 40% at 15% 0%, rgba(45, 212, 191, 0.16), transparent 70%),
+    radial-gradient(50% 35% at 90% 12%, rgba(99, 102, 241, 0.14), transparent 70%);
+}
+
+.glass-card {
+  background: var(--color-glass);
+  border: 1px solid var(--color-edge-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elev-card);
+  backdrop-filter: blur(22px);
+}
+
+.glass-nav {
+  background: rgba(13, 16, 23, 0.72);
+  border: 1px solid var(--color-edge);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--elev-nav);
+  backdrop-filter: blur(26px);
+}
+
+.accent-text {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+input,
+textarea,
+button {
+  transition: all 200ms var(--ease-out);
 }

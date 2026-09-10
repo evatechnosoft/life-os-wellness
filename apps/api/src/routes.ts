@@ -46,6 +46,29 @@ const WORKOUT_BODY = {
   },
 } as const
 
+const WEARABLE_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['records'],
+  properties: {
+    records: {
+      type: 'array',
+      maxItems: 500,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['date', 'source', 'metric', 'value'],
+        properties: {
+          date: DATE,
+          source: { type: 'string', maxLength: 60 },
+          metric: { type: 'string', maxLength: 40 },
+          value: { type: 'number' },
+        },
+      },
+    },
+  },
+} as const
+
 const DAILY_FIELDS = [
   'weight_kg',
   'protein_g',
@@ -144,6 +167,34 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     const { rowCount } = await pool.query('delete from workout where id = $1', [id])
     if (rowCount === 0) return reply.code(404).send({ error: 'not found' })
     return reply.code(204).send()
+  })
+
+  app.get('/api/wearable', { schema: { querystring: RANGE } }, async (req) => {
+    const { start, end } = req.query as { start: string; end: string }
+    const { rows } = await pool.query(
+      'select * from wearable_sync where date between $1 and $2 order by date, metric',
+      [start, end],
+    )
+    return rows
+  })
+
+  // Batch upsert from the phone. (date, source, metric) is unique, so replaying a sync
+  // window overwrites rather than duplicating.
+  app.post('/api/wearable', { schema: { body: WEARABLE_BODY } }, async (req) => {
+    const { records } = req.body as { records: { date: string; source: string; metric: string; value: number }[] }
+    if (records.length === 0) return { written: 0 }
+    const values: unknown[] = []
+    const tuples = records.map((r, i) => {
+      values.push(r.date, r.source, r.metric, r.value)
+      const at = i * 4
+      return `($${at + 1}, $${at + 2}, $${at + 3}, $${at + 4})`
+    })
+    await pool.query(
+      `insert into wearable_sync (date, source, metric, value) values ${tuples.join(', ')}
+       on conflict (date, source, metric) do update set value = excluded.value, synced_at = now()`,
+      values,
+    )
+    return { written: records.length }
   })
 
   // Whole-database dump for the JSON export acceptance criterion.

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
+import { syncHealth } from './lib/health'
 import { hasServer, pullRange, startSyncLoop } from './lib/store'
 import { Settings } from './ui/Settings'
 import { Today } from './ui/Today'
@@ -31,10 +32,14 @@ export function App() {
     const rollover = window.setInterval(() => setDate(toLocalDate()), 60_000)
     const window7 = lastDates(7)
     if (hasServer()) void pullRange(window7[0]!, window7[window7.length - 1]!).catch(() => {})
+    // Watch data on launch and every 15 min while the app stays open.
+    void syncHealth().catch(() => {})
+    const health = window.setInterval(() => void syncHealth().catch(() => {}), 900_000)
     return () => {
       window.removeEventListener('online', update)
       window.removeEventListener('offline', update)
       window.clearInterval(rollover)
+      window.clearInterval(health)
       stop()
     }
   }, [])
@@ -42,8 +47,8 @@ export function App() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
       <header className="flex items-baseline justify-between px-4 pt-6 pb-1">
-        <h1 className="text-lg font-semibold">{date}</h1>
-        <span className={online ? 'text-xs text-slate-500' : 'text-xs text-amber-400'}>
+        <h1 className="accent-text text-2xl font-semibold tracking-tight">{date}</h1>
+        <span className={online ? 'text-xs text-ink-faint' : 'text-xs text-a3'}>
           {online ? (pending > 0 ? `${pending} kayıt senkronda` : 'çevrimiçi') : `çevrimdışı — ${pending} kayıt kuyrukta`}
         </span>
       </header>
@@ -54,17 +59,22 @@ export function App() {
         {tab === 'settings' && <Settings />}
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md border-t border-slate-800 bg-slate-950 pb-[env(safe-area-inset-bottom)]">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={`flex-1 py-4 text-sm ${tab === t.id ? 'text-slate-100' : 'text-slate-500'}`}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
+      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="glass-nav pointer-events-auto flex gap-1 p-1.5">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`rounded-pill px-5 py-2.5 text-sm ${
+                tab === t.id ? 'bg-glass-strong text-ink' : 'text-ink-faint'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </nav>
     </div>
   )

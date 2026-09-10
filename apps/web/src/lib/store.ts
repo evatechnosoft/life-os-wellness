@@ -34,6 +34,14 @@ export async function addWorkout(workout: Omit<Workout, 'id'>): Promise<void> {
   await queue({ method: 'POST', path: '/api/workouts', body: entry })
 }
 
+/** Writes a workout whose id is already known (watch-detected sessions). Idempotent end to end. */
+export async function upsertWorkout(workout: Workout): Promise<void> {
+  const existing = await db.workout.get(workout.id)
+  if (existing && JSON.stringify(existing) === JSON.stringify(workout)) return
+  await db.workout.put(workout)
+  await queue({ method: 'POST', path: '/api/workouts', body: workout })
+}
+
 export async function deleteWorkout(id: string): Promise<void> {
   await db.workout.delete(id)
   await queue({ method: 'DELETE', path: `/api/workouts/${id}` })

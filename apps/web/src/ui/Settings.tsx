@@ -33,16 +33,16 @@ export function Settings() {
   return (
     <div>
       <Card title="Sunucu">
-        <label className="block text-sm text-slate-400">API token</label>
+        <label className="block text-sm text-ink-dim">API token</label>
         <input
           type="password"
           value={token}
           onChange={(e) => setLocalToken(e.target.value)}
           onBlur={() => setToken(token)}
           placeholder=".env icindeki API_TOKEN"
-          className="mt-2 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500"
+          className="mt-2 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
         />
-        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+        <div className="mt-3 flex items-center justify-between text-xs text-ink-faint">
           <span>{pending === 0 ? 'kuyruk boş' : `${pending} kayıt gönderilmeyi bekliyor`}</span>
           <button
             type="button"
@@ -50,12 +50,12 @@ export function Settings() {
               const sent = await syncOutbox()
               setStatus(sent > 0 ? `${sent} kayıt gönderildi` : pending > 0 ? 'gönderilemedi' : 'gönderilecek kayıt yok')
             }}
-            className="rounded-lg bg-slate-800 px-3 py-2 text-slate-300"
+            className="rounded-field bg-glass-strong px-3 py-2 text-ink-dim"
           >
             Şimdi senkronla
           </button>
         </div>
-        {status && <p className="mt-2 text-xs text-slate-500">{status}</p>}
+        {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
       </Card>
 
       <Card title="Hedefler">
@@ -65,7 +65,7 @@ export function Settings() {
       </Card>
 
       <Card title="Veri">
-        <button type="button" onClick={() => void exportJson()} className="w-full rounded-lg bg-slate-800 py-3 text-sm active:bg-slate-700">
+        <button type="button" onClick={() => void exportJson()} className="w-full rounded-field bg-glass-strong py-3 text-sm active:bg-glass-strong">
           JSON olarak dışa aktar
         </button>
       </Card>

@@ -10,3 +10,14 @@ dev-dist/
 .turbo/
 __pycache__/
 *.pyc
+android/local.properties
+apps/web/android/local.properties
+apps/web/android/.gradle/
+apps/web/android/app/build/
+apps/web/android/build/
+apps/web/android/local.properties
+apps/web/android/.gradle/
+apps/web/android/build/
+apps/web/android/app/build/
+apps/web/android/app/src/main/assets/public/
+apps/web/android/capacitor-cordova-android-plugins/

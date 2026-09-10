@@ -20,6 +20,7 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     await pool.query("delete from daily_log where date between '2099-01-01' and '2099-12-31'")
     await pool.query("delete from workout where date between '2099-01-01' and '2099-12-31'")
     await pool.query("delete from retro where date between '2099-01-01' and '2099-12-31'")
+    await pool.query("delete from wearable_sync where date between '2099-01-01' and '2099-12-31'")
   })
 
   after(async () => { await app.close() })
@@ -115,6 +116,27 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     const res = await app.inject({ method: 'PUT', url: '/api/retro/2099-01-01', headers: auth, payload: { experiment: 'earlier dinner' } })
     assert.equal(res.json().went_well, 'walked')
     assert.equal(res.json().experiment, 'earlier dinner')
+  })
+
+  test('wearable batch upsert replaces on replay instead of duplicating', async () => {
+    const record = { date: '2099-01-06', source: 'health_connect', metric: 'steps', value: 8000 }
+    const first = await app.inject({ method: 'POST', url: '/api/wearable', headers: auth, payload: { records: [record] } })
+    assert.equal(first.json().written, 1)
+    await app.inject({
+      method: 'POST', url: '/api/wearable', headers: auth,
+      payload: { records: [{ ...record, value: 12000 }] },
+    })
+    const list = await app.inject({ method: 'GET', url: '/api/wearable?start=2099-01-06&end=2099-01-06', headers: auth })
+    assert.equal(list.json().length, 1)
+    assert.equal(Number(list.json()[0].value), 12000)
+  })
+
+  test('rejects a wearable record with a bad date', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/wearable', headers: auth,
+      payload: { records: [{ date: 'yesterday', source: 's', metric: 'steps', value: 1 }] },
+    })
+    assert.equal(res.statusCode, 400)
   })
 
   test('export returns every table', async () => {

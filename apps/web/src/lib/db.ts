@@ -40,6 +40,17 @@ export interface OutboxEntry {
   queued_at: string
 }
 
+/** One aggregated value per day+metric, read from the watch via Health Connect. */
+export interface WearableRecord {
+  /** `${date}:${metric}` - one row per day and metric, so a re-sync overwrites. */
+  id: string
+  date: string
+  metric: string
+  value: number
+  source: string
+  synced_at: string
+}
+
 export interface Settings {
   key: string
   value: unknown
@@ -52,6 +63,7 @@ export const db = new Dexie('wellness') as Dexie & {
   retro: EntityTable<Retro, 'date'>
   outbox: EntityTable<OutboxEntry, 'id'>
   settings: EntityTable<Settings, 'key'>
+  wearable: EntityTable<WearableRecord, 'id'>
 }
 
 db.version(1).stores({
@@ -60,4 +72,9 @@ db.version(1).stores({
   retro: 'date',
   outbox: '++id, queued_at',
   settings: 'key',
+})
+
+// Watch data lives apart from the manual daily_log on purpose (SPEC 3).
+db.version(2).stores({
+  wearable: 'id, date, metric',
 })

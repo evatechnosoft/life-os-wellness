@@ -8,7 +8,7 @@ import { Card } from './Field'
 
 function Sparkline({ points }: { points: (number | null)[] }) {
   const known = points.filter((p): p is number => p != null)
-  if (known.length < 2) return <p className="py-6 text-center text-xs text-slate-600">Grafik için en az 2 tartı gerekli.</p>
+  if (known.length < 2) return <p className="py-6 text-center text-xs text-ink-faint">Grafik için en az 2 tartı gerekli.</p>
 
   const min = Math.min(...known)
   const max = Math.max(...known)
@@ -24,8 +24,8 @@ function Sparkline({ points }: { points: (number | null)[] }) {
 
   return (
     <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="mt-2 h-20 w-full">
-      <path d={path} fill="none" stroke="#38bdf8" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-      {points.map((p, i) => p != null && <circle key={i} cx={x(i)} cy={y(p)} r="0.9" fill="#64748b" />)}
+      <path d={path} fill="none" stroke="#2dd4bf" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+      {points.map((p, i) => p != null && <circle key={i} cx={x(i)} cy={y(p)} r="0.9" fill="rgba(244,246,251,0.38)" />)}
     </svg>
   )
 }
@@ -53,9 +53,9 @@ export function Week() {
       <Card title="Kilo — 7 gün ortalaması">
         <div className="flex items-baseline gap-3">
           <span className="text-3xl font-semibold tabular-nums">{avg == null ? '—' : avg.toFixed(1)}</span>
-          <span className="text-sm text-slate-500">kg</span>
+          <span className="text-sm text-ink-faint">kg</span>
           {delta != null && (
-            <span className={`ml-auto text-sm tabular-nums ${delta <= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            <span className={`ml-auto text-sm tabular-nums ${delta <= 0 ? 'text-a1' : 'text-a3'}`}>
               {delta > 0 ? '+' : ''}{delta} kg
             </span>
           )}
@@ -67,39 +67,39 @@ export function Week() {
         <div className="grid grid-cols-3 gap-3 text-center">
           <div>
             <div className="text-2xl font-semibold tabular-nums">{adherencePct(logs, dates, goals.protein_g)}%</div>
-            <div className="text-xs text-slate-500">protein</div>
+            <div className="text-xs text-ink-faint">protein</div>
           </div>
           <div>
             <div className="text-2xl font-semibold tabular-nums">{streak(logged, dates)}</div>
-            <div className="text-xs text-slate-500">gün seri</div>
+            <div className="text-xs text-ink-faint">gün seri</div>
           </div>
           <div>
             <div className="text-2xl font-semibold tabular-nums">{workoutDays}</div>
-            <div className="text-xs text-slate-500">antrenman</div>
+            <div className="text-xs text-ink-faint">antrenman</div>
           </div>
         </div>
       </Card>
 
       <Card title="Haftalık set — kas grubu">
         {Object.keys(sets).length === 0 ? (
-          <p className="py-2 text-xs text-slate-600">Bu hafta direnç antrenmanı kaydı yok.</p>
+          <p className="py-2 text-xs text-ink-faint">Bu hafta direnç antrenmanı kaydı yok.</p>
         ) : (
           <ul className="space-y-2">
             {Object.entries(sets).sort((a, b) => b[1] - a[1]).map(([group, total]) => (
               <li key={group} className="flex items-center gap-3 text-sm">
-                <span className="w-16 text-slate-400">{group}</span>
-                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-800">
+                <span className="w-16 text-ink-dim">{group}</span>
+                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-glass-strong">
                   <span
-                    className={`block h-full ${total >= 8 && total <= 12 ? 'bg-emerald-500' : 'bg-slate-600'}`}
+                    className={`block h-full ${total >= 8 && total <= 12 ? 'bg-a1' : 'bg-ink-faint'}`}
                     style={{ width: `${Math.min(100, (total / 12) * 100)}%` }}
                   />
                 </span>
-                <span className="w-8 text-right tabular-nums text-slate-400">{total}</span>
+                <span className="w-8 text-right tabular-nums text-ink-dim">{total}</span>
               </li>
             ))}
           </ul>
         )}
-        <p className="mt-3 text-xs text-slate-600">Hedef: grup başına {goals.sets_per_group} set (8-12 aralığı yeşil).</p>
+        <p className="mt-3 text-xs text-ink-faint">Hedef: grup başına {goals.sets_per_group} set (8-12 aralığı yeşil).</p>
       </Card>
 
       <Card title="Toplam adım">
