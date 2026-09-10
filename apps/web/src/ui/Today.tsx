@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { db, type WorkoutType } from '../lib/db'
 import { useGoals } from '../lib/settings'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
+import { Assistant } from './Assistant'
 import { Card, NumberField } from './Field'
 import { Meals } from './Meals'
 import { Sleep } from './Sleep'
@@ -61,6 +62,8 @@ export function Today({ date }: { date: string }) {
 
   return (
     <div>
+      <Assistant date={date} />
+
       {eveningFirst && retroCard}
 
       <Card title="Protein">

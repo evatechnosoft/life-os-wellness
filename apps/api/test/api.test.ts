@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
+import { parseNote } from '../src/note.ts'
 import { buildServer } from '../src/server.ts'
 
 const TOKEN = 'test-token'
@@ -156,6 +157,11 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(res.statusCode, 400)
   })
 
+  test('spoken note endpoint is disabled without an API key', async () => {
+    const res = await app.inject({ method: 'POST', url: '/api/note', headers: auth, payload: { text: 'bugun 82 kilo' } })
+    assert.equal(res.statusCode, 503)
+  })
+
   test('export returns every table', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/export', headers: auth })
     const body = res.json()
@@ -188,5 +194,25 @@ describe('parseEstimate', () => {
 
   test('rejects text with no object at all', () => {
     assert.equal(parseEstimate('bilmiyorum'), null)
+  })
+})
+
+describe('parseNote', () => {
+  test('keeps the fields the sentence actually mentioned', () => {
+    const value = parseNote('{"weight_kg":82.4,"protein_g":null,"summary":"Sabah 82.4 kg."}')
+    assert.equal((value as { weight_kg: number }).weight_kg, 82.4)
+    assert.equal((value as { protein_g: null }).protein_g, null)
+  })
+
+  test('rejects a reply without a summary', () => {
+    assert.equal(parseNote('{"weight_kg":82.4}'), null)
+  })
+
+  test('rejects a non-numeric measurement', () => {
+    assert.equal(parseNote('{"weight_kg":"seksen iki","summary":"..."}'), null)
+  })
+
+  test('rejects unparseable text', () => {
+    assert.equal(parseNote('anlamadim'), null)
   })
 })
