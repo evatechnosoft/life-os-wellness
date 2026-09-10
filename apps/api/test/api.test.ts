@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { after, before, describe, test } from 'node:test'
 
+import { parseEstimate } from '../src/estimate.ts'
 import { buildServer } from '../src/server.ts'
 
 const TOKEN = 'test-token'
@@ -139,6 +140,22 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(res.statusCode, 400)
   })
 
+  test('estimate is disabled without an API key', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/estimate', headers: auth,
+      payload: { image: { media_type: 'image/jpeg', data: 'AAAA' } },
+    })
+    assert.equal(res.statusCode, 503)
+  })
+
+  test('estimate rejects an unsupported image type', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/estimate', headers: auth,
+      payload: { image: { media_type: 'image/gif', data: 'AAAA' } },
+    })
+    assert.equal(res.statusCode, 400)
+  })
+
   test('export returns every table', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/export', headers: auth })
     const body = res.json()
@@ -146,5 +163,30 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.ok(Array.isArray(body.workout))
     assert.ok(Array.isArray(body.retro))
     assert.ok(Array.isArray(body.wearable_sync))
+  })
+})
+
+describe('parseEstimate', () => {
+  test('reads a clean JSON reply', () => {
+    const value = parseEstimate('{"items":["tavuk"],"protein_g":42,"kcal":510,"confidence":"medium"}')
+    assert.deepEqual(value, { items: ['tavuk'], protein_g: 42, kcal: 510, confidence: 'medium' })
+  })
+
+  test('tolerates fences and prose around the object', () => {
+    const reply = ['Iste tahmin:', '```json', '{"items":[],"protein_g":0,"kcal":0,"confidence":"low"}', '```'].join(String.fromCharCode(10))
+    const value = parseEstimate(reply)
+    assert.equal((value as { kcal: number }).kcal, 0)
+  })
+
+  test('rejects a reply missing the numbers', () => {
+    assert.equal(parseEstimate('{"items":["tavuk"],"confidence":"high"}'), null)
+  })
+
+  test('rejects a bad confidence value', () => {
+    assert.equal(parseEstimate('{"items":[],"protein_g":1,"kcal":1,"confidence":"belki"}'), null)
+  })
+
+  test('rejects text with no object at all', () => {
+    assert.equal(parseEstimate('bilmiyorum'), null)
   })
 })

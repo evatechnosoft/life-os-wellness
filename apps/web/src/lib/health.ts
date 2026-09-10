@@ -169,4 +169,6 @@ export async function syncHealth(days = 7): Promise<number> {
     }
   }
   return records.length
+  // Note: this source writes many days at once, so it batches directly rather than
+  // going through recordMetrics (which covers the single-day sources).
 }

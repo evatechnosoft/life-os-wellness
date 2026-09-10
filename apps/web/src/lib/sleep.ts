@@ -1,9 +1,7 @@
 import { registerPlugin } from '@capacitor/core'
 
-import { api } from './api'
 import { toLocalDate } from './date'
-import { db, type WearableRecord } from './db'
-import { hasServer } from './store'
+import { recordMetrics } from './store'
 
 export interface SleepSummary {
   monitoredMin: number
@@ -57,34 +55,11 @@ export async function stopSleep(): Promise<SleepSummary | null> {
 }
 
 export async function storeSummary(summary: SleepSummary, date = toLocalDate()): Promise<void> {
-  const synced_at = new Date().toISOString()
-  const metrics: Record<string, number> = {
+  await recordMetrics(SOURCE_PHONE, date, {
     sleep_monitored_min: summary.monitoredMin,
     snore_min: summary.snoreMin,
     snore_episodes: summary.snoreEpisodes,
     snore_window_pct: summary.snoreWindowPct,
     longest_pause_sec: summary.longestPauseSec,
-  }
-  const records: WearableRecord[] = Object.entries(metrics).map(([metric, value]) => ({
-    id: `${date}:${metric}`,
-    date,
-    metric,
-    value,
-    source: SOURCE_PHONE,
-    synced_at,
-  }))
-  await db.wearable.bulkPut(records)
-
-  if (hasServer()) {
-    try {
-      await api('/api/wearable', {
-        method: 'POST',
-        body: JSON.stringify({
-          records: records.map(({ date: d, source, metric, value }) => ({ date: d, source, metric, value })),
-        }),
-      })
-    } catch {
-      // Offline: the local copy stands until the next sync.
-    }
-  }
+  })
 }

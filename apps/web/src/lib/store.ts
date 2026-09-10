@@ -1,5 +1,5 @@
 import { api, ApiError, getToken } from './api'
-import { db, type DailyLog, type OutboxEntry, type Retro, type Workout } from './db'
+import { db, type DailyLog, type OutboxEntry, type Retro, type WearableRecord, type Workout } from './db'
 
 const now = () => new Date().toISOString()
 
@@ -97,6 +97,38 @@ export async function pullRange(start: string, end: string): Promise<void> {
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
   })
+}
+
+/**
+ * Single path for every sensor source (watch, phone mic, camera): write the day's
+ * metrics locally, then forward them if a server is configured. Keyed by date+metric,
+ * so re-reading a source refreshes its numbers instead of stacking duplicates.
+ */
+export async function recordMetrics(
+  source: string,
+  date: string,
+  metrics: Record<string, number>,
+): Promise<WearableRecord[]> {
+  const synced_at = new Date().toISOString()
+  const records: WearableRecord[] = Object.entries(metrics)
+    .filter(([, value]) => Number.isFinite(value))
+    .map(([metric, value]) => ({ id: `${date}:${metric}`, date, metric, value, source, synced_at }))
+  if (records.length === 0) return []
+
+  await db.wearable.bulkPut(records)
+  if (hasServer()) {
+    try {
+      await api('/api/wearable', {
+        method: 'POST',
+        body: JSON.stringify({
+          records: records.map(({ date: d, source: s, metric, value }) => ({ date: d, source: s, metric, value })),
+        }),
+      })
+    } catch {
+      // Offline: the local copy stands until the next sync.
+    }
+  }
+  return records
 }
 
 export function startSyncLoop(): () => void {

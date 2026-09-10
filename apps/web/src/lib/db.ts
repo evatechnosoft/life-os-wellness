@@ -51,6 +51,20 @@ export interface WearableRecord {
   synced_at: string
 }
 
+/** One logged meal. The photo stays on the device; only the numbers ever sync. */
+export interface Meal {
+  id: string
+  date: string
+  /** Local time HH:MM, for ordering within the day. */
+  time: string
+  protein_g: number | null
+  kcal: number | null
+  note: string | null
+  photo?: Blob
+  /** Set when the numbers came from a photo estimate the user accepted. */
+  estimated: boolean
+}
+
 export interface Settings {
   key: string
   value: unknown
@@ -64,6 +78,7 @@ export const db = new Dexie('wellness') as Dexie & {
   outbox: EntityTable<OutboxEntry, 'id'>
   settings: EntityTable<Settings, 'key'>
   wearable: EntityTable<WearableRecord, 'id'>
+  meal: EntityTable<Meal, 'id'>
 }
 
 db.version(1).stores({
@@ -77,4 +92,8 @@ db.version(1).stores({
 // Watch data lives apart from the manual daily_log on purpose (SPEC 3).
 db.version(2).stores({
   wearable: 'id, date, metric',
+})
+
+db.version(3).stores({
+  meal: 'id, date',
 })

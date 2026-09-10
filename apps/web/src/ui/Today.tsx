@@ -5,6 +5,7 @@ import { db, type WorkoutType } from '../lib/db'
 import { useGoals } from '../lib/settings'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
 import { Card, NumberField } from './Field'
+import { Meals } from './Meals'
 import { Sleep } from './Sleep'
 import { Watch } from './Watch'
 
@@ -94,6 +95,8 @@ export function Today({ date }: { date: string }) {
           </button>
         </div>
       </Card>
+
+      <Meals date={date} />
 
       <Card title="Ölçüm">
         <NumberField

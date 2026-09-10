@@ -3,6 +3,7 @@ import { buildServer, requiredEnv } from './server.ts'
 const { app } = buildServer({
   databaseUrl: requiredEnv('DATABASE_URL'),
   apiToken: requiredEnv('API_TOKEN'),
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   logger: true,
 })
 
