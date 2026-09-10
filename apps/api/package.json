@@ -9,8 +9,8 @@
     "test": "node --env-file-if-exists=../../.env --test test/*.test.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.124.0",
     "fastify": "^5.2.0",
+    "openai": "^7.13.0",
     "pg": "^8.13.1"
   },
   "devDependencies": {

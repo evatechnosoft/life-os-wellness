@@ -35,12 +35,28 @@ Fotoğraf aynı uca base64 gider. Yanıtın sonundaki `<kayit>{...}</kayit>` blo
 Öğrenme: model eğitimi yok. Her istekte son 7 günün özeti (`buildContext`) system'e
 ekleniyor — cevaplar kullanıcının kendi sayılarına dayanıyor.
 
-## Sunucu henüz hiçbir yerde çalışmıyor
+## Model erişimi: LiteLLM proxy (karar verildi, key bekliyor)
 
-`/api/chat` (sohbet + web arama + foto) ve `/api/estimate` (öğün kartındaki hızlı tahmin)
-Claude API kullanıyor; `ANTHROPIC_API_KEY` yoksa 503 döner ve uygulama elle girişe
-düşer. Yani **bu iki özellik ancak API bir yere deploy edilince açılır** (ACA veya
-ZimaOS). Pages sürümü sunucusuz: veriler telefonda, yedek JSON export.
+Uygulama hiçbir sağlayıcıya doğrudan bağlanmaz. `apps/api/src/llm.ts` yalnız iki şey bilir:
+OpenAI-uyumlu bir base URL ve bir alias (`wellness-chat`, `wellness-vision`). Gerçek model
+ve tüm sağlayıcı key'leri `config/litellm.yaml` + litellm container'ında. Sağlayıcı
+değiştirmek = tek satır YAML, uygulamada sıfır değişiklik. RAG katmanı da oraya gelecek.
+
+**Tek eksik: `GEMINI_API_KEY`.** `.env`'e koyunca sohbet, fotoğraf okuma ve sesli notun
+anlama kısmı açılır. Anthropic key kullanılmıyor (Dean istemedi).
+
+Doğrulanan zincir (2026-09-10):
+- `docker compose up -d db api litellm` → üçü de ayakta
+- `GET :3011/health` → `200 {"ok":true}`
+- `GET :4000/v1/models` → `wellness-chat`, `wellness-vision` alias'ları listeleniyor
+- `POST :3011/api/chat` → 502 (beklenen: Gemini key yok, zincir çalışıyor)
+
+Sırada: key → ZimaOS'a taşı → telefon ev dışındayken erişim için Tailscale/Cloudflare
+Tunnel (bu çözülmeden Eva sadece ev ağında konuşur).
+
+**Web araması kayboldu.** Anthropic'in `web_search_20260209` server tool'uydu; Gemini/
+LiteLLM yolunda karşılığı yok. Sohbetteki `sources` alanı duruyor ama boş dönüyor —
+proxy'ye RAG/arama eklenince oradan doldurulacak.
 
 ## Bilinen sınırlar (kanıtlı)
 

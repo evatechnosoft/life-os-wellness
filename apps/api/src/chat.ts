@@ -1,5 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
 import type { FastifyInstance } from 'fastify'
+import OpenAI from 'openai'
+
+import { complete, type ChatTurn, type Llm } from './llm.ts'
 
 const DATE = { type: 'string', pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' } as const
 
@@ -44,7 +46,7 @@ Nasıl konuşursun:
 - Kısa, insan gibi, gereksiz nezaket kalıbı yok. Emoji yok, madde işareti şart değil.
 - Bildiğini bilirsin, bilmediğini söylersin. Tıbbi tanı koymazsın; işaret görürsen hekime yönlendirirsin.
 - Kullanıcının kendi geçmişi elindeyse ona dayan ("son 7 günde ortalaman ..."), genel tavsiye ikinci sırada.
-- Bir besinin değerini bilmiyorsan web araması yap; kaynağı kısaca söyle.
+- Bir besinin değerini bilmiyorsan tahmin ettiğini söyle; uydurma kesinlik verme.
 
 Her yanıtta, kaydedilebilir bir veri geçtiyse yanıtın SONUNA tek satır JSON ekle:
 <kayit>{"weight_kg":null,"protein_g":null,"kcal":null,"steps":null,"bp_systolic":null,"bp_diastolic":null,"workout":null,"meal_note":null,"summary":"..."}</kayit>
@@ -82,60 +84,35 @@ export function splitReply(raw: string): { text: string; draft: Record<string, u
  * the web for a food value, and proposing an entry. Nothing is written here - the phone
  * shows the draft and the user confirms it.
  */
-export function registerChat(app: FastifyInstance, apiKey: string | undefined): void {
-  const client = apiKey ? new Anthropic({ apiKey }) : null
-
+export function registerChat(app: FastifyInstance, llm: Llm | null): void {
   app.post('/api/chat', { schema: { body: CHAT_BODY } }, async (req, reply) => {
-    if (!client) return reply.code(503).send({ error: 'ANTHROPIC_API_KEY tanimli degil' })
+    if (!llm) return reply.code(503).send({ error: 'LLM_BASE_URL tanimli degil (LiteLLM proxy kapali)' })
     const { messages, context, image } = req.body as {
       messages: { role: 'user' | 'assistant'; content: string }[]
       context?: string
-      image?: { media_type: 'image/jpeg' | 'image/png' | 'image/webp'; data: string }
+      image?: { media_type: string; data: string }
     }
 
-    const history: Anthropic.MessageParam[] = messages.map((m) => ({ role: m.role, content: m.content }))
-    const last = history[history.length - 1]
-    if (image && last && last.role === 'user') {
-      last.content = [
-        { type: 'image', source: { type: 'base64', media_type: image.media_type, data: image.data } },
-        { type: 'text', text: typeof last.content === 'string' ? last.content : 'Bu ne kadar protein/kalori?' },
-      ]
-    }
-
-    const system: Anthropic.TextBlockParam[] = [{ type: 'text', text: SYSTEM }]
-    if (context) system.push({ type: 'text', text: `Kullanıcının son günleri:\n${context}` })
+    const turns: ChatTurn[] = [{ role: 'system', content: SYSTEM }]
+    if (context) turns.push({ role: 'system', content: `Kullanıcının son günleri:
+${context}` })
+    turns.push(...messages)
 
     try {
-      const response = await client.messages.create({
-        model: 'claude-opus-5',
-        max_tokens: 2000,
-        thinking: { type: 'adaptive' },
-        output_config: { effort: 'low' },
-        system,
-        tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 3 }],
-        messages: history,
+      const raw = await complete(llm, turns, {
+        model: image ? llm.config.visionModel : llm.config.chatModel,
+        image,
+        maxTokens: 1500,
       })
-
-      let raw = ''
-      const sources: { title: string; url: string }[] = []
-      for (const block of response.content) {
-        if (block.type === 'text') raw += block.text
-        // Server tools fail with a 200 and an error object, never an exception.
-        if (block.type === 'web_search_tool_result' && Array.isArray(block.content)) {
-          for (const result of block.content) {
-            if (result.type === 'web_search_result') sources.push({ title: result.title, url: result.url })
-          }
-        }
-      }
-
       const { text, draft } = splitReply(raw)
-      const body: ChatReply = { text, draft, sources: sources.slice(0, 4) }
+      // Sources stay empty until the proxy's RAG/search layer starts returning them.
+      const body: ChatReply = { text, draft, sources: [] }
       return body
     } catch (err) {
-      if (err instanceof Anthropic.RateLimitError) {
+      if (err instanceof OpenAI.RateLimitError) {
         return reply.code(429).send({ error: 'Model şu an meşgul, birazdan tekrar dene' })
       }
-      if (err instanceof Anthropic.APIError) {
+      if (err instanceof OpenAI.APIError) {
         req.log.warn({ status: err.status, message: err.message }, 'chat upstream failed')
         return reply.code(502).send({ error: 'Yanıt alınamadı' })
       }

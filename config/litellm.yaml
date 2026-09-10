@@ -1,0 +1,27 @@
+# LiteLLM proxy: the only place provider keys live. The app asks for an alias,
+# never for a vendor model name, so swapping Gemini for something else is a one-line
+# change here and no change in apps/api.
+model_list:
+  - model_name: wellness-chat
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: wellness-vision
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  # Spare slot: point it at OpenAI (or anything else) when you want a second opinion.
+  # - model_name: wellness-alt
+  #   litellm_params:
+  #     model: gpt-4o-mini
+  #     api_key: os.environ/OPENAI_API_KEY
+
+litellm_settings:
+  drop_params: true          # ignore OpenAI-only params Gemini does not take
+  request_timeout: 120
+  num_retries: 1
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

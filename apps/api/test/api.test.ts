@@ -141,7 +141,7 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(res.statusCode, 400)
   })
 
-  test('estimate is disabled without an API key', async () => {
+  test('estimate is disabled without the LLM proxy', async () => {
     const res = await app.inject({
       method: 'POST', url: '/api/estimate', headers: auth,
       payload: { image: { media_type: 'image/jpeg', data: 'AAAA' } },
@@ -157,7 +157,7 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(res.statusCode, 400)
   })
 
-  test('chat endpoint is disabled without an API key', async () => {
+  test('chat endpoint is disabled without the LLM proxy', async () => {
     const res = await app.inject({
       method: 'POST', url: '/api/chat', headers: auth,
       payload: { messages: [{ role: 'user', content: 'bugun 82 kilo' }] },

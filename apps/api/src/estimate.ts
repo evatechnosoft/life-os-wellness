@@ -1,5 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
 import type { FastifyInstance } from 'fastify'
+import OpenAI from 'openai'
+
+import { complete, type Llm } from './llm.ts'
 
 const IMAGE_BODY = {
   type: 'object',
@@ -46,31 +48,17 @@ const ESTIMATE_SCHEMA = {
  * ANTHROPIC_API_KEY the route answers 503 and the app falls back to manual entry.
  * The estimate is advice - the phone shows it for confirmation, never stores it silently.
  */
-export function registerEstimate(app: FastifyInstance, apiKey: string | undefined): void {
-  const client = apiKey ? new Anthropic({ apiKey }) : null
-
+export function registerEstimate(app: FastifyInstance, llm: Llm | null): void {
   app.post('/api/estimate', { schema: { body: IMAGE_BODY } }, async (req, reply) => {
-    if (!client) return reply.code(503).send({ error: 'ANTHROPIC_API_KEY tanimli degil' })
-    const { image } = req.body as { image: { media_type: 'image/jpeg' | 'image/png' | 'image/webp'; data: string } }
+    if (!llm) return reply.code(503).send({ error: 'LLM_BASE_URL tanimli degil (LiteLLM proxy kapali)' })
+    const { image } = req.body as { image: { media_type: string; data: string } }
 
     try {
-      const response = await client.messages.create({
-        model: 'claude-opus-5',
-        max_tokens: 1000,
-        thinking: { type: 'adaptive' },
-        output_config: { effort: 'low' },
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: image.media_type, data: image.data } },
-              { type: 'text', text: PROMPT },
-            ],
-          },
-        ],
-      })
-
-      const text = response.content.filter((b) => b.type === 'text').map((b) => b.text).join('')
+      const text = await complete(
+        llm,
+        [{ role: 'user', content: PROMPT }],
+        { model: llm.config.visionModel, image, maxTokens: 800 },
+      )
       const parsed = parseEstimate(text)
       if (!parsed) {
         req.log.warn({ text: text.slice(0, 300) }, 'estimate not parseable')
@@ -78,7 +66,7 @@ export function registerEstimate(app: FastifyInstance, apiKey: string | undefine
       }
       return parsed
     } catch (err) {
-      if (err instanceof Anthropic.APIError) {
+      if (err instanceof OpenAI.APIError) {
         req.log.warn({ status: err.status, message: err.message }, 'estimate upstream failed')
         return reply.code(502).send({ error: 'Tahmin servisi yanit vermedi' })
       }

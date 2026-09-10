@@ -2,14 +2,15 @@ import Fastify, { type FastifyInstance } from 'fastify'
 
 import { createPool, type Pool } from './db.ts'
 import { registerEstimate } from './estimate.ts'
+import { createLlm, type Llm } from './llm.ts'
 import { registerChat } from './chat.ts'
 import { registerRoutes } from './routes.ts'
 
 export interface BuildOptions {
   databaseUrl: string
   apiToken: string
-  /** Optional: enables POST /api/estimate (meal photo -> protein/kcal guess). */
-  anthropicApiKey?: string
+  /** Optional: LiteLLM proxy. Without it the model-backed routes answer 503. */
+  llm?: Llm | null
   logger?: boolean
 }
 
@@ -28,8 +29,9 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
   })
 
   registerRoutes(app, pool)
-  registerEstimate(app, opts.anthropicApiKey)
-  registerChat(app, opts.anthropicApiKey)
+  const llm = opts.llm ?? null
+  registerEstimate(app, llm)
+  registerChat(app, llm)
   app.addHook('onClose', async () => { await pool.end() })
   return { app, pool }
 }
