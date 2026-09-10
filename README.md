@@ -16,8 +16,8 @@ cp .env.example .env          # API_TOKEN'i degistir
 npm install
 npm run db:up                 # postgres:16 -> localhost:5433
 npm run db:migrate
-npm run dev:api               # http://localhost:3001
-npm run dev:web               # http://localhost:5174 (/api -> 3001 proxy)
+npm run dev:api               # http://localhost:3011
+npm run dev:web               # http://localhost:5174 (/api -> 3011 proxy)
 npm test                      # api entegrasyon + web birim testleri
 ```
 
