@@ -5,6 +5,7 @@ import { db, type WorkoutType } from '../lib/db'
 import { useGoals } from '../lib/settings'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
 import { Card, NumberField } from './Field'
+import { Sleep } from './Sleep'
 import { Watch } from './Watch'
 
 const PULSES = [30, 35, 40]
@@ -176,6 +177,8 @@ export function Today({ date }: { date: string }) {
       </Card>
 
       <Watch date={date} />
+
+      <Sleep date={date} />
 
       {!eveningFirst && retroCard}
     </div>

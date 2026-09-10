@@ -26,6 +26,8 @@ jobs:
       - run: npm run build -w @wellness/web
       - run: npx cap sync android
         working-directory: apps/web
+      - run: ./gradlew testDebugUnitTest
+        working-directory: apps/web/android
       - run: ./gradlew assembleDebug
         working-directory: apps/web/android
       - uses: actions/upload-artifact@v4

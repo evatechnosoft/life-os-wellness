@@ -26,6 +26,18 @@ Plugin sınırı (`capacitor-health` type tanımlarından doğrulandı): `queryA
 okunamıyor**; **uyku ve beslenme (Nutrition) plugin kapsamında hiç yok**. Alınan kaloriyi
 Samsung Health'ten çekmek için kendi Health Connect eklentimizi yazmak gerekir.
 
+### Gece ölçümü (saat yokken)
+
+Saat takmadığın gecelerde telefon başucuna konur, "Gece ölçümünü başlat" denir. Mikrofon
+**30 saniyede bir 4 saniye** dinler (duty cycle), pencereyi anında işler ve mikrofonu kapatır.
+**Ses ne diske yazılır ne de bir yere gönderilir** — geriye yalnız sayılar kalır: izlenen süre,
+tahmini horlama dakikası, horlama epizodu, horlamadan sonraki en uzun sessizlik.
+
+Ölçülemeyenler, açıkça: **nefes hızı ölçülmüyor** — mikrofonla güvenilir şekilde çıkarılamaz.
+Horlama sonrası uzun duraklama bir *işaret* olarak gösterilir, **tanı değildir**.
+Süreler duty cycle'dan ölçeklenmiş **tahmindir** (`estimated: true`), tam ölçüm değil.
+Pil tüketimi cihazda ölçülmedi — **doğrulanmadı**; ilk gecede sabah pil yüzdesine bak.
+
 Yerel APK: `npm run apk` (JDK 21+ otomatik seçilir). CI: `v*` tag'i push edilince
 APK build edilip release'e eklenir.
 
