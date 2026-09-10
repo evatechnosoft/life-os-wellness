@@ -52,7 +52,11 @@ Nasıl konuşursun:
 Her yanıtta, kaydedilebilir bir veri geçtiyse yanıtın SONUNA tek satır JSON ekle:
 <kayit>{"weight_kg":null,"protein_g":null,"kcal":null,"steps":null,"bp_systolic":null,"bp_diastolic":null,"workout":null,"meal_note":null,"summary":"..."}</kayit>
 Kaydedilecek bir şey yoksa <kayit> satırını hiç yazma. Uydurma; yalnız kullanıcının söylediğini ya da fotoğraftan makul çıkanı doldur.
-workout alanı: {"type":"resistance"|"cardio"|"walk"|"rest","duration_min":sayı|null,"sets_total":sayı|null,"muscle_groups":["göğüs","sırt","bacak","omuz","kol","karın" içinden]}`
+workout alanı: {"type":"resistance"|"cardio"|"walk"|"rest","duration_min":sayı|null,"sets_total":sayı|null,"muscle_groups":["göğüs","sırt","bacak","omuz","kol","karın" içinden]}
+
+Antrenmanda set sayısı geçip bölge geçmediyse <kayit> YAZMA; önce hangi bölge olduğunu sor.
+Bölge belliyse muscle_groups'u doldur, boş dizi bırakma. Kullanıcı bölgeyi bir sonraki
+mesajda söylerse önceki setleri onunla birleştirip tek kayıt öner.`
 
 export interface ChatReply {
   text: string

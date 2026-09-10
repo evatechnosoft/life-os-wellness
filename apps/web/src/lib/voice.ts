@@ -59,12 +59,18 @@ export interface Understood {
   draft: NoteDraft | null
 }
 
-export async function understand(text: string): Promise<Understood | null> {
+export interface Turn {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+/** The whole exchange goes up, not just the last sentence, so a follow-up ("8500") lands. */
+export async function understand(turns: Turn[]): Promise<Understood | null> {
   if (!hasServer()) return null
   try {
     const reply = await api<{ text: string; draft: NoteDraft | null }>('/api/chat', {
       method: 'POST',
-      body: JSON.stringify({ messages: [{ role: 'user', content: text }] }),
+      body: JSON.stringify({ messages: turns.slice(-12) }),
     })
     const draft = reply.draft ? { ...reply.draft, summary: reply.draft.summary || reply.text } : null
     return { text: reply.text, draft }
@@ -75,6 +81,14 @@ export async function understand(text: string): Promise<Understood | null> {
 }
 
 /** What the draft would change, in plain Turkish, so the user sees it before confirming. */
+/** The model speaks the schema's English; the screen is Turkish. */
+const WORKOUT_LABEL: Record<string, string> = {
+  resistance: 'Direnç',
+  cardio: 'Kardiyo',
+  walk: 'Yürüyüş',
+  rest: 'Dinlenme',
+}
+
 export function draftLines(draft: NoteDraft): string[] {
   const lines: string[] = []
   if (draft.weight_kg != null) lines.push(`Kilo: ${draft.weight_kg} kg`)
@@ -85,7 +99,7 @@ export function draftLines(draft: NoteDraft): string[] {
     lines.push(`Tansiyon: ${draft.bp_systolic ?? '?'}/${draft.bp_diastolic ?? '?'}`)
   }
   if (draft.workout) {
-    const parts: string[] = [draft.workout.type]
+    const parts: string[] = [WORKOUT_LABEL[draft.workout.type] ?? draft.workout.type]
     if (draft.workout.sets_total) parts.push(`${draft.workout.sets_total} set`)
     if (draft.workout.duration_min) parts.push(`${draft.workout.duration_min} dk`)
     if (draft.workout.muscle_groups?.length) parts.push(draft.workout.muscle_groups.join(', '))

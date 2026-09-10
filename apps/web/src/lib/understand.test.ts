@@ -28,7 +28,7 @@ describe('understand', () => {
 
   it('returns the answer with no draft when there is nothing to record', async () => {
     reply({ text: 'Bugün kaç adım attın?', draft: null })
-    const result = await understand('kaç adım sormadın')
+    const result = await understand([{ role: 'user', content: 'kaç adım sormadın' }])
     // Not null: the service answered. A null return would make the UI blame the token.
     expect(result).not.toBeNull()
     expect(result?.draft).toBeNull()
@@ -37,12 +37,12 @@ describe('understand', () => {
 
   it('returns a draft when the sentence carries a number', async () => {
     reply({ text: '', draft: { steps: 8500, summary: '8500 adım yüründü.' } })
-    const result = await understand('bugün 8500 adım yürüdüm')
+    const result = await understand([{ role: 'user', content: 'bugün 8500 adım yürüdüm' }])
     expect(result?.draft?.steps).toBe(8500)
   })
 
   it('returns null only when the service is unreachable', async () => {
     reply({ error: 'no llm' }, 503)
-    expect(await understand('merhaba')).toBeNull()
+    expect(await understand([{ role: 'user', content: 'merhaba' }])).toBeNull()
   })
 })
