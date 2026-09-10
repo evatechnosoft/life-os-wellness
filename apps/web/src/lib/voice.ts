@@ -2,7 +2,7 @@ import { SpeechRecognition } from '@capacitor-community/speech-recognition'
 
 import { api, ApiError } from './api'
 import { toLocalDate } from './date'
-import type { WorkoutType } from './db'
+import { db, type NoteEntry, type WorkoutType } from './db'
 import { isNative } from './health'
 import { saveMeal } from './meals'
 import { addWorkout, hasServer, saveDaily, saveRetro } from './store'
@@ -82,6 +82,21 @@ export function draftLines(draft: NoteDraft): string[] {
     if (filled > 0) lines.push('Akşam retrosu güncellenecek')
   }
   return lines
+}
+
+/** Keeps what was said or typed, plus what it changed. Read back from the Ayar screen. */
+export async function logNote(
+  entry: { via: 'text' | 'voice'; text: string; summary?: string; applied: string[] },
+  date = toLocalDate(),
+): Promise<void> {
+  const now = new Date()
+  const note: NoteEntry = {
+    id: crypto.randomUUID(),
+    date,
+    at: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+    ...entry,
+  }
+  await db.note_log.put(note)
 }
 
 /** Applies a confirmed draft. Protein adds to the day's total; it never replaces it. */

@@ -65,6 +65,20 @@ export interface Meal {
   estimated: boolean
 }
 
+/** Every note you typed or spoke, kept as a plain log - not a chat transcript on screen. */
+export interface NoteEntry {
+  id: string
+  date: string
+  /** Local HH:MM. */
+  at: string
+  via: 'text' | 'voice'
+  text: string
+  /** One-line summary the model gave back, when a server was configured. */
+  summary?: string
+  /** What was actually written to the day, in plain Turkish. */
+  applied: string[]
+}
+
 export interface Settings {
   key: string
   value: unknown
@@ -79,6 +93,7 @@ export const db = new Dexie('wellness') as Dexie & {
   settings: EntityTable<Settings, 'key'>
   wearable: EntityTable<WearableRecord, 'id'>
   meal: EntityTable<Meal, 'id'>
+  note_log: EntityTable<NoteEntry, 'id'>
 }
 
 db.version(1).stores({
@@ -96,4 +111,8 @@ db.version(2).stores({
 
 db.version(3).stores({
   meal: 'id, date',
+})
+
+db.version(4).stores({
+  note_log: 'id, date, at',
 })

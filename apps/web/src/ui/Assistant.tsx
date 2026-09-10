@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { applyDraft, draftLines, listenOnce, understand, voiceAvailable, type NoteDraft } from '../lib/voice'
+import { applyDraft, draftLines, listenOnce, logNote, understand, voiceAvailable, type NoteDraft } from '../lib/voice'
 import { Avatar } from './Avatar'
 
 type Phase = 'idle' | 'listening' | 'thinking' | 'draft' | 'saved'
@@ -15,27 +15,52 @@ export function Assistant({ date }: { date: string }) {
   const [heard, setHeard] = useState('')
   const [draft, setDraft] = useState<NoteDraft | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [typed, setTyped] = useState('')
+  const [writing, setWriting] = useState(false)
+  const [via, setVia] = useState<'text' | 'voice'>('voice')
 
   useEffect(() => {
     void voiceAvailable().then(setAvailable).catch(() => setAvailable(false))
   }, [])
+
+  /** One path for both inputs: take text, understand it, show a draft to confirm. */
+  const process = async (text: string, source: 'text' | 'voice') => {
+    setVia(source)
+    setHeard(text)
+    setPhase('thinking')
+    const understood = await understand(text)
+    if (!understood) {
+      // No server to parse it, but the sentence is still worth keeping.
+      await logNote({ via: source, text, applied: [] }, date)
+      setError('Anlama servisi kapalı — not olduğu gibi kaydedildi. Ayar’dan sunucu tokenı gir.')
+      setPhase('idle')
+      return
+    }
+    setDraft(understood)
+    setPhase('draft')
+  }
 
   const listen = async () => {
     setError(null)
     setDraft(null)
     setPhase('listening')
     try {
-      const text = await listenOnce()
-      setHeard(text)
-      setPhase('thinking')
-      const understood = await understand(text)
-      if (!understood) {
-        setError('Anlama servisi kapalı — Ayar ekranından sunucu token’ı girmen gerekiyor.')
-        setPhase('idle')
-        return
-      }
-      setDraft(understood)
-      setPhase('draft')
+      await process(await listenOnce(), 'voice')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      setPhase('idle')
+    }
+  }
+
+  const submitTyped = async () => {
+    const text = typed.trim()
+    if (text === '') return
+    setError(null)
+    setDraft(null)
+    setTyped('')
+    setWriting(false)
+    try {
+      await process(text, 'text')
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
       setPhase('idle')
@@ -45,6 +70,7 @@ export function Assistant({ date }: { date: string }) {
   const confirm = async () => {
     if (!draft) return
     await applyDraft(draft, date)
+    await logNote({ via, text: heard, summary: draft.summary, applied: draftLines(draft) }, date)
     setDraft(null)
     setPhase('saved')
     window.setTimeout(() => setPhase('idle'), 2500)
@@ -78,18 +104,50 @@ export function Assistant({ date }: { date: string }) {
           <p className={`text-sm leading-snug ${error ? 'text-a3' : 'text-ink-dim'}`}>{line()}</p>
           {phase === 'thinking' && <p className="mt-1 text-xs text-ink-faint">anlıyorum…</p>}
         </div>
-        {available && phase !== 'draft' && (
-          <button
-            type="button"
-            onClick={() => void listen()}
-            disabled={phase === 'listening' || phase === 'thinking'}
-            aria-label="Sesli not"
-            className="size-12 shrink-0 rounded-pill bg-a1/90 text-lg active:bg-a1 disabled:opacity-50"
-          >
-            ●
-          </button>
+        {phase !== 'draft' && (
+          <div className="flex shrink-0 gap-2">
+            <button
+              type="button"
+              onClick={() => setWriting((w) => !w)}
+              aria-label="Yazarak not"
+              className="size-12 rounded-pill bg-glass-strong text-sm active:bg-glass"
+            >
+              yaz
+            </button>
+            {available && (
+              <button
+                type="button"
+                onClick={() => void listen()}
+                disabled={phase === 'listening' || phase === 'thinking'}
+                aria-label="Sesli not"
+                className="size-12 rounded-pill bg-a1/90 text-lg active:bg-a1 disabled:opacity-50"
+              >
+                ●
+              </button>
+            )}
+          </div>
         )}
       </div>
+
+      {writing && phase !== 'draft' && (
+        <div className="flex gap-2">
+          <input
+            autoFocus
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && void submitTyped()}
+            placeholder="Bugün ne yaptın?"
+            className="flex-1 rounded-field bg-glass-inset px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-a1"
+          />
+          <button
+            type="button"
+            onClick={() => void submitTyped()}
+            className="rounded-field bg-a1/90 px-4 text-sm font-medium active:bg-a1"
+          >
+            Gönder
+          </button>
+        </div>
+      )}
 
       {phase === 'draft' && draft && (
         <div className="glass-card p-4">

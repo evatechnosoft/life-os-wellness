@@ -7,6 +7,26 @@ import { saveGoals, useGoals } from '../lib/settings'
 import { syncOutbox } from '../lib/store'
 import { Card, NumberField } from './Field'
 
+function NoteHistory() {
+  const notes = useLiveQuery(() => db.note_log.orderBy('id').reverse().limit(40).toArray(), []) ?? []
+  if (notes.length === 0) return <p className="text-xs text-ink-faint">Henüz not yok.</p>
+  return (
+    <ul className="space-y-3">
+      {notes.map((n) => (
+        <li key={n.id} className="border-l-2 border-edge-soft pl-3">
+          <div className="text-xs text-ink-faint">
+            {n.date} {n.at} · {n.via === 'voice' ? 'sesli' : 'yazılı'}
+          </div>
+          <p className="text-sm text-ink-dim">{n.text}</p>
+          {n.applied.length > 0 && (
+            <p className="mt-0.5 text-xs text-a1">{n.applied.join(' · ')}</p>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export function Settings() {
   const goals = useGoals()
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
@@ -19,7 +39,8 @@ export function Settings() {
       db.workout.toArray(),
       db.retro.toArray(),
     ])
-    const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), daily_log, workout, retro }, null, 2)], {
+    const notes = await db.note_log.toArray()
+    const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), daily_log, workout, retro, notes }, null, 2)], {
       type: 'application/json',
     })
     const url = URL.createObjectURL(blob)
@@ -62,6 +83,10 @@ export function Settings() {
         <NumberField label="Günlük protein" unit="g" value={goals.protein_g} onCommit={(v) => void saveGoals({ ...goals, protein_g: v ?? 140 })} />
         <NumberField label="Haftalık kilo kaybı" unit="kg" step={0.05} value={goals.weekly_weight_loss_kg} onCommit={(v) => void saveGoals({ ...goals, weekly_weight_loss_kg: v ?? 0.6 })} />
         <NumberField label="Kas grubu başına set" value={goals.sets_per_group} onCommit={(v) => void saveGoals({ ...goals, sets_per_group: v ?? 10 })} />
+      </Card>
+
+      <Card title="Notlar">
+        <NoteHistory />
       </Card>
 
       <Card title="Veri">
