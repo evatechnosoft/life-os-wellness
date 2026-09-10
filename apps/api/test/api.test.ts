@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
-import { parseNote } from '../src/note.ts'
+import { splitReply } from '../src/chat.ts'
 import { buildServer } from '../src/server.ts'
 
 const TOKEN = 'test-token'
@@ -157,9 +157,17 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(res.statusCode, 400)
   })
 
-  test('spoken note endpoint is disabled without an API key', async () => {
-    const res = await app.inject({ method: 'POST', url: '/api/note', headers: auth, payload: { text: 'bugun 82 kilo' } })
+  test('chat endpoint is disabled without an API key', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/chat', headers: auth,
+      payload: { messages: [{ role: 'user', content: 'bugun 82 kilo' }] },
+    })
     assert.equal(res.statusCode, 503)
+  })
+
+  test('chat rejects an empty message list', async () => {
+    const res = await app.inject({ method: 'POST', url: '/api/chat', headers: auth, payload: { messages: [] } })
+    assert.equal(res.statusCode, 400)
   })
 
   test('export returns every table', async () => {
@@ -197,22 +205,31 @@ describe('parseEstimate', () => {
   })
 })
 
-describe('parseNote', () => {
-  test('keeps the fields the sentence actually mentioned', () => {
-    const value = parseNote('{"weight_kg":82.4,"protein_g":null,"summary":"Sabah 82.4 kg."}')
-    assert.equal((value as { weight_kg: number }).weight_kg, 82.4)
-    assert.equal((value as { protein_g: null }).protein_g, null)
+describe('splitReply', () => {
+  test('separates the answer from the trailing record block', () => {
+    const raw = ['Tamam, yazdım.', '<kayit>{"weight_kg":82.4,"summary":"Sabah 82.4 kg"}</kayit>'].join(String.fromCharCode(10))
+    const { text, draft } = splitReply(raw)
+    assert.equal(text, 'Tamam, yazdım.')
+    assert.equal((draft as { weight_kg: number }).weight_kg, 82.4)
   })
 
-  test('rejects a reply without a summary', () => {
-    assert.equal(parseNote('{"weight_kg":82.4}'), null)
+  test('a plain answer has no draft', () => {
+    const { text, draft } = splitReply('Tavukta 100 gramda yaklaşık 31 g protein var.')
+    assert.equal(draft, null)
+    assert.ok(text.length > 0)
   })
 
-  test('rejects a non-numeric measurement', () => {
-    assert.equal(parseNote('{"weight_kg":"seksen iki","summary":"..."}'), null)
+  test('a malformed record block does not lose the answer', () => {
+    const { text, draft } = splitReply('Not aldım.<kayit>{bozuk}</kayit>')
+    assert.equal(text, 'Not aldım.')
+    assert.equal(draft, null)
   })
 
-  test('rejects unparseable text', () => {
-    assert.equal(parseNote('anlamadim'), null)
+  test('a record without a summary is rejected', () => {
+    assert.equal(splitReply('x<kayit>{"weight_kg":82}</kayit>').draft, null)
+  })
+
+  test('a non-numeric measurement is rejected', () => {
+    assert.equal(splitReply('x<kayit>{"weight_kg":"seksen","summary":"..."}</kayit>').draft, null)
   })
 })

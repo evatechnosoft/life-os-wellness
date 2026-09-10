@@ -52,7 +52,12 @@ export function stopListening(): Promise<void> {
 export async function understand(text: string): Promise<NoteDraft | null> {
   if (!hasServer()) return null
   try {
-    return await api<NoteDraft>('/api/note', { method: 'POST', body: JSON.stringify({ text }) })
+    const reply = await api<{ text: string; draft: NoteDraft | null }>('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: [{ role: 'user', content: text }] }),
+    })
+    if (!reply.draft) return null
+    return { ...reply.draft, summary: reply.draft.summary || reply.text }
   } catch (err) {
     if (err instanceof ApiError && (err.status === 503 || err.status === 404)) return null
     throw err

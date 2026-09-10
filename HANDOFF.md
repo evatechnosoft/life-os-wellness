@@ -24,9 +24,20 @@ APK derleniyor ve izinleri doğru (aapt2 dump), ama **hiçbir özellik gerçek t
 3. Kamera + tahmin: sunucu gerekiyor (aşağıya bak)
 4. Sesli not: `SpeechRecognition` Türkçe tanıma, taslak doğru mu
 
+## Eva (sohbet) nasıl kurulu
+
+Tek uç: `POST /api/chat` — resmi `@anthropic-ai/sdk`, model `claude-opus-5`, adaptive
+thinking, `effort: low`. Web araması server tool olarak açık (`web_search_20260209`,
+`max_uses: 3`); kaynak başlıkları yanıtla birlikte dönüp sohbette link olarak görünür.
+Fotoğraf aynı uca base64 gider. Yanıtın sonundaki `<kayit>{...}</kayit>` bloğu ayrıştırılıp
+"Günlüğe kaydet" düğmesine dönüşür — onaylanmadan hiçbir şey yazılmaz.
+
+Öğrenme: model eğitimi yok. Her istekte son 7 günün özeti (`buildContext`) system'e
+ekleniyor — cevaplar kullanıcının kendi sayılarına dayanıyor.
+
 ## Sunucu henüz hiçbir yerde çalışmıyor
 
-`/api/estimate` (foto → protein/kalori) ve `/api/note` (konuşma → kayıt taslağı)
+`/api/chat` (sohbet + web arama + foto) ve `/api/estimate` (öğün kartındaki hızlı tahmin)
 Claude API kullanıyor; `ANTHROPIC_API_KEY` yoksa 503 döner ve uygulama elle girişe
 düşer. Yani **bu iki özellik ancak API bir yere deploy edilince açılır** (ACA veya
 ZimaOS). Pages sürümü sunucusuz: veriler telefonda, yedek JSON export.
@@ -47,6 +58,14 @@ ZimaOS). Pages sürümü sunucusuz: veriler telefonda, yedek JSON export.
 2. API'yi bir yere deploy et → foto tahmini ve sesli not açılır
 3. Kendi Health Connect eklentimiz: uyku + Nutrition + toplam kalori
 4. Hatırlatmalar (sabah tartı, akşam retro)
+5. Gözlük (evaglass) köprüsü — aşağıya bak
+
+## Gözlük entegrasyonu: köprü hazır, bağlantı yapılmadı
+
+`evaglass` ayrı bir repo (ADO: `dev.azure.com/evaitec/evaitec/_git/evaglasses`) ve bu
+oturumda ona hiç dokunulmadı. Gereken bağlantı küçük: gözlük çektiği fotoğrafı
+`POST /api/chat` (veya `/api/estimate`) ucuna bearer token ile göndersin, yanıtı
+kullanıcıya okusun. Yani API tarafı hazır, iş evaglass tarafında bir istemci yazmak.
 
 ## Çalıştırma
 

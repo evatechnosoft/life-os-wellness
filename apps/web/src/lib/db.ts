@@ -79,6 +79,21 @@ export interface NoteEntry {
   applied: string[]
 }
 
+/** One turn of the conversation. Voice, typed and photo turns all land here. */
+export interface ChatMessage {
+  id: string
+  date: string
+  at: string
+  role: 'user' | 'eva'
+  text: string
+  via: 'text' | 'voice' | 'photo'
+  sources?: { title: string; url: string }[]
+  /** A proposed entry the user can still accept. */
+  draft?: unknown
+  /** Set once accepted: what was written, in plain Turkish. */
+  applied?: string[]
+}
+
 export interface Settings {
   key: string
   value: unknown
@@ -94,6 +109,7 @@ export const db = new Dexie('wellness') as Dexie & {
   wearable: EntityTable<WearableRecord, 'id'>
   meal: EntityTable<Meal, 'id'>
   note_log: EntityTable<NoteEntry, 'id'>
+  chat: EntityTable<ChatMessage, 'id'>
 }
 
 db.version(1).stores({
@@ -115,4 +131,8 @@ db.version(3).stores({
 
 db.version(4).stores({
   note_log: 'id, date, at',
+})
+
+db.version(5).stores({
+  chat: 'id, date',
 })

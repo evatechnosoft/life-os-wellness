@@ -2,7 +2,7 @@ import Fastify, { type FastifyInstance } from 'fastify'
 
 import { createPool, type Pool } from './db.ts'
 import { registerEstimate } from './estimate.ts'
-import { registerNote } from './note.ts'
+import { registerChat } from './chat.ts'
 import { registerRoutes } from './routes.ts'
 
 export interface BuildOptions {
@@ -29,7 +29,7 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
 
   registerRoutes(app, pool)
   registerEstimate(app, opts.anthropicApiKey)
-  registerNote(app, opts.anthropicApiKey)
+  registerChat(app, opts.anthropicApiKey)
   app.addHook('onClose', async () => { await pool.end() })
   return { app, pool }
 }

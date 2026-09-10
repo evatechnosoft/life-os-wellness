@@ -5,12 +5,14 @@ import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncHealth } from './lib/health'
 import { hasServer, pullRange, startSyncLoop } from './lib/store'
+import { Chat } from './ui/Chat'
 import { Settings } from './ui/Settings'
 import { Today } from './ui/Today'
 import { Week } from './ui/Week'
 
 const TABS = [
   { id: 'today', label: 'Bugün' },
+  { id: 'chat', label: 'Eva' },
   { id: 'week', label: 'Hafta' },
   { id: 'settings', label: 'Ayar' },
 ] as const
@@ -55,6 +57,7 @@ export function App() {
 
       <main className="flex-1 px-4 pb-24">
         {tab === 'today' && <Today date={date} />}
+        {tab === 'chat' && <Chat />}
         {tab === 'week' && <Week />}
         {tab === 'settings' && <Settings />}
       </main>
