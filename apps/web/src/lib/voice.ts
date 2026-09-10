@@ -49,15 +49,25 @@ export function stopListening(): Promise<void> {
 }
 
 /** Sends the transcript to the server to be understood. Null when no server is configured. */
-export async function understand(text: string): Promise<NoteDraft | null> {
+/**
+ * What came back. A null `draft` is a normal answer with nothing to record - a question,
+ * a greeting - and must not be confused with the service being unreachable, which is what
+ * a null return means. Those two used to look identical and the UI blamed the token.
+ */
+export interface Understood {
+  text: string
+  draft: NoteDraft | null
+}
+
+export async function understand(text: string): Promise<Understood | null> {
   if (!hasServer()) return null
   try {
     const reply = await api<{ text: string; draft: NoteDraft | null }>('/api/chat', {
       method: 'POST',
       body: JSON.stringify({ messages: [{ role: 'user', content: text }] }),
     })
-    if (!reply.draft) return null
-    return { ...reply.draft, summary: reply.draft.summary || reply.text }
+    const draft = reply.draft ? { ...reply.draft, summary: reply.draft.summary || reply.text } : null
+    return { text: reply.text, draft }
   } catch (err) {
     if (err instanceof ApiError && (err.status === 503 || err.status === 404)) return null
     throw err

@@ -15,6 +15,7 @@ export function Assistant({ date }: { date: string }) {
   const [heard, setHeard] = useState('')
   const [draft, setDraft] = useState<NoteDraft | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [answer, setAnswer] = useState<string | null>(null)
   const [typed, setTyped] = useState('')
   const [writing, setWriting] = useState(false)
   const [via, setVia] = useState<'text' | 'voice'>('voice')
@@ -25,6 +26,7 @@ export function Assistant({ date }: { date: string }) {
 
   /** One path for both inputs: take text, understand it, show a draft to confirm. */
   const process = async (text: string, source: 'text' | 'voice') => {
+    setAnswer(null)
     setVia(source)
     setHeard(text)
     setPhase('thinking')
@@ -36,7 +38,15 @@ export function Assistant({ date }: { date: string }) {
       setPhase('idle')
       return
     }
-    setDraft(understood)
+    if (!understood.draft) {
+      // Eva answered but there is nothing to record - a question, a greeting. Show the
+      // answer and keep the sentence; this is not an error.
+      await logNote({ via: source, text, summary: understood.text, applied: [] }, date)
+      setAnswer(understood.text)
+      setPhase('idle')
+      return
+    }
+    setDraft(understood.draft)
     setPhase('draft')
   }
 
@@ -78,6 +88,7 @@ export function Assistant({ date }: { date: string }) {
 
   const line = (): string => {
     if (error) return error
+    if (answer) return answer
     switch (phase) {
       case 'listening':
         return 'Dinliyorum.'
