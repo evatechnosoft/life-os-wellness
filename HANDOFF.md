@@ -56,9 +56,33 @@ Doğrulanan zincir (2026-09-10, key sonrası):
 - `POST :3011/api/estimate` (2x2 düz kırmızı PNG) → `200 {"items":[],"kcal":0,
   "confidence":"low","note":"Fotoğrafta herhangi bir yiyecek görünmüyor..."}`
 
-Sırada: ZimaOS'a taşı → telefon ev dışındayken erişim için Tailscale/Cloudflare
-Tunnel (bu çözülmeden Eva sadece ev ağında konuşur). ZimaOS 2026-09-10'da ping'e
-yanıt vermiyordu, önce onu ayağa kaldır.
+## Ev dışından erişim: fit.evaitec.com açıldı
+
+Wellness'in kendi Cloudflare tüneli var (`wellness`, `59988d1b-…`), NetMovies'inkine
+binmiyor. Tünel CLI ile kurulduğu için ayarları panelde değil repoda:
+`ops/cloudflared/config.yml` → tek ingress kuralı `fit.evaitec.com` →
+`http://localhost:3011`, eşleşmeyen istek `404`. Kimlik dosyası `~/.cloudflared/<id>.json`,
+repoda değil; compose `.env`'deki `CF_TUNNEL_CREDENTIALS` yolundan salt-okunur bağlıyor.
+
+Uygulama artık API'yi tam adresle çağırıyor: `apps/web/src/lib/api.ts` içindeki
+`getApiBase()` derlenmiş yapıda `https://fit.evaitec.com` döner, geliştirmede boş
+(Vite proxy'si var). Ayarlar → Sunucu adresi alanından ezilebilir; ev ağındayken
+`http://192.168.1.185:3011` yazmak daha hızlı.
+
+API'de CORS var (`server.ts`, `ALLOWED_ORIGINS`): Pages, Capacitor'ın iki webview
+origin'i ve Vite. `*` değil, çünkü token header'da gidiyor. Preflight auth hook'undan
+ÖNCE cevaplanıyor, yoksa tarayıcı 401 görüp asıl isteği hiç göndermiyordu.
+
+⚠️ **`api` konteynerini yeniden kurarsan tüneli de yeniden başlat.** cloudflared
+`network_mode: service:api` ile api'nin ağ namespace'ini paylaşıyor; api yeniden
+yaratılınca tünel 502 vermeye başlıyor. `docker compose --profile tunnel up -d cloudflared`
+düzeltiyor.
+
+⚠️ Tarayıcıda `https://fit.evaitec.com` açmak `{"error":"unauthorized"}` verir. Bu doğru
+davranış — orası web sitesi değil API. Uygulamayı açıp Ayarlar'a token'ı gir.
+
+Sırada: ZimaOS'a taşı (şu an ping'e yanıt vermiyor). Taşınırsa tünel origin'i orayı
+gösterecek şekilde `ops/cloudflared/config.yml` güncellenir.
 
 **Web araması geri geldi — Gemini'nin kendi Google Search'ü.** İstek gövdesine
 OpenAI-standardı `web_search_options: {}` konuyor, LiteLLM bunu sağlayıcının grounding
@@ -83,8 +107,8 @@ gerçek alan adı değil; bu bağlantıların ömrü sınırlı.
 
 ## Sıradaki iş (öncelik sırası)
 
-1. Cihazda duman testi + pil ölçümü
-2. API'yi bir yere deploy et (ZimaOS) → ev dışından erişim
+1. Cihazda duman testi + pil ölçümü (telefonda Ayarlar → token gir, sonra Bugün ekranı)
+2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın
 3. Kendi Health Connect eklentimiz: uyku + Nutrition + toplam kalori
 4. Hatırlatmalar (sabah tartı, akşam retro)
 5. Gözlük (evaglass) köprüsü — aşağıya bak

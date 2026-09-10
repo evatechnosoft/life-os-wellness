@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
-import { getToken, setToken } from '../lib/api'
+import { getApiBase, getToken, setApiBase, setToken } from '../lib/api'
 import { db } from '../lib/db'
 import { saveGoals, useGoals } from '../lib/settings'
 import { syncOutbox } from '../lib/store'
@@ -31,6 +31,7 @@ export function Settings() {
   const goals = useGoals()
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
   const [token, setLocalToken] = useState(getToken())
+  const [base, setLocalBase] = useState(getApiBase())
   const [status, setStatus] = useState('')
 
   const exportJson = async () => {
@@ -54,7 +55,20 @@ export function Settings() {
   return (
     <div>
       <Card title="Sunucu">
-        <label className="block text-sm text-ink-dim">API token</label>
+        <label className="block text-sm text-ink-dim">Sunucu adresi</label>
+        <input
+          type="url"
+          inputMode="url"
+          value={base}
+          onChange={(e) => setLocalBase(e.target.value)}
+          onBlur={() => setApiBase(base)}
+          placeholder="https://fit.evaitec.com"
+          className="mt-2 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
+        />
+        <p className="mt-1 text-xs text-ink-faint">
+          Boş bırakırsan varsayılan kullanılır. Ev ağındayken http://192.168.1.185:3011 gibi bir adres daha hızlıdır.
+        </p>
+        <label className="mt-4 block text-sm text-ink-dim">API token</label>
         <input
           type="password"
           value={token}

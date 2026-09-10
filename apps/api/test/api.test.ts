@@ -258,3 +258,46 @@ describe('collectSources', () => {
     assert.deepEqual(collectSources(undefined), [])
   })
 })
+
+describe('cors', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
+  let app: ReturnType<typeof buildServer>['app']
+  let pool: ReturnType<typeof buildServer>['pool']
+
+  before(async () => {
+    const built = buildServer({ databaseUrl: databaseUrl as string, apiToken: TOKEN })
+    app = built.app
+    pool = built.pool
+    await app.ready()
+  })
+
+  after(async () => { await app.close() })
+
+  test('answers a preflight from the app origin without asking for a token', async () => {
+    const res = await app.inject({
+      method: 'OPTIONS',
+      url: '/api/daily',
+      headers: { origin: 'https://evatechnosoft.github.io', 'access-control-request-method': 'GET' },
+    })
+    assert.equal(res.statusCode, 204)
+    assert.equal(res.headers['access-control-allow-origin'], 'https://evatechnosoft.github.io')
+    assert.match(String(res.headers['access-control-allow-headers']), /authorization/)
+  })
+
+  test('sends no allow-origin to a page that is not on the list', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/health',
+      headers: { origin: 'https://evil.example' },
+    })
+    assert.equal(res.headers['access-control-allow-origin'], undefined)
+  })
+
+  test('a preflight still does not let a real request through unauthenticated', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/daily',
+      headers: { origin: 'https://evatechnosoft.github.io' },
+    })
+    assert.equal(res.statusCode, 401)
+  })
+})
