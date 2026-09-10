@@ -91,6 +91,18 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(after.json().length, 1)
   })
 
+  test('replaying the same workout id does not duplicate it', async () => {
+    const id = '00000000-0000-4000-8000-000000000abc'
+    const payload = { id, date: '2099-01-05', type: 'cardio', duration_min: 20 }
+    const first = await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload })
+    assert.equal(first.statusCode, 201)
+    const replay = await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload })
+    assert.equal(replay.statusCode, 200)
+    assert.equal(replay.json().id, id)
+    const list = await app.inject({ method: 'GET', url: '/api/workouts?start=2099-01-05&end=2099-01-05', headers: auth })
+    assert.equal(list.json().length, 1)
+  })
+
   test('rejects an unknown workout type', async () => {
     const res = await app.inject({
       method: 'POST', url: '/api/workouts', headers: auth, payload: { date: '2099-01-01', type: 'yoga' },

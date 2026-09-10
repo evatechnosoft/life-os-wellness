@@ -36,6 +36,7 @@ const WORKOUT_BODY = {
   additionalProperties: false,
   required: ['date', 'type'],
   properties: {
+    id: { type: 'string', format: 'uuid' },
     date: DATE,
     type: { type: 'string', enum: ['resistance', 'cardio', 'walk', 'rest'] },
     duration_min: { type: ['integer', 'null'], minimum: 0, maximum: 600 },
@@ -121,11 +122,19 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
 
   app.post('/api/workouts', { schema: { body: WORKOUT_BODY } }, async (req, reply) => {
     const b = req.body as Record<string, unknown>
+    // The client supplies the id so a replayed offline queue cannot create duplicates.
     const { rows } = await pool.query(
-      `insert into workout (date, type, duration_min, sets_total, muscle_groups, notes)
-       values ($1, $2, $3, $4, $5, $6) returning *`,
-      [b.date, b.type, b.duration_min ?? null, b.sets_total ?? null, b.muscle_groups ?? [], b.notes ?? null],
+      `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes)
+       values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7)
+       on conflict (id) do nothing
+       returning *`,
+      [b.id ?? null, b.date, b.type, b.duration_min ?? null, b.sets_total ?? null, b.muscle_groups ?? [], b.notes ?? null],
     )
+    if (rows.length === 0) {
+      const existing = await pool.query('select * from workout where id = $1', [b.id])
+      reply.code(200)
+      return existing.rows[0]
+    }
     reply.code(201)
     return rows[0]
   })
