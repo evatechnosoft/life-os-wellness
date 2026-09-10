@@ -5,9 +5,21 @@ ve akşam retrosu. `life-os-finance` ile kardeş repo; ortak düzen `REPO-STANDA
 
 Tam gereksinim: [`docs/SPEC.md`](docs/SPEC.md) · Faz/sprint planı: [`docs/PLAN.md`](docs/PLAN.md)
 
+## Canlı
+
+**https://evatechnosoft.github.io/life-os-wellness/** — telefonda aç, menüden
+"Ana ekrana ekle". Tam ekran açılır, uçak modunda da çalışır.
+
+Pages sürümü **sunucusuz** çalışır: veriler telefonun IndexedDB'sinde durur, Ayar
+ekranından JSON olarak dışa aktarılır. Ayar ekranına bir API token girersen uygulama
+kendi sunucuna senkronlamaya başlar (token girilmeden önce yazılan kayıtlar geride kalır).
+`dev` dalına her push Pages'e yeniden dağıtır.
+
 ## Durum
 
-F0 / Sprint 1 (iskelet): şema + CRUD API + offline PWA kabuğu. Ekranlar Sprint 2-4'te dolar.
+F0 Sprint 1-3 bitti: şema + CRUD API, Bugün/Hafta/Ayar ekranları, offline kuyruk,
+7-gün ortalama · uyum yüzdesi · streak · kas grubu set toplamı, JSON export.
+Kalan: hatırlatmalar (Sprint 4), sonra F1 (Capacitor + Health Connect).
 
 ## Hızlı başlangıç
 
@@ -16,13 +28,15 @@ cp .env.example .env          # API_TOKEN'i degistir
 npm install
 npm run db:up                 # postgres:16 -> localhost:5433
 npm run db:migrate
-npm run dev:api               # http://localhost:3011
-npm run dev:web               # http://localhost:5174 (/api -> 3011 proxy)
+npm start                     # hepsini birden ayaga kaldirir, LAN linkini yazar
+npm run dev:api               # ya da tek tek: http://localhost:3011
+npm run dev:web               # https://localhost:5174 (/api -> 3011 proxy)
 npm test                      # api entegrasyon + web birim testleri
 ```
 
-Web ilk açılışta `localStorage.wellness.api_token` değerini `.env` içindeki `API_TOKEN`
-ile aynı yapmalısın (Ayar ekranı Sprint 4'te gelir).
+`npm start` linki `?token=...` ile verir; token ilk açılışta kaydedilir ve adresten silinir.
+LAN üzerinden HTTPS self-signed sertifikayla sunulur (service worker secure context ister),
+telefonda bir kez "yine de devam et" demen gerekir.
 
 ## Yapı
 
