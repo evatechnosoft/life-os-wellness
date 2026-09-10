@@ -45,12 +45,35 @@ export interface ImagePart {
   data: string
 }
 
+export interface Source {
+  title: string
+  url: string
+}
+
+export interface Completion {
+  text: string
+  /** Pages the model actually grounded on. Empty unless `search` was asked for. */
+  sources: Source[]
+}
+
+/**
+ * The OpenAI-standard way to ask for grounded answers. LiteLLM maps it onto whatever the
+ * provider behind the alias offers - Gemini's own Google Search for us - so turning search
+ * on stays a proxy concern and this file keeps knowing nothing about vendors.
+ */
+type SearchOption = { web_search_options: Record<string, never> }
+
+/** Citations come back OpenAI-shaped; the SDK's message type does not carry them yet. */
+interface Annotated {
+  annotations?: { type?: string; url_citation?: { url?: string; title?: string } }[]
+}
+
 /** One completion. An image, when given, is attached to the last user turn. */
 export async function complete(
   llm: Llm,
   turns: ChatTurn[],
-  opts: { model?: string; image?: ImagePart; maxTokens?: number } = {},
-): Promise<string> {
+  opts: { model?: string; image?: ImagePart; maxTokens?: number; search?: boolean } = {},
+): Promise<Completion> {
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = turns.map((t) => ({
     role: t.role,
     content: t.content,
@@ -67,10 +90,41 @@ export async function complete(
     }
   }
 
+  const search: SearchOption | Record<string, never> = opts.search ? { web_search_options: {} } : {}
+
   const response = await llm.client.chat.completions.create({
     model: opts.model ?? llm.config.chatModel,
     max_tokens: opts.maxTokens ?? 1500,
     messages,
+    ...search,
   })
-  return response.choices[0]?.message?.content ?? ''
+
+  const message = response.choices[0]?.message
+  return {
+    text: message?.content ?? '',
+    sources: collectSources((message as Annotated | undefined)?.annotations),
+  }
+}
+
+/** Keeps the first mention of each URL, drops citations without one. */
+export function collectSources(annotations: Annotated['annotations']): Source[] {
+  if (!annotations) return []
+  const seen = new Set<string>()
+  const sources: Source[] = []
+  for (const a of annotations) {
+    const url = a.url_citation?.url
+    if (!url || seen.has(url)) continue
+    seen.add(url)
+    sources.push({ title: a.url_citation?.title?.trim() || hostOf(url), url })
+  }
+  return sources
+}
+
+/** A citation without a title still deserves a readable label. */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
 }

@@ -60,9 +60,16 @@ Sırada: ZimaOS'a taşı → telefon ev dışındayken erişim için Tailscale/C
 Tunnel (bu çözülmeden Eva sadece ev ağında konuşur). ZimaOS 2026-09-10'da ping'e
 yanıt vermiyordu, önce onu ayağa kaldır.
 
-**Web araması kayboldu.** Anthropic'in `web_search_20260209` server tool'uydu; Gemini/
-LiteLLM yolunda karşılığı yok. Sohbetteki `sources` alanı duruyor ama boş dönüyor —
-proxy'ye RAG/arama eklenince oradan doldurulacak.
+**Web araması geri geldi — Gemini'nin kendi Google Search'ü.** İstek gövdesine
+OpenAI-standardı `web_search_options: {}` konuyor, LiteLLM bunu sağlayıcının grounding
+özelliğine eşliyor; yani arama da alias gibi proxy'nin işi, `apps/api` sağlayıcı bilmiyor.
+Atıflar `annotations[].url_citation` olarak dönüyor, `collectSources` bunları tekilleştirip
+`sources` alanını dolduruyor (web tarafı zaten çiziyordu). Fotoğraflı istekte arama kapalı.
+
+Canlı kanıt: "100 gram haşlanmış mercimekte kaç gram protein var?" → 3 kaynak
+(wikifarmer.com, medicalpark.com.tr, yemek.com). ⚠️ Gemini atıf URL'lerini
+`vertexaisearch.cloud.google.com/grounding-api-redirect/...` yönlendirmesi olarak veriyor,
+gerçek alan adı değil; bu bağlantıların ömrü sınırlı.
 
 ## Bilinen sınırlar (kanıtlı)
 

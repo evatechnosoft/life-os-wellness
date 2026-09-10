@@ -3,6 +3,7 @@ import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
 import { splitReply } from '../src/chat.ts'
+import { collectSources } from '../src/llm.ts'
 import { buildServer } from '../src/server.ts'
 
 const TOKEN = 'test-token'
@@ -231,5 +232,29 @@ describe('splitReply', () => {
 
   test('a non-numeric measurement is rejected', () => {
     assert.equal(splitReply('x<kayit>{"weight_kg":"seksen","summary":"..."}</kayit>').draft, null)
+  })
+})
+
+describe('collectSources', () => {
+  test('keeps the first mention of each url', () => {
+    const sources = collectSources([
+      { type: 'url_citation', url_citation: { url: 'https://a.example/x', title: 'A' } },
+      { type: 'url_citation', url_citation: { url: 'https://a.example/x', title: 'A again' } },
+      { type: 'url_citation', url_citation: { url: 'https://b.example/y', title: 'B' } },
+    ])
+    assert.deepEqual(sources, [
+      { title: 'A', url: 'https://a.example/x' },
+      { title: 'B', url: 'https://b.example/y' },
+    ])
+  })
+
+  test('falls back to the host when a citation has no title', () => {
+    const sources = collectSources([{ type: 'url_citation', url_citation: { url: 'https://www.example.com/p' } }])
+    assert.deepEqual(sources, [{ title: 'example.com', url: 'https://www.example.com/p' }])
+  })
+
+  test('drops citations without a url, and handles none at all', () => {
+    assert.deepEqual(collectSources([{ type: 'url_citation', url_citation: {} }]), [])
+    assert.deepEqual(collectSources(undefined), [])
   })
 })

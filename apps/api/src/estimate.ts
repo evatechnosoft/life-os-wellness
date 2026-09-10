@@ -54,7 +54,7 @@ export function registerEstimate(app: FastifyInstance, llm: Llm | null): void {
     const { image } = req.body as { image: { media_type: string; data: string } }
 
     try {
-      const text = await complete(
+      const { text } = await complete(
         llm,
         [{ role: 'user', content: PROMPT }],
         { model: llm.config.visionModel, image, maxTokens: 800 },

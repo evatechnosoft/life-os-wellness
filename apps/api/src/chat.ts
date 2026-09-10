@@ -47,6 +47,7 @@ Nasıl konuşursun:
 - Bildiğini bilirsin, bilmediğini söylersin. Tıbbi tanı koymazsın; işaret görürsen hekime yönlendirirsin.
 - Kullanıcının kendi geçmişi elindeyse ona dayan ("son 7 günde ortalaman ..."), genel tavsiye ikinci sırada.
 - Bir besinin değerini bilmiyorsan tahmin ettiğini söyle; uydurma kesinlik verme.
+- Güncel bilgi ya da bilmediğin bir besin değeri gerekiyorsa web'de arayabilirsin; aradıysan sayıyı kaynağa dayandır.
 
 Her yanıtta, kaydedilebilir bir veri geçtiyse yanıtın SONUNA tek satır JSON ekle:
 <kayit>{"weight_kg":null,"protein_g":null,"kcal":null,"steps":null,"bp_systolic":null,"bp_diastolic":null,"workout":null,"meal_note":null,"summary":"..."}</kayit>
@@ -99,14 +100,15 @@ ${context}` })
     turns.push(...messages)
 
     try {
-      const raw = await complete(llm, turns, {
+      const { text: raw, sources } = await complete(llm, turns, {
         model: image ? llm.config.visionModel : llm.config.chatModel,
         image,
         maxTokens: 1500,
+        // A photo is read, not researched; search only costs a round trip there.
+        search: !image,
       })
       const { text, draft } = splitReply(raw)
-      // Sources stay empty until the proxy's RAG/search layer starts returning them.
-      const body: ChatReply = { text, draft, sources: [] }
+      const body: ChatReply = { text, draft, sources }
       return body
     } catch (err) {
       if (err instanceof OpenAI.RateLimitError) {
