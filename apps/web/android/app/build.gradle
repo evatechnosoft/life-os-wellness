@@ -1,3 +1,8 @@
+// Surum tek kaynak: git etiketi ile ayni tutulur (v0.7.1 -> 0.7.1).
+// versionCode ondan turer; OTA katalogu guncellemeyi bu sayiyla anlar, sabit 1
+// kalirsa yeni surum "zaten kurulu" gorunur.
+def appVersion = '0.7.1'
+
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 
@@ -8,8 +13,8 @@ android {
         applicationId "com.evaitec.wellness"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersion.split('\.').inject(0) { acc, part -> acc * 100 + (part as int) }
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
