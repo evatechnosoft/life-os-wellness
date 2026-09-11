@@ -33,6 +33,23 @@ export function estimateKcal(workout: Workout, bodyKg: number | null): number | 
   return Math.round(MET[workout.type] * bodyKg * (workout.duration_min / 60))
 }
 
+/**
+ * En sik kaydedilen protein porsiyonlari. Tek kullanicida cesitlilik dusuk
+ * oldugu icin gecmis, sabit bir listeden daha iyi tahmin verir; veri yoksa
+ * makul varsayilanlar doner.
+ */
+export function frequentPortions(values: (number | null | undefined)[], fallback = [30, 35, 40]): number[] {
+  const counts = new Map<number, number>()
+  for (const value of values) {
+    if (typeof value !== 'number' || value <= 0) continue
+    const rounded = Math.round(value / 5) * 5
+    counts.set(rounded, (counts.get(rounded) ?? 0) + 1)
+  }
+  if (counts.size === 0) return fallback
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 3).map(([g]) => g)
+  return [...top, ...fallback.filter((f) => !top.includes(f))].slice(0, 3).sort((a, b) => a - b)
+}
+
 /** Share of days in the window that reached the protein goal, 0-100. */
 export function adherencePct(logs: DailyLog[], dates: string[], goalG: number): number {
   if (dates.length === 0) return 0

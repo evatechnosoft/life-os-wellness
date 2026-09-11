@@ -5,15 +5,17 @@ import { acceptDraft, ask } from '../lib/chat'
 import { db, type ChatMessage } from '../lib/db'
 import { isNative } from '../lib/health'
 import { capturePhoto } from '../lib/meals'
-import { listenOnce, voiceAvailable } from '../lib/voice'
+import { listenOnce, stopListening, voiceAvailable } from '../lib/voice'
 import { Avatar } from './Avatar'
 
 /**
- * The conversation, kept as a running record. No speech bubbles: Eva's turns sit
- * under her mark, yours are indented and dimmer - a transcript, not a messenger app.
+ * Eva ile konusma. Tek yol: hem Bugun ekranindaki kisa hali (compact) hem Eva
+ * sekmesi ayni gecmisi, ayni ucu ve ayni onay kapisini kullanir. Ikisi ayri
+ * istemciyken Bugun'dekinin gecmisi yoktu ve kaydettigi sey Notlar'a dusmuyordu.
  */
-export function Chat() {
-  const messages = useLiveQuery(() => db.chat.orderBy('id').toArray(), []) ?? []
+export function Eva({ compact = false }: { compact?: boolean }) {
+  const all = useLiveQuery(() => db.chat.orderBy('id').toArray(), []) ?? []
+  const messages = compact ? all.slice(-4) : all
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
   const [canSpeak, setCanSpeak] = useState(false)
@@ -24,7 +26,7 @@ export function Chat() {
   }, [])
 
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: 'smooth' })
+    bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages.length, busy])
 
   const send = async (text: string, via: 'text' | 'voice' | 'photo', image?: Blob) => {
@@ -44,7 +46,7 @@ export function Chat() {
       setBusy('yanıt')
       await ask(heard, { via: 'voice' })
     } catch {
-      // permission refused or nothing heard; the button simply returns to idle
+      // izin verilmedi ya da bir sey duyulmadi; dugme bosta kalir
     } finally {
       setBusy(null)
     }
@@ -57,21 +59,28 @@ export function Chat() {
       setBusy('yanıt')
       await ask('Bu ne kadar protein ve kalori?', { via: 'photo', image: blob })
     } catch {
-      // cancelled
+      // vazgecildi
     } finally {
       setBusy(null)
     }
   }
 
+  const submit = () => {
+    const text = typed
+    setTyped('')
+    void send(text, 'text')
+  }
+
   return (
-    <div className="flex min-h-[70dvh] flex-col">
-      <div className="flex-1 space-y-5">
-        {messages.length === 0 && (
-          <div className="flex items-center gap-4 pt-6">
-            <Avatar />
-            <p className="text-sm text-ink-dim">
-              Sor, anlat ya da tabağının fotoğrafını göster. Son bir haftanın verisi elimde,
-              cevaplar ona göre olur.
+    <div className={compact ? 'flex flex-col' : 'flex min-h-[70dvh] flex-col'}>
+      <div className={compact ? 'max-h-[42vh] space-y-4 overflow-y-auto pr-1' : 'flex-1 space-y-5'}>
+        {all.length === 0 && (
+          <div className={`flex items-center gap-4 ${compact ? '' : 'pt-6'}`}>
+            <Avatar size={compact ? 28 : undefined} />
+            <p className="text-sm leading-snug text-ink-dim">
+              {compact
+                ? 'Ne yaptığını yaz ya da söyle, ben günlüğe geçireyim.'
+                : 'Sor, anlat ya da tabağının fotoğrafını göster. Son bir haftanın verisi elimde, cevaplar ona göre olur.'}
             </p>
           </div>
         )}
@@ -101,7 +110,7 @@ export function Chat() {
                   <button
                     type="button"
                     onClick={() => void acceptDraft(m)}
-                    className="mt-2 rounded-field bg-a1/90 px-4 py-2 text-xs font-medium active:bg-a1"
+                    className="mt-2 min-h-11 rounded-field bg-a1/90 px-4 text-xs font-medium text-solid active:bg-a1"
                   >
                     Günlüğe kaydet
                   </button>
@@ -133,18 +142,16 @@ export function Chat() {
         <div ref={bottom} />
       </div>
 
-      <div className="sticky bottom-20 mt-4 flex gap-2 rounded-pill border border-edge-soft bg-glass p-1.5 backdrop-blur">
+      <div
+        className={`mt-4 flex gap-2 rounded-pill border border-edge-soft bg-glass p-1.5 backdrop-blur ${
+          compact ? '' : 'sticky bottom-20'
+        }`}
+      >
         <input
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const text = typed
-              setTyped('')
-              void send(text, 'text')
-            }
-          }}
-          placeholder="Yaz…"
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          placeholder={compact ? 'Bugün ne yaptın?' : 'Yaz…'}
           className="min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
         />
         {isNative() && (
@@ -153,7 +160,7 @@ export function Chat() {
             onClick={() => void photo()}
             disabled={busy !== null}
             aria-label="Fotoğraf"
-            className="size-10 rounded-pill bg-glass-strong text-xs disabled:opacity-50"
+            className="size-11 rounded-pill bg-glass-strong text-xs disabled:opacity-50"
           >
             foto
           </button>
@@ -161,24 +168,16 @@ export function Chat() {
         {canSpeak && (
           <button
             type="button"
-            onClick={() => void speak()}
-            disabled={busy !== null}
-            aria-label="Konuş"
-            className="size-10 rounded-pill bg-a1/90 disabled:opacity-50"
+            onClick={() => (busy === 'dinleme' ? void stopListening() : void speak())}
+            disabled={busy !== null && busy !== 'dinleme'}
+            aria-label={busy === 'dinleme' ? 'Dinlemeyi durdur' : 'Konuş'}
+            className={`size-11 rounded-pill disabled:opacity-50 ${busy === 'dinleme' ? 'bg-a3/90' : 'bg-a1/90'}`}
           >
-            ●
+            {busy === 'dinleme' ? '■' : '●'}
           </button>
         )}
         {typed.trim() !== '' && (
-          <button
-            type="button"
-            onClick={() => {
-              const text = typed
-              setTyped('')
-              void send(text, 'text')
-            }}
-            className="rounded-pill bg-a1/90 px-4 text-sm font-medium"
-          >
+          <button type="button" onClick={submit} className="rounded-pill bg-a1/90 px-4 text-sm font-medium text-solid">
             Gönder
           </button>
         )}

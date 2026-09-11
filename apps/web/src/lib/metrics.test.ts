@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, WearableRecord, Workout } from './db'
-import { adherencePct, dayAverage, estimateKcal, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import { adherencePct, dayAverage, estimateKcal, frequentPortions, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -100,5 +100,16 @@ describe('estimateKcal', () => {
   test('kilo veya sure yoksa tahmin uretmez', () => {
     expect(estimateKcal(workout({ duration_min: 60 }), null)).toBeNull()
     expect(estimateKcal(workout({ duration_min: null }), 100)).toBeNull()
+  })
+})
+
+describe('frequentPortions', () => {
+  test('en sik girilen porsiyonlari one alir', () => {
+    expect(frequentPortions([25, 25, 25, 50, 50, 12])).toEqual([10, 25, 50])
+  })
+
+  test('gecmis yoksa varsayilana duser', () => {
+    expect(frequentPortions([])).toEqual([30, 35, 40])
+    expect(frequentPortions([null, undefined, 0])).toEqual([30, 35, 40])
   })
 })

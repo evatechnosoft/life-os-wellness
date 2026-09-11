@@ -48,6 +48,28 @@ const WORKOUT_BODY = {
   },
 } as const
 
+const SPLIT_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['days'],
+  properties: {
+    days: {
+      type: 'array',
+      maxItems: 7,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['weekday'],
+        properties: {
+          weekday: { type: 'integer', minimum: 0, maximum: 6 },
+          muscle_groups: { type: 'array', items: { type: 'string', maxLength: 40 }, maxItems: 20 },
+          note: { type: ['string', 'null'], maxLength: 200 },
+        },
+      },
+    },
+  },
+} as const
+
 const WEARABLE_BODY = {
   type: 'object',
   additionalProperties: false,
@@ -177,6 +199,27 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     const { rowCount } = await pool.query('delete from workout where id = $1', [id])
     if (rowCount === 0) return reply.code(404).send({ error: 'not found' })
     return reply.code(204).send()
+  })
+
+  // Haftalik antrenman ajandasi. En fazla yedi satir, tumu birden okunur/yazilir:
+  // gun bazli uc acmak tek kullanicili bir tablo icin gereksiz.
+  app.get('/api/split', async () => {
+    const { rows } = await pool.query('select weekday, muscle_groups, note from training_split order by weekday')
+    return rows
+  })
+
+  app.put('/api/split', { schema: { body: SPLIT_BODY } }, async (req) => {
+    const { days } = req.body as { days: { weekday: number; muscle_groups?: string[]; note?: string | null }[] }
+    for (const day of days) {
+      await pool.query(
+        `insert into training_split (weekday, muscle_groups, note) values ($1, $2, $3)
+         on conflict (weekday) do update set
+           muscle_groups = excluded.muscle_groups, note = excluded.note, updated_at = now()`,
+        [day.weekday, day.muscle_groups ?? [], day.note ?? null],
+      )
+    }
+    const { rows } = await pool.query('select weekday, muscle_groups, note from training_split order by weekday')
+    return rows
   })
 
   app.get('/api/wearable', { schema: { querystring: RANGE } }, async (req) => {

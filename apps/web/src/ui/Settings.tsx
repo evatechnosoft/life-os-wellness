@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { getApiBase, getToken, setApiBase, setToken } from '../lib/api'
 import { db } from '../lib/db'
 import { saveGoals, useGoals } from '../lib/settings'
+import { saveSplit, useSplit, WEEKDAYS } from '../lib/split'
 import { syncOutbox } from '../lib/store'
 import { Card, NumberField } from './Field'
 
@@ -27,6 +28,45 @@ function NoteHistory() {
   )
 }
 
+const MUSCLES = ['göğüs', 'sırt', 'bacak', 'omuz', 'kol', 'karın']
+
+/** Haftalik program: hangi gun hangi bolge. Eva bugunun bolgesini bilir ve takip eder. */
+function SplitEditor() {
+  const split = useSplit()
+  const toggle = (weekday: number, muscle: string) => {
+    const current = split[weekday] ?? []
+    const next = current.includes(muscle) ? current.filter((m) => m !== muscle) : [...current, muscle]
+    void saveSplit({ ...split, [weekday]: next })
+  }
+  // Hafta pazartesiden okunur; getDay() pazari 0 verdigi icin sira boyle diziliyor.
+  const order = [1, 2, 3, 4, 5, 6, 0]
+
+  return (
+    <ul className="space-y-3">
+      {order.map((weekday) => (
+        <li key={weekday}>
+          <div className="text-xs text-ink-faint">{WEEKDAYS[weekday]}</div>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {MUSCLES.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => toggle(weekday, m)}
+                aria-pressed={(split[weekday] ?? []).includes(m)}
+                className={`min-h-11 rounded-full px-4 text-xs ${
+                  (split[weekday] ?? []).includes(m) ? 'bg-a1/90 text-solid' : 'bg-glass-inset text-ink-faint'
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export function Settings() {
   const goals = useGoals()
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
@@ -35,15 +75,21 @@ export function Settings() {
   const [status, setStatus] = useState('')
 
   const exportJson = async () => {
-    const [daily_log, workout, retro] = await Promise.all([
+    const [daily_log, workout, retro, notes, wearable, meal, chat] = await Promise.all([
       db.daily_log.toArray(),
       db.workout.toArray(),
       db.retro.toArray(),
+      db.note_log.toArray(),
+      db.wearable.toArray(),
+      db.meal.toArray(),
+      db.chat.toArray(),
     ])
-    const notes = await db.note_log.toArray()
-    const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), daily_log, workout, retro, notes }, null, 2)], {
-      type: 'application/json',
-    })
+    // Fotograflar Blob; JSON'a giremez, yerine boyutu yaziliyor.
+    const meals = meal.map(({ photo, ...rest }) => ({ ...rest, photo_bytes: photo instanceof Blob ? photo.size : 0 }))
+    const blob = new Blob(
+      [JSON.stringify({ exported_at: new Date().toISOString(), daily_log, workout, retro, notes, wearable, meals, chat }, null, 2)],
+      { type: 'application/json' },
+    )
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -97,6 +143,13 @@ export function Settings() {
         <NumberField label="Günlük protein" unit="g" value={goals.protein_g} onCommit={(v) => void saveGoals({ ...goals, protein_g: v ?? 140 })} />
         <NumberField label="Haftalık kilo kaybı" unit="kg" step={0.05} value={goals.weekly_weight_loss_kg} onCommit={(v) => void saveGoals({ ...goals, weekly_weight_loss_kg: v ?? 0.6 })} />
         <NumberField label="Kas grubu başına set" value={goals.sets_per_group} onCommit={(v) => void saveGoals({ ...goals, sets_per_group: v ?? 10 })} />
+      </Card>
+
+      <Card title="Haftalık program">
+        <p className="mb-3 text-xs text-ink-faint">
+          Hangi gün hangi bölge. Eva bugünün bölgesini bilir, o güne ait kaydı takip eder.
+        </p>
+        <SplitEditor />
       </Card>
 
       <Card title="Notlar">

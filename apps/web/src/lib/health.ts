@@ -159,7 +159,13 @@ export async function syncHealth(days = 7): Promise<number> {
   // it stays in wearable/daily_log history, we only surface the automatic one.
   const today = toLocalDate()
   const todaySteps = records.find((r) => r.date === today && r.metric === 'steps')
-  if (todaySteps) await saveDaily(today, { steps: Math.round(todaySteps.value) })
+  if (todaySteps) {
+    // Saat gun icinde artan bir sayac; elle girilen daha buyuk bir deger varsa onu
+    // ezmek veri kaybidir (telefon cepte degilken yurunen adim saatte yok).
+    const manual = (await db.daily_log.get(today))?.steps ?? 0
+    const watch = Math.round(todaySteps.value)
+    if (watch > manual) await saveDaily(today, { steps: watch })
+  }
 
   if (hasServer()) {
     try {

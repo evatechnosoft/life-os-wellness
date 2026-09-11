@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncHealth } from './lib/health'
+import { pullSplit } from './lib/split'
 import { hasServer, pullRange, startSyncLoop } from './lib/store'
-import { Chat } from './ui/Chat'
+import { Eva } from './ui/Eva'
 import { Settings } from './ui/Settings'
 import { Today } from './ui/Today'
 import { Week } from './ui/Week'
@@ -35,7 +36,10 @@ export function App() {
     // 30 gun: hafta ekrani 7 gunu cizer ama gecmis ictihat (kilo egilimi, Eva'nin
     // ozeti) daha genis pencere ister; satir sayisi kucuk oldugu icin ucuz.
     const window30 = lastDates(30)
-    if (hasServer()) void pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
+    if (hasServer()) {
+      void pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
+      void pullSplit().catch(() => {})
+    }
     // Watch data on launch and every 15 min while the app stays open.
     void syncHealth().catch(() => {})
     const health = window.setInterval(() => void syncHealth().catch(() => {}), 900_000)
@@ -59,20 +63,22 @@ export function App() {
 
       <main className="flex-1 px-4 pb-24">
         {tab === 'today' && <Today date={date} />}
-        {tab === 'chat' && <Chat />}
+        {tab === 'chat' && <Eva />}
         {tab === 'week' && <Week />}
         {tab === 'settings' && <Settings />}
       </main>
 
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
       <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div className="glass-nav pointer-events-auto flex gap-1 p-1.5">
+        <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex gap-1 p-1.5">
           {TABS.map((t) => (
             <button
               key={t.id}
               type="button"
+              role="tab"
+              aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
-              className={`rounded-pill px-5 py-2.5 text-sm ${
+              className={`min-h-11 rounded-pill px-5 text-sm ${
                 tab === t.id ? 'bg-glass-strong text-ink' : 'text-ink-faint'
               }`}
             >

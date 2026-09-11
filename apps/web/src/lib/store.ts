@@ -15,6 +15,12 @@ async function queue(entry: Omit<OutboxEntry, 'id' | 'queued_at'>): Promise<void
   void syncOutbox()
 }
 
+/** Haftalik ajandayi kuyruga koyar; ajanda tek satirlik bir ayar, gun bazli uc yok. */
+export async function queueSplit(split: Record<number, string[]>): Promise<void> {
+  const days = Object.entries(split).map(([weekday, muscle_groups]) => ({ weekday: Number(weekday), muscle_groups }))
+  await queue({ method: 'PUT', path: '/api/split', body: { days } })
+}
+
 export async function saveDaily(date: string, patch: Partial<DailyLog>): Promise<void> {
   const existing = await db.daily_log.get(date)
   await db.daily_log.put({ ...existing, ...patch, date, updated_at: now() })

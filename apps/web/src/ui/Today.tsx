@@ -2,27 +2,28 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
 import { db } from '../lib/db'
-import { estimateKcal } from '../lib/metrics'
-import { useGoals } from '../lib/settings'
+import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
-import { Assistant } from './Assistant'
+import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
+import { DayHeader } from './DayHeader'
 import { Meals } from './Meals'
 import { ReviewWorkout } from './ReviewWorkout'
 import { Sleep } from './Sleep'
 import { Watch } from './Watch'
 import { draftToWorkout, emptyDraft, TYPES, WorkoutFields, type WorkoutDraft } from './WorkoutForm'
 
-const PULSES = [30, 35, 40]
 
 export function Today({ date }: { date: string }) {
-  const goals = useGoals()
   const log = useLiveQuery(() => db.daily_log.get(date), [date])
   const workouts = useLiveQuery(() => db.workout.where('date').equals(date).toArray(), [date]) ?? []
   const retro = useLiveQuery(() => db.retro.get(date), [date])
+  // Son iki haftanin ogunleri: hizli dugmeler gercek aliskanliktan turiyor.
+  const recentMeals = useLiveQuery(() => db.meal.reverse().limit(60).toArray(), []) ?? []
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
 
   const done = workouts.filter((w) => !w.needs_review)
+  const pulses = frequentPortions(recentMeals.map((m) => m.protein_g))
   const protein = log?.protein_g ?? 0
   const eveningFirst = new Date().getHours() >= 20
 
@@ -47,24 +48,16 @@ export function Today({ date }: { date: string }) {
   )
 
   return (
-    <div>
-      <Assistant date={date} />
+    <div className="space-y-3">
+      <DayHeader date={date} />
+
+      <Eva compact />
 
       {eveningFirst && retroCard}
 
-      <Card title="Protein">
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-semibold tabular-nums">{protein}</span>
-          <span className="text-sm text-ink-faint">/ {goals.protein_g} g</span>
-        </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-glass-strong">
-          <div
-            className="h-full bg-a1 transition-[width]"
-            style={{ width: `${Math.min(100, (protein / goals.protein_g) * 100)}%` }}
-          />
-        </div>
-        <div className="mt-3 flex gap-2">
-          {PULSES.map((g) => (
+      <Card title="Protein ekle">
+        <div className="flex gap-2">
+          {pulses.map((g) => (
             <button
               key={g}
               type="button"
@@ -76,7 +69,7 @@ export function Today({ date }: { date: string }) {
           ))}
           <button
             type="button"
-            onClick={() => void addProtein(date, -PULSES[0]!)}
+            onClick={() => void addProtein(date, -pulses[0]!)}
             disabled={protein === 0}
             className="rounded-field bg-glass-strong px-4 text-sm text-ink-dim disabled:opacity-40"
           >
