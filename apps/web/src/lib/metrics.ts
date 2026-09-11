@@ -1,4 +1,4 @@
-import type { DailyLog, WearableRecord, Workout } from './db'
+import type { DailyLog, WearableRecord, Workout, WorkoutType } from './db'
 
 /** Mean of the values present in the window. Missing days are skipped, not counted as zero. */
 export function movingAverage(values: (number | null | undefined)[]): number | null {
@@ -15,6 +15,22 @@ export function dayAverage(records: WearableRecord[], metric: string): number | 
   const values = records.filter((r) => r.metric === metric).map((r) => r.value)
   if (values.length === 0) return null
   return Math.round(values.reduce((sum, v) => sum + v, 0) / values.length)
+}
+
+/**
+ * MET degerleri (Compendium of Physical Activities): direnc antrenmani 5.0,
+ * kardiyo 7.0, yuruyus 3.5. Kaldirilan agirlik MET'i degistirmez - yuk artinca
+ * dinlenme de uzar - o yuzden hesaba girmez, ilerleme takibinde kullanilir.
+ */
+const MET: Record<WorkoutType, number> = { resistance: 5, cardio: 7, walk: 3.5, rest: 0 }
+
+/**
+ * Antrenmanin yaktigi tahmini kalori: MET x vucut agirligi x saat.
+ * Sure veya kilo bilinmiyorsa tahmin yapilmaz - uydurma sayi gostermekten iyidir.
+ */
+export function estimateKcal(workout: Workout, bodyKg: number | null): number | null {
+  if (!workout.duration_min || bodyKg == null) return null
+  return Math.round(MET[workout.type] * bodyKg * (workout.duration_min / 60))
 }
 
 /** Share of days in the window that reached the protein goal, 0-100. */

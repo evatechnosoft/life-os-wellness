@@ -107,6 +107,21 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(list.json().length, 1)
   })
 
+  test('a confirmed session is not sent back for review', async () => {
+    const id = '00000000-0000-4000-8000-0000000000de'
+    const watch = { id, date: '2099-01-06', type: 'cardio', duration_min: 11, needs_review: true }
+    await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload: watch })
+    const confirmed = await app.inject({
+      method: 'POST', url: '/api/workouts', headers: auth,
+      payload: { ...watch, type: 'resistance', sets_total: 3, weight_kg: 40, needs_review: false },
+    })
+    assert.equal(confirmed.json().needs_review, false)
+    assert.equal(Number(confirmed.json().weight_kg), 40)
+    // Disa aktarim ikinci kez alinirsa saat yine needs_review gonderir; onay bozulmamali.
+    const reimport = await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload: watch })
+    assert.equal(reimport.json().needs_review, false)
+  })
+
   test('rejects an unknown workout type', async () => {
     const res = await app.inject({
       method: 'POST', url: '/api/workouts', headers: auth, payload: { date: '2099-01-01', type: 'yoga' },

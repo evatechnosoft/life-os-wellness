@@ -110,7 +110,8 @@ export function collect(db) {
   }
 
   // Egzersiz seanslari: Health Connect tipi sayisal, karsiligi bizim semada yok.
-  // Sure disinda veri tasimadiklari icin 'cardio' sayilip ham tip nota yaziliyor.
+  // Ne yapildigini yalniz kullanici bilir; needs_review ile "bu neydi?" kartina
+  // dusuyor, onaylanana kadar gunun antrenman listesine girmiyor.
   const workouts = db
     .prepare(`select uuid, local_date as day, exercise_type as type,
                      (end_time - start_time) / 60000 as minutes
@@ -122,6 +123,7 @@ export function collect(db) {
       type: 'cardio',
       duration_min: Math.round(w.minutes),
       muscle_groups: [],
+      needs_review: true,
       notes: `Health Connect (tip ${w.type})`,
     }))
 
@@ -174,7 +176,7 @@ if (dryRun) {
 
 const token = readEnv('API_TOKEN')
 // Uc parti da tekrar calistirmaya dayanikli: wearable (date,source,metric) uzerine
-// yazar, daily gun bazli PUT, workout id ile 'on conflict do nothing'.
+// yazar, daily gun bazli PUT, workout id uzerine yazar (onaylanan seans onayli kalir).
 for (let i = 0; i < wearable.length; i += 500) {
   await send(api, token, 'POST', '/api/wearable', { records: wearable.slice(i, i + 500) })
 }

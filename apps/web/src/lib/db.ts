@@ -21,6 +21,10 @@ export interface Workout {
   sets_total?: number | null
   muscle_groups: string[]
   notes?: string | null
+  /** Saat bir seans gordu ama ne oldugunu bilmiyor; kullanici onaylayana kadar true. */
+  needs_review?: boolean
+  /** Kaldirilan agirlik (kg) - kullanici girer, saat bilmez. */
+  weight_kg?: number | null
 }
 
 export interface Retro {

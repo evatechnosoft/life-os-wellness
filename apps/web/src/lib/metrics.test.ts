@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, WearableRecord, Workout } from './db'
-import { adherencePct, dayAverage, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import { adherencePct, dayAverage, estimateKcal, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -84,5 +84,21 @@ describe('dayAverage', () => {
 
   test('returns null when the watch was never worn', () => {
     expect(dayAverage([rec('2026-09-10', 'steps', 5000)], 'resting_hr')).toBeNull()
+  })
+})
+
+describe('estimateKcal', () => {
+  const workout = (fields: Partial<Workout>): Workout =>
+    ({ id: '1', date: '2026-09-10', type: 'resistance', muscle_groups: [], ...fields })
+
+  test('MET x kilo x saat', () => {
+    // Direnc 5 MET, 100 kg, 60 dk -> 500 kcal
+    expect(estimateKcal(workout({ duration_min: 60 }), 100)).toBe(500)
+    expect(estimateKcal(workout({ type: 'walk', duration_min: 30 }), 100)).toBe(175)
+  })
+
+  test('kilo veya sure yoksa tahmin uretmez', () => {
+    expect(estimateKcal(workout({ duration_min: 60 }), null)).toBeNull()
+    expect(estimateKcal(workout({ duration_min: null }), 100)).toBeNull()
   })
 })

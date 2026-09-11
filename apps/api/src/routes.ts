@@ -43,6 +43,8 @@ const WORKOUT_BODY = {
     sets_total: { type: ['integer', 'null'], minimum: 0, maximum: 100 },
     muscle_groups: { type: 'array', items: { type: 'string', maxLength: 40 }, maxItems: 20 },
     notes: { type: ['string', 'null'], maxLength: 2000 },
+    needs_review: { type: 'boolean' },
+    weight_kg: { type: ['number', 'null'], minimum: 0, maximum: 500 },
   },
 } as const
 
@@ -146,20 +148,28 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
   app.post('/api/workouts', { schema: { body: WORKOUT_BODY } }, async (req, reply) => {
     const b = req.body as Record<string, unknown>
     // The client supplies the id so a replayed offline queue cannot create duplicates.
+    // Ayni id ikinci kez gelirse uzerine yazilir: saatin bulduğu seansi kullanici
+    // "bu neydi?" karti uzerinden tamamlayinca ayni satir guncellenmeli.
     const { rows } = await pool.query(
-      `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes)
-       values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7)
-       on conflict (id) do nothing
-       returning *`,
-      [b.id ?? null, b.date, b.type, b.duration_min ?? null, b.sets_total ?? null, b.muscle_groups ?? [], b.notes ?? null],
+      `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes, needs_review, weight_kg)
+       values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9)
+       on conflict (id) do update set
+         type = excluded.type, duration_min = excluded.duration_min, sets_total = excluded.sets_total,
+         muscle_groups = excluded.muscle_groups, notes = excluded.notes,
+         -- Bir kez onaylandiysa onayli kalir: disa aktarimi ikinci kez almak
+         -- kullanicinin tamamladigi seansi yeniden "bu neydi?" yapmasin.
+         needs_review = workout.needs_review and excluded.needs_review,
+         weight_kg = excluded.weight_kg
+       -- xmax = 0 yalniz yeni eklenen satirda dogru; guncelleme 200 donsun diye.
+       returning *, (xmax = 0) as inserted`,
+      [
+        b.id ?? null, b.date, b.type, b.duration_min ?? null, b.sets_total ?? null,
+        b.muscle_groups ?? [], b.notes ?? null, b.needs_review ?? false, b.weight_kg ?? null,
+      ],
     )
-    if (rows.length === 0) {
-      const existing = await pool.query('select * from workout where id = $1', [b.id])
-      reply.code(200)
-      return existing.rows[0]
-    }
-    reply.code(201)
-    return rows[0]
+    const { inserted, ...workout } = rows[0]
+    reply.code(inserted ? 201 : 200)
+    return workout
   })
 
   app.delete('/api/workouts/:id', async (req, reply) => {
