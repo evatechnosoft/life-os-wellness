@@ -5,6 +5,7 @@
 //   npm run link              -> canli PWA (Pages + fit.evaitec.com)
 //   npm run link -- --lan     -> ev agindaki API, tarayici yine Pages'ten acilir
 //   npm run link -- --show    -> linki duz metin de bas (token gorunur olur)
+//   npm run link -- --lan --host 192.168.1.185  -> adresi elle ver
 import { readFileSync } from 'node:fs'
 import { networkInterfaces } from 'node:os'
 import { fileURLToPath } from 'node:url'
@@ -25,14 +26,26 @@ function readEnv(name) {
   return value
 }
 
-/** Ev agindaki adres; telefon ayni agdayken tunel yerine bunu kullanmak daha hizli. */
+/**
+ * Ev agindaki adres; telefon ayni agdayken tunel yerine bunu kullanmak daha hizli.
+ * Makinede ZeroTier, WSL kopru ve hotspot arayuzleri de var; ilk bulunani almak
+ * telefonun erisemedigi bir adres veriyordu. Ev agi (192.168.x) once, sonra
+ * 172.16-31, en son 10.x; baglantisiz link-local (169.254) hic sayilmaz.
+ */
 function lanAddress() {
+  const flag = process.argv.indexOf('--host')
+  if (flag >= 0 && process.argv[flag + 1]) return process.argv[flag + 1]
+
+  const found = []
   for (const list of Object.values(networkInterfaces())) {
     for (const net of list ?? []) {
-      if (net.family === 'IPv4' && !net.internal) return net.address
+      if (net.family !== 'IPv4' || net.internal) continue
+      if (net.address.startsWith('169.254.')) continue
+      found.push(net.address)
     }
   }
-  return null
+  const rank = (ip) => (ip.startsWith('192.168.') ? 0 : ip.startsWith('172.') ? 1 : 2)
+  return found.sort((a, b) => rank(a) - rank(b))[0] ?? null
 }
 
 const PWA = 'https://evatechnosoft.github.io/life-os-wellness/'
@@ -54,5 +67,13 @@ qr.generate(link, { small: true }, (code) => {
   console.log(process.argv.includes('--show') ? `  ${link}\n` : '  (link QR icinde; duz metin icin --show)\n')
   console.log('  Telefonun kamerasiyla QR\'i okut. Ilk acilista token kaydedilir ve')
   console.log('  adresten silinir. Sonra menuden "Ana ekrana ekle".')
-  console.log(lan ? '  API: ev agi (--lan)\n' : '  API: https://fit.evaitec.com\n')
+  if (lan) {
+    console.log('  API: ev agi (--lan)')
+    // Sayfa https, LAN adresi http: tarayici karisik icerigi engelliyor ve kayitlar
+    // kuyrukta birikiyor. APK'da sorun yok (capacitor.config: allowMixedContent).
+    console.log('  UYARI: bu link yalniz APK icin. Tarayicida karisik icerik engellenir,')
+    console.log('  kayitlar sunucuya gitmez. Tarayici icin --lan olmadan calistir.\n')
+  } else {
+    console.log('  API: https://fit.evaitec.com\n')
+  }
 })

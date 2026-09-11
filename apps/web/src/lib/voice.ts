@@ -19,14 +19,41 @@ export interface NoteDraft {
   summary: string
 }
 
+/**
+ * Tarayicinin kendi konusma tanima motoru. Capacitor eklentisi yalniz APK'da var;
+ * Chrome/Edge ayni isi webkitSpeechRecognition ile yapiyor, yeni bagimlilik yok.
+ * Guvenli baglam (https) sart - Pages ve tunel ikisi de https.
+ */
+type WebSpeech = { new (): SpeechRecognitionLike }
+interface SpeechRecognitionLike {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  maxAlternatives: number
+  start(): void
+  stop(): void
+  onresult: ((event: { results: { 0: { 0: { transcript: string } } } }) => void) | null
+  onerror: ((event: { error: string }) => void) | null
+  onend: (() => void) | null
+}
+
+function webSpeech(): WebSpeech | null {
+  const w = window as unknown as { SpeechRecognition?: WebSpeech; webkitSpeechRecognition?: WebSpeech }
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
+}
+
+let webSession: SpeechRecognitionLike | null = null
+
 export async function voiceAvailable(): Promise<boolean> {
-  if (!isNative()) return false
+  if (!isNative()) return webSpeech() !== null
   const { available } = await SpeechRecognition.available()
   return available
 }
 
 /** Listens once and returns what was heard. Speech-to-text runs on the phone. */
 export async function listenOnce(): Promise<string> {
+  if (!isNative()) return listenInBrowser()
+
   const permission = await SpeechRecognition.checkPermissions()
   if (permission.speechRecognition !== 'granted') {
     const asked = await SpeechRecognition.requestPermissions()
@@ -43,8 +70,42 @@ export async function listenOnce(): Promise<string> {
   return heard
 }
 
-export function stopListening(): Promise<void> {
-  return SpeechRecognition.stop()
+function listenInBrowser(): Promise<string> {
+  const Recognition = webSpeech()
+  if (!Recognition) throw new Error('Bu tarayıcı sesli notu desteklemiyor')
+
+  return new Promise((resolve, reject) => {
+    const session = new Recognition()
+    webSession = session
+    session.lang = 'tr-TR'
+    session.continuous = false
+    session.interimResults = false
+    session.maxAlternatives = 1
+
+    let heard = ''
+    session.onresult = (event) => {
+      heard = event.results[0][0].transcript.trim()
+    }
+    session.onerror = (event) => {
+      webSession = null
+      // "no-speech" susmaktir, hata degil; kullanici anlamsiz bir uyari gormesin.
+      reject(new Error(event.error === 'not-allowed' ? 'Mikrofon izni verilmedi' : 'Bir şey duyamadım'))
+    }
+    session.onend = () => {
+      webSession = null
+      if (heard) resolve(heard)
+      else reject(new Error('Bir şey duyamadım'))
+    }
+    session.start()
+  })
+}
+
+export async function stopListening(): Promise<void> {
+  if (!isNative()) {
+    webSession?.stop()
+    return
+  }
+  await SpeechRecognition.stop()
 }
 
 /** What the draft would change, in plain Turkish, so the user sees it before confirming. */
