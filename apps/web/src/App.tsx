@@ -32,8 +32,10 @@ export function App() {
     const stop = startSyncLoop()
     // Keep the header honest when the app stays open past midnight.
     const rollover = window.setInterval(() => setDate(toLocalDate()), 60_000)
-    const window7 = lastDates(7)
-    if (hasServer()) void pullRange(window7[0]!, window7[window7.length - 1]!).catch(() => {})
+    // 30 gun: hafta ekrani 7 gunu cizer ama gecmis ictihat (kilo egilimi, Eva'nin
+    // ozeti) daha genis pencere ister; satir sayisi kucuk oldugu icin ucuz.
+    const window30 = lastDates(30)
+    if (hasServer()) void pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
     // Watch data on launch and every 15 min while the app stays open.
     void syncHealth().catch(() => {})
     const health = window.setInterval(() => void syncHealth().catch(() => {}), 900_000)

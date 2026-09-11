@@ -1,10 +1,20 @@
-import type { DailyLog, Workout } from './db'
+import type { DailyLog, WearableRecord, Workout } from './db'
 
 /** Mean of the values present in the window. Missing days are skipped, not counted as zero. */
 export function movingAverage(values: (number | null | undefined)[]): number | null {
   const present = values.filter((v): v is number => typeof v === 'number')
   if (present.length === 0) return null
   return present.reduce((sum, v) => sum + v, 0) / present.length
+}
+
+/**
+ * Daily average of one wearable metric across the window. Days without a reading
+ * are skipped: the watch not being worn is missing data, not a zero.
+ */
+export function dayAverage(records: WearableRecord[], metric: string): number | null {
+  const values = records.filter((r) => r.metric === metric).map((r) => r.value)
+  if (values.length === 0) return null
+  return Math.round(values.reduce((sum, v) => sum + v, 0) / values.length)
 }
 
 /** Share of days in the window that reached the protein goal, 0-100. */

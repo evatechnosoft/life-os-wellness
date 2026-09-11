@@ -42,6 +42,11 @@ export async function buildContext(): Promise<string> {
     for (const r of wearable.filter((w) => w.date === date && w.metric === 'snore_min')) {
       day.push(`horlama ~${Math.round(r.value)} dk`)
     }
+    // Saatten gelen olcumler: Eva bunlari sormasin, bilsin.
+    const hr = wearable.find((w) => w.date === date && w.metric === 'resting_hr')
+    if (hr) day.push(`dinlenme nabzı ${Math.round(hr.value)}`)
+    const kcal = wearable.find((w) => w.date === date && w.metric === 'total_kcal')
+    if (kcal) day.push(`${Math.round(kcal.value)} kcal yakım`)
     if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
   }
   return lines.join('\n')

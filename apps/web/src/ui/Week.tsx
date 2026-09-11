@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 
 import { lastDates } from '../lib/date'
 import { db } from '../lib/db'
-import { adherencePct, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
+import { adherencePct, dayAverage, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
 import { useGoals } from '../lib/settings'
 import { Card } from './Field'
 
@@ -38,6 +38,7 @@ export function Week() {
 
   const logs = useLiveQuery(() => db.daily_log.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
   const workouts = useLiveQuery(() => db.workout.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
+  const wearable = useLiveQuery(() => db.wearable.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
 
   const byDate = new Map(logs.map((l) => [l.date, l]))
   const weights = dates.map((d) => byDate.get(d)?.weight_kg ?? null)
@@ -47,6 +48,8 @@ export function Week() {
   const sets = setsByMuscle(workouts)
   const steps = logs.reduce((sum, l) => sum + (l.steps ?? 0), 0)
   const workoutDays = new Set(workouts.filter((w) => w.type !== 'rest').map((w) => w.date)).size
+  const restingHr = dayAverage(wearable, 'resting_hr')
+  const kcal = dayAverage(wearable, 'total_kcal')
 
   return (
     <div>
@@ -102,8 +105,21 @@ export function Week() {
         <p className="mt-3 text-xs text-ink-faint">Hedef: grup başına {goals.sets_per_group} set (8-12 aralığı yeşil).</p>
       </Card>
 
-      <Card title="Toplam adım">
-        <div className="text-2xl font-semibold tabular-nums">{steps.toLocaleString('tr-TR')}</div>
+      <Card title="Saatten gelen">
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div className="text-2xl font-semibold tabular-nums">{steps.toLocaleString('tr-TR')}</div>
+            <div className="text-xs text-ink-faint">toplam adım</div>
+          </div>
+          <div>
+            <div className="text-2xl font-semibold tabular-nums">{restingHr ?? '—'}</div>
+            <div className="text-xs text-ink-faint">dinlenme nabzı</div>
+          </div>
+          <div>
+            <div className="text-2xl font-semibold tabular-nums">{kcal?.toLocaleString('tr-TR') ?? '—'}</div>
+            <div className="text-xs text-ink-faint">günlük kcal</div>
+          </div>
+        </div>
       </Card>
     </div>
   )

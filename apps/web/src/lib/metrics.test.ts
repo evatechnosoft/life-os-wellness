@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import type { DailyLog, Workout } from './db'
-import { adherencePct, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import type { DailyLog, WearableRecord, Workout } from './db'
+import { adherencePct, dayAverage, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -71,5 +71,18 @@ describe('weightDelta', () => {
 
   test('needs at least two weigh-ins', () => {
     expect(weightDelta([log('2026-01-01', { weight_kg: 83 })])).toBeNull()
+  })
+})
+
+describe('dayAverage', () => {
+  const rec = (date: string, metric: string, value: number): WearableRecord =>
+    ({ id: `${date}:${metric}`, date, metric, value, source: 'health_connect', synced_at: '' })
+
+  test('averages only the requested metric', () => {
+    expect(dayAverage([rec('2026-09-09', 'resting_hr', 60), rec('2026-09-10', 'resting_hr', 70), rec('2026-09-10', 'steps', 5000)], 'resting_hr')).toBe(65)
+  })
+
+  test('returns null when the watch was never worn', () => {
+    expect(dayAverage([rec('2026-09-10', 'steps', 5000)], 'resting_hr')).toBeNull()
   })
 })

@@ -116,3 +116,30 @@ ucuz bir katman daha eklenebilir: sık kullandığın kalıpların hatırlanmas�
 - API hâlâ Dean'in PC'sinde. PC kapalıyken Eva susuyor. ZimaOS'a taşımak duruyor,
   ZimaOS 10 Eylül'de ping'e yanıt vermiyordu.
 - `API_TOKEN` 10 Eylül'de bir kez terminale basıldı. Döndürülmesi öneriliyor, acil değil.
+
+---
+
+## Ek: Health Connect'te gerçekte ne var (11 Eylül 2026, export kanıtı)
+
+Telefonun Health Connect dökümü (`Health Connect → Verileri yönetin → Dışa aktar`,
+11 MB SQLite) incelendi. Madde 3'ün "karar gereken" kısmı artık kapalı:
+
+- **Uyku YOK.** `sleep_session_record_table` ve `sleep_stages_table` mevcut ama
+  **sıfır satır**. Samsung Health uykuyu kendi içinde tutuyor, Health Connect'e
+  yazmıyor. Kendi Kotlin eklentimizi yazsak okuyacak veri olmayacaktı → **3b'nin
+  uyku ayağı iptal**, Samsung Health'te uyku paylaşımı açılıp doğrulanana kadar.
+- **Aktif kalori de YOK** (`active_calories_burned_record_table` boş). Bizim kod
+  tam olarak onu istiyor (`health.ts:27` → `dataType: 'active-calories'`), yani
+  izinler verilse bile kalori hep 0 gelir. Dolu olan `total_calories_burned`
+  (Fitbit, 9.931 kayıt) ve `capacitor-health` onu okuyamıyor → **kendi eklentimiz
+  uyku için değil, toplam kalori + nabız için değerli.**
+- **Nabız VAR** (Samsung Health, 152 kayıt / 2.560 örnek, 14 Temmuz'dan beri).
+  Son üç günde yoğun (günde 500-1400 örnek), öncesinde seyrek.
+- **Adım üç kaynaktan geliyor** (Fitbit, Samsung Health, Health Connect) ve aynı
+  günü ayrı ayrı yazıyorlar. Toplamak üç kat sayar; `queryAggregated` kullanmak
+  ya da tek kaynak seçmek şart. `ops/import_health.mjs` gün başına en yüksek tek
+  kaynağı alıyor.
+
+Geçmiş veri artık günlükte: 11 Nisan - 10 Eylül arası 153 gün, 277 ölçüm kaydı
+ve 7 egzersiz seansı `npm run import:health` ile aktarıldı. Uygulama artık boş
+değil; Hafta ekranı ve Eva'nın özeti gerçek veriyle çalışıyor.
