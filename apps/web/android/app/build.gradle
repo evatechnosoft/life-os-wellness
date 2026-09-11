@@ -13,7 +13,7 @@ android {
         applicationId "com.evaitec.wellness"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode appVersion.split('\.').inject(0) { acc, part -> acc * 100 + (part as int) }
+        versionCode appVersion.tokenize('.').with { it[0].toInteger() * 10000 + it[1].toInteger() * 100 + it[2].toInteger() }
         versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
