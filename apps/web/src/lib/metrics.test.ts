@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import type { DailyLog, Workout } from './db'
-import { adherencePct, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import type { DailyLog, WearableRecord, Workout } from './db'
+import { adherencePct, dayAverage, estimateKcal, frequentPortions, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -71,5 +71,45 @@ describe('weightDelta', () => {
 
   test('needs at least two weigh-ins', () => {
     expect(weightDelta([log('2026-01-01', { weight_kg: 83 })])).toBeNull()
+  })
+})
+
+describe('dayAverage', () => {
+  const rec = (date: string, metric: string, value: number): WearableRecord =>
+    ({ id: `${date}:${metric}`, date, metric, value, source: 'health_connect', synced_at: '' })
+
+  test('averages only the requested metric', () => {
+    expect(dayAverage([rec('2026-09-09', 'resting_hr', 60), rec('2026-09-10', 'resting_hr', 70), rec('2026-09-10', 'steps', 5000)], 'resting_hr')).toBe(65)
+  })
+
+  test('returns null when the watch was never worn', () => {
+    expect(dayAverage([rec('2026-09-10', 'steps', 5000)], 'resting_hr')).toBeNull()
+  })
+})
+
+describe('estimateKcal', () => {
+  const workout = (fields: Partial<Workout>): Workout =>
+    ({ id: '1', date: '2026-09-10', type: 'resistance', muscle_groups: [], ...fields })
+
+  test('MET x kilo x saat', () => {
+    // Direnc 5 MET, 100 kg, 60 dk -> 500 kcal
+    expect(estimateKcal(workout({ duration_min: 60 }), 100)).toBe(500)
+    expect(estimateKcal(workout({ type: 'walk', duration_min: 30 }), 100)).toBe(175)
+  })
+
+  test('kilo veya sure yoksa tahmin uretmez', () => {
+    expect(estimateKcal(workout({ duration_min: 60 }), null)).toBeNull()
+    expect(estimateKcal(workout({ duration_min: null }), 100)).toBeNull()
+  })
+})
+
+describe('frequentPortions', () => {
+  test('en sik girilen porsiyonlari one alir', () => {
+    expect(frequentPortions([25, 25, 25, 50, 50, 12])).toEqual([10, 25, 50])
+  })
+
+  test('gecmis yoksa varsayilana duser', () => {
+    expect(frequentPortions([])).toEqual([30, 35, 40])
+    expect(frequentPortions([null, undefined, 0])).toEqual([30, 35, 40])
   })
 })

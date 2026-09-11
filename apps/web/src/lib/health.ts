@@ -132,13 +132,18 @@ export async function syncHealth(days = 7): Promise<number> {
     for (const w of res.workouts) {
       const start = new Date(w.startDate)
       const minutes = Math.round((new Date(w.endDate).getTime() - start.getTime()) / 60000)
+      const id = await stableId(`${SOURCE}:${w.startDate}:${w.workoutType}`)
+      const existing = await db.workout.get(id)
       const entry: Workout = {
-        id: await stableId(`${SOURCE}:${w.startDate}:${w.workoutType}`),
+        id,
         date: toLocalDate(start),
         type: workoutType(w.workoutType ?? ''),
         duration_min: minutes > 0 ? minutes : null,
         sets_total: null,
         muscle_groups: [],
+        // Saat sureyi bilir, ne yapildigini bilmez: kullanici onaylayana kadar
+        // "bu neydi?" kartinda bekler. Zaten onaylanmissa tekrar sorulmaz.
+        needs_review: existing?.needs_review ?? true,
         notes: `saat: ${w.workoutType || 'antrenman'}${w.calories ? ` · ${Math.round(w.calories)} kcal` : ''}`,
       }
       await upsertWorkout(entry)
@@ -154,7 +159,13 @@ export async function syncHealth(days = 7): Promise<number> {
   // it stays in wearable/daily_log history, we only surface the automatic one.
   const today = toLocalDate()
   const todaySteps = records.find((r) => r.date === today && r.metric === 'steps')
-  if (todaySteps) await saveDaily(today, { steps: Math.round(todaySteps.value) })
+  if (todaySteps) {
+    // Saat gun icinde artan bir sayac; elle girilen daha buyuk bir deger varsa onu
+    // ezmek veri kaybidir (telefon cepte degilken yurunen adim saatte yok).
+    const manual = (await db.daily_log.get(today))?.steps ?? 0
+    const watch = Math.round(todaySteps.value)
+    if (watch > manual) await saveDaily(today, { steps: watch })
+  }
 
   if (hasServer()) {
     try {

@@ -1,8 +1,9 @@
 import { api, ApiError } from './api'
 import { lastDates, toLocalDate } from './date'
 import { db, type ChatMessage } from './db'
+import { groupsFor, type Split } from './split'
 import { hasServer } from './store'
-import { applyDraft, draftLines, type NoteDraft } from './voice'
+import { applyDraft, draftLines, logNote, type NoteDraft } from './voice'
 
 export interface ChatReply {
   text: string
@@ -19,11 +20,12 @@ export async function buildContext(): Promise<string> {
   const dates = lastDates(7)
   const start = dates[0]!
   const end = dates[dates.length - 1]!
-  const [logs, workouts, meals, wearable] = await Promise.all([
+  const [logs, workouts, meals, wearable, splitRow] = await Promise.all([
     db.daily_log.where('date').between(start, end, true, true).toArray(),
     db.workout.where('date').between(start, end, true, true).toArray(),
     db.meal.where('date').between(start, end, true, true).toArray(),
     db.wearable.where('date').between(start, end, true, true).toArray(),
+    db.settings.get('split'),
   ])
 
   const lines: string[] = []
@@ -42,8 +44,16 @@ export async function buildContext(): Promise<string> {
     for (const r of wearable.filter((w) => w.date === date && w.metric === 'snore_min')) {
       day.push(`horlama ~${Math.round(r.value)} dk`)
     }
+    // Saatten gelen olcumler: Eva bunlari sormasin, bilsin.
+    const hr = wearable.find((w) => w.date === date && w.metric === 'resting_hr')
+    if (hr) day.push(`dinlenme nabzı ${Math.round(hr.value)}`)
+    const kcal = wearable.find((w) => w.date === date && w.metric === 'total_kcal')
+    if (kcal) day.push(`${Math.round(kcal.value)} kcal yakım`)
     if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
   }
+  // Bugunun programi: Eva "bugun bacak gunu, kac set yaptin?" diyebilsin.
+  const planned = groupsFor((splitRow?.value as Split | undefined) ?? {}, end)
+  if (planned.length > 0) lines.push(`bugünün programı: ${planned.join(', ')}`)
   return lines.join('\n')
 }
 
@@ -102,8 +112,12 @@ export async function ask(
 export async function acceptDraft(message: ChatMessage): Promise<void> {
   if (!message.draft || message.applied) return
   const draft = message.draft as NoteDraft
+  const applied = draftLines(draft)
   await applyDraft(draft, message.date)
-  await db.chat.update(message.id, { applied: draftLines(draft) })
+  await db.chat.update(message.id, { applied })
+  // Tek kayit defteri: Ayar -> Notlar hangi ekrandan kaydedildigine bakmaz.
+  const asked = (await db.chat.orderBy('id').toArray()).filter((m) => m.role === 'user').at(-1)
+  await logNote({ via: 'text', text: asked?.text ?? '', summary: draft.summary, applied }, message.date)
 }
 
 async function toBase64(blob: Blob): Promise<{ media_type: string; data: string }> {

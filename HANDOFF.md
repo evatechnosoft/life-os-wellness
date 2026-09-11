@@ -1,6 +1,43 @@
 # HANDOFF — life-os-wellness
 
-Son oturum: 2026-09-10. Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
+Son oturum: 2026-09-11. Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
+
+## 11 Eylül'de ne değişti
+
+**Geçmiş veri girdi.** Health Connect dışa aktarımı (`npm run import:health -- <zip>`)
+11 Nisan - 10 Eylül arası 153 günü, 277 ölçüm kaydını ve 7 egzersiz seansını yazdı.
+Uygulama artık boş açılmıyor. Üç uygulama (Fitbit + Samsung Health + HC) aynı günü
+ayrı yazdığı için gün başına **en yüksek tek kaynak** alınıyor; toplamak üç kat sayardı.
+
+**Health Connect'te ne var, ne yok** (kanıt: `docs/PLAN-F1.md` sonundaki ek):
+uyku ve aktif kalori **yok** (tablo var, sıfır satır), nabız ve toplam kalori **var**.
+Yani kendi Kotlin eklentimiz uyku için değil, toplam kalori + nabız için değerli.
+Samsung Health uykuyu kendi içinde tutuyor, HC'ye yazmıyor — açılması gereken ayar
+Samsung Health tarafında. **Uygulamanın HC izinleri telefonda hâlâ verilmedi** (0/5, 0/1, 0/4).
+
+**Saatin bulduğu seans artık soruluyor.** Health Connect seans için yalnız süre ve
+sayısal bir tip veriyor; ne yapıldığını kullanıcı bilir. Seans `needs_review` ile
+geliyor, Bugün ekranında "Saat bir hareket gördü · bu neydi?" kartında bekliyor;
+tip + kas grubu + set + **kaldırılan ağırlık** girilip onaylanıyor. Kalori tahmini
+MET × vücut ağırlığı × saat. Onaylanan kayıt, dışa aktarım ikinci kez alınsa da
+geri onaya düşmez (`needs_review = workout.needs_review and excluded.needs_review`).
+
+**İki sohbet tek yola indi.** Bugün ekranındaki asistan ile Eva sekmesi aynı uca iki
+ayrı istemciden konuşuyordu: ilkinin geçmişi yoktu, kaydettiği şey Notlar'a düşmüyordu.
+`ui/Eva.tsx` (compact prop'u) ikisini de karşılıyor; `Assistant.tsx`, `Chat.tsx` ve
+`voice.understand` silindi.
+
+**Haftalık program geldi** (PLAN-F1 m2): `db/003 training_split`, `GET/PUT /api/split`,
+Ayar'da yedi gün seçici. Bugünün bölgesi hem gün özetinde hem Eva'nın bağlamında.
+
+**Gün özeti üstte**: protein halkası + adım + bugünün programı. Protein hızlı düğmeleri
+sabit değil, son 60 öğünün en sık porsiyonlarından türüyor.
+
+Kapanan kusurlar: saat adımı elle girilen daha büyük değeri artık ezmiyor · mikrofon
+durdurulabiliyor (`stopListening` hiç bağlı değildi) · dışa aktarıma wearable/meal/chat
+eklendi · sekme çubuğunda `role=tablist` · dokunma hedefleri 44px · `theme-color` gövdeyle aynı.
+
+Testler: API 34, web 25. `tsc --noEmit` iki workspace'te de temiz.
 
 ## Nerede duruyor
 

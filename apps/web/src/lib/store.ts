@@ -15,6 +15,12 @@ async function queue(entry: Omit<OutboxEntry, 'id' | 'queued_at'>): Promise<void
   void syncOutbox()
 }
 
+/** Haftalik ajandayi kuyruga koyar; ajanda tek satirlik bir ayar, gun bazli uc yok. */
+export async function queueSplit(split: Record<number, string[]>): Promise<void> {
+  const days = Object.entries(split).map(([weekday, muscle_groups]) => ({ weekday: Number(weekday), muscle_groups }))
+  await queue({ method: 'PUT', path: '/api/split', body: { days } })
+}
+
 export async function saveDaily(date: string, patch: Partial<DailyLog>): Promise<void> {
   const existing = await db.daily_log.get(date)
   await db.daily_log.put({ ...existing, ...patch, date, updated_at: now() })
@@ -87,15 +93,19 @@ export async function syncOutbox(): Promise<number> {
 /** Pulls the server's copy into IndexedDB. Used on load so a second device sees existing data. */
 export async function pullRange(start: string, end: string): Promise<void> {
   const query = `?start=${start}&end=${end}`
-  const [daily, workouts, retros] = await Promise.all([
+  const [daily, workouts, retros, wearable] = await Promise.all([
     api<DailyLog[]>(`/api/daily${query}`),
     api<Workout[]>(`/api/workouts${query}`),
     api<Retro[]>(`/api/retro${query}`),
+    api<WearableRecord[]>(`/api/wearable${query}`),
   ])
-  await db.transaction('rw', db.daily_log, db.workout, db.retro, async () => {
+  await db.transaction('rw', db.daily_log, db.workout, db.retro, db.wearable, async () => {
     await db.daily_log.bulkPut(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? now() })))
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
+    // Sunucu kendi uuid'sini veriyor; yerel anahtar date+metric oldugu icin
+    // yeniden cekmek satiri cogaltmasin diye id burada turetiliyor.
+    await db.wearable.bulkPut(wearable.map((w) => ({ ...w, id: `${w.date}:${w.metric}` })))
   })
 }
 

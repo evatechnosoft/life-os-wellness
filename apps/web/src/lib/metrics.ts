@@ -1,10 +1,53 @@
-import type { DailyLog, Workout } from './db'
+import type { DailyLog, WearableRecord, Workout, WorkoutType } from './db'
 
 /** Mean of the values present in the window. Missing days are skipped, not counted as zero. */
 export function movingAverage(values: (number | null | undefined)[]): number | null {
   const present = values.filter((v): v is number => typeof v === 'number')
   if (present.length === 0) return null
   return present.reduce((sum, v) => sum + v, 0) / present.length
+}
+
+/**
+ * Daily average of one wearable metric across the window. Days without a reading
+ * are skipped: the watch not being worn is missing data, not a zero.
+ */
+export function dayAverage(records: WearableRecord[], metric: string): number | null {
+  const values = records.filter((r) => r.metric === metric).map((r) => r.value)
+  if (values.length === 0) return null
+  return Math.round(values.reduce((sum, v) => sum + v, 0) / values.length)
+}
+
+/**
+ * MET degerleri (Compendium of Physical Activities): direnc antrenmani 5.0,
+ * kardiyo 7.0, yuruyus 3.5. Kaldirilan agirlik MET'i degistirmez - yuk artinca
+ * dinlenme de uzar - o yuzden hesaba girmez, ilerleme takibinde kullanilir.
+ */
+const MET: Record<WorkoutType, number> = { resistance: 5, cardio: 7, walk: 3.5, rest: 0 }
+
+/**
+ * Antrenmanin yaktigi tahmini kalori: MET x vucut agirligi x saat.
+ * Sure veya kilo bilinmiyorsa tahmin yapilmaz - uydurma sayi gostermekten iyidir.
+ */
+export function estimateKcal(workout: Workout, bodyKg: number | null): number | null {
+  if (!workout.duration_min || bodyKg == null) return null
+  return Math.round(MET[workout.type] * bodyKg * (workout.duration_min / 60))
+}
+
+/**
+ * En sik kaydedilen protein porsiyonlari. Tek kullanicida cesitlilik dusuk
+ * oldugu icin gecmis, sabit bir listeden daha iyi tahmin verir; veri yoksa
+ * makul varsayilanlar doner.
+ */
+export function frequentPortions(values: (number | null | undefined)[], fallback = [30, 35, 40]): number[] {
+  const counts = new Map<number, number>()
+  for (const value of values) {
+    if (typeof value !== 'number' || value <= 0) continue
+    const rounded = Math.round(value / 5) * 5
+    counts.set(rounded, (counts.get(rounded) ?? 0) + 1)
+  }
+  if (counts.size === 0) return fallback
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 3).map(([g]) => g)
+  return [...top, ...fallback.filter((f) => !top.includes(f))].slice(0, 3).sort((a, b) => a - b)
 }
 
 /** Share of days in the window that reached the protein goal, 0-100. */

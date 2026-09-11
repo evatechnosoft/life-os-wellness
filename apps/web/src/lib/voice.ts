@@ -1,11 +1,10 @@
 import { SpeechRecognition } from '@capacitor-community/speech-recognition'
 
-import { api, ApiError } from './api'
 import { toLocalDate } from './date'
 import { db, type NoteEntry, type WorkoutType } from './db'
 import { isNative } from './health'
 import { saveMeal } from './meals'
-import { addWorkout, hasServer, saveDaily, saveRetro } from './store'
+import { addWorkout, saveDaily, saveRetro } from './store'
 
 export interface NoteDraft {
   weight_kg?: number | null
@@ -46,38 +45,6 @@ export async function listenOnce(): Promise<string> {
 
 export function stopListening(): Promise<void> {
   return SpeechRecognition.stop()
-}
-
-/** Sends the transcript to the server to be understood. Null when no server is configured. */
-/**
- * What came back. A null `draft` is a normal answer with nothing to record - a question,
- * a greeting - and must not be confused with the service being unreachable, which is what
- * a null return means. Those two used to look identical and the UI blamed the token.
- */
-export interface Understood {
-  text: string
-  draft: NoteDraft | null
-}
-
-export interface Turn {
-  role: 'user' | 'assistant'
-  content: string
-}
-
-/** The whole exchange goes up, not just the last sentence, so a follow-up ("8500") lands. */
-export async function understand(turns: Turn[]): Promise<Understood | null> {
-  if (!hasServer()) return null
-  try {
-    const reply = await api<{ text: string; draft: NoteDraft | null }>('/api/chat', {
-      method: 'POST',
-      body: JSON.stringify({ messages: turns.slice(-12) }),
-    })
-    const draft = reply.draft ? { ...reply.draft, summary: reply.draft.summary || reply.text } : null
-    return { text: reply.text, draft }
-  } catch (err) {
-    if (err instanceof ApiError && (err.status === 503 || err.status === 404)) return null
-    throw err
-  }
 }
 
 /** What the draft would change, in plain Turkish, so the user sees it before confirming. */
@@ -147,9 +114,6 @@ export async function applyDraft(draft: NoteDraft, date = toLocalDate()): Promis
       },
       date,
     )
-  } else if (draft.protein_g != null) {
-    const existing = draft.protein_g
-    await saveDaily(date, { protein_g: existing })
   }
 
   if (draft.workout) {
