@@ -332,16 +332,29 @@ describe('rate limit', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, (
 
   test('a flood of wrong tokens turns into 429 instead of endless 401', async () => {
     let last = 0
-    for (let i = 0; i < 130; i++) {
+    let attempts = 0
+    for (let i = 0; i < 40; i++) {
       const res = await app.inject({
         method: 'GET',
         url: '/api/daily',
         headers: { authorization: 'Bearer wrong' },
       })
+      attempts++
       last = res.statusCode
       if (last === 429) break
     }
     assert.equal(last, 429)
+    // Guessing dies long before the traffic window does.
+    assert.ok(attempts <= 12, `gave up after ${attempts} tries`)
+  })
+
+  test('the right token does not get in while the guess window is spent', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/daily',
+      headers: { authorization: `Bearer ${TOKEN}` },
+    })
+    assert.equal(res.statusCode, 429)
   })
 
   test('health stays open while the window is spent', async () => {
