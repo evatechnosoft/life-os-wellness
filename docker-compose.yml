@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: wellness
       POSTGRES_PASSWORD: wellness
@@ -17,6 +18,7 @@ services:
   # All provider keys live here, never in the app. The app only knows aliases.
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
+    restart: unless-stopped
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     volumes:
       - ./config/litellm.yaml:/app/config.yaml:ro
@@ -34,6 +36,7 @@ services:
       retries: 12
 
   api:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: apps/api/Dockerfile
