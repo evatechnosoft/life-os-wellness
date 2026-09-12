@@ -47,9 +47,31 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
     if (req.method === 'OPTIONS') return reply.code(204).send()
   })
 
+  // The API is reachable from the internet through the tunnel, so a wrong token must
+  // not be retryable without limit. Fixed window per client address; the token itself
+  // is the real gate, this only stops a flood.
+  // ponytail: in-process counter, one API replica. Move to Redis if that changes.
+  const hits = new Map<string, { count: number; windowStart: number }>()
+  const WINDOW_MS = 60_000
+  const MAX_PER_WINDOW = 120
+
   // Single-user app: one static bearer token, no auth system. /health stays open.
   app.addHook('onRequest', async (req, reply) => {
     if (req.url === '/health') return
+
+    const now = Date.now()
+    const key = req.ip
+    const seen = hits.get(key)
+    if (!seen || now - seen.windowStart >= WINDOW_MS) {
+      hits.set(key, { count: 1, windowStart: now })
+    } else if (++seen.count > MAX_PER_WINDOW) {
+      return reply.code(429).send({ error: 'too_many_requests' })
+    }
+    // Windows that rolled over are dead weight; drop them while we are here.
+    if (hits.size > 1000) {
+      for (const [k, v] of hits) if (now - v.windowStart >= WINDOW_MS) hits.delete(k)
+    }
+
     const header = req.headers.authorization
     if (header !== `Bearer ${opts.apiToken}`) {
       return reply.code(401).send({ error: 'unauthorized' })

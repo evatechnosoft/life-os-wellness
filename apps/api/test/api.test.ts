@@ -316,3 +316,36 @@ describe('cors', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(res.statusCode, 401)
   })
 })
+
+describe('rate limit', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
+  let app: ReturnType<typeof buildServer>['app']
+  let pool: ReturnType<typeof buildServer>['pool']
+
+  before(async () => {
+    const built = buildServer({ databaseUrl: databaseUrl as string, apiToken: TOKEN })
+    app = built.app
+    pool = built.pool
+    await app.ready()
+  })
+
+  after(async () => { await app.close() })
+
+  test('a flood of wrong tokens turns into 429 instead of endless 401', async () => {
+    let last = 0
+    for (let i = 0; i < 130; i++) {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/daily',
+        headers: { authorization: 'Bearer wrong' },
+      })
+      last = res.statusCode
+      if (last === 429) break
+    }
+    assert.equal(last, 429)
+  })
+
+  test('health stays open while the window is spent', async () => {
+    const res = await app.inject({ method: 'GET', url: '/health' })
+    assert.equal(res.statusCode, 200)
+  })
+})
