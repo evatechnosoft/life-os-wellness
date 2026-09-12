@@ -1,12 +1,12 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-12 · dev @ 3450826 · 0 kirli dosya · origin/dev ile eşit
+> 2026-09-12 · dev @ 4b16f11 · 0 kirli dosya · origin/dev ile eşit
 Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
-git rev-parse --short HEAD          # 3450826 bekleniyor; değilse: git log 3450826..HEAD --oneline
+git fetch -q && git status -sb      # dev, origin/dev ile eşit olmalı (4b16f11 veya sonrası)
 git status --porcelain | wc -l      # 0 bekleniyor
 npm test                            # api 37 pass / 0 fail, web 25 pass / 0 fail
 docker compose --profile tunnel ps  # db, litellm, api, cloudflared dördü de Up
