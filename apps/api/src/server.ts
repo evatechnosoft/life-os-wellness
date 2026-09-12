@@ -47,13 +47,31 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
     if (req.method === 'OPTIONS') return reply.code(204).send()
   })
 
-  // The API is reachable from the internet through the tunnel, so a wrong token must
-  // not be retryable without limit. Fixed window per client address; the token itself
-  // is the real gate, this only stops a flood.
-  // ponytail: in-process counter, one API replica. Move to Redis if that changes.
+  // The API is reachable from the internet through the tunnel, so neither traffic nor
+  // guessing may run unbounded. Two fixed windows per client address: a generous one for
+  // the phone, a tight one for wrong tokens -- guessing is what actually needs stopping,
+  // and a legitimate client never spends it. The token stays the real gate.
+  // ponytail: in-process counters, one API replica. Move to Redis if that changes.
   const hits = new Map<string, { count: number; windowStart: number }>()
+  const misses = new Map<string, { count: number; windowStart: number }>()
   const WINDOW_MS = 60_000
-  const MAX_PER_WINDOW = 120
+  const MAX_PER_WINDOW = 300
+  const MAX_FAILED_PER_WINDOW = 10
+
+  /** Counts this address in `book` and answers whether it is still under `max`. */
+  const underLimit = (
+    book: Map<string, { count: number; windowStart: number }>,
+    key: string,
+    now: number,
+    max: number,
+  ): boolean => {
+    const seen = book.get(key)
+    if (!seen || now - seen.windowStart >= WINDOW_MS) {
+      book.set(key, { count: 1, windowStart: now })
+      return true
+    }
+    return ++seen.count <= max
+  }
 
   // Single-user app: one static bearer token, no auth system. /health stays open.
   app.addHook('onRequest', async (req, reply) => {
@@ -61,19 +79,29 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
 
     const now = Date.now()
     const key = req.ip
-    const seen = hits.get(key)
-    if (!seen || now - seen.windowStart >= WINDOW_MS) {
-      hits.set(key, { count: 1, windowStart: now })
-    } else if (++seen.count > MAX_PER_WINDOW) {
+
+    // A spent guess window keeps answering 429 even when the token is right: whoever is
+    // hammering the door does not get to walk in mid-flood.
+    const guessing = misses.get(key)
+    const guessWindowSpent =
+      guessing !== undefined &&
+      now - guessing.windowStart < WINDOW_MS &&
+      guessing.count > MAX_FAILED_PER_WINDOW
+    if (guessWindowSpent || !underLimit(hits, key, now, MAX_PER_WINDOW)) {
       return reply.code(429).send({ error: 'too_many_requests' })
     }
+
     // Windows that rolled over are dead weight; drop them while we are here.
     if (hits.size > 1000) {
       for (const [k, v] of hits) if (now - v.windowStart >= WINDOW_MS) hits.delete(k)
+      for (const [k, v] of misses) if (now - v.windowStart >= WINDOW_MS) misses.delete(k)
     }
 
     const header = req.headers.authorization
     if (header !== `Bearer ${opts.apiToken}`) {
+      if (!underLimit(misses, key, now, MAX_FAILED_PER_WINDOW)) {
+        return reply.code(429).send({ error: 'too_many_requests' })
+      }
       return reply.code(401).send({ error: 'unauthorized' })
     }
   })
