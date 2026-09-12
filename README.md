@@ -4,6 +4,7 @@ Kişisel (tek kullanıcı) günlük sağlık takibi: kilo, protein, antrenman, a
 ve akşam retrosu. `life-os-finance` ile kardeş repo; ortak düzen `REPO-STANDARD.md`.
 
 Tam gereksinim: [`docs/SPEC.md`](docs/SPEC.md) · Faz/sprint planı: [`docs/PLAN.md`](docs/PLAN.md)
+Saat verisini genislet + dogrudan BLE band plani: [`docs/PLAN-BAND.md`](docs/PLAN-BAND.md)
 
 ## Canlı
 
