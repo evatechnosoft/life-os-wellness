@@ -1,6 +1,37 @@
 # HANDOFF — life-os-wellness
 
-Son oturum: 2026-09-11. Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
+> 2026-09-12 · dev @ 80aaa40 · 0 kirli dosya · origin/dev ile eşit
+Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
+
+## Doğrula (önce bunu çalıştır)
+
+```bash
+git rev-parse --short HEAD          # 80aaa40 bekleniyor; değilse: git log 80aaa40..HEAD --oneline
+git status --porcelain | wc -l      # 0 bekleniyor
+npm test                            # api 37 pass / 0 fail, web 25 pass / 0 fail
+docker compose --profile tunnel ps  # db, litellm, api, cloudflared dördü de Up
+curl -s https://fit.evaitec.com/health   # {"ok":true}
+```
+
+API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
+hatası değil — `npm run db:up` yeter.
+
+## Sıradaki iş — 1. adım
+
+**Cihazda duman testi.** Stack ayakta, telefonun bağlanması için QR şart değil:
+APK'yı (`releases/latest`) kur, Ayarlar → sunucu adresi `https://fit.evaitec.com`,
+API token `.env: API_TOKEN` değeri — bir kez yazılır, cihazda kalır. Sonra sırayla
+Health Connect izin ekranı, gece ölçümünde pil düşüşü, kamerayla öğün, sesli not
+(ayrıntılı liste aşağıda "Cihazda hiç denenmedi" başlığında).
+
+## Tekrarlama
+
+- Cloudflare'de rate limiting kuralı: `~/.ai/vg.env`'deki iki evaitec token'ının
+  ikisinde de WAF yazma yetkisi yok (`POST /zones/<id>/rulesets` → `10000
+  Authentication error`). Koruma bu yüzden kodda; kural istenirse önce token'a
+  `Zone / WAF / Edit` izni eklenmeli.
+- `Docker Desktop.exe -Restart`: engine 500 verirken işe yaramıyor, `wsl --shutdown`
+  + temiz açılış gerekiyor. Port dinliyor olması ayakta demek değil.
 
 ## 11 Eylül'de ne değişti
 
@@ -40,6 +71,11 @@ eklendi · sekme çubuğunda `role=tablist` · dokunma hedefleri 44px · `theme-
 Testler: API 34, web 25. `tsc --noEmit` iki workspace'te de temiz.
 
 ## 12 Eylül'de ne değişti
+
+İstek sınırı iki pencereye ayrıldı (`apps/api/src/server.ts` auth hook'u): trafik
+300/dk, **yanlış token 10/dk**. Yanık tahmin penceresi doğru token'ı da 429'luyor —
+sel ortasında kimse içeri giremiyor, meşru istemci o pencereyi hiç harcamıyor.
+Canlı kanıt: yanlış token 11. denemede 429, pencere dolunca tünelden Eva 200.
 
 Docker Desktop'ın WSL motoru ölmüştü (`still waiting for init control API` ~2 saat);
 `wsl --shutdown` + temiz açılış düzeltti. Bu sırada çıkan asıl kusur: `db`, `litellm`
