@@ -39,6 +39,22 @@ eklendi · sekme çubuğunda `role=tablist` · dokunma hedefleri 44px · `theme-
 
 Testler: API 34, web 25. `tsc --noEmit` iki workspace'te de temiz.
 
+## 12 Eylül'de ne değişti
+
+Docker Desktop'ın WSL motoru ölmüştü (`still waiting for init control API` ~2 saat);
+`wsl --shutdown` + temiz açılış düzeltti. Bu sırada çıkan asıl kusur: `db`, `litellm`
+ve `api`'de restart politikası yoktu, yalnız cloudflared'de vardı — Docker yeniden
+başlayınca wellness geri gelmiyordu. Üçüne de `unless-stopped` kondu.
+
+API tünel üzerinden internete açık ve auth'ta hiç sınır yoktu. Auth hook'una istemci
+adresi başına dakikada 120 istek sınırı eklendi (aşan `429`, `/health` açık kalıyor).
+Token hâlâ asıl kapı; bu yalnız seli durduruyor. Canlı kanıt: 121. istekte 429.
+
+`npm run db:migrate` tek başına `DATABASE_URL is not set` veriyordu — script `--env-file`
+taşımıyordu, repodaki diğer tüm giriş noktaları taşıyor. Düzeltildi.
+
+Testler: API 36, web 25. `tsc --noEmit` iki workspace'te de temiz.
+
 ## Nerede duruyor
 
 Canlı PWA: https://evatechnosoft.github.io/life-os-wellness/
