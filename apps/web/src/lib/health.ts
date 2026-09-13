@@ -19,6 +19,8 @@ export interface HealthExtraDay {
   spo2_low_pct?: number
   /** HRV (RMSSD), ms. Health Connect'te stres kaydi yok; en yakin olcu bu. */
   hrv_ms?: number
+  /** Uyanilan gune yazilan toplam uyku dakikasi. Samsung Health paylasimi kapaliysa hic gelmez. */
+  sleep_min?: number
 }
 
 /** Implemented in android/app/src/main/java/com/evaitec/wellness/HealthExtraPlugin.kt. */
@@ -167,7 +169,7 @@ export async function syncHealth(days = 7): Promise<number> {
   // toplam kalori (HC'de aktif kalori bos, dolu olan bu), nabiz, kan oksijeni, HRV.
   try {
     const { days } = await HealthExtra.readDaily({ startDate, endDate })
-    const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms'] as const
+    const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms', 'sleep_min'] as const
     for (const day of days) {
       for (const metric of metrics) {
         const value = day[metric]

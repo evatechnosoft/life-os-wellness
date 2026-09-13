@@ -88,6 +88,7 @@
          stresin en yakin olcusu HRV. -->
     <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION" />
     <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
 
     <!-- The plugin library declares more health permissions than we read; drop them so the
          Health Connect consent screen only lists what src/lib/health.ts actually asks for. -->

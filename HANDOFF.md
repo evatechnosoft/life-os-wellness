@@ -136,9 +136,15 @@ toplam kalori, nabız, **kan oksijeni**, **HRV** (kendi `HealthExtraPlugin`'imiz
 - **Kan oksijeni** `OxygenSaturationRecord` olarak var; saat çoğunlukla uykuda ve spot
   ölçümde yazar, sürekli değil. Günlük iki değer üretiliyor: ortanca (`spo2_pct`) ve en
   düşük band (`spo2_low_pct`, en düşük %10'un ortancası — apne işareti bu tarafta).
-- **İzin ikiye bölündü.** capacitor-health'in izin listesinde SpO2 ve HRV yok, o yüzden
-  bu ikisinin onay ekranını `HealthExtraPlugin.requestExtraPermissions` kendisi açıyor.
-  Saat kartındaki "İzin ver" düğmesi iki ekranı sırayla gösteriyor.
+- **Uyku okuması hazır ama veri Samsung'da kilitli.** `SleepSessionRecord` okunuyor,
+  uyanılan güne yazılıyor (`sleep_min`). 11 Eylül dökümünde bu tablo sıfır satırdı:
+  Samsung Health uykuyu HC'ye yazmıyor. **Açılması gereken ayar Samsung Health tarafında**
+  (Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç). Açılana kadar
+  uygulamada uyku süresi yok; mikrofon ölçümü (`sleep_monitored_min`, `snore_min`) ayrı
+  bir şey, süreyi değil ölçülen pencereyi sayar.
+- **İzin ikiye bölündü.** capacitor-health'in izin listesinde SpO2, HRV ve uyku yok, o
+  yüzden bu üçünün onay ekranını `HealthExtraPlugin.requestExtraPermissions` kendisi
+  açıyor. Saat kartındaki "İzin ver" düğmesi iki ekranı sırayla gösteriyor.
 
 Senkron aralığı: uygulama **açıkken** açılışta + 15 dakikada bir (`App.tsx:51`). Uygulama
 kapalıyken arka plan senkronu yok; telefon veriyi HC'de biriktirir, uygulama açılınca son

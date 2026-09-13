@@ -27,6 +27,30 @@ object HealthMath {
 
     data class CalorieEntry(val date: String, val source: String, val kcal: Double)
 
+    data class SleepEntry(val wakeDate: String, val source: String, val minutes: Long)
+
+    /**
+     * Gun basina uyku dakikasi. Gece 23:00-07:00 seansi uyanilan gune yazilir -
+     * "bu sabah kac saat uyanik kalktim" sorusu boyle cevaplanir.
+     *
+     * Kalori ile ayni coklu kaynak sorunu burada da var (Samsung Health + Fitbit
+     * ayni geceyi ayri yazabilir), o yuzden ayni kural: kaynak icinde toplanir,
+     * gun icin en yuksek tek kaynak alinir.
+     */
+    fun dailySleepMinutes(entries: List<SleepEntry>): Map<String, Long> {
+        val perSource = mutableMapOf<Pair<String, String>, Long>()
+        for (e in entries) {
+            val key = e.wakeDate to e.source
+            perSource[key] = (perSource[key] ?: 0L) + e.minutes
+        }
+        val byDay = mutableMapOf<String, Long>()
+        for ((key, total) in perSource) {
+            val (date, _) = key
+            if (total > (byDay[date] ?: 0L)) byDay[date] = total
+        }
+        return byDay
+    }
+
     /**
      * Gunun en dusuk %10'unun ortancasi. En dusuk tek ornek olcum hatasina acik
      * (saat bilekten kaymis, parmak oynamis), ortalama ise gunduz hareketiyle

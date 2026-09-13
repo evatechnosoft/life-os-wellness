@@ -57,6 +57,8 @@ export async function buildContext(): Promise<string> {
     if (spo2) day.push(`kan oksijeni %${Math.round(spo2.value)}${spo2Low ? ` (en düşük %${Math.round(spo2Low.value)})` : ''}`)
     const hrv = wearable.find((w) => w.date === date && w.metric === 'hrv_ms')
     if (hrv) day.push(`HRV ${Math.round(hrv.value)} ms`)
+    const sleep = wearable.find((w) => w.date === date && w.metric === 'sleep_min')
+    if (sleep) day.push(`uyku ${Math.floor(sleep.value / 60)} sa ${Math.round(sleep.value % 60)} dk`)
     if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
   }
   // Bugunun programi: Eva "bugun bacak gunu, kac set yaptin?" diyebilsin.

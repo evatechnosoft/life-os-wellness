@@ -1,6 +1,7 @@
 package com.evaitec.wellness
 
 import com.evaitec.wellness.HealthMath.CalorieEntry
+import com.evaitec.wellness.HealthMath.SleepEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -70,6 +71,20 @@ class HealthMathTest {
         // 5 ornek -> en dusuk %10 = 1 ornek -> 91
         assertEquals(91.0, HealthMath.lowSpo2(night)!!, 0.01)
         assertNull(HealthMath.lowSpo2(listOf(97.0, 96.0)))
+    }
+
+    @Test
+    fun `gecenin parcalari uyanilan gunde toplanir`() {
+        val entries = listOf(
+            SleepEntry("2026-09-13", "samsung", 300L),
+            SleepEntry("2026-09-13", "samsung", 45L),
+            SleepEntry("2026-09-13", "fitbit", 280L),
+            SleepEntry("2026-09-12", "samsung", 60L),
+        )
+        val byDay = HealthMath.dailySleepMinutes(entries)
+        // samsung 345, fitbit 280 -> ayni geceyi iki kaynak yazinca toplanmaz
+        assertEquals(345L, byDay["2026-09-13"])
+        assertEquals(60L, byDay["2026-09-12"])
     }
 
     @Test
