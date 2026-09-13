@@ -28,18 +28,35 @@ object HealthMath {
     data class CalorieEntry(val date: String, val source: String, val kcal: Double)
 
     /**
-     * Dinlenme nabzi. Health Connect'te RestingHeartRateRecord cogu saatte bos;
-     * elimizdeki tek sey gun boyu alinan orneklerdir. Gunun en dusuk %10'unun
-     * ortancasi uyku/dinlenme bandini yakalar: en dusuk tek ornek olcum hatasina
-     * acik, ortalama ise gunduz hareketiyle sisiyor.
-     *
-     * Guvenilir olmasi icin gunde en az 10 ornek ister; daha azi null doner.
+     * Gunun en dusuk %10'unun ortancasi. En dusuk tek ornek olcum hatasina acik
+     * (saat bilekten kaymis, parmak oynamis), ortalama ise gunduz hareketiyle
+     * sisiyor; alt bandin ortancasi ikisinin arasinda durur.
      */
-    fun restingBpm(samples: List<Long>, minSamples: Int = 10): Long? {
+    fun <T : Comparable<T>> lowestDecileMedian(samples: List<T>, minSamples: Int = 10): T? {
         if (samples.size < minSamples) return null
         val sorted = samples.sorted()
         val take = maxOf(1, sorted.size / 10)
-        val lowest = sorted.take(take)
-        return lowest[lowest.size / 2]
+        return sorted[take / 2]
     }
+
+    /** Gunun ortancasi. Ortalama degil: tek bir bozuk olcum gunu kaydirmasin. */
+    fun <T : Comparable<T>> median(samples: List<T>, minSamples: Int = 1): T? {
+        if (samples.size < minSamples) return null
+        return samples.sorted()[samples.size / 2]
+    }
+
+    /**
+     * Dinlenme nabzi. Health Connect'te RestingHeartRateRecord cogu saatte bos;
+     * elimizdeki tek sey gun boyu alinan orneklerdir, alt bant uyku/dinlenmedir.
+     * Guvenilir olmasi icin gunde en az 10 ornek ister; daha azi null doner.
+     */
+    fun restingBpm(samples: List<Long>, minSamples: Int = 10): Long? =
+        lowestDecileMedian(samples, minSamples)
+
+    /**
+     * Gecenin en dusuk kan oksijeni bandi. Saat SpO2'yi surekli degil, cogunlukla
+     * uykuda ve spot olcumde yazar - o yuzden esik gunde 5 ornek, nabizdaki 10 degil.
+     */
+    fun lowSpo2(samples: List<Double>, minSamples: Int = 5): Double? =
+        lowestDecileMedian(samples, minSamples)
 }

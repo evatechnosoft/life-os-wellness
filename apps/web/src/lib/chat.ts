@@ -52,6 +52,11 @@ export async function buildContext(): Promise<string> {
     if (hr) day.push(`dinlenme nabzı ${Math.round(hr.value)}`)
     const kcal = wearable.find((w) => w.date === date && w.metric === 'total_kcal')
     if (kcal) day.push(`${Math.round(kcal.value)} kcal yakım`)
+    const spo2 = wearable.find((w) => w.date === date && w.metric === 'spo2_pct')
+    const spo2Low = wearable.find((w) => w.date === date && w.metric === 'spo2_low_pct')
+    if (spo2) day.push(`kan oksijeni %${Math.round(spo2.value)}${spo2Low ? ` (en düşük %${Math.round(spo2Low.value)})` : ''}`)
+    const hrv = wearable.find((w) => w.date === date && w.metric === 'hrv_ms')
+    if (hrv) day.push(`HRV ${Math.round(hrv.value)} ms`)
     if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
   }
   // Bugunun programi: Eva "bugun bacak gunu, kac set yaptin?" diyebilsin.

@@ -13,13 +13,32 @@ export interface HealthExtraDay {
   date: string
   total_kcal?: number
   resting_hr?: number
+  /** Gunun ortanca kan oksijeni, yuzde. */
+  spo2_pct?: number
+  /** Gunun en dusuk bandi - uyku apnesi isareti bu tarafta gorunur. */
+  spo2_low_pct?: number
+  /** HRV (RMSSD), ms. Health Connect'te stres kaydi yok; en yakin olcu bu. */
+  hrv_ms?: number
 }
 
 /** Implemented in android/app/src/main/java/com/evaitec/wellness/HealthExtraPlugin.kt. */
 const HealthExtra = registerPlugin<{
   available(): Promise<{ available: boolean }>
+  checkExtraPermissions(): Promise<{ granted: boolean }>
+  requestExtraPermissions(): Promise<{ granted: boolean }>
   readDaily(range: { startDate: string; endDate: string }): Promise<{ days: HealthExtraDay[] }>
 }>('HealthExtra')
+
+/** Kan oksijeni ve HRV izni ayri sorulur: capacitor-health bu ikisini isteyemiyor. */
+export async function requestExtraPermissions(): Promise<boolean> {
+  if (!isNative()) return false
+  try {
+    const { granted } = await HealthExtra.requestExtraPermissions()
+    return granted
+  } catch {
+    return false
+  }
+}
 
 /** Only what the watch actually measures. Every one of these is declared in AndroidManifest. */
 const PERMISSIONS: HealthPermission[] = [
@@ -81,6 +100,9 @@ export async function healthStatus(): Promise<HealthStatus> {
 export async function requestHealthPermissions(): Promise<boolean> {
   if (!isNative()) return false
   const res = await Health.requestHealthPermissions({ permissions: PERMISSIONS })
+  // Kan oksijeni ve HRV ayri bir onay ekrani: capacitor-health bu ikisini isteyemiyor.
+  // Reddedilmesi digerlerini gecersiz kilmaz, o yuzden sonucu yutuyoruz.
+  await requestExtraPermissions()
   return res.permissions.some((entry) => Object.values(entry).some(Boolean))
 }
 
@@ -141,16 +163,16 @@ export async function syncHealth(days = 7): Promise<number> {
     // no weight permission or no scale data
   }
 
-  // Toplam kalori ve nabiz: capacitor-health'in okuyamadigi iki olcum, kendi
-  // eklentimizden geliyor. Health Connect'te aktif kalori bos, dolu olan bu.
+  // capacitor-health'in okuyamadigi olcumler, kendi eklentimizden geliyor:
+  // toplam kalori (HC'de aktif kalori bos, dolu olan bu), nabiz, kan oksijeni, HRV.
   try {
     const { days } = await HealthExtra.readDaily({ startDate, endDate })
+    const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms'] as const
     for (const day of days) {
-      if (day.total_kcal != null) {
-        records.push({ id: `${day.date}:total_kcal`, date: day.date, metric: 'total_kcal', value: day.total_kcal, source: SOURCE, synced_at })
-      }
-      if (day.resting_hr != null) {
-        records.push({ id: `${day.date}:resting_hr`, date: day.date, metric: 'resting_hr', value: day.resting_hr, source: SOURCE, synced_at })
+      for (const metric of metrics) {
+        const value = day[metric]
+        if (value == null) continue
+        records.push({ id: `${day.date}:${metric}`, date: day.date, metric, value, source: SOURCE, synced_at })
       }
     }
   } catch {

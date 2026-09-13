@@ -124,6 +124,26 @@ Kanıt: Kotlin 14 test, web 40, API 37, `tsc --noEmit` temiz, APK BUILD SUCCESSF
 yeniden kurulmadı — Eva'nın sistem istemine eklenen "sık yedikleri" kuralı canlıya
 `docker compose up -d --build api` + tünel yeniden başlatma ile geçer.
 
+## Saatten ne alınıyor, ne alınamıyor (13 Eylül, kanıtlı)
+
+Health Connect'in 43 kayıt tipi (`connect-client-1.2.0-alpha01.aar` sınıf listesi)
+tarandı. Uygulamanın aldığı: adım, aktif kalori, kilo, antrenman (capacitor-health) +
+toplam kalori, nabız, **kan oksijeni**, **HRV** (kendi `HealthExtraPlugin`'imiz).
+
+- **Stres alınamaz.** Health Connect'te stres diye bir kayıt tipi yok. Samsung stres
+  skorunu HRV'den türetip kendi uygulamasında tutuyor, HC'ye yazacağı bir alan mevcut
+  değil. Alabildiğimiz ham ölçü `HeartRateVariabilityRmssdRecord` (RMSSD, ms).
+- **Kan oksijeni** `OxygenSaturationRecord` olarak var; saat çoğunlukla uykuda ve spot
+  ölçümde yazar, sürekli değil. Günlük iki değer üretiliyor: ortanca (`spo2_pct`) ve en
+  düşük band (`spo2_low_pct`, en düşük %10'un ortancası — apne işareti bu tarafta).
+- **İzin ikiye bölündü.** capacitor-health'in izin listesinde SpO2 ve HRV yok, o yüzden
+  bu ikisinin onay ekranını `HealthExtraPlugin.requestExtraPermissions` kendisi açıyor.
+  Saat kartındaki "İzin ver" düğmesi iki ekranı sırayla gösteriyor.
+
+Senkron aralığı: uygulama **açıkken** açılışta + 15 dakikada bir (`App.tsx:51`). Uygulama
+kapalıyken arka plan senkronu yok; telefon veriyi HC'de biriktirir, uygulama açılınca son
+7 gün toplu gelir.
+
 ## Nerede duruyor
 
 Canlı PWA: https://evatechnosoft.github.io/life-os-wellness/

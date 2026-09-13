@@ -62,7 +62,10 @@ export function Watch({ date }: { date: string }) {
 
       {status?.available && !status.granted && (
         <div>
-          <p className="text-xs text-ink-dim">Adım, kalori, kilo ve antrenman izni gerekiyor.</p>
+          <p className="text-xs text-ink-dim">
+            Adım, kalori, kilo, antrenman ve nabız izni gerekiyor. Kan oksijeni ile HRV
+            ayrı bir onay ekranında sorulur.
+          </p>
           <button type="button" onClick={() => void act(requestHealthPermissions)} disabled={busy} className="mt-3 w-full rounded-field bg-a1/90 py-3 text-sm font-medium active:bg-a1 disabled:opacity-50">
             İzin ver
           </button>
