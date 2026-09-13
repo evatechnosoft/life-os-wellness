@@ -1,6 +1,6 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-12 · dev @ 4b16f11 · 0 kirli dosya · origin/dev ile eşit
+> 2026-09-13 · feature/food-memory @ ae70946 (dev'e henüz merge edilmedi) · 0 kirli dosya
 Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
 
 ## Doğrula (önce bunu çalıştır)
@@ -8,7 +8,7 @@ Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
 ```bash
 git fetch -q && git status -sb      # dev, origin/dev ile eşit olmalı (4b16f11 veya sonrası)
 git status --porcelain | wc -l      # 0 bekleniyor
-npm test                            # api 37 pass / 0 fail, web 25 pass / 0 fail
+npm test                            # api 37 pass / 0 fail, web 40 pass / 0 fail
 docker compose --profile tunnel ps  # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -90,6 +90,39 @@ Token hâlâ asıl kapı; bu yalnız seli durduruyor. Canlı kanıt: 121. istekt
 taşımıyordu, repodaki diğer tüm giriş noktaları taşıyor. Düzeltildi.
 
 Testler: API 36, web 25. `tsc --noEmit` iki workspace'te de temiz.
+
+## 13 Eylül'de ne değişti (feature/food-memory, dev'e merge edilmedi)
+
+**Yiyecek hafızası** (PLAN-F1 m4): "tavuk" her geçtiğinde porsiyon yeniden soruluyordu.
+Ayrı bir `food_memory` tablosu yerine son 60 öğünden türetilen hafıza Eva'nın bağlamına
+giriyor (`metrics.foodMemory`) — öğün kayıtları zaten isim + protein tutuyor. Yalnız tek
+parçalı öğünden öğrenir; "tavuk, pilav" kaydında proteinin hangi parçaya ait olduğu
+bilinmiyor. Değer ortalama değil ortanca. Canlı kanıt: bağlamda "tavuk ~35 g / 420 kcal"
+varken "tavuk yedim" → porsiyon sorulmadı, taslak 35 g / 420 kcal; "iki yumurta"
+(yumurta ~13 g) → 26 g.
+
+**Hatırlatmalar** (öncelik #4): eksik sabah tartısı ve akşam retrosu iki yoldan
+hatırlatılıyor — uygulama açıkken Bugün ekranının üstünde satır (PWA dahil), telefon
+kapalıyken yerel bildirim (`@capacitor/local-notifications`, yalnız APK; tarayıcı
+uygulama kapalıyken bildirim atamaz, Web Push sunucu + VAPID ister). Saatler Ayar'dan
+değişir, tek anahtarla kapanır. ⚠️ Bildirim her gün aynı saatte tekrarlar, o gün kilo
+girilmiş olsa da (`ponytail:` notu `lib/reminders.ts`'te).
+
+**Kendi Health Connect eklentimiz** (PLAN-F1 m3b, kalori + nabız ayağı):
+`HealthExtraPlugin.kt` toplam kaloriyi ve nabzı doğrudan HC'den okuyor — bizim
+okuduğumuz aktif kalori telefonda boştu, dolu olan bu. Eklenti izin istemiyor; HC
+izinleri uygulama başına verildiği için onay ekranını capacitor-health açıyor, izin
+listesine `READ_TOTAL_CALORIES` + `READ_HEART_RATE` eklendi. Dinlenme nabzı = günün en
+düşük %10'unun ortancası (günde <10 örnek varsa tahmin yok). Çoklu kaynak toplanmıyor,
+gün için en yüksek tek kaynak alınıyor.
+
+Kanıt: Kotlin 14 test, web 40, API 37, `tsc --noEmit` temiz, APK BUILD SUCCESSFUL,
+`aapt2 dump permissions` → `READ_TOTAL_CALORIES_BURNED`, `READ_HEART_RATE`,
+`POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`; `HealthExtraPlugin` classes10.dex içinde.
+
+**Cihazda hiçbiri denenmedi.** Üçü de duman testine ekleniyor. API konteyneri de
+yeniden kurulmadı — Eva'nın sistem istemine eklenen "sık yedikleri" kuralı canlıya
+`docker compose up -d --build api` + tünel yeniden başlatma ile geçer.
 
 ## Nerede duruyor
 
@@ -209,11 +242,14 @@ zaten var, web hiç göndermiyor) ve en çok faydayı en az işle veren o.
 
 ## Sıradaki iş (öncelik sırası)
 
-1. Cihazda duman testi + pil ölçümü (`npm run link` → QR → Bugün ekranı)
-2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın
-3. Kendi Health Connect eklentimiz: uyku + Nutrition + toplam kalori
-4. Hatırlatmalar (sabah tartı, akşam retro)
-5. Gözlük (evaglass) köprüsü — aşağıya bak
+1. Cihazda duman testi + pil ölçümü (`npm run link` → QR → Bugün ekranı).
+   13 Eylül'ün üç işi de burada doğrulanacak: HC izinleri verilince toplam kalori ve
+   nabız geliyor mu, hatırlatma bildirimi saatinde düşüyor mu, Eva porsiyonu hatırlıyor mu.
+2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın (13 Eylül: 192.168.1.186 hâlâ
+   ping'e yanıt vermiyor, iş bu yüzden bloke)
+3. Kendi Health Connect eklentimizin uyku + Nutrition ayağı — uyku için önce Samsung
+   Health'te paylaşım açılmalı, yoksa okunacak veri yok
+4. Gözlük (evaglass) köprüsü — aşağıya bak
 
 ## Gözlük entegrasyonu: köprü hazır, bağlantı yapılmadı
 
