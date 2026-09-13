@@ -1,288 +1,145 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-13 · feature/food-memory @ ae70946 (dev'e henüz merge edilmedi) · 0 kirli dosya
-Dal `dev`, her push Pages'e, `v*` tag'i APK release'e gider.
+> 2026-09-13 · dev @ ef13034 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.10.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
-git fetch -q && git status -sb      # dev, origin/dev ile eşit olmalı (4b16f11 veya sonrası)
-git status --porcelain | wc -l      # 0 bekleniyor
-npm test                            # api 37 pass / 0 fail, web 40 pass / 0 fail
-docker compose --profile tunnel ps  # db, litellm, api, cloudflared dördü de Up
+git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
+git status --porcelain | wc -l           # 0 bekleniyor
+npm test                                 # api 37 pass / 0 fail, web 40 pass / 0 fail
+docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
 
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
-hatası değil — `npm run db:up` yeter.
+hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
+`cd apps/web/android && JAVA_HOME="/c/Program Files/Android/openjdk/jdk-21.0.8" ./gradlew testDebugUnitTest`
+(17 test: HealthMath 10, SnoreAnalyzer 6, Example 1).
 
 ## Sıradaki iş — 1. adım
 
-**Cihazda duman testi.** Stack ayakta, telefonun bağlanması için QR şart değil:
-APK'yı (`releases/latest`) kur, Ayarlar → sunucu adresi `https://fit.evaitec.com`,
-API token `.env: API_TOKEN` değeri — bir kez yazılır, cihazda kalır. Sonra sırayla
-Health Connect izin ekranı, gece ölçümünde pil düşüşü, kamerayla öğün, sesli not
-(ayrıntılı liste aşağıda "Cihazda hiç denenmedi" başlığında).
+**Telefonda duman testi.** Kod tarafında bekleyen iş yok; 13 Eylül'ün beş özelliğinin
+hiçbiri gerçek cihazda çalıştırılmadı. Sırayla:
 
-## Tekrarlama
+1. **Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç.** Bu yapılmadan
+   uyku verisi gelmez (aşağıda "Uyku" başlığı).
+2. APK'yı kur (`releases/latest`, v0.10.0), `npm run link` → QR → token cihaza gider.
+3. Saat kartı → "İzin ver". **İki onay ekranı** çıkar; ikincisinde kan oksijeni, HRV ve
+   uyku var — atlanırsa o üç ölçüm boş kalır.
+4. Bugün ekranında kontrol: toplam kalori, dinlenme nabzı, SpO2, HRV, uyku dolu mu.
+5. Gece ölçümünde **pil kaç puan düştü** (tasarım 30 sn'de 4 sn dinlemek üzere; yüksekse
+   `SleepService.PERIOD_MS` artırılır).
+6. Hatırlatma bildirimi saatinde düşüyor mu (Ayar → Hatırlatmalar, varsayılan 09:00/21:00).
+7. Kamerayla öğün, sesli not (Türkçe tanıma).
 
-- Cloudflare'de rate limiting kuralı: `~/.ai/vg.env`'deki iki evaitec token'ının
-  ikisinde de WAF yazma yetkisi yok (`POST /zones/<id>/rulesets` → `10000
-  Authentication error`). Koruma bu yüzden kodda; kural istenirse önce token'a
-  `Zone / WAF / Edit` izni eklenmeli.
-- `Docker Desktop.exe -Restart`: engine 500 verirken işe yaramıyor, `wsl --shutdown`
-  + temiz açılış gerekiyor. Port dinliyor olması ayakta demek değil.
+## Sıradaki iş (öncelik sırası)
 
-## 11 Eylül'de ne değişti
+1. Cihazda duman testi (yukarıda)
+2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın. **Bloke:** 192.168.1.186 ping'e
+   yanıt vermiyor (13 Eylül'de de denendi).
+3. Nutrition okuma (`NutritionRecord`) — HealthExtra'ya eklenir, uyku ile aynı desen
+4. Gözlük (evaglass) köprüsü — API hazır, iş karşı repoda bir istemci yazmak
+   (ADO: `dev.azure.com/evaitec/evaitec/_git/evaglasses`)
 
-**Geçmiş veri girdi.** Health Connect dışa aktarımı (`npm run import:health -- <zip>`)
-11 Nisan - 10 Eylül arası 153 günü, 277 ölçüm kaydını ve 7 egzersiz seansını yazdı.
-Uygulama artık boş açılmıyor. Üç uygulama (Fitbit + Samsung Health + HC) aynı günü
-ayrı yazdığı için gün başına **en yüksek tek kaynak** alınıyor; toplamak üç kat sayardı.
+## Uyku — kod hazır, veri Samsung'da kilitli
 
-**Health Connect'te ne var, ne yok** (kanıt: `docs/PLAN-F1.md` sonundaki ek):
-uyku ve aktif kalori **yok** (tablo var, sıfır satır), nabız ve toplam kalori **var**.
-Yani kendi Kotlin eklentimiz uyku için değil, toplam kalori + nabız için değerli.
-Samsung Health uykuyu kendi içinde tutuyor, HC'ye yazmıyor — açılması gereken ayar
-Samsung Health tarafında. **Uygulamanın HC izinleri telefonda hâlâ verilmedi** (0/5, 0/1, 0/4).
+`SleepSessionRecord` okunuyor, seans uyanılan güne yazılıyor (`sleep_min`). Ama 11 Eylül
+dökümünde `sleep_session_record_table` sıfır satırdı: Samsung Health uykuyu kendi içinde
+tutuyor, Health Connect'e yazmıyor. Açılması gereken ayar Samsung Health tarafında.
+Mikrofon ölçümü (`sleep_monitored_min`, `snore_min`) ayrı bir şey — uyku süresini değil,
+mikrofonun dinlediği pencereyi sayar ve elle başlatılır.
 
-**Saatin bulduğu seans artık soruluyor.** Health Connect seans için yalnız süre ve
-sayısal bir tip veriyor; ne yapıldığını kullanıcı bilir. Seans `needs_review` ile
-geliyor, Bugün ekranında "Saat bir hareket gördü · bu neydi?" kartında bekliyor;
-tip + kas grubu + set + **kaldırılan ağırlık** girilip onaylanıyor. Kalori tahmini
-MET × vücut ağırlığı × saat. Onaylanan kayıt, dışa aktarım ikinci kez alınsa da
-geri onaya düşmez (`needs_review = workout.needs_review and excluded.needs_review`).
+## Saatten ne alınıyor, ne alınamıyor (kanıt: connect-client-1.2.0-alpha01 sınıf listesi)
 
-**İki sohbet tek yola indi.** Bugün ekranındaki asistan ile Eva sekmesi aynı uca iki
-ayrı istemciden konuşuyordu: ilkinin geçmişi yoktu, kaydettiği şey Notlar'a düşmüyordu.
-`ui/Eva.tsx` (compact prop'u) ikisini de karşılıyor; `Assistant.tsx`, `Chat.tsx` ve
-`voice.understand` silindi.
+- **capacitor-health:** adım, aktif kalori, kilo, antrenman. `queryAggregated` yalnız
+  `steps | active-calories | mindfulness` kabul ediyor, `queryRecords` adım + vücut
+  kompozisyonu — sınırı bu.
+- **Kendi eklentimiz** (`HealthExtraPlugin.kt`): toplam kalori, nabız, kan oksijeni, HRV,
+  uyku. Telefonda aktif kalori boş, dolu olan toplam kalori (Fitbit) ve nabız (Samsung).
+- **Stres alınamaz.** Health Connect'in 43 kayıt tipinin hiçbiri stres değil. Samsung
+  skoru HRV'den türetip kendi uygulamasında tutuyor; ham ölçü olarak HRV (RMSSD) alınıyor.
+- **İzin ikiye bölündü.** capacitor-health'in izin listesinde SpO2, HRV ve uyku yok; bu
+  üçünün onay ekranını `HealthExtraPlugin.requestExtraPermissions` kendisi açıyor.
+- **Çoklu kaynak toplanmaz.** Samsung + Fitbit + HC aynı günü ayrı yazıyor; toplamak üç
+  kat sayardı. Gün başına en yüksek tek kaynak alınır (`HealthMath.dailyCalories`,
+  `dailySleepMinutes`, `ops/import_health.mjs` — üçü de aynı kural).
+- **Senkron aralığı:** uygulama açıkken açılışta + 15 dk (`App.tsx:51`). Kapalıyken arka
+  plan senkronu yok; veri HC'de birikir, uygulama açılınca son 7 gün toplu gelir.
 
-**Haftalık program geldi** (PLAN-F1 m2): `db/003 training_split`, `GET/PUT /api/split`,
-Ayar'da yedi gün seçici. Bugünün bölgesi hem gün özetinde hem Eva'nın bağlamında.
+## Tekrarlama (denendi, ölü)
 
-**Gün özeti üstte**: protein halkası + adım + bugünün programı. Protein hızlı düğmeleri
-sabit değil, son 60 öğünün en sık porsiyonlarından türüyor.
-
-Kapanan kusurlar: saat adımı elle girilen daha büyük değeri artık ezmiyor · mikrofon
-durdurulabiliyor (`stopListening` hiç bağlı değildi) · dışa aktarıma wearable/meal/chat
-eklendi · sekme çubuğunda `role=tablist` · dokunma hedefleri 44px · `theme-color` gövdeyle aynı.
-
-Testler: API 34, web 25. `tsc --noEmit` iki workspace'te de temiz.
-
-## 12 Eylül'de ne değişti
-
-İstek sınırı iki pencereye ayrıldı (`apps/api/src/server.ts` auth hook'u): trafik
-300/dk, **yanlış token 10/dk**. Yanık tahmin penceresi doğru token'ı da 429'luyor —
-sel ortasında kimse içeri giremiyor, meşru istemci o pencereyi hiç harcamıyor.
-Canlı kanıt: yanlış token 11. denemede 429, pencere dolunca tünelden Eva 200.
-
-Docker Desktop'ın WSL motoru ölmüştü (`still waiting for init control API` ~2 saat);
-`wsl --shutdown` + temiz açılış düzeltti. Bu sırada çıkan asıl kusur: `db`, `litellm`
-ve `api`'de restart politikası yoktu, yalnız cloudflared'de vardı — Docker yeniden
-başlayınca wellness geri gelmiyordu. Üçüne de `unless-stopped` kondu.
-
-API tünel üzerinden internete açık ve auth'ta hiç sınır yoktu. Auth hook'una istemci
-adresi başına dakikada 120 istek sınırı eklendi (aşan `429`, `/health` açık kalıyor).
-Token hâlâ asıl kapı; bu yalnız seli durduruyor. Canlı kanıt: 121. istekte 429.
-
-`npm run db:migrate` tek başına `DATABASE_URL is not set` veriyordu — script `--env-file`
-taşımıyordu, repodaki diğer tüm giriş noktaları taşıyor. Düzeltildi.
-
-Testler: API 36, web 25. `tsc --noEmit` iki workspace'te de temiz.
-
-## 13 Eylül'de ne değişti (feature/food-memory, dev'e merge edilmedi)
-
-**Yiyecek hafızası** (PLAN-F1 m4): "tavuk" her geçtiğinde porsiyon yeniden soruluyordu.
-Ayrı bir `food_memory` tablosu yerine son 60 öğünden türetilen hafıza Eva'nın bağlamına
-giriyor (`metrics.foodMemory`) — öğün kayıtları zaten isim + protein tutuyor. Yalnız tek
-parçalı öğünden öğrenir; "tavuk, pilav" kaydında proteinin hangi parçaya ait olduğu
-bilinmiyor. Değer ortalama değil ortanca. Canlı kanıt: bağlamda "tavuk ~35 g / 420 kcal"
-varken "tavuk yedim" → porsiyon sorulmadı, taslak 35 g / 420 kcal; "iki yumurta"
-(yumurta ~13 g) → 26 g.
-
-**Hatırlatmalar** (öncelik #4): eksik sabah tartısı ve akşam retrosu iki yoldan
-hatırlatılıyor — uygulama açıkken Bugün ekranının üstünde satır (PWA dahil), telefon
-kapalıyken yerel bildirim (`@capacitor/local-notifications`, yalnız APK; tarayıcı
-uygulama kapalıyken bildirim atamaz, Web Push sunucu + VAPID ister). Saatler Ayar'dan
-değişir, tek anahtarla kapanır. ⚠️ Bildirim her gün aynı saatte tekrarlar, o gün kilo
-girilmiş olsa da (`ponytail:` notu `lib/reminders.ts`'te).
-
-**Kendi Health Connect eklentimiz** (PLAN-F1 m3b, kalori + nabız ayağı):
-`HealthExtraPlugin.kt` toplam kaloriyi ve nabzı doğrudan HC'den okuyor — bizim
-okuduğumuz aktif kalori telefonda boştu, dolu olan bu. Eklenti izin istemiyor; HC
-izinleri uygulama başına verildiği için onay ekranını capacitor-health açıyor, izin
-listesine `READ_TOTAL_CALORIES` + `READ_HEART_RATE` eklendi. Dinlenme nabzı = günün en
-düşük %10'unun ortancası (günde <10 örnek varsa tahmin yok). Çoklu kaynak toplanmıyor,
-gün için en yüksek tek kaynak alınıyor.
-
-Kanıt: Kotlin 14 test, web 40, API 37, `tsc --noEmit` temiz, APK BUILD SUCCESSFUL,
-`aapt2 dump permissions` → `READ_TOTAL_CALORIES_BURNED`, `READ_HEART_RATE`,
-`POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`; `HealthExtraPlugin` classes10.dex içinde.
-
-**Cihazda hiçbiri denenmedi.** Üçü de duman testine ekleniyor. API konteyneri de
-yeniden kurulmadı — Eva'nın sistem istemine eklenen "sık yedikleri" kuralı canlıya
-`docker compose up -d --build api` + tünel yeniden başlatma ile geçer.
-
-## Saatten ne alınıyor, ne alınamıyor (13 Eylül, kanıtlı)
-
-Health Connect'in 43 kayıt tipi (`connect-client-1.2.0-alpha01.aar` sınıf listesi)
-tarandı. Uygulamanın aldığı: adım, aktif kalori, kilo, antrenman (capacitor-health) +
-toplam kalori, nabız, **kan oksijeni**, **HRV** (kendi `HealthExtraPlugin`'imiz).
-
-- **Stres alınamaz.** Health Connect'te stres diye bir kayıt tipi yok. Samsung stres
-  skorunu HRV'den türetip kendi uygulamasında tutuyor, HC'ye yazacağı bir alan mevcut
-  değil. Alabildiğimiz ham ölçü `HeartRateVariabilityRmssdRecord` (RMSSD, ms).
-- **Kan oksijeni** `OxygenSaturationRecord` olarak var; saat çoğunlukla uykuda ve spot
-  ölçümde yazar, sürekli değil. Günlük iki değer üretiliyor: ortanca (`spo2_pct`) ve en
-  düşük band (`spo2_low_pct`, en düşük %10'un ortancası — apne işareti bu tarafta).
-- **Uyku okuması hazır ama veri Samsung'da kilitli.** `SleepSessionRecord` okunuyor,
-  uyanılan güne yazılıyor (`sleep_min`). 11 Eylül dökümünde bu tablo sıfır satırdı:
-  Samsung Health uykuyu HC'ye yazmıyor. **Açılması gereken ayar Samsung Health tarafında**
-  (Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç). Açılana kadar
-  uygulamada uyku süresi yok; mikrofon ölçümü (`sleep_monitored_min`, `snore_min`) ayrı
-  bir şey, süreyi değil ölçülen pencereyi sayar.
-- **İzin ikiye bölündü.** capacitor-health'in izin listesinde SpO2, HRV ve uyku yok, o
-  yüzden bu üçünün onay ekranını `HealthExtraPlugin.requestExtraPermissions` kendisi
-  açıyor. Saat kartındaki "İzin ver" düğmesi iki ekranı sırayla gösteriyor.
-
-Senkron aralığı: uygulama **açıkken** açılışta + 15 dakikada bir (`App.tsx:51`). Uygulama
-kapalıyken arka plan senkronu yok; telefon veriyi HC'de biriktirir, uygulama açılınca son
-7 gün toplu gelir.
+- Cloudflare'de WAF kuralı: `~/.ai/vg.env`'deki iki evaitec token'ının ikisinde de yazma
+  yetkisi yok (`POST /zones/<id>/rulesets` → `10000 Authentication error`). Koruma bu
+  yüzden kodda. Kural isteniyorsa token'a `Zone / WAF / Edit` izni eklenmeli.
+- `Docker Desktop.exe -Restart`: engine 500 verirken işe yaramıyor, `wsl --shutdown` +
+  temiz açılış gerekiyor. Port dinliyor olması ayakta demek değil.
+- Eva'nın sistem isteminde "porsiyonu sorma, varsay" demek yetmiyor — model "zaten
+  hallettim" moduna girip `<kayit>` taslağını hiç yazmıyordu. Kural taslağı açıkça
+  istemeli (`apps/api/src/chat.ts` SYSTEM).
+- Kendi Kotlin eklentimizde metod adı `checkPermissions`/`requestPermissions` olamaz —
+  Capacitor `Plugin` sınıfındakileri gölgeler, derleme hatası.
+- `capacitor-health` ile uyku/SpO2/HRV okumaya çalışmak: kütüphanede yolu yok, kendi
+  eklentimiz bu yüzden var.
 
 ## Nerede duruyor
 
 Canlı PWA: https://evatechnosoft.github.io/life-os-wellness/
-APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest
+APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.10.0)
 
-Biten: F0 Sprint 1-4 (şema, CRUD API, Bugün/Hafta/Ayar, offline kuyruk, metrics,
-JSON export) + Aurora Glass teması + Health Connect (saat) + gece horlama ölçümü
-(kendi Kotlin eklentimiz) + kamerayla öğün + sesli not (Eva avatarı).
+Biten: F0 Sprint 1-4 + Aurora Glass teması + Health Connect + gece horlama ölçümü +
+kamerayla öğün + sesli not + geçmiş veri aktarımı (153 gün) + haftalık program +
+seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku).
 
-Testler: API 25, web 16, Kotlin 6. Hepsi yeşil.
+Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git etiketiyle aynı
+tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
+→ Actions APK derleyip release'e ekler. Her `dev` push'u Pages'e gider.
 
-## Cihazda hiç denenmedi — ilk iş bu
+## Eva ve model erişimi
 
-APK derleniyor ve izinleri doğru (aapt2 dump), ama **hiçbir özellik gerçek telefonda
-çalıştırılmadı**. Sırayla denenecek:
+Tek uç: `POST /api/chat` — OpenAI-uyumlu istemci, LiteLLM proxy'de `wellness-chat` /
+`wellness-vision` alias'ı, arkasında `gemini/gemini-2.5-flash`. Uygulama hiçbir
+sağlayıcıya doğrudan bağlanmaz; sağlayıcı değiştirmek `config/litellm.yaml`'da tek satır.
 
-1. Health Connect izin ekranı açılıyor mu, adım/kalori geliyor mu
-2. Gece ölçümü: sabah özet çıkıyor mu, **pil kaç puan düştü** (tasarım 30 sn'de 4 sn
-   dinlemek üzere; yüksekse `SleepService.PERIOD_MS` artırılır)
-3. Kamera + tahmin: sunucu gerekiyor (aşağıya bak)
-4. Sesli not: `SpeechRecognition` Türkçe tanıma, taslak doğru mu
+Her istekte son 7 günün özeti + sık yenen yiyeceklerin geçmiş değerleri system'e ekleniyor
+(`apps/web/src/lib/chat.ts` `buildContext`). Model eğitimi yok. Yanıttaki
+`<kayit>{...}</kayit>` bloğu "Günlüğe kaydet" düğmesine dönüşür — onaylanmadan hiçbir şey
+yazılmaz.
 
-## Eva (sohbet) nasıl kurulu
+Web araması Gemini'nin kendi grounding'i (`web_search_options: {}`), atıflar
+`annotations[].url_citation`. ⚠️ Atıf URL'leri `vertexaisearch.cloud.google.com`
+yönlendirmesi, gerçek alan adı değil; ömürleri sınırlı.
 
-Tek uç: `POST /api/chat` — OpenAI-uyumlu istemci, LiteLLM proxy'de `wellness-chat`
-alias'ı, arkasında `gemini/gemini-2.5-flash`. Anthropic SDK `f8d3fa9`'da kaldırıldı.
-Fotoğraf aynı uca base64 gider (`wellness-vision`). Yanıtın sonundaki `<kayit>{...}</kayit>` bloğu ayrıştırılıp
-"Günlüğe kaydet" düğmesine dönüşür — onaylanmadan hiçbir şey yazılmaz.
+**`GEMINI_API_KEY`'in tek kopyası NetMovies yönetim panelinde:** `netmovies/data/admin.json`
+→ `gemini_api_key`. Azure Key Vault kopyası ölü. Bu dosya kaybolursa key kurtarılamaz.
 
-Öğrenme: model eğitimi yok. Her istekte son 7 günün özeti (`buildContext`) system'e
-ekleniyor — cevaplar kullanıcının kendi sayılarına dayanıyor.
+## Ev dışından erişim
 
-## Model erişimi: LiteLLM proxy (kuruldu, çalışıyor)
+Wellness'in kendi Cloudflare tüneli var (`wellness`, `59988d1b-…`). Ayarlar panelde değil
+repoda: `ops/cloudflared/config.yml` → `fit.evaitec.com` → `http://localhost:3011`.
+Kimlik dosyası `~/.cloudflared/<id>.json`, repoda değil; compose `.env`'deki
+`CF_TUNNEL_CREDENTIALS` yolundan salt-okunur bağlanıyor.
 
-Uygulama hiçbir sağlayıcıya doğrudan bağlanmaz. `apps/api/src/llm.ts` yalnız iki şey bilir:
-OpenAI-uyumlu bir base URL ve bir alias (`wellness-chat`, `wellness-vision`). Gerçek model
-ve tüm sağlayıcı key'leri `config/litellm.yaml` + litellm container'ında. Sağlayıcı
-değiştirmek = tek satır YAML, uygulamada sıfır değişiklik. RAG katmanı da oraya gelecek.
+⚠️ **`api` konteynerini yeniden kurarsan tüneli de yeniden başlat** — cloudflared
+`network_mode: service:api` ile api'nin ağ namespace'ini paylaşıyor, api yeniden
+yaratılınca tünel 502 veriyor: `docker compose --profile tunnel up -d cloudflared`.
 
-`GEMINI_API_KEY` `.env`'e kondu, sohbet ve fotoğraf okuma açıldı. Anthropic key
-kullanılmıyor (Dean istemedi).
+⚠️ Tarayıcıda `https://fit.evaitec.com` açmak `{"error":"unauthorized"}` verir — orası
+web sitesi değil API.
 
-**Key'in tek kopyası NetMovies yönetim panelinde:** `netmovies/data/admin.json` →
-`gemini_api_key`. Azure Key Vault kopyası ölü (`~/.ai/vg.env` notu). Bu dosya kaybolursa
-key kurtarılamaz, AI Studio'dan yenisi alınır.
-
-Doğrulanan zincir (2026-09-10, key sonrası):
-- `GET :3011/health` → `200 {"ok":true}`
-- `GET :4000/v1/models` (Bearer proxy) → `wellness-chat`, `wellness-vision`
-- `POST :3011/api/chat` → `200 {"text":"Merhaba, ben Eva, Dean'in sağlık günlüğünde
-  sana yardımcı oluyorum.","draft":null,"sources":[]}`
-- `POST :3011/api/estimate` (2x2 düz kırmızı PNG) → `200 {"items":[],"kcal":0,
-  "confidence":"low","note":"Fotoğrafta herhangi bir yiyecek görünmüyor..."}`
-
-## Ev dışından erişim: fit.evaitec.com açıldı
-
-Wellness'in kendi Cloudflare tüneli var (`wellness`, `59988d1b-…`), NetMovies'inkine
-binmiyor. Tünel CLI ile kurulduğu için ayarları panelde değil repoda:
-`ops/cloudflared/config.yml` → tek ingress kuralı `fit.evaitec.com` →
-`http://localhost:3011`, eşleşmeyen istek `404`. Kimlik dosyası `~/.cloudflared/<id>.json`,
-repoda değil; compose `.env`'deki `CF_TUNNEL_CREDENTIALS` yolundan salt-okunur bağlıyor.
-
-Uygulama artık API'yi tam adresle çağırıyor: `apps/web/src/lib/api.ts` içindeki
-`getApiBase()` derlenmiş yapıda `https://fit.evaitec.com` döner, geliştirmede boş
-(Vite proxy'si var). Ayarlar → Sunucu adresi alanından ezilebilir; ev ağındayken
-`http://192.168.1.185:3011` yazmak daha hızlı.
-
-API'de CORS var (`server.ts`, `ALLOWED_ORIGINS`): Pages, Capacitor'ın iki webview
-origin'i ve Vite. `*` değil, çünkü token header'da gidiyor. Preflight auth hook'undan
-ÖNCE cevaplanıyor, yoksa tarayıcı 401 görüp asıl isteği hiç göndermiyordu.
-
-⚠️ **`api` konteynerini yeniden kurarsan tüneli de yeniden başlat.** cloudflared
-`network_mode: service:api` ile api'nin ağ namespace'ini paylaşıyor; api yeniden
-yaratılınca tünel 502 vermeye başlıyor. `docker compose --profile tunnel up -d cloudflared`
-düzeltiyor.
-
-**Telefonu bağlamak: `npm run link`.** Token elle yazılmaz. Komut `.env`'deki
-`API_TOKEN`'ı linkin içine koyup QR olarak basar; telefon okutunca uygulama token'ı
-kaydedip adres çubuğundan siler (`apps/web/src/main.tsx`). `--lan` eklersen link ayrıca
-`?api=http://<lan-ip>:3011` taşır, telefon ev ağındayken tünele çıkmaz. Link düz metin
-basılmaz (terminal çıktısı loglara düşüyor), gerçekten gerekiyorsa `--show`.
-
-⚠️ Tarayıcıda `https://fit.evaitec.com` açmak `{"error":"unauthorized"}` verir. Bu doğru
-davranış — orası web sitesi değil API.
-
-Sırada: ZimaOS'a taşı (şu an ping'e yanıt vermiyor). Taşınırsa tünel origin'i orayı
-gösterecek şekilde `ops/cloudflared/config.yml` güncellenir.
-
-**Web araması geri geldi — Gemini'nin kendi Google Search'ü.** İstek gövdesine
-OpenAI-standardı `web_search_options: {}` konuyor, LiteLLM bunu sağlayıcının grounding
-özelliğine eşliyor; yani arama da alias gibi proxy'nin işi, `apps/api` sağlayıcı bilmiyor.
-Atıflar `annotations[].url_citation` olarak dönüyor, `collectSources` bunları tekilleştirip
-`sources` alanını dolduruyor (web tarafı zaten çiziyordu). Fotoğraflı istekte arama kapalı.
-
-Canlı kanıt: "100 gram haşlanmış mercimekte kaç gram protein var?" → 3 kaynak
-(wikifarmer.com, medicalpark.com.tr, yemek.com). ⚠️ Gemini atıf URL'lerini
-`vertexaisearch.cloud.google.com/grounding-api-redirect/...` yönlendirmesi olarak veriyor,
-gerçek alan adı değil; bu bağlantıların ömrü sınırlı.
+**Telefonu bağlamak: `npm run link`.** Token elle yazılmaz; komut `.env`'deki `API_TOKEN`'ı
+linke koyup QR basar, telefon okutunca token'ı kaydedip adres çubuğundan siler. `--lan`
+eklersen link LAN adresi taşır, telefon tünele çıkmaz.
 
 ## Bilinen sınırlar (kanıtlı)
 
-- `capacitor-health` → `queryAggregated` yalnız `steps | active-calories | mindfulness`.
-  **Toplam kalori, nabız, uyku, beslenme (Nutrition) yok.** Samsung Health'ten alınan
-  kaloriyi çekmek için kendi Health Connect eklentimizi yazmak gerekiyor.
 - Horlama tespiti eşik tabanlı (`SnoreAnalyzer`), eğitilmiş model değil. Fan/trafik
-  gürültüsü tabanı yükselttiği için epizot saymıyor (test var), ama sınırı bu.
+  gürültüsü tabanı yükselttiği için epizot saymıyor (testi var).
 - Nefes hızı ölçülmüyor; mikrofonla güvenilir değil.
 - Gece süreleri duty cycle'dan ölçeklenmiş tahmin (`estimated: true`).
-
-## Yarının işi: `docs/PLAN-F1.md`
-
-10 Eylül akşamı telefonda ilk gerçek kullanım oldu. Dört istek çıktı: Eva geçmişi bilsin
-ve eksiği istesin, haftalık antrenman ajandası (göğüs günü / bacak günü), saatten okusun,
-"öğrensin". Sıra ve maliyet o dosyada; ilk madde `context` alanını doldurmak (API'de yeri
-zaten var, web hiç göndermiyor) ve en çok faydayı en az işle veren o.
-
-## Sıradaki iş (öncelik sırası)
-
-1. Cihazda duman testi + pil ölçümü (`npm run link` → QR → Bugün ekranı).
-   13 Eylül'ün üç işi de burada doğrulanacak: HC izinleri verilince toplam kalori ve
-   nabız geliyor mu, hatırlatma bildirimi saatinde düşüyor mu, Eva porsiyonu hatırlıyor mu.
-2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın (13 Eylül: 192.168.1.186 hâlâ
-   ping'e yanıt vermiyor, iş bu yüzden bloke)
-3. Kendi Health Connect eklentimizin uyku + Nutrition ayağı — uyku için önce Samsung
-   Health'te paylaşım açılmalı, yoksa okunacak veri yok
-4. Gözlük (evaglass) köprüsü — aşağıya bak
-
-## Gözlük entegrasyonu: köprü hazır, bağlantı yapılmadı
-
-`evaglass` ayrı bir repo (ADO: `dev.azure.com/evaitec/evaitec/_git/evaglasses`) ve bu
-oturumda ona hiç dokunulmadı. Gereken bağlantı küçük: gözlük çektiği fotoğrafı
-`POST /api/chat` (veya `/api/estimate`) ucuna bearer token ile göndersin, yanıtı
-kullanıcıya okusun. Yani API tarafı hazır, iş evaglass tarafında bir istemci yazmak.
+- Hatırlatma bildirimi her gün aynı saatte tekrarlar, o gün kilo girilmiş olsa da
+  (`ponytail:` notu `apps/web/src/lib/reminders.ts`).
+- `API_TOKEN` 10 Eylül'de bir kez terminale basıldı; döndürülmesi öneriliyor, acil değil.
 
 ## Çalıştırma
 
@@ -292,4 +149,6 @@ npm test         # api + web
 npm run apk      # yerel APK (JDK 21+ otomatik bulunur)
 ```
 
-Kurallar `AGENTS.md`, ürün `docs/SPEC.md`, plan `docs/PLAN.md`.
+Kurallar `AGENTS.md`, ürün `docs/SPEC.md`, plan `docs/PLAN-F1.md`, mimari
+`docs/ARCHITECTURE.md`. Günlük değişiklik geçmişi commit mesajlarında — bu dosya onları
+tekrarlamaz.
