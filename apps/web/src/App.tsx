@@ -5,6 +5,7 @@ import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncHealth } from './lib/health'
 import { pullSplit } from './lib/split'
+import { DEFAULT_REMINDERS, scheduleNotifications, type ReminderSettings } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop } from './lib/store'
 import { Eva } from './ui/Eva'
 import { Settings } from './ui/Settings'
@@ -40,6 +41,11 @@ export function App() {
       void pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
       void pullSplit().catch(() => {})
     }
+    // Telefon bildirimleri her acilista yeniden kurulur: kullanici saati Ayar'dan
+    // degistirmemis olsa da ilk kurulumda ve APK guncellemesinden sonra gerekiyor.
+    void db.settings.get('reminders').then((row) =>
+      scheduleNotifications({ ...DEFAULT_REMINDERS, ...((row?.value as Partial<ReminderSettings> | undefined) ?? {}) }),
+    ).catch(() => {})
     // Watch data on launch and every 15 min while the app stays open.
     void syncHealth().catch(() => {})
     const health = window.setInterval(() => void syncHealth().catch(() => {}), 900_000)

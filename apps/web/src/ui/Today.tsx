@@ -1,8 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
+import { toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
+import { pendingReminders, useReminderSettings } from '../lib/reminders'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
 import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
@@ -25,7 +27,18 @@ export function Today({ date }: { date: string }) {
   const done = workouts.filter((w) => !w.needs_review)
   const pulses = frequentPortions(recentMeals.map((m) => m.protein_g))
   const protein = log?.protein_g ?? 0
-  const eveningFirst = new Date().getHours() >= 20
+  const now = new Date()
+  const eveningFirst = now.getHours() >= 20
+  // Hatirlatma yalniz bugun icin: gecmis bir gune bakarken "tartilmadin" demek anlamsiz.
+  const reminders = useReminderSettings()
+  const due = date === toLocalDate(now)
+    ? pendingReminders({
+        log,
+        retro,
+        now: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+        settings: reminders,
+      })
+    : []
 
   const submitWorkout = async () => {
     await addWorkout({ date, ...draftToWorkout(draft) })
@@ -50,6 +63,20 @@ export function Today({ date }: { date: string }) {
   return (
     <div className="space-y-3">
       <DayHeader date={date} />
+
+      {due.length > 0 && (
+        <ul className="rounded-field bg-glass-inset p-3 text-sm">
+          {due.map((r) => (
+            <li key={r.id} className="flex gap-2 py-0.5">
+              <span aria-hidden className="text-a1">•</span>
+              <span>
+                <span className="text-ink-dim">{r.title}</span>
+                <span className="text-ink-faint"> — {r.body}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <Eva compact />
 

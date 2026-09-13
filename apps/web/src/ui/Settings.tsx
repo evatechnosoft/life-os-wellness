@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { getApiBase, getToken, setApiBase, setToken } from '../lib/api'
 import { db } from '../lib/db'
+import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
 import { saveSplit, useSplit, WEEKDAYS } from '../lib/split'
 import { syncOutbox } from '../lib/store'
@@ -69,6 +70,7 @@ function SplitEditor() {
 
 export function Settings() {
   const goals = useGoals()
+  const reminders = useReminderSettings()
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
   const [token, setLocalToken] = useState(getToken())
   const [base, setLocalBase] = useState(getApiBase())
@@ -150,6 +152,35 @@ export function Settings() {
           Hangi gün hangi bölge. Eva bugünün bölgesini bilir, o güne ait kaydı takip eder.
         </p>
         <SplitEditor />
+      </Card>
+
+      <Card title="Hatırlatmalar">
+        <label className="flex min-h-11 items-center justify-between text-sm text-ink-dim">
+          <span>Eksik girişleri hatırlat</span>
+          <input
+            type="checkbox"
+            checked={reminders.enabled}
+            onChange={(e) => void saveReminderSettings({ ...reminders, enabled: e.target.checked })}
+            className="size-5 accent-a1"
+          />
+        </label>
+        <div className="mt-3 flex gap-3">
+          {([['weigh_at', 'Sabah tartısı'], ['retro_at', 'Akşam retrosu']] as const).map(([key, label]) => (
+            <label key={key} className="flex-1 text-xs text-ink-faint">
+              {label}
+              <input
+                type="time"
+                value={reminders[key]}
+                onChange={(e) => void saveReminderSettings({ ...reminders, [key]: e.target.value })}
+                className="mt-1 w-full rounded-field bg-glass-inset px-3 py-2 text-sm text-ink-dim outline-none focus:ring-2 focus:ring-a1"
+              />
+            </label>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-ink-faint">
+          Uygulama açıkken ekranın üstünde çıkar. Telefon bildirimi yalnız APK'da; tarayıcı
+          uygulama kapalıyken bildirim atamaz.
+        </p>
       </Card>
 
       <Card title="Notlar">
