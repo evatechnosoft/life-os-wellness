@@ -7,6 +7,7 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -20,6 +21,7 @@ import com.getcapacitor.annotation.CapacitorPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -27,13 +29,13 @@ import java.time.format.DateTimeFormatter
 
 /**
  * capacitor-health'in okuyamadigi olcumler: toplam yakilan kalori, nabiz, kan
- * oksijeni ve HRV. O eklentinin queryAggregated'i yalniz steps | active-calories
+ * oksijeni, HRV ve uyku. O eklentinin queryAggregated'i yalniz steps | active-calories
  * | mindfulness veriyor, queryRecords ise adim + vucut kompozisyonu; bunlar icin
  * Health Connect'e dogrudan bakmak gerekiyor (docs/PLAN-F1.md m3b).
  *
  * Izin ikiye bolunuyor: toplam kalori ve nabiz capacitor-health'in izin listesinde
  * var, onlari o istiyor (src/lib/health.ts PERMISSIONS). Kan oksijeni ve HRV o
- * listede yok, onay ekranini bu eklenti kendi aciyor.
+ * listede yok - kan oksijeni, HRV ve uyku icin onay ekranini bu eklenti kendi aciyor.
  *
  * Health Connect'te stres diye bir kayit tipi yok - 43 kayit tipinin hicbiri stres
  * degil. Samsung stres skorunu HRV'den turetip kendi uygulamasinda tutuyor; bizim
@@ -48,13 +50,14 @@ class HealthExtraPlugin : Plugin() {
         LocalDate.ofInstant(instant, ZoneId.systemDefault()).format(dayFormat)
 
     /**
-     * capacitor-health'in izin listesinde kan oksijeni ve HRV yok, yani o eklenti
-     * bu ikisini isteyemiyor - onay ekranini bunlar icin kendimiz aciyoruz.
+     * capacitor-health'in izin listesinde kan oksijeni, HRV ve uyku yok, yani o eklenti
+     * bu ucunu isteyemiyor - onay ekranini bunlar icin kendimiz aciyoruz.
      * Toplam kalori ve nabiz hala capacitor-health tarafindan isteniyor.
      */
     private val extraPermissions = setOf(
         HealthPermission.getReadPermission(OxygenSaturationRecord::class),
         HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class),
+        HealthPermission.getReadPermission(SleepSessionRecord::class),
     )
 
     @PluginMethod
@@ -92,7 +95,7 @@ class HealthExtraPlugin : Plugin() {
 
     /**
      * Verilen aralikta gun basina ozetlenmis olcumler. Donus:
-     * { days: [{ date, total_kcal?, resting_hr?, spo2_pct?, spo2_low_pct?, hrv_ms? }] }
+     * { days: [{ date, total_kcal?, resting_hr?, spo2_pct?, spo2_low_pct?, hrv_ms?, sleep_min? }] }
      * - olcumu olmayan gun hic gelmez, esigin altinda ornek varsa o alan yazilmaz.
      */
     @PluginMethod
@@ -151,9 +154,28 @@ class HealthExtraPlugin : Plugin() {
                         .add(record.heartRateVariabilityMillis)
                 }
 
+                // Samsung Health uykuyu 11 Eylul'de Health Connect'e yazmiyordu (sifir
+                // satir); buradan veri gelmesi icin Samsung Health tarafinda paylasimin
+                // acilmasi gerekiyor. Okuma hazir dursun ki acildigi an calissin.
+                val sleepEntries = mutableListOf<HealthMath.SleepEntry>()
+                readAll(client, SleepSessionRecord::class.java, range) { record ->
+                    val minutes = Duration.between(record.startTime, record.endTime).toMinutes()
+                    if (minutes > 0) {
+                        sleepEntries.add(
+                            HealthMath.SleepEntry(
+                                // Uyanilan gune yazilir: gece yarisini asan seans ertesi gunun.
+                                wakeDate = localDay(record.endTime),
+                                source = record.metadata.dataOrigin.packageName,
+                                minutes = minutes,
+                            ),
+                        )
+                    }
+                }
+
                 val kcalByDay = HealthMath.dailyCalories(calories)
+                val sleepByDay = HealthMath.dailySleepMinutes(sleepEntries)
                 val days = JSArray()
-                val dates = kcalByDay.keys + bpmByDay.keys + spo2ByDay.keys + hrvByDay.keys
+                val dates = kcalByDay.keys + bpmByDay.keys + spo2ByDay.keys + hrvByDay.keys + sleepByDay.keys
                 for (date in dates.sorted()) {
                     val entry = JSObject().put("date", date)
                     kcalByDay[date]?.let { entry.put("total_kcal", it) }
@@ -167,6 +189,7 @@ class HealthExtraPlugin : Plugin() {
                     hrvByDay[date]?.let { samples ->
                         HealthMath.median(samples, minSamples = 3)?.let { entry.put("hrv_ms", it) }
                     }
+                    sleepByDay[date]?.let { entry.put("sleep_min", it) }
                     days.put(entry)
                 }
                 call.resolve(JSObject().put("days", days))
