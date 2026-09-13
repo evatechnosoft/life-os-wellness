@@ -9,6 +9,8 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         // Local plugin: the night microphone monitor lives in this app, not in an npm package.
         registerPlugin(SleepPlugin.class);
+        // Health Connect'in capacitor-health ile okunamayan iki olcumu: toplam kalori, nabiz.
+        registerPlugin(HealthExtraPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

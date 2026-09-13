@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import type { DailyLog, WearableRecord, Workout } from './db'
-import { adherencePct, dayAverage, estimateKcal, frequentPortions, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import type { DailyLog, Meal, WearableRecord, Workout } from './db'
+import { adherencePct, dayAverage, estimateKcal, foodMemory, frequentPortions, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -111,5 +111,56 @@ describe('frequentPortions', () => {
   test('gecmis yoksa varsayilana duser', () => {
     expect(frequentPortions([])).toEqual([30, 35, 40])
     expect(frequentPortions([null, undefined, 0])).toEqual([30, 35, 40])
+  })
+})
+
+describe('foodMemory', () => {
+  const meal = (over: Partial<Meal> = {}): Meal => ({
+    id: crypto.randomUUID(),
+    date: '2026-09-13',
+    time: '12:00',
+    protein_g: 30,
+    kcal: 400,
+    note: 'tavuk',
+    estimated: false,
+    ...over,
+  })
+
+  test('ayni yiyecegin medyan degerini hatirlar, uc degeri kacirmaz', () => {
+    expect(
+      foodMemory([
+        meal({ protein_g: 30, kcal: 400 }),
+        meal({ protein_g: 35, kcal: 420 }),
+        meal({ protein_g: 200, kcal: 5000 }),
+      ]),
+    ).toEqual([{ name: 'tavuk', protein_g: 35, kcal: 420, times: 3 }])
+  })
+
+  test('cift sayida kayitta iki ortanca ortalanir', () => {
+    expect(foodMemory([meal({ protein_g: 20 }), meal({ protein_g: 30 })])[0]?.protein_g).toBe(25)
+  })
+
+  test('isim buyuk-kucuk harf ve bosluk farkindan bolunmez', () => {
+    expect(foodMemory([meal({ note: ' Tavuk ' }), meal({ note: 'tavuk' })])[0]?.times).toBe(2)
+  })
+
+  test('cok parcali ogunden ogrenmez - protein hangi parcanin belli degil', () => {
+    expect(foodMemory([meal({ note: 'tavuk, pilav' })])).toEqual([])
+  })
+
+  test('proteinsiz ve notsuz kayitlari atar', () => {
+    expect(foodMemory([meal({ protein_g: null }), meal({ note: null }), meal({ note: '  ' })])).toEqual([])
+  })
+
+  test('siklik sirasina koyar ve limitle keser', () => {
+    const names = foodMemory(
+      [meal({ note: 'yumurta' }), meal({ note: 'tavuk' }), meal({ note: 'tavuk' })],
+      1,
+    ).map((f) => f.name)
+    expect(names).toEqual(['tavuk'])
+  })
+
+  test('kcal hic girilmemisse null kalir, sifira dusmez', () => {
+    expect(foodMemory([meal({ kcal: null })])[0]?.kcal).toBeNull()
   })
 })

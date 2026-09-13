@@ -1,6 +1,7 @@
 import { api, ApiError } from './api'
 import { lastDates, toLocalDate } from './date'
 import { db, type ChatMessage } from './db'
+import { foodMemory } from './metrics'
 import { groupsFor, type Split } from './split'
 import { hasServer } from './store'
 import { applyDraft, draftLines, logNote, type NoteDraft } from './voice'
@@ -20,12 +21,14 @@ export async function buildContext(): Promise<string> {
   const dates = lastDates(7)
   const start = dates[0]!
   const end = dates[dates.length - 1]!
-  const [logs, workouts, meals, wearable, splitRow] = await Promise.all([
+  const [logs, workouts, meals, wearable, splitRow, recentMeals] = await Promise.all([
     db.daily_log.where('date').between(start, end, true, true).toArray(),
     db.workout.where('date').between(start, end, true, true).toArray(),
     db.meal.where('date').between(start, end, true, true).toArray(),
     db.wearable.where('date').between(start, end, true, true).toArray(),
     db.settings.get('split'),
+    // Hafiza yedi gunden uzun: "tavuk kac gram" sorusu son iki haftaya sigmaz.
+    db.meal.reverse().limit(60).toArray(),
   ])
 
   const lines: string[] = []
@@ -54,6 +57,12 @@ export async function buildContext(): Promise<string> {
   // Bugunun programi: Eva "bugun bacak gunu, kac set yaptin?" diyebilsin.
   const planned = groupsFor((splitRow?.value as Split | undefined) ?? {}, end)
   if (planned.length > 0) lines.push(`bugünün programı: ${planned.join(', ')}`)
+  // Sik yediklerinin gecmisteki degerleri: Eva "tavuk yedim" duyunca porsiyonu sormasin.
+  const known = foodMemory(recentMeals)
+  if (known.length > 0) {
+    const parts = known.map((f) => `${f.name} ~${f.protein_g} g protein${f.kcal != null ? ` / ${Math.round(f.kcal)} kcal` : ''}`)
+    lines.push(`sık yedikleri (kendi geçmiş kayıtlarından): ${parts.join(' · ')}`)
+  }
   return lines.join('\n')
 }
 

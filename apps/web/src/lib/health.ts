@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Health, type HealthPermission } from 'capacitor-health'
 
 import { api } from './api'
@@ -9,12 +9,28 @@ import { hasServer, saveDaily, upsertWorkout } from './store'
 
 export const SOURCE = 'health_connect'
 
+export interface HealthExtraDay {
+  date: string
+  total_kcal?: number
+  resting_hr?: number
+}
+
+/** Implemented in android/app/src/main/java/com/evaitec/wellness/HealthExtraPlugin.kt. */
+const HealthExtra = registerPlugin<{
+  available(): Promise<{ available: boolean }>
+  readDaily(range: { startDate: string; endDate: string }): Promise<{ days: HealthExtraDay[] }>
+}>('HealthExtra')
+
 /** Only what the watch actually measures. Every one of these is declared in AndroidManifest. */
 const PERMISSIONS: HealthPermission[] = [
   'READ_STEPS',
   'READ_ACTIVE_CALORIES',
   'READ_WEIGHT',
   'READ_WORKOUTS',
+  // Bu ikisini capacitor-health okuyamiyor ama izni isteyebiliyor; okumayi kendi
+  // HealthExtra eklentimiz yapiyor (android/.../HealthExtraPlugin.kt).
+  'READ_TOTAL_CALORIES',
+  'READ_HEART_RATE',
 ]
 
 /**
@@ -123,6 +139,22 @@ export async function syncHealth(days = 7): Promise<number> {
     }
   } catch {
     // no weight permission or no scale data
+  }
+
+  // Toplam kalori ve nabiz: capacitor-health'in okuyamadigi iki olcum, kendi
+  // eklentimizden geliyor. Health Connect'te aktif kalori bos, dolu olan bu.
+  try {
+    const { days } = await HealthExtra.readDaily({ startDate, endDate })
+    for (const day of days) {
+      if (day.total_kcal != null) {
+        records.push({ id: `${day.date}:total_kcal`, date: day.date, metric: 'total_kcal', value: day.total_kcal, source: SOURCE, synced_at })
+      }
+      if (day.resting_hr != null) {
+        records.push({ id: `${day.date}:resting_hr`, date: day.date, metric: 'resting_hr', value: day.resting_hr, source: SOURCE, synced_at })
+      }
+    }
+  } catch {
+    // Izin verilmedi ya da Health Connect yok: diger olcumler yine yazilir.
   }
 
   // Sessions the watch detected on its own. Written with a deterministic id so a
