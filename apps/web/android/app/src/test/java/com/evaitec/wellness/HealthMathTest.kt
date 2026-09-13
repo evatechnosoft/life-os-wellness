@@ -63,4 +63,18 @@ class HealthMathTest {
         assertNull(HealthMath.restingBpm(listOf(60L, 61L, 62L)))
         assertNull(HealthMath.restingBpm(emptyList()))
     }
+
+    @Test
+    fun `spo2 esigi daha dusuk - saat gece birkac kez olcer`() {
+        val night = listOf(97.0, 96.0, 95.0, 98.0, 91.0)
+        // 5 ornek -> en dusuk %10 = 1 ornek -> 91
+        assertEquals(91.0, HealthMath.lowSpo2(night)!!, 0.01)
+        assertNull(HealthMath.lowSpo2(listOf(97.0, 96.0)))
+    }
+
+    @Test
+    fun `ortanca tek bozuk olcumu yutar`() {
+        assertEquals(42.0, HealthMath.median(listOf(41.0, 42.0, 900.0))!!, 0.01)
+        assertNull(HealthMath.median(emptyList<Double>()))
+    }
 }
