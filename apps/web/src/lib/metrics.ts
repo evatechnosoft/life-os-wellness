@@ -1,4 +1,4 @@
-import type { DailyLog, WearableRecord, Workout, WorkoutType } from './db'
+import type { DailyLog, Meal, WearableRecord, Workout, WorkoutType } from './db'
 
 /** Mean of the values present in the window. Missing days are skipped, not counted as zero. */
 export function movingAverage(values: (number | null | undefined)[]): number | null {
@@ -48,6 +48,49 @@ export function frequentPortions(values: (number | null | undefined)[], fallback
   if (counts.size === 0) return fallback
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 3).map(([g]) => g)
   return [...top, ...fallback.filter((f) => !top.includes(f))].slice(0, 3).sort((a, b) => a - b)
+}
+
+export interface FoodMemory {
+  name: string
+  protein_g: number
+  kcal: number | null
+  times: number
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = sorted.length / 2
+  // Ortanca, ortalamadan iyi: bir kere yanlis girilen 200 g butun hafizayi kaydirmasin.
+  return sorted.length % 2 === 1
+    ? sorted[Math.floor(mid)]!
+    : Math.round(((sorted[mid - 1]! + sorted[mid]!) / 2) * 10) / 10
+}
+
+/**
+ * "Tavuk" dendiginde her seferinde ayni degeri varsaymak icin gecmis ogunlerden
+ * turetilen hafiza - ayri bir tablo yok, kayitlar zaten isim + protein tutuyor.
+ * Yalniz tek parcali ogunden ogrenir: "tavuk, pilav" kaydinda proteinin hangi
+ * parcaya ait oldugu bilinmiyor, tahmin etmek uydurmak olur.
+ */
+export function foodMemory(meals: Meal[], limit = 8): FoodMemory[] {
+  const seen = new Map<string, { protein: number[]; kcal: number[] }>()
+  for (const meal of meals) {
+    const name = meal.note?.trim().toLowerCase()
+    if (!name || name.includes(',') || typeof meal.protein_g !== 'number' || meal.protein_g <= 0) continue
+    const entry = seen.get(name) ?? { protein: [], kcal: [] }
+    entry.protein.push(meal.protein_g)
+    if (typeof meal.kcal === 'number' && meal.kcal > 0) entry.kcal.push(meal.kcal)
+    seen.set(name, entry)
+  }
+  return [...seen.entries()]
+    .map(([name, { protein, kcal }]) => ({
+      name,
+      protein_g: median(protein),
+      kcal: kcal.length > 0 ? median(kcal) : null,
+      times: protein.length,
+    }))
+    .sort((a, b) => b.times - a.times || a.name.localeCompare(b.name))
+    .slice(0, limit)
 }
 
 /** Share of days in the window that reached the protein goal, 0-100. */

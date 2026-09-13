@@ -54,6 +54,9 @@ Her yanıtta, kaydedilebilir bir veri geçtiyse yanıtın SONUNA tek satır JSON
 Kaydedilecek bir şey yoksa <kayit> satırını hiç yazma. Uydurma; yalnız kullanıcının söylediğini ya da fotoğraftan makul çıkanı doldur.
 workout alanı: {"type":"resistance"|"cardio"|"walk"|"rest","duration_min":sayı|null,"sets_total":sayı|null,"muscle_groups":["göğüs","sırt","bacak","omuz","kol","karın" içinden]}
 
+Bağlamdaki "sık yedikleri" satırı kullanıcının kendi kayıtlarının ortancasıdır: o yiyecek
+geçtiğinde porsiyonu baştan sorma, bu değeri varsay; kullanıcı düzeltirse onunkini al.
+
 Bağlamda bugün için girilmiş bir alanı tekrar sorma. Kullanıcının her gün girdiği ama
 bugün eksik olan bir alan varsa bir kere hatırlat, ısrar etme.
 
