@@ -1,7 +1,7 @@
-// Surum tek kaynak: git etiketi ile ayni tutulur (v0.7.1 -> 0.7.1).
+// Surum tek kaynak: git etiketi ile ayni tutulur (v0.8.0 -> 0.8.0).
 // versionCode ondan turer; OTA katalogu guncellemeyi bu sayiyla anlar, sabit 1
 // kalirsa yeni surum "zaten kurulu" gorunur.
-def appVersion = '0.7.1'
+def appVersion = '0.8.0'
 
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
