@@ -79,10 +79,12 @@
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
     <uses-permission android:name="android.permission.health.READ_EXERCISE" />
 
+    <!-- capacitor-health bu ikisini okuyamiyor, kendi HealthExtra eklentimiz okuyor. -->
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+
     <!-- The plugin library declares more health permissions than we read; drop them so the
          Health Connect consent screen only lists what src/lib/health.ts actually asks for. -->
-    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" tools:node="remove" />
-    <uses-permission android:name="android.permission.health.READ_HEART_RATE" tools:node="remove" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" tools:node="remove" />
     <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTE" tools:node="remove" />
     <uses-permission android:name="android.permission.health.READ_HEIGHT" tools:node="remove" />
