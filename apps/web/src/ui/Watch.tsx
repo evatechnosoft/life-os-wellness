@@ -16,7 +16,20 @@ import { Card } from './Field'
 const LABELS: Record<string, { label: string; unit: string }> = {
   steps: { label: 'Adım', unit: '' },
   active_kcal: { label: 'Aktif kalori', unit: 'kcal' },
+  total_kcal: { label: 'Toplam kalori', unit: 'kcal' },
   weight_kg: { label: 'Kilo', unit: 'kg' },
+  protein_g: { label: 'Protein', unit: 'g' },
+  resting_hr: { label: 'Dinlenme nabzı', unit: 'bpm' },
+  spo2_pct: { label: 'Kan oksijeni', unit: '%' },
+  spo2_low_pct: { label: 'En düşük oksijen', unit: '%' },
+  hrv_ms: { label: 'HRV', unit: 'ms' },
+  sleep_min: { label: 'Uyku', unit: 'dk' },
+  sleep_monitored_min: { label: 'Dinlenen süre', unit: 'dk' },
+  snore_min: { label: 'Horlama', unit: 'dk' },
+  snore_episodes: { label: 'Horlama epizodu', unit: '' },
+  snore_window_pct: { label: 'Horlamalı pencere', unit: '%' },
+  longest_pause_sec: { label: 'En uzun duraklama', unit: 'sn' },
+  calories_in: { label: 'Alınan kalori', unit: 'kcal' },
 }
 
 export function Watch({ date }: { date: string }) {

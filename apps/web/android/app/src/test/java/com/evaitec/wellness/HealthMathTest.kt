@@ -1,6 +1,7 @@
 package com.evaitec.wellness
 
 import com.evaitec.wellness.HealthMath.CalorieEntry
+import com.evaitec.wellness.HealthMath.NutritionEntry
 import com.evaitec.wellness.HealthMath.SleepEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -85,6 +86,43 @@ class HealthMathTest {
         // samsung 345, fitbit 280 -> ayni geceyi iki kaynak yazinca toplanmaz
         assertEquals(345L, byDay["2026-09-13"])
         assertEquals(60L, byDay["2026-09-12"])
+    }
+
+    @Test
+    fun `beslenme kaydi yoksa bos harita doner`() {
+        assertEquals(0, HealthMath.dailyProteinGrams(emptyList()).size)
+    }
+
+    @Test
+    fun `tek kaynagin ogunleri gun icinde toplanir`() {
+        val entries = listOf(
+            NutritionEntry("2026-09-13", "samsung", 30.0),
+            NutritionEntry("2026-09-13", "samsung", 25.5),
+        )
+        assertEquals(55.5, HealthMath.dailyProteinGrams(entries)["2026-09-13"]!!, 0.01)
+    }
+
+    @Test
+    fun `ayni gunu yazan iki kaynak toplanmaz, yuksek olan kazanir`() {
+        val entries = listOf(
+            NutritionEntry("2026-09-13", "myfitnesspal", 60.0),
+            NutritionEntry("2026-09-13", "myfitnesspal", 40.0),
+            NutritionEntry("2026-09-13", "samsung", 70.0),
+        )
+        // mfp 100, samsung 70 -> 100 (toplasak 170 olurdu)
+        assertEquals(100.0, HealthMath.dailyProteinGrams(entries)["2026-09-13"]!!, 0.01)
+    }
+
+    @Test
+    fun `beslenme her gun kendi icinde hesaplanir`() {
+        val entries = listOf(
+            NutritionEntry("2026-09-12", "samsung", 80.0),
+            NutritionEntry("2026-09-13", "samsung", 120.0),
+        )
+        val byDay = HealthMath.dailyProteinGrams(entries)
+        assertEquals(2, byDay.size)
+        assertEquals(80.0, byDay["2026-09-12"]!!, 0.01)
+        assertEquals(120.0, byDay["2026-09-13"]!!, 0.01)
     }
 
     @Test

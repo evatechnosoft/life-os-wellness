@@ -73,6 +73,20 @@ export async function buildContext(): Promise<string> {
   return lines.join('\n')
 }
 
+/**
+ * Iki ayri 429 var ve kullanicinin yapmasi gereken sey farkli: `too_many_requests`
+ * bizim kendi hiz limitimiz (yavasla), digeri saglayicinin dakikalik kotasi (bekle).
+ * Ham saglayici metni kullaniciya gosterilmez.
+ */
+export function chatErrorMessage(err: unknown): string {
+  if (err instanceof ApiError && err.status === 429) {
+    return err.message === 'too_many_requests'
+      ? 'Çok hızlı gidiyor: arka arkaya çok istek attık, bir dakika bekle.'
+      : 'Eva şu an yoğun, birkaç saniye sonra tekrar dene.'
+  }
+  return 'Yanıt alamadım. Bağlantıyı kontrol et.'
+}
+
 async function remember(entry: Omit<ChatMessage, 'id' | 'date' | 'at'>): Promise<ChatMessage> {
   const now = new Date()
   const message: ChatMessage = {
@@ -117,10 +131,7 @@ export async function ask(
       draft: reply.draft ?? undefined,
     })
   } catch (err) {
-    const message = err instanceof ApiError && err.status === 429
-      ? 'Model şu an meşgul, birazdan tekrar sor.'
-      : 'Yanıt alamadım. Bağlantıyı kontrol et.'
-    return remember({ role: 'eva', text: message, via: 'text' })
+    return remember({ role: 'eva', text: chatErrorMessage(err), via: 'text' })
   }
 }
 

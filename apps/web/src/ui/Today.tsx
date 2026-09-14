@@ -22,6 +22,8 @@ export function Today({ date }: { date: string }) {
   const retro = useLiveQuery(() => db.retro.get(date), [date])
   // Son iki haftanin ogunleri: hizli dugmeler gercek aliskanliktan turiyor.
   const recentMeals = useLiveQuery(() => db.meal.reverse().limit(60).toArray(), []) ?? []
+  // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
+  const watchProtein = useLiveQuery(() => db.wearable.get(`${date}:protein_g`), [date])
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
 
   const done = workouts.filter((w) => !w.needs_review)
@@ -103,6 +105,11 @@ export function Today({ date }: { date: string }) {
             −
           </button>
         </div>
+        {watchProtein && (
+          <p className="mt-3 text-xs text-ink-faint">
+            Saatten {Math.round(watchProtein.value).toLocaleString('tr-TR')} g
+          </p>
+        )}
       </Card>
 
       <Meals date={date} />

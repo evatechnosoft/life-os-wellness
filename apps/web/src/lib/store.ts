@@ -21,10 +21,20 @@ export async function queueSplit(split: Record<number, string[]>): Promise<void>
   await queue({ method: 'PUT', path: '/api/split', body: { days } })
 }
 
+/**
+ * Bildirim zamanlamasi o gunun verisine bakiyor, veri degisince yeniden kurulmali.
+ * Dinamik import: reminders -> health -> store dongusunu modul grafiginde acmamak icin.
+ */
+function refreshReminders(): void {
+  void import('./reminders').then((m) => m.refreshNotifications()).catch(() => {})
+}
+
 export async function saveDaily(date: string, patch: Partial<DailyLog>): Promise<void> {
   const existing = await db.daily_log.get(date)
   await db.daily_log.put({ ...existing, ...patch, date, updated_at: now() })
   await queue({ method: 'PUT', path: `/api/daily/${date}`, body: patch })
+  // Yalniz tarti bildirimini ilgilendiren alan; adim senkronu her 15 dk geliyor.
+  if ('weight_kg' in patch) refreshReminders()
 }
 
 /** Protein arrives as meal-sized pulses through the day; each one adds to the day's total. */
@@ -57,6 +67,7 @@ export async function saveRetro(date: string, patch: Partial<Retro>): Promise<vo
   const existing = await db.retro.get(date)
   await db.retro.put({ ...existing, ...patch, date, updated_at: now() })
   await queue({ method: 'PUT', path: `/api/retro/${date}`, body: patch })
+  refreshReminders()
 }
 
 let syncing = false

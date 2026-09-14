@@ -15,18 +15,25 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
   let app: ReturnType<typeof buildServer>['app']
   let pool: ReturnType<typeof buildServer>['pool']
 
+  // Tests share the dev database; fixtures live in 2099 and are wiped on both ends.
+  const wipeFixtures = async () => {
+    for (const table of ['daily_log', 'workout', 'retro', 'wearable_sync']) {
+      await pool.query(`delete from ${table} where date between '2099-01-01' and '2099-12-31'`)
+    }
+  }
+
   before(async () => {
     const built = buildServer({ databaseUrl: databaseUrl as string, apiToken: TOKEN })
     app = built.app
     pool = built.pool
     await app.ready()
-    await pool.query("delete from daily_log where date between '2099-01-01' and '2099-12-31'")
-    await pool.query("delete from workout where date between '2099-01-01' and '2099-12-31'")
-    await pool.query("delete from retro where date between '2099-01-01' and '2099-12-31'")
-    await pool.query("delete from wearable_sync where date between '2099-01-01' and '2099-12-31'")
+    await wipeFixtures()
   })
 
-  after(async () => { await app.close() })
+  after(async () => {
+    await wipeFixtures()
+    await app.close()
+  })
 
   test('rejects a request without the bearer token', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/daily?start=2099-01-01&end=2099-01-07' })

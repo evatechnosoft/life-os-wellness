@@ -43,7 +43,12 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...init.headers,
     },
   })
-  if (!res.ok) throw new ApiError(res.status, `${init.method ?? 'GET'} ${path} -> ${res.status}`)
+  if (!res.ok) {
+    // Sunucu hatanin kendisini `error` alaninda soyluyor (kota mi bizim limit mi);
+    // atarsak cagiran iki 429'u ayirt edemez.
+    const body = (await res.json().catch(() => null)) as { error?: string } | null
+    throw new ApiError(res.status, body?.error ?? `${init.method ?? 'GET'} ${path} -> ${res.status}`)
+  }
   if (res.status === 204) return undefined as T
   return (await res.json()) as T
 }

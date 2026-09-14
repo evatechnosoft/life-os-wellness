@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, Retro } from './db'
-import { pendingReminders, type ReminderSettings } from './reminders'
+import { nextFireAt, pendingReminders, type ReminderSettings } from './reminders'
 
 const times: ReminderSettings = { enabled: true, weigh_at: '09:00', retro_at: '21:00' }
 const log = (fields: Partial<DailyLog> = {}): DailyLog => ({ date: '2026-09-13', updated_at: '', ...fields })
@@ -45,5 +45,35 @@ describe('pendingReminders', () => {
     const late = { ...times, weigh_at: '9:05' }
     expect(pendingReminders({ log: undefined, retro: undefined, now: '09:10', settings: late }).map((r) => r.id)).toEqual(['weigh'])
     expect(pendingReminders({ log: undefined, retro: undefined, now: '09:00', settings: late })).toEqual([])
+  })
+})
+
+/** Yerel saat alanlariyla karsilastirir; toISOString() gunu kaydirirdi. */
+const at = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`
+
+describe('nextFireAt', () => {
+  test('veri yok ve saat gelmemisse bugun atesler', () => {
+    const now = new Date(2026, 8, 13, 7, 30)
+    expect(at(nextFireAt('09:00', false, now))).toBe('2026-9-13 9:0')
+  })
+
+  test('o gun veri girilmisse bugunu atlar', () => {
+    const now = new Date(2026, 8, 13, 7, 30)
+    expect(at(nextFireAt('09:00', true, now))).toBe('2026-9-14 9:0')
+  })
+
+  test('bildirim saati gectiyse yarina kurar', () => {
+    const now = new Date(2026, 8, 13, 9, 0)
+    expect(at(nextFireAt('09:00', false, now))).toBe('2026-9-14 9:0')
+  })
+
+  test('veri hatirlatmadan sonra girildiyse yine yarin', () => {
+    const now = new Date(2026, 8, 13, 10, 15)
+    expect(at(nextFireAt('09:00', true, now))).toBe('2026-9-14 9:0')
+  })
+
+  test('ay sonunda ertesi gun sonraki aya tasar', () => {
+    const now = new Date(2026, 8, 30, 22, 0)
+    expect(at(nextFireAt('21:00', false, now))).toBe('2026-10-1 21:0')
   })
 })

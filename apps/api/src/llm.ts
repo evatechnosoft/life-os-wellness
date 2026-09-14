@@ -30,7 +30,9 @@ export function createLlm(env: NodeJS.ProcessEnv = process.env): Llm | null {
     visionModel: env.LLM_VISION_MODEL ?? env.LLM_CHAT_MODEL ?? 'wellness-vision',
   }
   return {
-    client: new OpenAI({ baseURL: config.baseUrl, apiKey: config.apiKey, maxRetries: 1, timeout: 120_000 }),
+    // maxRetries: 0 - 429'un sebebi dakikalik saglayici kotasi; SDK'nin otomatik
+    // yeniden denemesi kotayi iki katina cikarip kullaniciyi bir o kadar bekletiyordu.
+    client: new OpenAI({ baseURL: config.baseUrl, apiKey: config.apiKey, maxRetries: 0, timeout: 120_000 }),
     config,
   }
 }
