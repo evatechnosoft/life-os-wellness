@@ -7,7 +7,16 @@ import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
 import { saveSplit, useSplit, WEEKDAYS } from '../lib/split'
 import { syncOutbox } from '../lib/store'
-import { onWatchAppPush, pushWatchApp } from '../lib/watch'
+import {
+  appVersion,
+  autoCheckPhoneUpdate,
+  checkPhoneUpdate,
+  installPhoneUpdate,
+  onPhoneUpdate,
+  onWatchAppPush,
+  pushWatchApp,
+  type PhoneUpdate,
+} from '../lib/watch'
 import { Card, NumberField } from './Field'
 
 function NoteHistory() {
@@ -72,6 +81,70 @@ function WatchAppPush() {
         className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
       >
         {busy ? 'Gönderiliyor…' : 'Saate gönder'}
+      </button>
+      {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
+    </Card>
+  )
+}
+
+/**
+ * Telefonun kendi guncellemesi. Saatle ayni evaitecOTA akisi: manifest -> karar -> indir ->
+ * sistem yukleyicisi. Kontrol acilista ve en fazla gunde bir kendiliginden yapiliyor;
+ * indirme ve kurulum her zaman kullanicinin onayiyla.
+ */
+function PhoneAppUpdate() {
+  const [update, setUpdate] = useState<PhoneUpdate | null>(null)
+  const [status, setStatus] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [version, setVersion] = useState('')
+
+  useEffect(() => {
+    void appVersion().then(setVersion)
+    void autoCheckPhoneUpdate().then(setUpdate)
+    const handle = onPhoneUpdate(setStatus)
+    return () => {
+      void handle.then((h) => h?.remove())
+    }
+  }, [])
+
+  const run = async (action: () => Promise<void>) => {
+    setBusy(true)
+    try {
+      await action()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const available = update?.state === 'available'
+
+  return (
+    <Card title="Telefon uygulaması">
+      <p className="text-xs text-ink-faint">
+        Kurulu sürüm {version === '' ? '—' : version}.{' '}
+        {available
+          ? `Güncelleme var: ${update.versionName ?? ''}`
+          : update?.state === 'upToDate'
+            ? 'Güncelsin.'
+            : update?.reason ?? 'Sürüm bilgisi henüz alınmadı.'}
+      </p>
+      <button
+        type="button"
+        onClick={() =>
+          void run(async () => {
+            if (available) {
+              setStatus((await installPhoneUpdate()).status)
+              setUpdate(await checkPhoneUpdate())
+            } else {
+              setStatus('')
+              setUpdate(await checkPhoneUpdate())
+            }
+          })
+        }
+        disabled={busy}
+        className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
+      >
+        {busy ? 'Çalışıyor…' : available ? 'İndir ve kur' : 'Güncelleme denetle'}
       </button>
       {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
     </Card>
@@ -248,6 +321,8 @@ export function Settings() {
       <Card title="Notlar">
         <NoteHistory />
       </Card>
+
+      <PhoneAppUpdate />
 
       <WatchAppPush />
 

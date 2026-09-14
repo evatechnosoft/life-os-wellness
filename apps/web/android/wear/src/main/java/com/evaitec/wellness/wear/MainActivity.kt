@@ -16,6 +16,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.evaitec.ota.OtaManifest
+import com.evaitec.wellness.ota.WellnessOta
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,7 +37,7 @@ class MainActivity : Activity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val measure by lazy { HeartRateMeasure(this) }
     private val sender by lazy { WearSender(this) }
-    private val updater by lazy { WearUpdater(this) }
+    private val updater by lazy { WellnessOta.updater(this, WellnessOta.WEAR_ID) }
 
     private lateinit var bpmView: TextView
     private lateinit var statusView: TextView
@@ -107,7 +108,7 @@ class MainActivity : Activity() {
     }
 
     /**
-     * Kendini guncelle. Karar WearUpdater'da: sadece-yukselt, https, sha256 - hicbiri
+     * Kendini guncelle. Karar OtaUpdater'da: sadece-yukselt, https, sha256 - hicbiri
      * burada tekrarlanmiyor, ekran yalnizca sonucu yaziyor.
      */
     private fun checkUpdate() {
@@ -176,11 +177,19 @@ class MainActivity : Activity() {
         )
         otaView = line(column, "", sizeSp = 11f)
         capsView = line(column, "yetenekler okunuyor…", sizeSp = 11f)
+        // Hangi surumun kurulu oldugu ekranda yazsin: OTA sonrasi "guncellendi mi" sorusu
+        // ancak boyle cevaplanir. Deger paket yoneticisinden okunuyor, elle yazilmiyor.
+        line(column, versionLabel(), sizeSp = 10f)
         return ScrollView(this).apply {
             setBackgroundColor(Color.BLACK)
             addView(column, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         }
     }
+
+    private fun versionLabel(): String = runCatching {
+        val info = packageManager.getPackageInfo(packageName, 0)
+        "surum ${info.versionName} (${info.longVersionCode})"
+    }.getOrElse { "surum okunamadi" }
 
     private fun line(parent: LinearLayout, initial: String, sizeSp: Float = 13f): TextView =
         TextView(this).apply {

@@ -15,10 +15,20 @@ interface WearBridgePlugin {
   drain(): Promise<{ records: string[] }>
   status(): Promise<{ connectedNodes: number; error?: string }>
   pushApk(): Promise<{ ok: boolean; status: string }>
+  version(): Promise<{ versionName: string; versionCode: number }>
+  checkUpdate(): Promise<PhoneUpdate>
+  installUpdate(): Promise<{ status: string }>
   addListener(
-    event: 'apkPush',
+    event: 'apkPush' | 'phoneUpdate',
     listener: (data: { status: string }) => void,
   ): Promise<PluginListenerHandle>
+}
+
+/** Telefonun kendi guncelleme durumu; karari native taraf (evaitecOTA) veriyor. */
+export interface PhoneUpdate {
+  state: 'available' | 'upToDate' | 'blocked'
+  versionName?: string
+  reason?: string
 }
 
 /** android/app/src/main/java/com/evaitec/wellness/WearBridgePlugin.kt. */
@@ -110,4 +120,67 @@ export async function onWatchAppPush(
 export async function watchStatus(): Promise<{ connectedNodes: number; error?: string }> {
   if (!isNative()) return { connectedNodes: 0 }
   return WearBridge.status()
+}
+
+/** Kurulu APK surumu. Web'de APK yok; JS'e sabit yazmamak icin native'den okunuyor. */
+export async function appVersion(): Promise<string> {
+  if (!isNative()) return ''
+  const { versionName, versionCode } = await WearBridge.version()
+  return `${versionName} (${versionCode})`
+}
+
+const CACHE_KEY = 'phone_update'
+/** En fazla gunde bir sorulur: guncelleme kontrolu kullaniciyi rahatsiz etmemeli. */
+const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
+
+/**
+ * Acilista bir kez, sonra en fazla gunde bir manifeste bakar; gun dolmadiysa son cevabi
+ * doner, ag isi yapilmaz. Sonuc onbellege yaziliyor cunku acilistaki kontrolu ile Ayarlar
+ * ekrani ayni cevabi gormeli - ikisi ayri ayri sormasin.
+ */
+export async function autoCheckPhoneUpdate(): Promise<PhoneUpdate | null> {
+  if (!isNative()) return null
+  const cached = readCache()
+  if (cached && Date.now() - cached.at < CHECK_INTERVAL_MS) return cached.result
+  const result = await checkPhoneUpdate()
+  // Blocked = ag yok / manifest bozuk. Onbellek yalniz gercek bir cevapta tazelenir,
+  // yoksa ucakta acilan uygulama bir gun boyunca guncellemeyi kacirir.
+  if (result.state !== 'blocked') {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), result }))
+  }
+  return result
+}
+
+function readCache(): { at: number; result: PhoneUpdate } | null {
+  const raw = localStorage.getItem(CACHE_KEY)
+  if (raw === null) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (typeof parsed !== 'object' || parsed === null) return null
+    const { at, result } = parsed as { at?: unknown; result?: unknown }
+    if (typeof at !== 'number' || typeof result !== 'object' || result === null) return null
+    return { at, result: result as PhoneUpdate }
+  } catch {
+    return null
+  }
+}
+
+/** Kullanici istedi ya da gun doldu: manifeste bak. */
+export async function checkPhoneUpdate(): Promise<PhoneUpdate> {
+  if (!isNative()) return { state: 'blocked', reason: 'Yalnız Android uygulamasında çalışır' }
+  return WearBridge.checkUpdate()
+}
+
+/** Indir + kurulum istemini ac. Yalniz kullanici onayiyla cagrilir. */
+export async function installPhoneUpdate(): Promise<{ status: string }> {
+  if (!isNative()) return { status: 'Yalnız Android uygulamasında çalışır' }
+  return WearBridge.installUpdate()
+}
+
+/** Indirmenin ara durumlari (yuzde). Saatteki `apkPush` ile ayni desen. */
+export async function onPhoneUpdate(
+  listener: (status: string) => void,
+): Promise<PluginListenerHandle | null> {
+  if (!isNative()) return null
+  return WearBridge.addListener('phoneUpdate', ({ status }) => listener(status))
 }

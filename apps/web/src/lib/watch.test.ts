@@ -1,6 +1,19 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { parseWatchRecords } from './watch'
+const { checkUpdate } = vi.hoisted(() => ({ checkUpdate: vi.fn() }))
+
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { isNativePlatform: () => true },
+  registerPlugin: () => ({ checkUpdate }),
+}))
+
+import { autoCheckPhoneUpdate, parseWatchRecords } from './watch'
+
+const store = new Map<string, string>()
+vi.stubGlobal('localStorage', {
+  getItem: (k: string) => store.get(k) ?? null,
+  setItem: (k: string, v: string) => void store.set(k, v),
+})
 
 const line = (date: string, metrics: Record<string, unknown>, ts: number): string =>
   JSON.stringify({ date, metrics: JSON.stringify(metrics), ts })
@@ -43,5 +56,44 @@ describe('parseWatchRecords', () => {
 
   it('an all-garbage queue writes nothing', () => {
     expect(parseWatchRecords(['{}', 'null'])).toEqual([])
+  })
+})
+
+/**
+ * Gunde bir kontrol: kullaniciyi rahatsiz etmemek icin. Kapi bozulursa ya her acilista ag
+ * isi yapilir ya da gercek bir guncelleme bir gun boyunca gorulmez.
+ */
+describe('autoCheckPhoneUpdate', () => {
+  beforeEach(() => {
+    store.clear()
+    checkUpdate.mockReset()
+  })
+
+  it('asks once, then serves the cached answer for a day', async () => {
+    checkUpdate.mockResolvedValue({ state: 'available', versionName: '0.16.0' })
+    expect(await autoCheckPhoneUpdate()).toEqual({ state: 'available', versionName: '0.16.0' })
+    expect(await autoCheckPhoneUpdate()).toEqual({ state: 'available', versionName: '0.16.0' })
+    expect(checkUpdate).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks again once the day is over', async () => {
+    checkUpdate.mockResolvedValue({ state: 'upToDate' })
+    await autoCheckPhoneUpdate()
+    store.set('phone_update', JSON.stringify({ at: Date.now() - 25 * 60 * 60 * 1000, result: { state: 'upToDate' } }))
+    await autoCheckPhoneUpdate()
+    expect(checkUpdate).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not cache a failed check - no network must not hide an update for a day', async () => {
+    checkUpdate.mockResolvedValue({ state: 'blocked', reason: 'manifest indirilemedi' })
+    await autoCheckPhoneUpdate()
+    await autoCheckPhoneUpdate()
+    expect(checkUpdate).toHaveBeenCalledTimes(2)
+  })
+
+  it('survives a corrupted cache entry instead of throwing', async () => {
+    store.set('phone_update', 'not json')
+    checkUpdate.mockResolvedValue({ state: 'upToDate' })
+    expect(await autoCheckPhoneUpdate()).toEqual({ state: 'upToDate' })
   })
 })

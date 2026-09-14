@@ -1,28 +1,31 @@
-package com.evaitec.wellness.wear
+package com.evaitec.ota
 
 import android.content.Context
-import com.evaitec.ota.ApkInstaller
-import com.evaitec.ota.OtaManifest
-import com.evaitec.wellness.ota.WellnessOta
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Saat kendini gunceller: manifesti cek -> evaitecOTA karari -> APK'yi indir ->
- * ApkInstaller (sha256 + paket + surum + imza) -> sistem yukleyicisi.
+ * evaitecOTA - "kendini guncelle" akisinin tasiyicisi: manifesti cek -> [OtaManifest.decide]
+ * -> APK'yi indir -> [ApkInstaller] (sha256 + paket + surum + imza) -> sistem yukleyicisi.
  *
- * Karar ve kurulum cekirdegi projeye ozel degil (com.evaitec.ota); burasi yalnizca
- * hangi id'nin kurulacagini ve agi saglar.
+ * Projeye ozel hicbir sey bilmez; adres ve kalem kimligi disaridan gelir (wellness'ta
+ * com/evaitec/wellness/ota/WellnessOta.kt). Saat ve telefon **ayni** ornegi kullaniyor -
+ * iki kopya ag/karar kodu = iki farkli guvenlik davranisi.
  *
  * Ag isi cagiranin ipliginde yapilir - bu sinif UI ipliginden cagrilmamali.
  */
-class WearUpdater(private val context: Context) {
+class OtaUpdater(
+    private val context: Context,
+    private val manifestUrl: String,
+    /** Manifestteki kalem kimligi - hangi uygulamanin guncellendigi yalniz buradan belli. */
+    private val appId: String,
+) {
 
     fun check(): OtaManifest.Decision = try {
         OtaManifest.decide(
-            get(WellnessOta.MANIFEST_URL).decodeToString(),
-            WellnessOta.WEAR_ID,
+            get(manifestUrl).decodeToString(),
+            appId,
             ApkInstaller.installedVersionCode(context, context.packageName),
         )
     } catch (e: Exception) {
@@ -62,14 +65,14 @@ class WearUpdater(private val context: Context) {
     }
 
     /**
-     * Telefondan kanalla gelen APK de ayni manifeste kilitli - beklenen kalemi buradan alir.
-     * Surum karari ApkInstaller'in kilidine birakiliyor (currentVersionCode = 0).
+     * Baska bir yoldan (ornegin telefondan kanalla) gelen bir APK'nin beklenen kalemi.
+     * Surum karari [ApkInstaller]'in kilidine birakiliyor (currentVersionCode = 0).
      */
-    fun wearApp(): Result<OtaManifest.App> = runCatching {
-        when (val decision = OtaManifest.decide(get(WellnessOta.MANIFEST_URL).decodeToString(), WellnessOta.WEAR_ID, 0)) {
+    fun expected(): Result<OtaManifest.App> = runCatching {
+        when (val decision = OtaManifest.decide(get(manifestUrl).decodeToString(), appId, 0)) {
             is OtaManifest.Decision.Available -> decision.app
             is OtaManifest.Decision.Blocked -> error(decision.reason)
-            OtaManifest.Decision.UpToDate -> error("manifestte saat surumu yok")
+            OtaManifest.Decision.UpToDate -> error("manifestte '$appId' surumu yok")
         }
     }
 
@@ -88,7 +91,7 @@ class WearUpdater(private val context: Context) {
         conn.connectTimeout = 15_000
         conn.readTimeout = 60_000
         conn.instanceFollowRedirects = true
-        conn.setRequestProperty("User-Agent", "wellness-wear")
+        conn.setRequestProperty("User-Agent", "evaitec-ota/$appId")
         val code = conn.responseCode
         if (code !in 200..299) {
             conn.disconnect()

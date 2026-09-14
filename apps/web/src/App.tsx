@@ -5,7 +5,7 @@ import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
 import { syncHealth } from './lib/health'
-import { drainWatch } from './lib/watch'
+import { autoCheckPhoneUpdate, drainWatch } from './lib/watch'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop } from './lib/store'
@@ -27,6 +27,7 @@ export function App() {
   const [tab, setTab] = useState<TabId>('today')
   const [online, setOnline] = useState(navigator.onLine)
   const [date, setDate] = useState(toLocalDate())
+  const [updateReady, setUpdateReady] = useState(false)
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
 
   useEffect(() => {
@@ -56,6 +57,11 @@ export function App() {
       await drainWatch().catch(() => {})
     }
     void sync()
+    // Telefon guncellemesi: acilista bir kez, sonra en fazla gunde bir (lib/watch.ts).
+    // Guncelleme yoksa hicbir sey gosterilmiyor - yalnizca Ayar sekmesine bir nokta duser.
+    void autoCheckPhoneUpdate()
+      .then((u) => setUpdateReady(u?.state === 'available'))
+      .catch(() => {})
     const health = window.setInterval(() => void sync(), 900_000)
     return () => {
       window.removeEventListener('online', update)
@@ -97,6 +103,9 @@ export function App() {
               }`}
             >
               {t.label}
+              {t.id === 'settings' && updateReady && (
+                <span aria-label="güncelleme var" className="ml-1 inline-block size-1.5 rounded-full bg-a1 align-middle" />
+              )}
             </button>
           ))}
         </div>

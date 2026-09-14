@@ -42,8 +42,12 @@ jobs:
           set -euo pipefail
           version=$(sed -n "s/.*wellnessVersion = '\(.*\)'.*/\1/p" variables.gradle)
           code=$(echo "$version" | awk -F. '{print $1*10000+$2*100+$3}')
-          phone=app/build/outputs/apk/debug/app-debug.apk
-          wear=wear/build/outputs/apk/debug/wear-debug.apk
+          # Dosya adi Gradle'da uretiliyor (app/build.gradle: wellness-<surum>.apk). Burada
+          # yeniden yazilmiyor, bulunan dosyanin adi okunuyor - iki kaynak birbirinden kayamaz.
+          phone=$(ls app/build/outputs/apk/debug/*.apk)
+          wear=$(ls wear/build/outputs/apk/debug/*.apk)
+          phone_apk=$(basename "$phone")
+          wear_apk=$(basename "$wear")
           base="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
           pkg=com.evaitec.wellness
           phone_sha=$(sha256sum "$phone" | cut -d' ' -f1)
@@ -56,8 +60,8 @@ jobs:
               "package": "$pkg",
               "versionCode": $code,
               "versionName": "$version",
-              "apk": "app-debug.apk",
-              "url": "$base/app-debug.apk",
+              "apk": "$phone_apk",
+              "url": "$base/$phone_apk",
               "sha256": "$phone_sha"
             },
             {
@@ -66,8 +70,8 @@ jobs:
               "package": "$pkg",
               "versionCode": $code,
               "versionName": "$version",
-              "apk": "wear-debug.apk",
-              "url": "$base/wear-debug.apk",
+              "apk": "$wear_apk",
+              "url": "$base/$wear_apk",
               "sha256": "$wear_sha"
             }
           ]
@@ -92,14 +96,14 @@ jobs:
         with:
           name: wellness-debug-apk
           path: |
-            apps/web/android/app/build/outputs/apk/debug/app-debug.apk
-            apps/web/android/wear/build/outputs/apk/debug/wear-debug.apk
+            apps/web/android/app/build/outputs/apk/debug/*.apk
+            apps/web/android/wear/build/outputs/apk/debug/*.apk
             apps/web/android/latest.json
       - name: Attach to release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            apps/web/android/app/build/outputs/apk/debug/app-debug.apk
-            apps/web/android/wear/build/outputs/apk/debug/wear-debug.apk
+            apps/web/android/app/build/outputs/apk/debug/*.apk
+            apps/web/android/wear/build/outputs/apk/debug/*.apk
             apps/web/android/latest.json

@@ -21,6 +21,12 @@ android {
     kotlin {
         jvmToolchain(21)
     }
+    // Telefonla ayni kural: ad surumu tasir (bkz. app/build.gradle).
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "wellness-wear-${rootProject.ext.wellnessVersion}.apk"
+        }
+    }
     buildTypes {
         release {
             // Saat APK'si Bluetooth vekili uzerinden iniyor; her megabayt kurulum suresi.

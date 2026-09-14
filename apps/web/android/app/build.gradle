@@ -33,6 +33,13 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    // APK adinda surum: yayindan inen dosyanin hangi surum oldugu adindan belli olsun.
+    // Ad tek yerde uretilir - .github/workflows/apk.yml adi dosyadan okuyor, ikinci kez yazmiyor.
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "wellness-${appVersion}.apk"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

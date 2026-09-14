@@ -3,6 +3,7 @@ package com.evaitec.wellness.wear
 import android.content.Context
 import android.util.Log
 import com.evaitec.ota.ApkInstaller
+import com.evaitec.wellness.ota.WellnessOta
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.ChannelClient
 import com.google.android.gms.wearable.WearableListenerService
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit
  * Neden telefon uzerinden: saatin kendi interneti Bluetooth vekili uzerinden gidiyor ve
  * megabaytlar surunuyor; telefonun agi hizli. Telefon yalniz **tasiyici** - neyin
  * kurulacagina saat karar verir: beklenen kalem telefondan degil, manifestten okunur
- * (WearUpdater.wearApp), sonra ApkInstaller'in sha256/paket/surum/imza kilitleri gecilir.
+ * (WellnessOta.updater(...).expected()), sonra ApkInstaller'in sha256/paket/surum/imza kilitleri gecilir.
  * Manifest okunamazsa kurulum yapilmaz: dogrulanmamis APK kurmaktansa guncellememek.
  *
  * Yol sozlesmesi telefonda: app/src/main/java/com/evaitec/wellness/WearApkSender.kt.
@@ -27,7 +28,7 @@ class ApkReceiverService : WearableListenerService() {
         val client = com.google.android.gms.wearable.Wearable.getChannelClient(this)
         val apk = File(File(cacheDir, "ota").apply { mkdirs() }, "wellness-wear.apk")
         val result = runCatching {
-            val app = WearUpdater(this).wearApp().getOrThrow()
+            val app = WellnessOta.updater(this, WellnessOta.WEAR_ID).expected().getOrThrow()
             Tasks.await(client.getInputStream(channel), STREAM_TIMEOUT_SEC, TimeUnit.SECONDS).use { input ->
                 apk.outputStream().use { output -> input.copyTo(output) }
             }
