@@ -5,7 +5,7 @@ import { acceptDraft, ask } from '../lib/chat'
 import { db, type ChatMessage } from '../lib/db'
 import { isNative } from '../lib/health'
 import { capturePhoto } from '../lib/meals'
-import { listenOnce, stopListening, voiceAvailable } from '../lib/voice'
+import { draftLines, listenOnce, stopListening, voiceAvailable, type NoteDraft } from '../lib/voice'
 import { Avatar } from './Avatar'
 
 /**
@@ -106,6 +106,14 @@ export function Eva({ compact = false }: { compact?: boolean }) {
                   </ul>
                 )}
 
+                {/* Onaydan once ne yazilacagi gorunur: kullanici kg/set/tekrari duzeltebilsin. */}
+                {m.draft != null && !m.applied && (
+                  <ul className="mt-2 space-y-0.5 text-xs text-ink-dim">
+                    {draftLines(m.draft as NoteDraft).map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                )}
                 {m.draft != null && !m.applied && (
                   <button
                     type="button"

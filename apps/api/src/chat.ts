@@ -52,7 +52,7 @@ Nasıl konuşursun:
 Her yanıtta, kaydedilebilir bir veri geçtiyse yanıtın SONUNA tek satır JSON ekle:
 <kayit>{"weight_kg":null,"protein_g":null,"kcal":null,"steps":null,"bp_systolic":null,"bp_diastolic":null,"workout":null,"meal_note":null,"summary":"..."}</kayit>
 Kaydedilecek bir şey yoksa <kayit> satırını hiç yazma. Uydurma; yalnız kullanıcının söylediğini ya da fotoğraftan makul çıkanı doldur.
-workout alanı: {"type":"resistance"|"cardio"|"walk"|"rest","duration_min":sayı|null,"sets_total":sayı|null,"muscle_groups":["göğüs","sırt","bacak","omuz","kol","karın" içinden]}
+workout alanı: {"type":"resistance"|"cardio"|"walk"|"rest","duration_min":sayı|null,"sets_total":sayı|null,"reps_total":sayı|null,"weight_kg":sayı|null,"muscle_groups":["göğüs","sırt","bacak","omuz","kol","karın" içinden]}
 
 Bağlamdaki "sık yedikleri" satırı kullanıcının kendi kayıtlarının ortancasıdır: o yiyecek
 geçtiğinde porsiyonu baştan sorma: bu değeri varsay ve <kayit> bloğunda protein_g/kcal
@@ -73,9 +73,19 @@ kullanıcının daha önce yemediği bir öneridir, öyle sun.
 Antrenör gibi konuş: destekleyici ve somut, suçlayıcı değil. Kaçırılan gün için
 azarlama, bir sonraki adımı söyle.
 
-Antrenmanda set sayısı geçip bölge geçmediyse <kayit> YAZMA; önce hangi bölge olduğunu sor.
-Bölge belliyse muscle_groups'u doldur, boş dizi bırakma. Kullanıcı bölgeyi bir sonraki
-mesajda söylerse önceki setleri onunla birleştirip tek kayıt öner.`
+Antrenman cümlesi geçtiğinde ("60 kg kaldırıyorum", "bench 60 kg 3 set 10 tekrar", "şu an
+yüzüyorum", "yarım saat yürüdüm", "bacak günü yaptım 12 set", "80 kg squat 5x5") <kayit>
+taslağını AÇIKÇA yaz. Eksik bilgi normaldir: bilmediğin alanı null bırak, sayı UYDURMA ve
+"hallettim" deyip taslağı atlama.
+- "3 set 10 tekrar" → sets_total 3, reps_total 30 (set × tekrar). "5x5" → sets_total 5,
+  reps_total 25. Yalnız ağırlık söylenmişse weight_kg dolar, set/tekrar null kalır.
+- Süre söylenmemişse ya da eylem hâlâ sürüyorsa ("şu an yüzüyorum") duration_min null
+  kalır; süreyi TEK soruyla sorabilirsin ama taslağı yine de yaz.
+- Bölge belliyse muscle_groups'u doldur (bench→göğüs, squat→bacak, barfiks→sırt,
+  yüzme→bölge yok). Anlaşılmıyorsa boş dizi bırak, zorlama.
+- Üstteki weight_kg alanı VÜCUT kilosudur (tartıda okunan). Kaldırılan ağırlık yalnız
+  workout.weight_kg'e yazılır — "60 kg kaldırıyorum" cümlesinde üstteki weight_kg null kalır.
+- Kullanıcı eksiği bir sonraki mesajda söylerse öncekiyle birleştirip tek kayıt öner.`
 
 export interface ChatReply {
   text: string

@@ -19,6 +19,7 @@ import { DEFAULT_GOALS, type Goals } from './settings'
 import { type Split } from './split'
 import { hasServer } from './store'
 import { applyDraft, draftLines, logNote, type NoteDraft } from './voice'
+import { fillWorkout } from './workoutText'
 
 export interface ChatReply {
   text: string
@@ -273,7 +274,8 @@ export async function ask(
       text: reply.text,
       via: 'text',
       sources: reply.sources,
-      draft: reply.draft ?? undefined,
+      // Bolge bos geldiyse cumleden tamamlanir - ikinci bir model turu kotaya mal olurdu.
+      draft: fillWorkout(reply.draft, text) ?? undefined,
     })
   } catch (err) {
     return remember({ role: 'eva', text: chatErrorMessage(err), via: 'text' })

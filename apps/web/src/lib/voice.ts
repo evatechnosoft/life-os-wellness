@@ -13,7 +13,14 @@ export interface NoteDraft {
   steps?: number | null
   bp_systolic?: number | null
   bp_diastolic?: number | null
-  workout?: { type: WorkoutType; duration_min?: number | null; sets_total?: number | null; muscle_groups?: string[] } | null
+  workout?: {
+    type: WorkoutType
+    duration_min?: number | null
+    sets_total?: number | null
+    reps_total?: number | null
+    weight_kg?: number | null
+    muscle_groups?: string[]
+  } | null
   retro?: { went_well?: string | null; resistance?: string | null; experiment?: string | null } | null
   meal_note?: string | null
   summary: string
@@ -128,7 +135,9 @@ export function draftLines(draft: NoteDraft): string[] {
   }
   if (draft.workout) {
     const parts: string[] = [WORKOUT_LABEL[draft.workout.type] ?? draft.workout.type]
+    if (draft.workout.weight_kg) parts.push(`${draft.workout.weight_kg} kg`)
     if (draft.workout.sets_total) parts.push(`${draft.workout.sets_total} set`)
+    if (draft.workout.reps_total) parts.push(`${draft.workout.reps_total} tekrar`)
     if (draft.workout.duration_min) parts.push(`${draft.workout.duration_min} dk`)
     if (draft.workout.muscle_groups?.length) parts.push(draft.workout.muscle_groups.join(', '))
     lines.push(`Antrenman: ${parts.join(' · ')}`)
@@ -183,6 +192,8 @@ export async function applyDraft(draft: NoteDraft, date = toLocalDate()): Promis
       type: draft.workout.type,
       duration_min: draft.workout.duration_min ?? null,
       sets_total: draft.workout.sets_total ?? null,
+      reps_total: draft.workout.reps_total ?? null,
+      weight_kg: draft.workout.weight_kg ?? null,
       muscle_groups: draft.workout.muscle_groups ?? [],
       notes: 'sesli not',
     })
