@@ -23,6 +23,9 @@ const LABELS: Record<string, { label: string; unit: string }> = {
   spo2_pct: { label: 'Kan oksijeni', unit: '%' },
   spo2_low_pct: { label: 'En düşük oksijen', unit: '%' },
   hrv_ms: { label: 'HRV', unit: 'ms' },
+  // Health Connect canli akis vermez; bu sayi nabzin ne kadar geriden geldigini
+  // olcer - "canli nabiz" sanmamak icin ekranda duruyor.
+  hr_lag_min: { label: 'Nabız gecikmesi', unit: 'dk' },
   sleep_min: { label: 'Uyku', unit: 'dk' },
   sleep_monitored_min: { label: 'Dinlenen süre', unit: 'dk' },
   snore_min: { label: 'Horlama', unit: 'dk' },

@@ -3,9 +3,10 @@ import { Health, type HealthPermission } from 'capacitor-health'
 
 import { api } from './api'
 import { lastDates, toLocalDate } from './date'
-import { db, type Workout, type WorkoutType } from './db'
+import { db, type Workout } from './db'
 import type { WearableRecord } from './db'
-import { hasServer, saveDaily, upsertWorkout } from './store'
+import { detectedExercise } from './watchExercise'
+import { dismissedWorkouts, hasServer, saveDaily, upsertWorkout } from './store'
 
 export const SOURCE = 'health_connect'
 
@@ -29,12 +30,31 @@ export interface HealthExtraDay {
   protein_g?: number
 }
 
+/**
+ * Esigin ustunde gecirilen kesintisiz sure. Health Connect **canli nabiz vermez**:
+ * bunlar gecmise donuk ornekler uzerinden cikarilir, kaynak uygulama (Samsung
+ * Health) ne zaman yazdiysa o gecikmeyle gorunur.
+ */
+export interface HealthHrWindow {
+  /** ISO anlari - takvim gunu degil, gece yarisini asan pencere bolunmez. */
+  start: string
+  end: string
+  duration_min: number
+  avg_bpm: number
+  peak_bpm: number
+}
+
 /** Implemented in android/app/src/main/java/com/evaitec/wellness/HealthExtraPlugin.kt. */
 const HealthExtra = registerPlugin<{
   available(): Promise<{ available: boolean }>
   checkExtraPermissions(): Promise<{ granted: boolean }>
   requestExtraPermissions(): Promise<{ granted: boolean }>
-  readDaily(range: { startDate: string; endDate: string }): Promise<{ days: HealthExtraDay[] }>
+  readDaily(range: { startDate: string; endDate: string }): Promise<{
+    days: HealthExtraDay[]
+    windows?: HealthHrWindow[]
+    /** En taze nabiz ornegi kac dakika geriden geliyor - gercek gecikmenin olcusu. */
+    hr_lag_min?: number
+  }>
 }>('HealthExtra')
 
 /** Kan oksijeni ve HRV izni ayri sorulur: capacitor-health bu ikisini isteyemiyor. */
@@ -78,12 +98,18 @@ async function stableId(seed: string): Promise<string> {
   return `${v.slice(0, 8)}-${v.slice(8, 12)}-${v.slice(12, 16)}-${v.slice(16, 20)}-${v.slice(20, 32)}`
 }
 
-/** Health Connect exercise names -> our four buckets. Anything unknown counts as cardio. */
-function workoutType(name: string): WorkoutType {
-  const n = name.toLowerCase()
-  if (/strength|weight|resistance|gym/.test(n)) return 'resistance'
-  if (/walk|hik/.test(n)) return 'walk'
-  return 'cardio'
+/**
+ * Gunde en fazla kac "bu neydi?" sorusu uretilir. Saatin kendi tanidigi seanslar
+ * bu sinira girmez - onlar soru degil, onay. Sinir yalniz nabizdan cikarilan
+ * tahminler icin: gun icinde her nabiz sicramasini sormak uygulamayi anket yapar
+ * (AGENTS "60 saniye" kurali).
+ */
+const MAX_HR_QUESTIONS_PER_DAY = 2
+
+/** HH:MM, yerel. */
+function clock(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 export interface HealthStatus {
@@ -145,6 +171,8 @@ export async function syncHealth(days = 7): Promise<number> {
   const { startDate, endDate } = dayBounds(dates)
   const records: WearableRecord[] = []
   const synced_at = new Date().toISOString()
+  const today0 = toLocalDate()
+  const dismissed = await dismissedWorkouts()
 
   for (const { metric, dataType } of BUCKETS) {
     try {
@@ -173,15 +201,22 @@ export async function syncHealth(days = 7): Promise<number> {
 
   // capacitor-health'in okuyamadigi olcumler, kendi eklentimizden geliyor: toplam
   // kalori (HC'de aktif kalori bos, dolu olan bu), nabiz, kan oksijeni, HRV, uyku, protein.
+  let hrWindows: HealthHrWindow[] = []
   try {
-    const { days } = await HealthExtra.readDaily({ startDate, endDate })
+    const extra = await HealthExtra.readDaily({ startDate, endDate })
     const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms', 'sleep_min', 'protein_g'] as const
-    for (const day of days) {
+    for (const day of extra.days) {
       for (const metric of metrics) {
         const value = day[metric]
         if (value == null) continue
         records.push({ id: `${day.date}:${metric}`, date: day.date, metric, value, source: SOURCE, synced_at })
       }
+    }
+    hrWindows = extra.windows ?? []
+    // Gecikme olculur, varsayilmaz: Health Connect canli akis vermedigi icin
+    // "nabiz ne kadar geriden geliyor" sorusunun tek kanitli cevabi bu sayi.
+    if (extra.hr_lag_min != null) {
+      records.push({ id: `${today0}:hr_lag_min`, date: today0, metric: 'hr_lag_min', value: extra.hr_lag_min, source: SOURCE, synced_at })
     }
   } catch {
     // Izin verilmedi ya da Health Connect yok: diger olcumler yine yazilir.
@@ -189,24 +224,34 @@ export async function syncHealth(days = 7): Promise<number> {
 
   // Sessions the watch detected on its own. Written with a deterministic id so a
   // repeated sync updates the same row instead of duplicating the session.
+  // Cihaz tipi biliyorsa (yuzme, kosu...) soru sorulmaz, kayit onaya dusurulur.
+  const sessions: { from: number; to: number }[] = []
   try {
     const res = await Health.queryWorkouts({ startDate, endDate, includeHeartRate: false, includeRoute: false, includeSteps: false })
     for (const w of res.workouts) {
       const start = new Date(w.startDate)
+      sessions.push({ from: start.getTime(), to: new Date(w.endDate).getTime() })
       const minutes = Math.round((new Date(w.endDate).getTime() - start.getTime()) / 60000)
       const id = await stableId(`${SOURCE}:${w.startDate}:${w.workoutType}`)
+      if (dismissed.has(id)) continue
       const existing = await db.workout.get(id)
+      const known = detectedExercise(w.workoutType ?? '')
       const entry: Workout = {
         id,
         date: toLocalDate(start),
-        type: workoutType(w.workoutType ?? ''),
+        // Tanimadigimiz tip icin uydurulmuyor: kova kardiyoya dusuruluyor ama
+        // kayit needs_review kaliyor, dogru tipi kullanici secer.
+        type: known?.type ?? 'cardio',
         duration_min: minutes > 0 ? minutes : null,
         sets_total: null,
         muscle_groups: [],
-        // Saat sureyi bilir, ne yapildigini bilmez: kullanici onaylayana kadar
-        // "bu neydi?" kartinda bekler. Zaten onaylanmissa tekrar sorulmaz.
+        // Saat sureyi bilir, ne yapildigini bilmeyebilir: kullanici onaylayana
+        // kadar kartta bekler. Zaten onaylanmissa tekrar sorulmaz.
         needs_review: existing?.needs_review ?? true,
-        notes: `saat: ${w.workoutType || 'antrenman'}${w.calories ? ` · ${Math.round(w.calories)} kcal` : ''}`,
+        // ReviewWorkout bu onekten "saat tanidi mi" ayrimini okuyor.
+        // ponytail: notes onekiyle; ayri bir sutun db/005 + API semasi + migration
+        // demekti, kazanci tek satirlik bir ekran metni.
+        notes: `saat: ${known?.label ?? w.workoutType ?? 'antrenman'}${w.calories ? ` · ${Math.round(w.calories)} kcal` : ''}`,
       }
       await upsertWorkout(entry)
     }
@@ -214,19 +259,46 @@ export async function syncHealth(days = 7): Promise<number> {
     // no workout permission, or none recorded in the window
   }
 
+  // Saat bir seans kaydetmediyse ama nabiz uzun sure yuksek kaldiysa, o pencereyi
+  // kullaniciya sor. Ustunu ortmemek icin: bu **canli** bir olcum degil, gecmise
+  // donuk orneklerden cikarilmis bir tahmin (hr_lag_min gecikmeyi olcuyor).
+  const asked = new Map<string, number>()
+  for (const win of hrWindows) {
+    const from = new Date(win.start).getTime()
+    const to = new Date(win.end).getTime()
+    if (sessions.some((s) => s.from < to && from < s.to)) continue // cihaz zaten biliyor
+    // Pencere mutlak zaman; gune yazma karari burada verilir - basladigi gun.
+    const date = toLocalDate(new Date(win.start))
+    if ((asked.get(date) ?? 0) >= MAX_HR_QUESTIONS_PER_DAY) continue
+    const id = await stableId(`hr:${win.start}`)
+    if (dismissed.has(id)) continue
+    const existing = await db.workout.get(id)
+    if (existing && existing.needs_review !== true) continue // cevaplanmis
+    asked.set(date, (asked.get(date) ?? 0) + 1)
+    await upsertWorkout({
+      id,
+      date,
+      type: 'cardio',
+      duration_min: win.duration_min > 0 ? win.duration_min : null,
+      sets_total: null,
+      muscle_groups: [],
+      needs_review: true,
+      notes: `nabız: ${clock(win.start)}-${clock(win.end)} arası ${win.peak_bpm} bpm'e çıktı`,
+    })
+  }
+
   if (records.length === 0) return 0
   await db.wearable.bulkPut(records)
 
   // The watch wins for steps (SPEC 3), but the manual value is never deleted -
   // it stays in wearable/daily_log history, we only surface the automatic one.
-  const today = toLocalDate()
-  const todaySteps = records.find((r) => r.date === today && r.metric === 'steps')
+  const todaySteps = records.find((r) => r.date === today0 && r.metric === 'steps')
   if (todaySteps) {
     // Saat gun icinde artan bir sayac; elle girilen daha buyuk bir deger varsa onu
     // ezmek veri kaybidir (telefon cepte degilken yurunen adim saatte yok).
-    const manual = (await db.daily_log.get(today))?.steps ?? 0
+    const manual = (await db.daily_log.get(today0))?.steps ?? 0
     const watch = Math.round(todaySteps.value)
-    if (watch > manual) await saveDaily(today, { steps: watch })
+    if (watch > manual) await saveDaily(today0, { steps: watch })
   }
 
   if (hasServer()) {

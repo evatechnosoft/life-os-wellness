@@ -122,6 +122,10 @@ class HealthExtraPlugin : Plugin() {
             return
         }
 
+        // Esik ayarlanabilir kalsin: 120 bpm herkes icin ayni seyi anlatmiyor,
+        // dinlenme nabzi yuksek olanda gunluk hareket bile esigi asar.
+        val threshold = call.getInt("highBpmThreshold")?.toLong() ?: HealthMath.HIGH_BPM_THRESHOLD
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val calories = mutableListOf<HealthMath.CalorieEntry>()
@@ -136,9 +140,11 @@ class HealthExtraPlugin : Plugin() {
                 }
 
                 val bpmByDay = mutableMapOf<String, MutableList<Long>>()
+                val bpmSamples = mutableListOf<HealthMath.BpmSample>()
                 readAll(client, HeartRateRecord::class.java, range) { record ->
                     for (sample in record.samples) {
                         bpmByDay.getOrPut(localDay(sample.time)) { mutableListOf() }.add(sample.beatsPerMinute)
+                        bpmSamples.add(HealthMath.BpmSample(sample.time.toEpochMilli(), sample.beatsPerMinute))
                     }
                 }
 
@@ -213,7 +219,27 @@ class HealthExtraPlugin : Plugin() {
                     proteinByDay[date]?.let { entry.put("protein_g", it) }
                     days.put(entry)
                 }
-                call.resolve(JSObject().put("days", days))
+                val windows = JSArray()
+                for (w in HealthMath.highBpmWindows(bpmSamples, thresholdBpm = threshold)) {
+                    windows.put(
+                        JSObject()
+                            .put("start", Instant.ofEpochMilli(w.startMillis).toString())
+                            .put("end", Instant.ofEpochMilli(w.endMillis).toString())
+                            .put("duration_min", w.durationMinutes)
+                            .put("avg_bpm", w.avgBpm)
+                            .put("peak_bpm", w.peakBpm),
+                    )
+                }
+
+                // Health Connect canli akis vermez: kaynak uygulama ne zaman yazdiysa
+                // o zaman gorunur. En taze ornegin yasi gercek gecikmeyi olcer -
+                // cihazda "ne kadar geriden geliyoruz" sorusunun tek kanitli cevabi.
+                val newest = bpmSamples.maxOfOrNull { it.atMillis }
+                val result = JSObject().put("days", days).put("windows", windows)
+                if (newest != null) {
+                    result.put("hr_lag_min", (System.currentTimeMillis() - newest) / 60_000L)
+                }
+                call.resolve(result)
             } catch (e: Exception) {
                 // Izin verilmediyse SecurityException gelir; cagiran taraf bunu sessiz gecer.
                 call.reject(e.message ?: "Health Connect okunamadi")

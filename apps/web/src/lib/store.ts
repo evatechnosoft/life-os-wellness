@@ -63,6 +63,27 @@ export async function deleteWorkout(id: string): Promise<void> {
   await queue({ method: 'DELETE', path: `/api/workouts/${id}` })
 }
 
+const DISMISSED_KEY = 'dismissed_workouts'
+
+/** Saatin/nabzin onerdigi ama kullanicinin reddettigi seanslarin id'leri. */
+export async function dismissedWorkouts(): Promise<Set<string>> {
+  const stored = await db.settings.get(DISMISSED_KEY)
+  return new Set((stored?.value as string[] | undefined) ?? [])
+}
+
+/**
+ * "Ben degildim". Silmek tek basina yetmez: bir sonraki senkron ayni seansi
+ * ayni deterministik id ile yeniden yazar ve soru geri gelir. Reddedilen id
+ * kalici olarak isaretlenir, senkron onu bir daha uretmez.
+ */
+export async function dismissWorkout(id: string): Promise<void> {
+  const ids = await dismissedWorkouts()
+  ids.add(id)
+  // Liste sinirsiz buyumesin; en eski redler zaten senkron penceresinin disinda kalir.
+  await db.settings.put({ key: DISMISSED_KEY, value: [...ids].slice(-200) })
+  await deleteWorkout(id)
+}
+
 export async function saveRetro(date: string, patch: Partial<Retro>): Promise<void> {
   const existing = await db.retro.get(date)
   await db.retro.put({ ...existing, ...patch, date, updated_at: now() })
