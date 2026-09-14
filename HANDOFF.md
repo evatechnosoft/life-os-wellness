@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-14 · dev @ 550a648 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.10.0
+> 2026-09-14 · dev @ v0.12.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.12.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 42 pass / 0 fail, web 140 pass / 0 fail
+npm test                                 # api 46 pass / 0 fail, web 169 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -15,7 +15,7 @@ curl -s https://fit.evaitec.com/health   # {"ok":true}
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
 `cd apps/web/android && JAVA_HOME="/c/Program Files/Android/openjdk/jdk-21.0.8" ./gradlew testDebugUnitTest`
-(21 test: HealthMath 14, SnoreAnalyzer 6, Example 1).
+(31 test: HealthMath 14, HighBpmWindow 10, SnoreAnalyzer 6, Example 1).
 
 ## Sıradaki iş — 1. adım
 
@@ -63,6 +63,35 @@ girilmeye başlanmadan ilerleme önerisi çıkmaz; alan `WorkoutForm`'da, zorunl
 
 İsim eşleştirme `foldTr` üzerinden (Türkçe harf + büyük/küçük katlanır), yoksa
 "yumurta beyazı" ile "yumurta beyazi" iki ayrı kalem sayılıp aynı şey iki kez önerilir.
+
+## Nabız, seans tanıma ve doğal giriş
+
+**Canlı nabız yok ve bu mimaride olamaz.** Health Connect geçmiş kayıt verir; üstüne
+kendi senkronumuz uygulama açıkken 15 dakikada bir çalışır, yani gecikmenin tabanı 15 dk.
+Gerçek canlılık Wear OS uygulaması ya da BLE bandı ister. Ölçüm cihaza taşındı: en taze
+nabız örneğinin yaşı `hr_lag_min` metriği olarak Saat kartında görünür — duman testinde
+gerçek sayı çıkacak.
+
+Kurulan şey son okunan **yüksek nabız penceresi**: 120 bpm üstü (`HIGH_BPM_THRESHOLD`,
+JS'ten ezilebilir), en az 5 dk, 10 dk'dan kısa düşüş pencereyi bölmez (set arası dinlenme
+ve saatin örnek seyreltmesi). Saat seansı zaten tanıyorsa sorulmaz, onaya gider;
+tanımıyorsa günde en fazla 2 soru sorulur (`MAX_HR_QUESTIONS_PER_DAY`).
+
+`watchExercise.ts` Health Connect egzersiz adını `WorkoutType`'a eşler (35 tip);
+eşlenemeyen `null` döner, `needs_review` kalır. "Ben değildim" reddi artık kalıcı
+(`settings.dismissed_workouts`) — eskiden sonraki senkron aynı id ile geri yazıyordu.
+
+`workoutText.ts` doğal cümleyi antrenman taslağına çevirir ("bench 60 kg 3 set 10 tekrar").
+Onay kapısı aynı: kullanıcı onaylamadan hiçbir şey yazılmaz. Model kaldırılan ağırlığı
+vücut kilosu olarak da yazıyordu — `fillWorkout` bunu ayırıyor, yoksa 7-gün ortalaması
+sessizce bozulurdu.
+
+## Koç sabitleri kanıta bağlı
+
+`docs/COACH-EVIDENCE.md` kaynaklı temel, `docs/COACH-PERSONA.md` ton ve sağlık sınırı.
+Sabit değiştirmeden önce o dosyaya bak; kod ona uyar, tersi değil. Kilo hedefi artık
+yüzde (`Goals.weekly_loss_pct`, varsayılan %0.7); eski `weekly_weight_loss_kg` kayıtlıysa
+korunur ve kullanılır, kullanıcı yeni alanı kaydedince yüzde devralır.
 
 ## Uyku — kod hazır, veri Samsung'da kilitli
 
