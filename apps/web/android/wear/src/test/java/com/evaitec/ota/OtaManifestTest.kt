@@ -119,11 +119,11 @@ class OtaManifestTest {
         }
     }
 
-    @Test
-    fun manifestProducedByCiIsAccepted() {
-        // .github/workflows/apk.yml ciktisinin birebir sekli - alan adi kayarsa burada patlar,
-        // sahada "guncelleme yok" diye sessizce durmaz.
-        val ci = """
+    /**
+     * .github/workflows/apk.yml ciktisinin birebir kendisi. Manifest iki bicimi birden tasiyor:
+     * bizim okudugumuz "apps" listesi ve evaglass UpdateChecker'in okudugu duz alanlar.
+     */
+    private val ciManifest = """
             {
               "apps": [
                 {
@@ -134,7 +134,7 @@ class OtaManifestTest {
                   "versionName": "0.14.0",
                   "apk": "app-debug.apk",
                   "url": "https://github.com/evatechnosoft/life-os-wellness/releases/download/v0.14.0/app-debug.apk",
-                  "sha256": "8c64f50e17855dd62771bbdb2f6cf6f89a22e4673e5b6c09ed9a40b070c3fda9"
+                  "sha256": "c26f5a67cbe28d350706f80203b624928e672321be66e26e183181ed9e4b1ef6"
                 },
                 {
                   "id": "wellness-wear",
@@ -144,16 +144,48 @@ class OtaManifestTest {
                   "versionName": "0.14.0",
                   "apk": "wear-debug.apk",
                   "url": "https://github.com/evatechnosoft/life-os-wellness/releases/download/v0.14.0/wear-debug.apk",
-                  "sha256": "9edafa85ecf13164e7270a8e6ad904a5fdfa849e9787a3dced91f35d69e3f786"
+                  "sha256": "4b73fb5365b518cd06f7fc026d65149a55c44c7af958a277fffbb6dd92d5c3d3"
                 }
-              ]
+              ],
+              "versionCode": 1400,
+              "versionName": "0.14.0",
+              "apk": "app-debug.apk",
+              "url": "https://github.com/evatechnosoft/life-os-wellness/releases/download/v0.14.0/app-debug.apk",
+              "sha256": "c26f5a67cbe28d350706f80203b624928e672321be66e26e183181ed9e4b1ef6",
+              "wearApk": "wear-debug.apk",
+              "wearUrl": "https://github.com/evatechnosoft/life-os-wellness/releases/download/v0.14.0/wear-debug.apk",
+              "wearSha256": "4b73fb5365b518cd06f7fc026d65149a55c44c7af958a277fffbb6dd92d5c3d3"
             }
-        """.trimIndent()
-        assertEquals(listOf("wellness-phone", "wellness-wear"), OtaManifest.parse(ci).map { it.id })
-        val wear = decide(ci, 1300).available()
+    """.trimIndent()
+
+    @Test
+    fun manifestProducedByCiIsAccepted() {
+        // Alan adi kayarsa burada patlar, sahada "guncelleme yok" diye sessizce durmaz.
+        assertEquals(listOf("wellness-phone", "wellness-wear"), OtaManifest.parse(ciManifest).map { it.id })
+        val wear = decide(ciManifest, 1300).available()
         assertEquals("0.14.0", wear.versionName)
-        assertEquals("9edafa85ecf13164e7270a8e6ad904a5fdfa849e9787a3dced91f35d69e3f786", wear.sha256)
-        assertEquals(OtaManifest.Decision.UpToDate, decide(ci, 1400))
+        assertEquals("wear-debug.apk", wear.apk)
+        assertEquals(OtaManifest.Decision.UpToDate, decide(ciManifest, 1400))
+    }
+
+    @Test
+    fun flatFieldsAreDerivedFromTheListEntries() {
+        // Geriye uyum: evaglass'in UpdateChecker'i duz alanlari okuyor. CI bunlari listeden
+        // turetiyor - turetme bozulursa (elle yazilir, id kayar, sha kopyalanirken duser)
+        // burasi patlar. Bizim okuyucumuz bu alanlara hic bakmiyor.
+        val root = org.json.JSONObject(ciManifest)
+        val byId = OtaManifest.parse(ciManifest).associateBy { it.id }
+        val phone = byId.getValue("wellness-phone")
+        val wear = byId.getValue("wellness-wear")
+
+        assertEquals(phone.versionCode, root.getInt("versionCode"))
+        assertEquals(phone.versionName, root.getString("versionName"))
+        assertEquals(phone.apk, root.getString("apk"))
+        assertEquals(phone.url, root.getString("url"))
+        assertEquals(phone.sha256, root.getString("sha256"))
+        assertEquals(wear.apk, root.getString("wearApk"))
+        assertEquals(wear.url, root.getString("wearUrl"))
+        assertEquals(wear.sha256, root.getString("wearSha256"))
     }
 
     @Test
