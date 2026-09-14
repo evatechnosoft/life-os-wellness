@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
-import { splitReply } from '../src/chat.ts'
+import { splitReply, SYSTEM } from '../src/chat.ts'
 import { collectSources } from '../src/llm.ts'
 import { buildServer } from '../src/server.ts'
 
@@ -271,6 +271,21 @@ describe('splitReply', () => {
 
   test('a non-numeric measurement is rejected', () => {
     assert.equal(splitReply('x<kayit>{"weight_kg":"seksen","summary":"..."}</kayit>').draft, null)
+  })
+})
+
+describe('SYSTEM prompt', () => {
+  test('hesaplanmis oneri disinda rakam uydurmayi yasaklar', () => {
+    assert.ok(SYSTEM.includes('antrenman önerileri'))
+    assert.match(SYSTEM, /ağırlık, set, tekrar ve gram rakamı bu satırlarda geçmiyorsa o rakamı YAZMA/)
+  })
+
+  test('yiyecek onerisi kullanicinin kendi listesinden secilir', () => {
+    assert.match(SYSTEM, /listede olmayan bir yiyeceği kendiliğinden önerme/)
+  })
+
+  test('tibbi tani yok, hekime yonlendirme kuralı duruyor', () => {
+    assert.match(SYSTEM, /Tıbbi tanı koymazsın; işaret görürsen hekime yönlendirirsin/)
   })
 })
 

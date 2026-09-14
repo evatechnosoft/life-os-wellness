@@ -1,8 +1,22 @@
 import { api, ApiError } from './api'
+import { coachTips, type CoachTip, type TodayTip } from './coach'
 import { lastDates, toLocalDate } from './date'
 import { db, type ChatMessage } from './db'
-import { foodMemory } from './metrics'
-import { groupsFor, type Split } from './split'
+import { foodMemory, movingAverage } from './metrics'
+import {
+  mealSlot,
+  proteinTarget,
+  slotGaps,
+  suggestFoods,
+  weightTrend,
+  type FoodSuggestion,
+  type MealSlot,
+  type ProteinTarget,
+  type SlotGap,
+  type WeightTrend,
+} from './nutrition'
+import { DEFAULT_GOALS, type Goals } from './settings'
+import { type Split } from './split'
 import { hasServer } from './store'
 import { applyDraft, draftLines, logNote, type NoteDraft } from './voice'
 
@@ -12,24 +26,139 @@ export interface ChatReply {
   sources: { title: string; url: string }[]
 }
 
+/** Kural motorlarinin (coach + nutrition) hesapladigi her sey, tek pakette. */
+export interface CoachContext {
+  tips: CoachTip[]
+  protein: ProteinTarget | null
+  gaps: SlotGap[]
+  foods: FoodSuggestion[]
+  trend: WeightTrend | null
+}
+
+/**
+ * Baglam her istekte gidiyor: dakikada bes istek kotasinda her satirin bedeli var.
+ * O yuzden oneriler kirpilir - `warn` olanlar once, en fazla bu kadari.
+ */
+const MAX_TIPS = 4
+const MAX_FOODS = 3
+/** API semasindaki `context` siniri (apps/api/src/chat.ts); asilirsa istek 400 doner. */
+const MAX_CONTEXT = 4000
+
+const SLOT_TR: Record<MealSlot, string> = {
+  morning: 'sabah',
+  noon: 'öğle',
+  evening: 'akşam',
+  snack: 'ara öğün',
+}
+
+const TREND_TR = {
+  on_track: 'hedefte',
+  too_slow: 'hedefin altında',
+  too_fast: 'hedeften hızlı',
+} as const
+
+function tipLine(tip: CoachTip): string | null {
+  switch (tip.kind) {
+    case 'volume_none':
+      return `${tip.muscle}: bu hafta hiç set yok`
+    case 'volume_low':
+      return `${tip.muscle}: ${tip.sets}/${tip.target} set, ${tip.add} set eksik`
+    case 'volume_high':
+      return `${tip.muscle}: ${tip.sets} set, üst sınır ${tip.cap}`
+    case 'progress_weight':
+      return `${tip.muscle}: ${tip.from_kg} kg → ${tip.to_kg} kg`
+    case 'progress_reps':
+      return `${tip.muscle}: ${tip.reps} → ${tip.to_reps} tekrar`
+    case 'progress_sets':
+      return `${tip.muscle}: haftalık ${tip.sets}/${tip.target} set`
+    case 'stall':
+      return `${tip.muscle}: ${tip.sessions} seanstır ilerleme yok`
+    case 'deload':
+      return `hafif hafta zamanı (${tip.weeks} hafta ${tip.reason === 'buildup' ? 'kesintisiz artış' : 'düşüş'})`
+    // no_data ve today satiri: biri gurultu, digeri ayri basligi hak ediyor.
+    default:
+      return null
+  }
+}
+
+function foodLine(f: FoodSuggestion): string {
+  const portion = f.grams != null ? `${f.grams} g ` : f.count != null ? `${f.count} adet ` : ''
+  const mark = f.source === 'seed' ? ' (geçmişte yok)' : ''
+  return `${portion}${f.food} ~${f.protein_g} g protein${mark}`
+}
+
+/**
+ * Yapilandirilmis oneriyi modele okunabilir birkac satira cevirir. Saf fonksiyon:
+ * cumleyi burasi kurar, sayiyi kural motoru uretir - Eva ikisini de uydurmasin.
+ * `coachText.ts` ayni veriyi ekran icin tam cumleye cevirir; burasi kasten kisa -
+ * bu metin her istekte modele gidiyor, her karakterin kota bedeli var.
+ */
+export function coachLines(ctx: CoachContext): string[] {
+  const lines: string[] = []
+
+  const today = ctx.tips.find((t): t is TodayTip => t.kind === 'today')
+  if (today) {
+    const groups = today.groups.length > 0 ? today.groups.join(', ') : 'program yok'
+    lines.push(`bugünün odağı: ${groups} (${today.logged ? 'kayıt girildi' : 'henüz kayıt yok'})`)
+  }
+
+  const picked = ctx.tips
+    .filter((t) => t.kind !== 'today')
+    // Array.sort kararli: esit onceliktekiler kural motorunun sirasini korur.
+    .sort((a, b) => (a.severity === 'warn' ? 0 : 1) - (b.severity === 'warn' ? 0 : 1))
+    .map(tipLine)
+    .filter((l): l is string => l !== null)
+    .slice(0, MAX_TIPS)
+  if (picked.length > 0) lines.push(`antrenman önerileri (hesaplandı): ${picked.join(' · ')}`)
+
+  if (ctx.protein) {
+    const p = ctx.protein
+    lines.push(`protein hedefi: ~${p.recommended_g} g/gün (aralık ${p.min_g}-${p.max_g}; ayardaki hedef ${p.current_goal_g} g)`)
+  }
+
+  if (ctx.gaps.length > 0) {
+    const parts = ctx.gaps.map((g) => `${SLOT_TR[g.slot]} ${g.gap_g} g eksik${g.upcoming ? ' (henüz gelmedi)' : ''}`)
+    lines.push(`bugün açık öğünler: ${parts.join(' · ')}`)
+  }
+
+  if (ctx.foods.length > 0) {
+    const slot = SLOT_TR[ctx.foods[0]!.slot]
+    lines.push(`${slot} için önerilebilecek yiyecekler: ${ctx.foods.slice(0, MAX_FOODS).map(foodLine).join(' · ')}`)
+  }
+
+  if (ctx.trend) {
+    const t = ctx.trend
+    lines.push(`kilo trendi: haftada ${t.actual_kg} kg (hedef ${t.target_kg} kg) — ${TREND_TR[t.status]}`)
+  }
+
+  return lines
+}
+
 /**
  * The last week in a few lines, sent with every question so answers land on this
  * person's own numbers instead of generic advice. This is the "learns from you" part:
  * no training, just the real history as context.
  */
-export async function buildContext(): Promise<string> {
-  const dates = lastDates(7)
+export async function buildContext(now: Date = new Date()): Promise<string> {
+  const dates = lastDates(7, now)
   const start = dates[0]!
   const end = dates[dates.length - 1]!
-  const [logs, workouts, meals, wearable, splitRow, recentMeals] = await Promise.all([
-    db.daily_log.where('date').between(start, end, true, true).toArray(),
-    db.workout.where('date').between(start, end, true, true).toArray(),
+  // Kilo trendi iki 7-gun ortalamasini karsilastirir, deload bes haftalik tonaj ister:
+  // pencereler genis cekilir, gunluk satirlar bellekte daraltilir.
+  const dates14 = lastDates(14, now)
+  const start35 = lastDates(35, now)[0]!
+  const [logs14, workouts35, meals, wearable, splitRow, goalsRow, recentMeals] = await Promise.all([
+    db.daily_log.where('date').between(dates14[0]!, end, true, true).toArray(),
+    db.workout.where('date').between(start35, end, true, true).toArray(),
     db.meal.where('date').between(start, end, true, true).toArray(),
     db.wearable.where('date').between(start, end, true, true).toArray(),
     db.settings.get('split'),
+    db.settings.get('goals'),
     // Hafiza yedi gunden uzun: "tavuk kac gram" sorusu son iki haftaya sigmaz.
     db.meal.reverse().limit(60).toArray(),
   ])
+  const logs = logs14.filter((l) => l.date >= start)
+  const workouts = workouts35.filter((w) => w.date >= start)
 
   const lines: string[] = []
   for (const date of dates) {
@@ -61,16 +190,32 @@ export async function buildContext(): Promise<string> {
     if (sleep) day.push(`uyku ${Math.floor(sleep.value / 60)} sa ${Math.round(sleep.value % 60)} dk`)
     if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
   }
-  // Bugunun programi: Eva "bugun bacak gunu, kac set yaptin?" diyebilsin.
-  const planned = groupsFor((splitRow?.value as Split | undefined) ?? {}, end)
-  if (planned.length > 0) lines.push(`bugünün programı: ${planned.join(', ')}`)
   // Sik yediklerinin gecmisteki degerleri: Eva "tavuk yedim" duyunca porsiyonu sormasin.
   const known = foodMemory(recentMeals)
   if (known.length > 0) {
     const parts = known.map((f) => `${f.name} ~${f.protein_g} g protein${f.kcal != null ? ` / ${Math.round(f.kcal)} kcal` : ''}`)
     lines.push(`sık yedikleri (kendi geçmiş kayıtlarından): ${parts.join(' · ')}`)
   }
-  return lines.join('\n')
+
+  // Koc katmani: ekranda gosterilen onerilerin aynisi. Eva ayni sayilari konussun.
+  const split = (splitRow?.value as Split | undefined) ?? {}
+  const goals: Goals = { ...DEFAULT_GOALS, ...((goalsRow?.value as Partial<Goals> | undefined) ?? {}) }
+  const weightsOf = (window: string[]): number | null =>
+    movingAverage(window.map((d) => logs14.find((l) => l.date === d)?.weight_kg))
+  const avgWeight = weightsOf(dates)
+  const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  const gaps = slotGaps(meals.filter((m) => m.date === end), avgWeight, goals, time)
+  const slot = gaps[0]?.slot ?? mealSlot(time)
+  lines.push(
+    ...coachLines({
+      tips: coachTips(workouts35, goals, split, end),
+      protein: proteinTarget(avgWeight, goals),
+      gaps,
+      foods: suggestFoods(recentMeals, slot, { recentMeals: meals, limit: MAX_FOODS }),
+      trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals.weekly_weight_loss_kg),
+    }),
+  )
+  return lines.join('\n').slice(0, MAX_CONTEXT)
 }
 
 /**
