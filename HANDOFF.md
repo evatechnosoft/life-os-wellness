@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-14 · dev @ v0.15.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.15.0
+> 2026-09-15 · dev @ v0.16.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.16.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 46 pass / 0 fail, web 205 pass / 0 fail
+npm test                                 # api 46 pass / 0 fail, web 209 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -21,8 +21,9 @@ aynı komutla koşuyor: `./gradlew :app:assembleDebug :wear:assembleDebug :wear:
 
 ## Sıradaki iş — 1. adım
 
-**Telefonda duman testi.** Kod tarafında bekleyen iş yok; 13 Eylül'ün beş özelliğinin
-hiçbiri gerçek cihazda çalıştırılmadı. Sırayla:
+**Telefonda ve saatte duman testi.** Kod tarafında bekleyen iş yok; 13-15 Eylül'de
+eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ayrıca aşağıdaki
+"Saat uygulaması" bölümüne bak — ilk kurulum kablosuz ADB istiyor. Telefon sırası:
 
 1. **Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç.** Bu yapılmadan
    uyku verisi gelmez (aşağıda "Uyku" başlığı).
@@ -132,7 +133,7 @@ uzaktayken ikinci ölçüm birincisini silerdi.
 listesinde sabitleri yok; tansiyon Samsung'un ayrıcalıklı SDK tracker listesinde de yok.
 Egzersiz tipini saat tanımaz, kullanıcı seçer.
 
-### evaitecOTA — kurulum kiti
+### evaitecOTA — kurulum kiti (telefon + saat)
 
 Çekirdek `apps/web/android/shared/.../com/evaitec/ota/` (`OtaManifest`, `ApkInstaller`),
 wellness'a özel tek dosya `WellnessOta.kt`. Ayrı gradle modülü yok; `srcDirs` ile `:app`
@@ -147,6 +148,19 @@ Kurulum tek kapıdan geçer (`ApkInstaller.install`), dört kilit: sha256, paket
 versionCode, ve paket kuruluysa imza + sadece-yükselt. **Beklenen sha256 telefondan
 değil, saatin kendi çektiği manifestten okunur** — telefon yalnız taşıyıcı. Manifest
 okunamazsa kurulum yapılmaz.
+
+Telefon de kendini günceller (v0.16.0): aynı kit, ikinci bir mantık yok — `OtaUpdater`
+saat ve telefon için ortak, `WearUpdater` silindi. Açılışta bir kez, sonra 24 saat kapısı;
+sonuç `localStorage`'da önbellekleniyor ki açılış kontrolü ile Ayarlar aynı cevabı görsün.
+Güncelleme yoksa hiçbir şey gösterilmiyor. İndirme ve kurulum her zaman kullanıcı basınca.
+
+APK adları Gradle'da üretiliyor (`wellness-<sürüm>.apk`, `wellness-wear-<sürüm>.apk`), CI
+adı okuyor — ad tek kaynakta. Sürüm ekranda da görünüyor: telefonda Ayarlar (PackageManager'dan,
+JS'e sabit yazılmadı), saatte `MainActivity` altında.
+
+`app/src/main/res/xml/file_paths.xml` daraltılmamalı: içindeki `cache-path "."` hem
+`cache/ota/`'yı hem Capacitor Camera'nın kullandığı kökü kapsıyor; `ota/` ile daraltmak
+kamerayı kırar.
 
 ⚠️ **İlk kurulum hâlâ kablosuz ADB.** Saatte dinleyen bir uygulama olmadan telefon oraya
 dosya gönderemez. Zincir ikinci kurulumdan sonrasını çözüyor. ADB'siz bootstrap için tek
