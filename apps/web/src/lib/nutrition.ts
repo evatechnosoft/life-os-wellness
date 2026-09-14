@@ -141,15 +141,28 @@ export interface FoodSuggestion {
  * mikro besin yoktur (AGENTS.md: besin veritabani kapsam disi). Gecmis veri
  * geldiginde ogrenilen degerler bunun onune gecer.
  */
+/**
+ * "Tavuk Gogsu" ile "tavuk gogsu" ayni yiyecek. Kullanicinin yazimi korunur
+ * (ekranda o gorunur), eslestirme bu katlanmis biçim uzerinden yapilir - yoksa
+ * ogrenilen kalem tohum listesindeki esini bastiramaz ve ayni sey iki kez onerilir.
+ */
+export function foldTr(name: string): string {
+  const map: Record<string, string> = { ı: 'i', İ: 'i', ş: 's', ğ: 'g', ü: 'u', ö: 'o', ç: 'c' }
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[ıİşğüöç]/g, (c) => map[c] ?? c)
+}
+
 export const SEED_FOODS: { name: string; grams: number; protein_g: number; slots: MealSlot[] }[] = [
-  { name: 'yumurta beyazi', grams: 200, protein_g: 22, slots: ['morning', 'snack'] },
-  { name: 'suzme peynir', grams: 150, protein_g: 17, slots: ['morning', 'snack'] },
+  { name: 'yumurta beyazı', grams: 200, protein_g: 22, slots: ['morning', 'snack'] },
+  { name: 'süzme peynir', grams: 150, protein_g: 17, slots: ['morning', 'snack'] },
   { name: 'lor peyniri', grams: 150, protein_g: 20, slots: ['morning', 'snack'] },
-  { name: 'yogurt', grams: 250, protein_g: 9, slots: ['morning', 'snack'] },
-  { name: 'tavuk gogsu', grams: 200, protein_g: 62, slots: ['noon', 'evening'] },
-  { name: 'kirmizi et', grams: 200, protein_g: 52, slots: ['noon', 'evening'] },
-  { name: 'hindi gogsu', grams: 200, protein_g: 58, slots: ['noon', 'evening'] },
-  { name: 'ton baligi', grams: 160, protein_g: 42, slots: ['noon', 'snack'] },
+  { name: 'yoğurt', grams: 250, protein_g: 9, slots: ['morning', 'snack'] },
+  { name: 'tavuk göğsü', grams: 200, protein_g: 62, slots: ['noon', 'evening'] },
+  { name: 'kırmızı et', grams: 200, protein_g: 52, slots: ['noon', 'evening'] },
+  { name: 'hindi göğsü', grams: 200, protein_g: 58, slots: ['noon', 'evening'] },
+  { name: 'ton balığı', grams: 160, protein_g: 42, slots: ['noon', 'snack'] },
   { name: 'fasulye', grams: 250, protein_g: 23, slots: ['evening'] },
   { name: 'mercimek', grams: 250, protein_g: 23, slots: ['noon', 'evening'] },
 ]
@@ -220,8 +233,8 @@ export function suggestFoods(
 
   if (learned.length >= limit) return learned
 
-  const known = new Set(learned.map((s) => s.food))
-  const seeds = SEED_FOODS.filter((s) => s.slots.includes(slot) && !known.has(s.name))
+  const known = new Set(learned.map((s) => foldTr(s.food)))
+  const seeds = SEED_FOODS.filter((s) => s.slots.includes(slot) && !known.has(foldTr(s.name)))
     .sort((a, b) => b.protein_g - a.protein_g)
     .slice(0, limit - learned.length)
     .map((s): FoodSuggestion => ({

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { Meal } from './db'
-import { mealSlot, proteinTarget, slotGaps, suggestFoods, weightTrend } from './nutrition'
+import { foldTr, mealSlot, proteinTarget, slotGaps, suggestFoods, weightTrend } from './nutrition'
 
 const meal = (time: string, note: string, protein_g: number, date = '2026-01-10'): Meal =>
   ({ id: `${date}-${time}-${note}`, date, time, note, protein_g, kcal: null, estimated: false })
@@ -173,5 +173,38 @@ describe('weightTrend', () => {
 
   test('gaining while the goal is loss is not on track', () => {
     expect(weightTrend(79.5, 80, 0.6)?.status).toBe('too_slow')
+  })
+})
+
+describe('foldTr', () => {
+  test('folds Turkish letters and case so the same food matches itself', () => {
+    expect(foldTr('Yumurta Beyazı')).toBe(foldTr('yumurta beyazi'))
+    expect(foldTr(' Tavuk Göğsü ')).toBe('tavuk gogsu')
+    expect(foldTr('kırmızı et')).toBe('kirmizi et')
+  })
+
+  test('keeps different foods apart', () => {
+    expect(foldTr('fasulye')).not.toBe(foldTr('mercimek'))
+  })
+})
+
+describe('suggestFoods - seed does not duplicate a learned food', () => {
+  // Kullanici ASCII yaziyor, tohum listesi duzgun Turkce: ham karsilastirma
+  // bunlari iki ayri yiyecek sayip ayni seyi iki kez onerirdi.
+  const asciiSpelling: Meal[] = [
+    meal('08:00', '6 yumurta beyazi', 22, '2026-01-01'),
+    meal('08:10', '6 yumurta beyazi', 22, '2026-01-02'),
+  ]
+
+  test('the seed spelled differently is not offered next to the learned entry', () => {
+    const folded = suggestFoods(asciiSpelling, 'morning').map((s) => foldTr(s.food))
+    expect(new Set(folded).size).toBe(folded.length)
+    expect(folded.filter((n) => n === 'yumurta beyazi')).toHaveLength(1)
+  })
+
+  test("the learned entry keeps the user's own spelling", () => {
+    const first = suggestFoods(asciiSpelling, 'morning')[0]
+    expect(first?.food).toBe('yumurta beyazi')
+    expect(first?.source).toBe('history')
   })
 })
