@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-13 · dev @ ef13034 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.10.0
+> 2026-09-14 · dev @ 15b9d46 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.10.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 37 pass / 0 fail, web 40 pass / 0 fail
+npm test                                 # api 37 pass / 0 fail, web 48 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -15,7 +15,7 @@ curl -s https://fit.evaitec.com/health   # {"ok":true}
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
 `cd apps/web/android && JAVA_HOME="/c/Program Files/Android/openjdk/jdk-21.0.8" ./gradlew testDebugUnitTest`
-(17 test: HealthMath 10, SnoreAnalyzer 6, Example 1).
+(21 test: HealthMath 14, SnoreAnalyzer 6, Example 1).
 
 ## Sıradaki iş — 1. adım
 
@@ -38,9 +38,10 @@ hiçbiri gerçek cihazda çalıştırılmadı. Sırayla:
 1. Cihazda duman testi (yukarıda)
 2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın. **Bloke:** 192.168.1.186 ping'e
    yanıt vermiyor (13 Eylül'de de denendi).
-3. Nutrition okuma (`NutritionRecord`) — HealthExtra'ya eklenir, uyku ile aynı desen
-4. Gözlük (evaglass) köprüsü — API hazır, iş karşı repoda bir istemci yazmak
+3. Gözlük (evaglass) köprüsü — API hazır, iş karşı repoda bir istemci yazmak
    (ADO: `dev.azure.com/evaitec/evaitec/_git/evaglasses`)
+4. Doğrudan BLE band (`docs/PLAN-BAND.md` §2) — band modeli belirsiz, `0x180D`
+   yayınladığı doğrulanmadı; cihaz eline geçmeden kod yazılmaz
 
 ## Uyku — kod hazır, veri Samsung'da kilitli
 
@@ -89,7 +90,7 @@ APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.10.0)
 
 Biten: F0 Sprint 1-4 + Aurora Glass teması + Health Connect + gece horlama ölçümü +
 kamerayla öğün + sesli not + geçmiş veri aktarımı (153 gün) + haftalık program +
-seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku).
+seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku/protein).
 
 Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git etiketiyle aynı
 tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
@@ -137,8 +138,11 @@ eklersen link LAN adresi taşır, telefon tünele çıkmaz.
   gürültüsü tabanı yükselttiği için epizot saymıyor (testi var).
 - Nefes hızı ölçülmüyor; mikrofonla güvenilir değil.
 - Gece süreleri duty cycle'dan ölçeklenmiş tahmin (`estimated: true`).
-- Hatırlatma bildirimi her gün aynı saatte tekrarlar, o gün kilo girilmiş olsa da
-  (`ponytail:` notu `apps/web/src/lib/reminders.ts`).
+- Hatırlatma, uygulama günlerce hiç açılmazsa o günler yine çalar; zamanlama yalnız
+  uygulama açıkken yeniden kuruluyor (arka plan görevi yok).
+- Eva'nın modeli Gemini free tier: dakikada 5 istek. Kotaya takılınca 429 döner,
+  kullanıcı "Eva şu an yoğun" mesajını görür. Otomatik retry bilerek kapalı
+  (`llm.ts` `maxRetries: 0`) — kotayı iki kat yiyordu. Kalıcı çözüm ücretli anahtar.
 - `API_TOKEN` 10 Eylül'de bir kez terminale basıldı; döndürülmesi öneriliyor, acil değil.
 
 ## Çalıştırma
