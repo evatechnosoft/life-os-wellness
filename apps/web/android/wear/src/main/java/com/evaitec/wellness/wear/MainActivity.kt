@@ -15,7 +15,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import com.evaitec.wellness.ota.OtaManifest
+import com.evaitec.ota.OtaManifest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -117,10 +117,11 @@ class MainActivity : Activity() {
                 is OtaManifest.Decision.UpToDate -> otaView.text = "Guncel"
                 is OtaManifest.Decision.Blocked -> otaView.text = "Guncelleme yok: ${decision.reason}"
                 is OtaManifest.Decision.Available -> {
-                    otaView.text = "${decision.versionName} indiriliyor…"
+                    val app = decision.app
+                    otaView.text = "${app.versionName} indiriliyor…"
                     val result = withContext(Dispatchers.IO) {
-                        updater.download(decision) { pct ->
-                            runOnUiThread { otaView.text = "${decision.versionName} indiriliyor %$pct" }
+                        updater.download(app) { pct ->
+                            runOnUiThread { otaView.text = "${app.versionName} indiriliyor %$pct" }
                         }
                     }
                     otaView.text = result.fold(

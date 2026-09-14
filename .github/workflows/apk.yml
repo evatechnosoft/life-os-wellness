@@ -34,7 +34,7 @@ jobs:
       # yeniden uretilebilir ve imzalar tutmazsa Data Layer hata vermeden susar.
       - run: ./gradlew :app:assembleDebug :wear:assembleDebug
         working-directory: apps/web/android
-      # OTA katalogu: saat (ve ileride telefon) bu dosyayi okuyup guncellemeye karar veriyor.
+      # evaitecOTA katalogu: her kalem bir uygulama. Kurulacak kalemi cagiran id ile secer,
       # sha256 burada hesaplaniyor - indirilen APK cihazda bununla dogrulanmadan kurulmuyor.
       - name: latest.json uret
         working-directory: apps/web/android
@@ -45,16 +45,31 @@ jobs:
           phone=app/build/outputs/apk/debug/app-debug.apk
           wear=wear/build/outputs/apk/debug/wear-debug.apk
           base="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
+          pkg=com.evaitec.wellness
           cat > latest.json <<JSON
           {
-            "versionCode": $code,
-            "versionName": "$version",
-            "apk": "app-debug.apk",
-            "url": "$base/app-debug.apk",
-            "sha256": "$(sha256sum "$phone" | cut -d' ' -f1)",
-            "wearApk": "wear-debug.apk",
-            "wearUrl": "$base/wear-debug.apk",
-            "wearSha256": "$(sha256sum "$wear" | cut -d' ' -f1)"
+            "apps": [
+              {
+                "id": "wellness-phone",
+                "name": "Wellness (telefon)",
+                "package": "$pkg",
+                "versionCode": $code,
+                "versionName": "$version",
+                "apk": "app-debug.apk",
+                "url": "$base/app-debug.apk",
+                "sha256": "$(sha256sum "$phone" | cut -d' ' -f1)"
+              },
+              {
+                "id": "wellness-wear",
+                "name": "Wellness (saat)",
+                "package": "$pkg",
+                "versionCode": $code,
+                "versionName": "$version",
+                "apk": "wear-debug.apk",
+                "url": "$base/wear-debug.apk",
+                "sha256": "$(sha256sum "$wear" | cut -d' ' -f1)"
+              }
+            ]
           }
           JSON
           cat latest.json

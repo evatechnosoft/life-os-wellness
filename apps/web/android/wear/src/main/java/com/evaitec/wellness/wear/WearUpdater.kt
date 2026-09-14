@@ -1,36 +1,38 @@
 package com.evaitec.wellness.wear
 
 import android.content.Context
-import com.evaitec.wellness.ota.OtaManifest
+import com.evaitec.ota.ApkInstaller
+import com.evaitec.ota.OtaManifest
+import com.evaitec.wellness.ota.WellnessOta
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Saat kendini gunceller: manifesti cek -> sadece-yukselt karari -> APK'yi indir ->
- * ApkInstaller (sha256 + paket + imza + surum) -> sistem yukleyicisi.
+ * Saat kendini gunceller: manifesti cek -> evaitecOTA karari -> APK'yi indir ->
+ * ApkInstaller (sha256 + paket + surum + imza) -> sistem yukleyicisi.
  *
- * Manifest GitHub Releases'te public duruyor: indirmede kimlik dogrulama yok, dolayisiyla
- * release APK'sinda saglayici sirri bulunmasi gerekmiyor (AGENTS.md: secret kodda yok).
+ * Karar ve kurulum cekirdegi projeye ozel degil (com.evaitec.ota); burasi yalnizca
+ * hangi id'nin kurulacagini ve agi saglar.
  *
  * Ag isi cagiranin ipliginde yapilir - bu sinif UI ipliginden cagrilmamali.
  */
 class WearUpdater(private val context: Context) {
 
-    /** Saatteki kurulu surum; manifest bundan buyuk degilse hicbir sey indirilmez. */
-    private val currentVersionCode: Int
-        get() = context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode.toInt()
-
     fun check(): OtaManifest.Decision = try {
-        OtaManifest.decide(get(OtaManifest.MANIFEST_URL).decodeToString(), currentVersionCode, OtaManifest.Fields.WEAR)
+        OtaManifest.decide(
+            get(WellnessOta.MANIFEST_URL).decodeToString(),
+            WellnessOta.WEAR_ID,
+            ApkInstaller.installedVersionCode(context, context.packageName),
+        )
     } catch (e: Exception) {
         OtaManifest.Decision.Blocked("manifest indirilemedi: ${e.message}")
     }
 
     /** Karari uygula: indir, dogrula, kurulum istemini ac. */
-    fun download(update: OtaManifest.Decision.Available, onProgress: (Int) -> Unit): Result<Unit> = runCatching {
-        val apk = File(File(context.cacheDir, "ota").apply { mkdirs() }, "wellness-wear.apk")
-        val conn = open(update.apkUrl)
+    fun download(app: OtaManifest.App, onProgress: (Int) -> Unit): Result<Unit> = runCatching {
+        val apk = File(File(context.cacheDir, "ota").apply { mkdirs() }, "${app.id}.apk")
+        val conn = open(app.url)
         try {
             val total = conn.contentLengthLong
             apk.outputStream().use { out ->
@@ -56,17 +58,16 @@ class WearUpdater(private val context: Context) {
         } finally {
             conn.disconnect()
         }
-        ApkInstaller.install(context, apk, update.sha256).getOrThrow()
+        ApkInstaller.install(context, apk, app).getOrThrow()
     }
 
     /**
-     * Telefondan kanalla gelen APK de ayni manifeste kilitli - beklenen ozeti buradan alir.
-     * Kanal yolunda surum karari ApkInstaller'in kilidine birakiliyor (currentVersionCode = 0),
-     * burada yalniz ozet lazim.
+     * Telefondan kanalla gelen APK de ayni manifeste kilitli - beklenen kalemi buradan alir.
+     * Surum karari ApkInstaller'in kilidine birakiliyor (currentVersionCode = 0).
      */
-    fun expectedSha256(): Result<String> = runCatching {
-        when (val decision = OtaManifest.decide(get(OtaManifest.MANIFEST_URL).decodeToString(), 0, OtaManifest.Fields.WEAR)) {
-            is OtaManifest.Decision.Available -> decision.sha256
+    fun wearApp(): Result<OtaManifest.App> = runCatching {
+        when (val decision = OtaManifest.decide(get(WellnessOta.MANIFEST_URL).decodeToString(), WellnessOta.WEAR_ID, 0)) {
+            is OtaManifest.Decision.Available -> decision.app
             is OtaManifest.Decision.Blocked -> error(decision.reason)
             OtaManifest.Decision.UpToDate -> error("manifestte saat surumu yok")
         }

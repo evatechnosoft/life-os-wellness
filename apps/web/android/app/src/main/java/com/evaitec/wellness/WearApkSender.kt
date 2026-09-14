@@ -1,7 +1,8 @@
 package com.evaitec.wellness
 
 import android.content.Context
-import com.evaitec.wellness.ota.OtaManifest
+import com.evaitec.ota.OtaManifest
+import com.evaitec.wellness.ota.WellnessOta
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
 import java.net.HttpURLConnection
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit
  *
  * Neden telefon uzerinden: saatin kendi interneti Bluetooth vekilinden geciyor, megabaytlar
  * surunuyor. Telefon burada yalniz **tasiyici**: ne kurulacagina saat karar veriyor, gelen
- * dosyayi kendi cektigi manifestteki sha256 ve kendi imzasiyla dogruluyor
+ * dosyayi kendi cektigi manifeste gore dogruluyor
  * (wear/.../ApkReceiverService.kt + ApkInstaller.kt). Buradaki sha256 kontrolu ayni
  * manifeste dayanan erken bir eleme - bozuk dosya icin 10 MB'i bosuna gondermeyelim.
  *
@@ -26,19 +27,19 @@ object WearApkSender {
 
     fun push(context: Context, onStatus: (String) -> Unit): Result<String> = runCatching {
         onStatus("Sürüm bilgisi okunuyor")
-        val manifest = get(OtaManifest.MANIFEST_URL).decodeToString()
+        val manifest = get(WellnessOta.MANIFEST_URL).decodeToString()
         // currentVersionCode = 0: telefon saatteki surumu bilmez, "yenisi var mi" karari
         // saatte veriliyor (ApkInstaller surum kilidi). Burada amac en son APK'yi tasimak.
-        val update = when (val decision = OtaManifest.decide(manifest, 0, OtaManifest.Fields.WEAR)) {
-            is OtaManifest.Decision.Available -> decision
+        val app = when (val decision = OtaManifest.decide(manifest, WellnessOta.WEAR_ID, 0)) {
+            is OtaManifest.Decision.Available -> decision.app
             is OtaManifest.Decision.Blocked -> error(decision.reason)
             OtaManifest.Decision.UpToDate -> error("manifestte saat surumu yok")
         }
 
-        onStatus("İndiriliyor: ${update.versionName}")
-        val bytes = get(update.apkUrl)
+        onStatus("İndiriliyor: ${app.name} ${app.versionName}")
+        val bytes = get(app.url)
         val actual = OtaManifest.sha256(bytes)
-        if (!OtaManifest.matches(actual, update.sha256)) {
+        if (!OtaManifest.matches(actual, app.sha256)) {
             error("indirilen APK'nin sha256'si manifestle tutmuyor - gonderilmedi")
         }
 
@@ -58,7 +59,7 @@ object WearApkSender {
             // Akis kapanmadan saat tarafi dosyanin bittigini anlamaz.
             runCatching { Tasks.await(channelClient.close(channel), 10, TimeUnit.SECONDS) }
         }
-        "Saate gönderildi: ${update.versionName} — kurulumu saatten onayla"
+        "Saate gönderildi: ${app.versionName} — kurulumu saatten onayla"
     }
 
     private fun get(url: String): ByteArray {
