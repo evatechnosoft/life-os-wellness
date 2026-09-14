@@ -11,18 +11,21 @@ const MUSCLES = ['göğüs', 'sırt', 'bacak', 'omuz', 'kol', 'karın']
 export interface WorkoutDraft {
   type: WorkoutType
   sets: string
+  /** Seansta yapilan toplam tekrar. Bos gecilebilir - zorunlu alan giris suresini uzatir. */
+  reps: string
   minutes: string
   weight: string
   groups: string[]
 }
 
-export const emptyDraft: WorkoutDraft = { type: 'resistance', sets: '', minutes: '', weight: '', groups: [] }
+export const emptyDraft: WorkoutDraft = { type: 'resistance', sets: '', reps: '', minutes: '', weight: '', groups: [] }
 
 /** Metin alanlarini sayiya cevirir; bos alan "girilmedi" demektir, sifir degil. */
 export function draftToWorkout(draft: WorkoutDraft): {
   type: WorkoutType
   duration_min: number | null
   sets_total: number | null
+  reps_total: number | null
   weight_kg: number | null
   muscle_groups: string[]
 } {
@@ -30,6 +33,7 @@ export function draftToWorkout(draft: WorkoutDraft): {
     type: draft.type,
     duration_min: draft.minutes === '' ? null : Number(draft.minutes),
     sets_total: draft.sets === '' ? null : Number(draft.sets),
+    reps_total: draft.reps === '' ? null : Number(draft.reps),
     weight_kg: draft.weight === '' ? null : Number(draft.weight),
     muscle_groups: draft.groups,
   }
@@ -92,6 +96,15 @@ export function WorkoutFields({
               placeholder="set"
               value={value.sets}
               onChange={(e) => set({ sets: e.target.value })}
+              className="w-20 rounded-field bg-glass-inset px-3 py-3 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
+            />
+            <input
+              type="number"
+              inputMode="numeric"
+              aria-label="tekrar"
+              placeholder="tekrar"
+              value={value.reps}
+              onChange={(e) => set({ reps: e.target.value })}
               className="w-20 rounded-field bg-glass-inset px-3 py-3 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
             />
             <input

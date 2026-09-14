@@ -2,8 +2,11 @@ import { useLiveQuery } from 'dexie-react-hooks'
 
 import { lastDates } from '../lib/date'
 import { db } from '../lib/db'
+import { volumeTips } from '../lib/coach'
+import { tipText } from '../lib/coachText'
 import { adherencePct, dayAverage, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
 import { useGoals } from '../lib/settings'
+import { useSplit } from '../lib/split'
 import { Card } from './Field'
 
 function Sparkline({ points }: { points: (number | null)[] }) {
@@ -32,6 +35,7 @@ function Sparkline({ points }: { points: (number | null)[] }) {
 
 export function Week() {
   const goals = useGoals()
+  const split = useSplit()
   const dates = lastDates(7)
   const start = dates[0]!
   const end = dates[dates.length - 1]!
@@ -48,6 +52,9 @@ export function Week() {
   const sets = setsByMuscle(workouts)
   const steps = logs.reduce((sum, l) => sum + (l.steps ?? 0), 0)
   const workoutDays = new Set(workouts.filter((w) => w.type !== 'rest').map((w) => w.date)).size
+  // Ust sinir coach.ts ile ayni: hedef ile 20 setin buyugu.
+  const cap = Math.max(goals.sets_per_group, 20)
+  const volume = volumeTips(workouts, goals, split).slice(0, 3)
   const restingHr = dayAverage(wearable, 'resting_hr')
   const kcal = dayAverage(wearable, 'total_kcal')
 
@@ -93,16 +100,32 @@ export function Week() {
                 <span className="w-16 text-ink-dim">{group}</span>
                 <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-glass-strong">
                   <span
-                    className={`block h-full ${total >= 8 && total <= 12 ? 'bg-a1' : 'bg-ink-faint'}`}
-                    style={{ width: `${Math.min(100, (total / 12) * 100)}%` }}
+                    className={`block h-full ${total >= goals.sets_per_group && total <= cap ? 'bg-a1' : 'bg-ink-faint'}`}
+                    style={{ width: `${Math.min(100, (total / cap) * 100)}%` }}
                   />
                 </span>
-                <span className="w-8 text-right tabular-nums text-ink-dim">{total}</span>
+                <span className="w-14 text-right tabular-nums text-ink-dim">
+                  {total}/{goals.sets_per_group}
+                </span>
               </li>
             ))}
           </ul>
         )}
-        <p className="mt-3 text-xs text-ink-faint">Hedef: grup başına {goals.sets_per_group} set (8-12 aralığı yeşil).</p>
+        {volume.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {volume.map((tip) => (
+              <li key={`${tip.kind}:${'muscle' in tip ? tip.muscle : ''}`} className="flex gap-2 text-xs text-ink-faint">
+                <span aria-hidden className={tip.severity === 'warn' ? 'text-a2' : 'text-a1'}>
+                  •
+                </span>
+                <span>{tipText(tip)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-xs text-ink-faint">
+          Hedef: grup başına {goals.sets_per_group} set, üst sınır {cap}.
+        </p>
       </Card>
 
       <Card title="Saatten gelen">

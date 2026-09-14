@@ -6,6 +6,7 @@ import { db } from '../lib/db'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { pendingReminders, useReminderSettings } from '../lib/reminders'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
+import { Coach } from './Coach'
 import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
 import { DayHeader } from './DayHeader'
@@ -80,6 +81,8 @@ export function Today({ date }: { date: string }) {
         </ul>
       )}
 
+      <Coach date={date} />
+
       <Eva compact />
 
       {eveningFirst && retroCard}
@@ -151,6 +154,7 @@ export function Today({ date }: { date: string }) {
                   <span>
                     {TYPES.find((t) => t.id === w.type)?.label}
                     {w.sets_total ? ` · ${w.sets_total} set` : ''}
+                    {w.reps_total ? ` · ${w.reps_total} tekrar` : ''}
                     {w.weight_kg ? ` · ${w.weight_kg} kg` : ''}
                     {w.duration_min ? ` · ${w.duration_min} dk` : ''}
                     {w.muscle_groups.length > 0 ? ` · ${w.muscle_groups.join(', ')}` : ''}
