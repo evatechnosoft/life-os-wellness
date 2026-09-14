@@ -108,7 +108,7 @@ mikrofonun dinlediği pencereyi sayar ve elle başlatılır.
   kompozisyonu — sınırı bu.
 - **Kendi eklentimiz** (`HealthExtraPlugin.kt`): toplam kalori, nabız, kan oksijeni, HRV,
   uyku. Telefonda aktif kalori boş, dolu olan toplam kalori (Fitbit) ve nabız (Samsung).
-- **Stres alınamaz.** Health Connect'in 43 kayıt tipinin hiçbiri stres değil. Samsung
+- **Stres alınamaz.** Health Connect'in 42 kayıt tipinin hiçbiri stres değil. Samsung
   skoru HRV'den türetip kendi uygulamasında tutuyor; ham ölçü olarak HRV (RMSSD) alınıyor.
 - **İzin ikiye bölündü.** capacitor-health'in izin listesinde SpO2, HRV ve uyku yok; bu
   üçünün onay ekranını `HealthExtraPlugin.requestExtraPermissions` kendisi açıyor.
