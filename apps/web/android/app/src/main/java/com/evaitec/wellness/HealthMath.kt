@@ -11,11 +11,24 @@ object HealthMath {
      * ayri ayri yaziyor; toplamak uc kat sayardi. Kaynak icinde toplanir, gun icin
      * en yuksek tek kaynak alinir (ops/import_health.mjs ile ayni kural).
      */
-    fun dailyCalories(entries: List<CalorieEntry>): Map<String, Double> {
+    fun dailyCalories(entries: List<CalorieEntry>): Map<String, Double> =
+        highestSourceTotal(entries.map { Triple(it.date, it.source, it.kcal) })
+
+    /**
+     * Gun basina protein grami. Kalori ile ayni coklu kaynak sorunu: ayni ogunu hem
+     * beslenme uygulamasi hem saat uygulamasi Health Connect'e yazabiliyor, toplamak
+     * iki kat sayardi. Ayni kural: kaynak icinde toplanir, gun icin en yuksek tek
+     * kaynak alinir.
+     */
+    fun dailyProteinGrams(entries: List<NutritionEntry>): Map<String, Double> =
+        highestSourceTotal(entries.map { Triple(it.date, it.source, it.grams) })
+
+    /** (gun, kaynak, deger) -> kaynak icinde topla, gun icin en yuksek kaynagi sec. */
+    private fun highestSourceTotal(entries: List<Triple<String, String, Double>>): Map<String, Double> {
         val perSource = mutableMapOf<Pair<String, String>, Double>()
-        for (e in entries) {
-            val key = e.date to e.source
-            perSource[key] = (perSource[key] ?: 0.0) + e.kcal
+        for ((date, source, value) in entries) {
+            val key = date to source
+            perSource[key] = (perSource[key] ?: 0.0) + value
         }
         val byDay = mutableMapOf<String, Double>()
         for ((key, total) in perSource) {
@@ -26,6 +39,8 @@ object HealthMath {
     }
 
     data class CalorieEntry(val date: String, val source: String, val kcal: Double)
+
+    data class NutritionEntry(val date: String, val source: String, val grams: Double)
 
     data class SleepEntry(val wakeDate: String, val source: String, val minutes: Long)
 

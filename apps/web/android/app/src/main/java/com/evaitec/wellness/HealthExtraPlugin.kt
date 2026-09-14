@@ -6,6 +6,7 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
@@ -50,14 +51,15 @@ class HealthExtraPlugin : Plugin() {
         LocalDate.ofInstant(instant, ZoneId.systemDefault()).format(dayFormat)
 
     /**
-     * capacitor-health'in izin listesinde kan oksijeni, HRV ve uyku yok, yani o eklenti
-     * bu ucunu isteyemiyor - onay ekranini bunlar icin kendimiz aciyoruz.
+     * capacitor-health'in izin listesinde kan oksijeni, HRV, uyku ve beslenme yok, yani
+     * o eklenti bu dordunu isteyemiyor - onay ekranini bunlar icin kendimiz aciyoruz.
      * Toplam kalori ve nabiz hala capacitor-health tarafindan isteniyor.
      */
     private val extraPermissions = setOf(
         HealthPermission.getReadPermission(OxygenSaturationRecord::class),
         HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class),
         HealthPermission.getReadPermission(SleepSessionRecord::class),
+        HealthPermission.getReadPermission(NutritionRecord::class),
     )
 
     @PluginMethod
@@ -95,7 +97,7 @@ class HealthExtraPlugin : Plugin() {
 
     /**
      * Verilen aralikta gun basina ozetlenmis olcumler. Donus:
-     * { days: [{ date, total_kcal?, resting_hr?, spo2_pct?, spo2_low_pct?, hrv_ms?, sleep_min? }] }
+     * { days: [{ date, total_kcal?, resting_hr?, spo2_pct?, spo2_low_pct?, hrv_ms?, sleep_min?, protein_g? }] }
      * - olcumu olmayan gun hic gelmez, esigin altinda ornek varsa o alan yazilmaz.
      */
     @PluginMethod
@@ -172,10 +174,28 @@ class HealthExtraPlugin : Plugin() {
                     }
                 }
 
+                // Protein: ogun kaydinin protein alani bos olabilir (sadece kalori
+                // girilmis ogun), o zaman gun toplamina katilmaz.
+                val nutrition = mutableListOf<HealthMath.NutritionEntry>()
+                readAll(client, NutritionRecord::class.java, range) { record ->
+                    val grams = record.protein?.inGrams
+                    if (grams != null && grams > 0.0) {
+                        nutrition.add(
+                            HealthMath.NutritionEntry(
+                                date = localDay(record.startTime),
+                                source = record.metadata.dataOrigin.packageName,
+                                grams = grams,
+                            ),
+                        )
+                    }
+                }
+
                 val kcalByDay = HealthMath.dailyCalories(calories)
+                val proteinByDay = HealthMath.dailyProteinGrams(nutrition)
                 val sleepByDay = HealthMath.dailySleepMinutes(sleepEntries)
                 val days = JSArray()
-                val dates = kcalByDay.keys + bpmByDay.keys + spo2ByDay.keys + hrvByDay.keys + sleepByDay.keys
+                val dates = kcalByDay.keys + bpmByDay.keys + spo2ByDay.keys + hrvByDay.keys +
+                    sleepByDay.keys + proteinByDay.keys
                 for (date in dates.sorted()) {
                     val entry = JSObject().put("date", date)
                     kcalByDay[date]?.let { entry.put("total_kcal", it) }
@@ -190,6 +210,7 @@ class HealthExtraPlugin : Plugin() {
                         HealthMath.median(samples, minSamples = 3)?.let { entry.put("hrv_ms", it) }
                     }
                     sleepByDay[date]?.let { entry.put("sleep_min", it) }
+                    proteinByDay[date]?.let { entry.put("protein_g", it) }
                     days.put(entry)
                 }
                 call.resolve(JSObject().put("days", days))

@@ -21,6 +21,12 @@ export interface HealthExtraDay {
   hrv_ms?: number
   /** Uyanilan gune yazilan toplam uyku dakikasi. Samsung Health paylasimi kapaliysa hic gelmez. */
   sleep_min?: number
+  /**
+   * Health Connect'teki ogun kayitlarindan gelen gunluk protein grami. Sadece
+   * wearable tablosuna yazilir - daily_log.protein_g elle girilen kalici katman
+   * (AGENTS.md), otomatik veri onu ezmez.
+   */
+  protein_g?: number
 }
 
 /** Implemented in android/app/src/main/java/com/evaitec/wellness/HealthExtraPlugin.kt. */
@@ -165,11 +171,11 @@ export async function syncHealth(days = 7): Promise<number> {
     // no weight permission or no scale data
   }
 
-  // capacitor-health'in okuyamadigi olcumler, kendi eklentimizden geliyor:
-  // toplam kalori (HC'de aktif kalori bos, dolu olan bu), nabiz, kan oksijeni, HRV.
+  // capacitor-health'in okuyamadigi olcumler, kendi eklentimizden geliyor: toplam
+  // kalori (HC'de aktif kalori bos, dolu olan bu), nabiz, kan oksijeni, HRV, uyku, protein.
   try {
     const { days } = await HealthExtra.readDaily({ startDate, endDate })
-    const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms', 'sleep_min'] as const
+    const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms', 'sleep_min', 'protein_g'] as const
     for (const day of days) {
       for (const metric of metrics) {
         const value = day[metric]
