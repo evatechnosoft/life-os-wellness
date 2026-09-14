@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 
+import { toLocalDate } from './date'
 import { db, type DailyLog, type Retro } from './db'
 import { isNative } from './health'
 
@@ -69,15 +70,37 @@ export async function saveReminderSettings(settings: ReminderSettings): Promise<
 const NOTIFICATION_IDS: Record<Reminder['id'], number> = { weigh: 1, retro: 2 }
 
 /**
+ * Bir sonraki atesleme ani, yerel saatle. Bugun girilmisse ya da saat gectiyse
+ * yarin; ikisi de degilse bugun. Date alan alan kuruldugu icin ay/yil sonu
+ * kendiliginde tasar ve toISOString() gun kaydirmasi olmaz.
+ */
+export function nextFireAt(time: string, done: boolean, now: Date): Date {
+  const minutes = minutesOf(time)
+  const passed = now.getHours() * 60 + now.getMinutes() >= minutes
+  const day = now.getDate() + (done || passed ? 1 : 0)
+  return new Date(now.getFullYear(), now.getMonth(), day, Math.floor(minutes / 60), minutes % 60, 0, 0)
+}
+
+/** Ayari okuyup bildirimleri gunun guncel verisine gore yeniden kurar. */
+export async function refreshNotifications(): Promise<void> {
+  if (!isNative()) return
+  const row = await db.settings.get('reminders')
+  await scheduleNotifications({ ...DEFAULT_REMINDERS, ...((row?.value as Partial<ReminderSettings> | undefined) ?? {}) })
+}
+
+/**
  * Gunluk yerel bildirim - yalniz APK'da. Tarayicida Notification API uygulama
  * kapaliyken atesleyemez, push ise sunucu ister; PWA tarafi ekran ustundeki
  * kartla yetinir (ui/Today).
  *
- * ponytail: bildirim her gun ayni saatte tekrarlar, o gun kilo girilmis olsa da.
- * Girilen gunu susturmak icin saveDaily sonrasi tek seferlik yeniden kurulum gerekir;
- * rahatsiz edici bulunursa o zaman eklenir.
+ * O gun veri girilmisse bugunun bildirimi atlanir ve zincir yarindan devam eder;
+ * giris anindan sonra store.saveDaily/saveRetro burayi yeniden cagirir.
+ *
+ * ponytail: gun atlama yalnizca yeniden kurulum anindaki veriye bakar. Uygulama
+ * gunlerce hic acilmazsa (veri sunucudan gelse bile) o gunler yine calar;
+ * rahatsiz ederse arka plan gorevi gerekir.
  */
-export async function scheduleNotifications(settings: ReminderSettings): Promise<void> {
+export async function scheduleNotifications(settings: ReminderSettings, now: Date = new Date()): Promise<void> {
   if (!isNative()) return
   const { LocalNotifications } = await import('@capacitor/local-notifications')
   await LocalNotifications.cancel({ notifications: Object.values(NOTIFICATION_IDS).map((id) => ({ id })) })
@@ -86,16 +109,19 @@ export async function scheduleNotifications(settings: ReminderSettings): Promise
   const granted = await LocalNotifications.requestPermissions()
   if (granted.display !== 'granted') return
 
+  const today = toLocalDate(now)
+  const [log, retro] = await Promise.all([db.daily_log.get(today), db.retro.get(today)])
+  const done: Record<Reminder['id'], boolean> = { weigh: log?.weight_kg != null, retro: !isBlank(retro) }
+
   await LocalNotifications.schedule({
     notifications: (['weigh', 'retro'] as const).map((key) => ({
       id: NOTIFICATION_IDS[key],
       title: TEXT[key].title,
       body: TEXT[key].body,
       schedule: {
-        on: {
-          hour: Math.floor(minutesOf(key === 'weigh' ? settings.weigh_at : settings.retro_at) / 60),
-          minute: minutesOf(key === 'weigh' ? settings.weigh_at : settings.retro_at) % 60,
-        },
+        at: nextFireAt(key === 'weigh' ? settings.weigh_at : settings.retro_at, done[key], now),
+        repeats: true,
+        every: 'day',
         allowWhileIdle: true,
       },
     })),
