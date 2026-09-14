@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-14 · dev @ 15b9d46 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.10.0
+> 2026-09-14 · dev @ 550a648 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.10.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 37 pass / 0 fail, web 48 pass / 0 fail
+npm test                                 # api 42 pass / 0 fail, web 140 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -42,6 +42,27 @@ hiçbiri gerçek cihazda çalıştırılmadı. Sırayla:
    (ADO: `dev.azure.com/evaitec/evaitec/_git/evaglasses`)
 4. Doğrudan BLE band (`docs/PLAN-BAND.md` §2) — band modeli belirsiz, `0x180D`
    yayınladığı doğrulanmadı; cihaz eline geçmeden kod yazılmaz
+
+## Koç katmanı — öneriler hesaplanır, model uydurmaz
+
+Üç saf modül, hiçbiri LLM çağırmaz; Eva yalnız hesaplanmış sonucu cümleye döker.
+
+- `apps/web/src/lib/coach.ts` — haftalık set hacmi (alt sınır `Goals.sets_per_group`,
+  üst sınır `max(hedef, 20)`), double progression (aynı ağırlıkta set başına tekrar 12'yi
+  geçtiyse ağırlık: üst gövde %2.5 / alt gövde %5; geçmediyse tekrar; ikisi de yoksa set),
+  deload (haftalık tonaj 7 günlük kovalarda, 5 hafta artış veya 3 hafta düşüş), `todayFocus`.
+- `apps/web/src/lib/nutrition.ts` — protein hedefi 7-gün ortalama kilodan 1.6-2.2 g/kg,
+  öğün slotu açığı (slot hedefi 0.4 g/kg), `suggestFoods` sevilen yiyeceklerden somut
+  porsiyon, kilo trendi. `SEED_FOODS` yalnız 10 kalem **protein gramı** — kalori/besin
+  veritabanı değil (AGENTS kilidi), geçmişten öğrenilen değer tohumu her zaman bastırır.
+- `apps/web/src/lib/coachText.ts` — ekrandaki Türkçe cümleler. Eva'nın gördüğü kısa
+  biçim ayrı (`chat.ts` `coachLines`, ~35 karakter/öneri); örtüşme bilinçli.
+
+**Veri yoksa öneri üretilmez** (`no_data`) — tahmin, veri yokluğunu gizler. `reps_total`
+girilmeye başlanmadan ilerleme önerisi çıkmaz; alan `WorkoutForm`'da, zorunlu değil.
+
+İsim eşleştirme `foldTr` üzerinden (Türkçe harf + büyük/küçük katlanır), yoksa
+"yumurta beyazı" ile "yumurta beyazi" iki ayrı kalem sayılıp aynı şey iki kez önerilir.
 
 ## Uyku — kod hazır, veri Samsung'da kilitli
 
@@ -90,7 +111,7 @@ APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.10.0)
 
 Biten: F0 Sprint 1-4 + Aurora Glass teması + Health Connect + gece horlama ölçümü +
 kamerayla öğün + sesli not + geçmiş veri aktarımı (153 gün) + haftalık program +
-seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku/protein).
+seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku/protein) + koç katmanı.
 
 Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git etiketiyle aynı
 tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
