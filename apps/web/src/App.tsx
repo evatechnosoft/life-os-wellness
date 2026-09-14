@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
+import { syncActivity } from './lib/activity'
 import { syncHealth } from './lib/health'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
@@ -45,8 +46,14 @@ export function App() {
     // degistirmemis olsa da ilk kurulumda ve APK guncellemesinden sonra gerekiyor.
     void refreshNotifications().catch(() => {})
     // Watch data on launch and every 15 min while the app stays open.
-    void syncHealth().catch(() => {})
-    const health = window.setInterval(() => void syncHealth().catch(() => {}), 900_000)
+    // Telefonun hareket olaylari ayni ritimde toplanir; syncHealth bu araliklari
+    // yuksek nabiz penceresini eslestirmek icin okur, o yuzden once bu kosar.
+    const sync = async () => {
+      await syncActivity().catch(() => {})
+      await syncHealth().catch(() => {})
+    }
+    void sync()
+    const health = window.setInterval(() => void sync(), 900_000)
     return () => {
       window.removeEventListener('online', update)
       window.removeEventListener('offline', update)

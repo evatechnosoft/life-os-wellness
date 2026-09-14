@@ -1,6 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 
+import {
+  activityStatus,
+  disableActivity,
+  enableActivity,
+  syncActivity,
+  type ActivityStatus,
+} from '../lib/activity'
 import { db } from '../lib/db'
 import {
   healthStatus,
@@ -39,6 +46,61 @@ const LABELS: Record<string, { label: string; unit: string }> = {
   snore_window_pct: { label: 'Horlamalı pencere', unit: '%' },
   longest_pause_sec: { label: 'En uzun duraklama', unit: 'sn' },
   calories_in: { label: 'Alınan kalori', unit: 'kcal' },
+  // Telefonun kendi hareket tanimasi - saatten degil, cepteki telefondan.
+  phone_walking_min: { label: 'Telefon: yürüyüş', unit: 'dk' },
+  phone_running_min: { label: 'Telefon: koşu', unit: 'dk' },
+  phone_cycling_min: { label: 'Telefon: bisiklet', unit: 'dk' },
+  phone_in_vehicle_min: { label: 'Telefon: araçta', unit: 'dk' },
+  phone_still_min: { label: 'Telefon: hareketsiz', unit: 'dk' },
+}
+
+/**
+ * Telefonun hareket tanimasi. Ayri bir izin (ACTIVITY_RECOGNITION) ve ayri bir
+ * kazanci var: nabiz penceresi kosu/bisiklet/yuruyus araligiyla ortusuyorsa
+ * "ne yapiyordun?" diye sorulmaz. Reddedilirse sessizce kapali kalir - hata yok.
+ */
+function PhoneActivity() {
+  const [status, setStatus] = useState<ActivityStatus | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    void activityStatus().then(setStatus)
+  }, [])
+
+  const act = async (fn: () => Promise<unknown>) => {
+    setBusy(true)
+    try {
+      await fn()
+      setStatus(await activityStatus())
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const on = status?.granted === true && status.subscribed
+  return (
+    <div className="mt-4 border-t border-edge-soft pt-3">
+      <p className="text-xs text-ink-faint">
+        Telefon kendi bildiği hareketi yazar: yürüyüş, koşu, bisiklet, araçta, hareketsiz.
+        Konum okunmaz, ham sensör kaydı tutulmaz — yalnız bu beş sınıfın dakikaları.
+        İşe yaradığı yer: nabzın yükseldiği aralıkta telefon koştuğunu biliyorsa
+        “ne yapıyordun?” diye sorulmaz, seans dolu gelir.
+      </p>
+      {on && (
+        <p className="mt-2 text-xs text-ink-dim">Açık — {status.events} geçiş olayı birikti.</p>
+      )}
+      <button
+        type="button"
+        onClick={() => void act(on ? disableActivity : enableActivity)}
+        disabled={busy}
+        className={`mt-3 w-full rounded-field py-2.5 text-sm disabled:opacity-50 ${
+          on ? 'bg-glass-inset text-ink-faint' : 'bg-glass-strong'
+        }`}
+      >
+        {busy ? '…' : on ? 'Hareket tanımayı kapat' : 'Hareket tanımaya izin ver'}
+      </button>
+    </div>
+  )
 }
 
 export function Watch({ date }: { date: string }) {
@@ -111,7 +173,7 @@ export function Watch({ date }: { date: string }) {
             </ul>
           )}
           <div className="mt-3 flex gap-2">
-            <button type="button" onClick={() => void act(() => syncHealth())} disabled={busy} className="flex-1 rounded-field bg-glass-strong py-2.5 text-sm disabled:opacity-50">
+            <button type="button" onClick={() => void act(async () => { await syncActivity(); await syncHealth() })} disabled={busy} className="flex-1 rounded-field bg-glass-strong py-2.5 text-sm disabled:opacity-50">
               {busy ? 'Okunuyor…' : 'Şimdi oku'}
             </button>
             <button type="button" onClick={() => void act(openHealthConnect)} className="rounded-field bg-glass-inset px-4 text-xs text-ink-faint">
@@ -120,6 +182,8 @@ export function Watch({ date }: { date: string }) {
           </div>
         </div>
       )}
+
+      <PhoneActivity />
     </Card>
   )
 }

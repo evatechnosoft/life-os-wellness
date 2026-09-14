@@ -5,6 +5,7 @@ import { api } from './api'
 import { lastDates, toLocalDate } from './date'
 import { db, type Workout } from './db'
 import type { WearableRecord } from './db'
+import { activityIntervals, planHrWindows } from './activity'
 import { detectedExercise, segmentMusclesOf } from './watchExercise'
 import { dismissedWorkouts, hasServer, saveDaily, upsertWorkout } from './store'
 
@@ -121,14 +122,6 @@ async function stableId(seed: string): Promise<string> {
   const v = `${hex.slice(0, 12)}5${hex.slice(13, 16)}8${hex.slice(17, 32)}`
   return `${v.slice(0, 8)}-${v.slice(8, 12)}-${v.slice(12, 16)}-${v.slice(16, 20)}-${v.slice(20, 32)}`
 }
-
-/**
- * Gunde en fazla kac "bu neydi?" sorusu uretilir. Saatin kendi tanidigi seanslar
- * bu sinira girmez - onlar soru degil, onay. Sinir yalniz nabizdan cikarilan
- * tahminler icin: gun icinde her nabiz sicramasini sormak uygulamayi anket yapar
- * (AGENTS "60 saniye" kurali).
- */
-const MAX_HR_QUESTIONS_PER_DAY = 2
 
 /** HH:MM, yerel. */
 function clock(iso: string): string {
@@ -296,28 +289,38 @@ export async function syncHealth(days = 7): Promise<number> {
   // Saat bir seans kaydetmediyse ama nabiz uzun sure yuksek kaldiysa, o pencereyi
   // kullaniciya sor. Ustunu ortmemek icin: bu **canli** bir olcum degil, gecmise
   // donuk orneklerden cikarilmis bir tahmin (hr_lag_min gecikmeyi olcuyor).
-  const asked = new Map<string, number>()
+  //
+  // Telefonun hareket verisi varsa once o sorulur: pencere kosu/bisiklet/yuruyus
+  // araligiyla ortusuyorsa tip cikarilir ve kayit soru degil **onay** olur; aractaki
+  // pencere hic gorunmez. Gunluk soru siniri yalniz cikarilamayanlari sayar.
+  const intervals = await activityIntervals()
+  const candidates: { startMs: number; endMs: number; date: string; id: string; win: HealthHrWindow }[] = []
   for (const win of hrWindows) {
     const from = new Date(win.start).getTime()
     const to = new Date(win.end).getTime()
     if (sessions.some((s) => s.from < to && from < s.to)) continue // cihaz zaten biliyor
-    // Pencere mutlak zaman; gune yazma karari burada verilir - basladigi gun.
-    const date = toLocalDate(new Date(win.start))
-    if ((asked.get(date) ?? 0) >= MAX_HR_QUESTIONS_PER_DAY) continue
     const id = await stableId(`hr:${win.start}`)
     if (dismissed.has(id)) continue
     const existing = await db.workout.get(id)
     if (existing && existing.needs_review !== true) continue // cevaplanmis
-    asked.set(date, (asked.get(date) ?? 0) + 1)
+    // Pencere mutlak zaman; gune yazma karari burada verilir - basladigi gun.
+    candidates.push({ startMs: from, endMs: to, date: toLocalDate(new Date(win.start)), id, win })
+  }
+  for (const { window: cand, match } of planHrWindows(candidates, intervals)) {
+    const win = cand.win
     await upsertWorkout({
-      id,
-      date,
-      type: 'cardio',
+      id: cand.id,
+      date: cand.date,
+      // Tip telefondan cikarildiysa kullanilir; cikarilamadiysa kova kardiyoya
+      // dusurulur ama soru acik sorulur (ReviewWorkout notes onekinden ayirir).
+      type: match?.type ?? 'cardio',
       duration_min: win.duration_min > 0 ? win.duration_min : null,
       sets_total: null,
       muscle_groups: [],
       needs_review: true,
-      notes: `nabız: ${clock(win.start)}-${clock(win.end)} arası ${win.peak_bpm} bpm'e çıktı`,
+      notes: match
+        ? `telefon: ${clock(win.start)}-${clock(win.end)} ${match.label}`
+        : `nabız: ${clock(win.start)}-${clock(win.end)} arası ${win.peak_bpm} bpm'e çıktı`,
     })
   }
 

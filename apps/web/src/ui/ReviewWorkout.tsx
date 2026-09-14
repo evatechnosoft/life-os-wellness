@@ -25,9 +25,10 @@ export function ReviewWorkout({ date, bodyKg }: { date: string; bodyKg: number |
   return (
     <Card title="Saat bir hareket gördü">
       {pending.map((w) => {
-        // Cihaz tipi tanidiysa taslak onunla dolu gelir: kullanici tek dokunusla
-        // onaylar. Tanimadiysa tip secimi bos kalmaz ama soru acik sorulur.
-        const detected = w.notes?.startsWith('saat: ') === true
+        // Tip biliniyorsa (saat seansi tanidi ya da telefonun hareket verisinden
+        // cikti) taslak dolu gelir: kullanici tek dokunusla onaylar. Bilinmiyorsa
+        // tip secimi bos kalmaz ama soru acik sorulur.
+        const detected = /^(saat|telefon): /.test(w.notes ?? '')
         const draft = drafts[w.id] ?? { ...emptyDraft, type: w.type, minutes: String(w.duration_min ?? '') }
         const kcal = estimateKcal({ ...w, ...draftToWorkout(draft) }, bodyKg)
         return (
