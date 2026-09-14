@@ -13,6 +13,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(HealthExtraPlugin.class);
         // Telefonun kendi bildigi hareket durumu (yurume/kosu/bisiklet/aracta/hareketsiz).
         registerPlugin(ActivityPlugin.class);
+        // Saatteki uygulamadan gelen olcum kuyrugu.
+        registerPlugin(WearBridgePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

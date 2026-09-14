@@ -1,0 +1,39 @@
+// Saat APK'si. applicationId telefonla **ayni**: Data Layer eslesmesi paket adi +
+// imza uzerinden yurur, ikisinden biri kayarsa mesaj hata vermeden kaybolur.
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    namespace = "com.evaitec.wellness.wear"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.evaitec.wellness"
+        minSdkVersion 30  // Wear OS 3 = Galaxy Watch 4; Health Services oradan itibaren zorunlu.
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.wellnessVersion.tokenize('.').with { it[0].toInteger() * 10000 + it[1].toInteger() * 100 + it[2].toInteger() }
+        versionName rootProject.ext.wellnessVersion
+    }
+    kotlin {
+        jvmToolchain(21)
+    }
+    buildTypes {
+        release {
+            // Saat APK'si Bluetooth vekili uzerinden iniyor; her megabayt kurulum suresi.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:$androidxCoreVersion"
+    // Nabiz icin ham SensorManager degil: Health Services toplu ve donanim destekli okur.
+    implementation 'androidx.health:health-services-client:1.1.0-rc02'
+    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
+    // Health Services ListenableFuture donduruyor; await() bu modulden geliyor.
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$coroutinesVersion"
+    testImplementation "junit:junit:$junitVersion"
+}

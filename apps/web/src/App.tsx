@@ -5,6 +5,7 @@ import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
 import { syncHealth } from './lib/health'
+import { drainWatch } from './lib/watch'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop } from './lib/store'
@@ -51,6 +52,8 @@ export function App() {
     const sync = async () => {
       await syncActivity().catch(() => {})
       await syncHealth().catch(() => {})
+      // Saatteki uygulamanin kuyrugu: telefon servisi her kosulda topluyor, JS acilinca boşaltır.
+      await drainWatch().catch(() => {})
     }
     void sync()
     const health = window.setInterval(() => void sync(), 900_000)

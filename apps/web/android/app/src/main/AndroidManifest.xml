@@ -36,6 +36,18 @@
             android:name=".ActivityTransitionReceiver"
             android:exported="false" />
 
+        <!-- Saatteki uygulama olcum yollar. DataClient kalici: telefon kapali/uzaktayken
+             kayit saatte birikir, baglanti gelince bu servis uyanip kuyruga alir.
+             Yol sozlesmesi: wear/src/main/java/com/evaitec/wellness/wear/WearMetrics.kt. -->
+        <service
+            android:name=".WearBridgeService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/wellness/metrics" />
+            </intent-filter>
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

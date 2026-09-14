@@ -1,7 +1,8 @@
 // Surum tek kaynak: git etiketi ile ayni tutulur (v0.10.0 -> 0.10.0).
 // versionCode ondan turer; OTA katalogu guncellemeyi bu sayiyla anlar, sabit 1
 // kalirsa yeni surum "zaten kurulu" gorunur.
-def appVersion = '0.13.0'
+// variables.gradle'da: saat APK'si de ayni sayiyi okuyor.
+def appVersion = rootProject.ext.wellnessVersion
 
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
@@ -60,6 +61,9 @@ dependencies {
     // ham ivmeolcerden kendi siniflandiricimizi yazmak - cok daha buyuk bakim yuzeyi
     // ve surekli sensor dinleme maliyeti (AGENTS.md, Sinirlar: yeni bagimlilik gerekcesi).
     implementation 'com.google.android.gms:play-services-location:21.3.0'
+    // WearBridgeService: saatten gelen olcumu Data Layer uzerinden alir. Saat modulu ile
+    // ayni surum; alternatifi yok, Data Layer tek kapi.
+    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
 }
 
 apply from: 'capacitor.build.gradle'
