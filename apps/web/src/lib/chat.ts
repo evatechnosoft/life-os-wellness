@@ -65,7 +65,7 @@ function tipLine(tip: CoachTip): string | null {
     case 'volume_low':
       return `${tip.muscle}: ${tip.sets}/${tip.target} set, ${tip.add} set eksik`
     case 'volume_high':
-      return `${tip.muscle}: ${tip.sets} set, üst sınır ${tip.cap}`
+      return `${tip.muscle}: ${tip.sets} set, ${tip.cap} üstü azalan verim`
     case 'progress_weight':
       return `${tip.muscle}: ${tip.from_kg} kg → ${tip.to_kg} kg`
     case 'progress_reps':
@@ -213,7 +213,7 @@ export async function buildContext(now: Date = new Date()): Promise<string> {
       protein: proteinTarget(avgWeight, goals),
       gaps,
       foods: suggestFoods(recentMeals, slot, { recentMeals: meals, limit: MAX_FOODS }),
-      trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals.weekly_weight_loss_kg),
+      trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals),
     }),
   )
   return lines.join('\n').slice(0, MAX_CONTEXT)

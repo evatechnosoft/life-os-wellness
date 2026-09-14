@@ -11,7 +11,7 @@ import { groupsFor, type Split } from './split'
  */
 export type CoachTip =
   | { kind: 'volume_low'; muscle: string; sets: number; target: number; add: number; severity: 'info' }
-  | { kind: 'volume_high'; muscle: string; sets: number; cap: number; severity: 'warn' }
+  | { kind: 'volume_high'; muscle: string; sets: number; cap: number; severity: 'info' }
   | { kind: 'volume_none'; muscle: string; severity: 'warn' }
   | { kind: 'progress_weight'; muscle: string; from_kg: number; to_kg: number; severity: 'info' }
   | { kind: 'progress_reps'; muscle: string; reps: number; to_reps: number; severity: 'info' }
@@ -30,9 +30,11 @@ export interface TodayTip {
 }
 
 /**
- * Hipertrofi icin kas grubu basina haftada 10-20 set etkili araliktir: altinda
- * uyaran yetersiz kalir, ustunde toparlanma yuku kazanctan hizli buyur. Alt
- * sinir kullanicinin kendi hedefi (`Goals.sets_per_group`), ust sinir kanit.
+ * AZALAN VERIM ESIGI - kanitlanmis bir ust sinir DEGIL. 67 calisma / 2058 kisilik
+ * meta-regresyonda hacim arttikca hipertrofi ve kuvvet artmaya devam ediyor; 20
+ * setin ustunde kazancin dustugune ya da zarar verdigine dair bulgu yok, yalniz
+ * her ek setin getirisi kuculuyor (Pelland ve ark., Sports Medicine 2025).
+ * Bu yuzden asilmasi `warn` degil `info`: bilgi, suclama degil.
  */
 const HYPERTROPHY_MAX_SETS = 20
 
@@ -56,7 +58,7 @@ export function volumeTips(workouts: Workout[], goals: Goals, split: Split): Coa
       if (sets < goals.sets_per_group) {
         return [{ kind: 'volume_low', muscle, sets, target: goals.sets_per_group, add: goals.sets_per_group - sets, severity: 'info' }]
       }
-      if (sets > cap) return [{ kind: 'volume_high', muscle, sets, cap, severity: 'warn' }]
+      if (sets > cap) return [{ kind: 'volume_high', muscle, sets, cap, severity: 'info' }]
       return []
     })
 
@@ -66,10 +68,12 @@ export function volumeTips(workouts: Workout[], goals: Goals, split: Split): Coa
 /**
  * Tekrar araliginin ust ucu. Double progression: tekrar bu sayiyi asana kadar
  * tekrar artar, astiginda agirlik artar ve tekrar aralığin altina doner.
+ * Bu bir uygulama kuralidir, kanitla dogrulanmis bir esik degil: ilerlemeyi
+ * yoneten sey tekrar sayisi degil sete konan efordur (0-2 RIR).
  */
 const REP_TARGET_MAX = 12
 
-/** Alt govde daha buyuk mutlak artisi tasir; ust govde kucuk adimla ilerler. */
+/** Alt govde daha buyuk mutlak artisi tasir; ust govde kucuk adimla ilerler. Salon uygulamasi, kanit degil. */
 const LOWER_BODY = new Set(['bacak', 'kalça', 'baldır'])
 const WEIGHT_STEP = { upper: 0.025, lower: 0.05 }
 
@@ -153,7 +157,13 @@ export function progressTips(workouts: Workout[], goals: Goals, now: string): Co
     })
 }
 
-/** Kesintisiz artisin deload'a donustugu hafta sayisi (kanit araligi 4-6). */
+/**
+ * Kesintisiz artisin hafif hafta onerisine donustugu hafta sayisi. 4-8 hafta bir
+ * UYGULAMA GELENEGI; planli deload'un kaniti zayif ve ihtiyac yokken yapilani
+ * kuvvete zarar verebiliyor (Coleman ve ark., PeerJ 2024). O yuzden oneri
+ * "zorundasin" degil "toparlanma gerekiyorsa" tonundadir; asil savunulabilir
+ * sinyal reaktif olan (`decline`).
+ */
 const DELOAD_AFTER_WEEKS = 5
 /** Ust uste dusen hafta sayisi: iki dusus tesaduf degil, toparlanma borcudur. */
 const DECLINE_WEEKS = 3

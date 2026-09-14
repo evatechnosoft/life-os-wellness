@@ -70,7 +70,7 @@ describe('coachLines', () => {
       tips: [
         { kind: 'today', groups: ['göğüs', 'sırt', 'bacak'], logged: true, severity: 'info' },
         { kind: 'volume_none', muscle: 'omuz', severity: 'warn' },
-        { kind: 'volume_high', muscle: 'bacak', sets: 24, cap: 20, severity: 'warn' },
+        { kind: 'volume_high', muscle: 'bacak', sets: 24, cap: 20, severity: 'info' },
         { kind: 'stall', muscle: 'göğüs', sessions: 3, severity: 'warn' },
         { kind: 'deload', reason: 'buildup', weeks: 5, severity: 'warn' },
       ],

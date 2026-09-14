@@ -284,8 +284,29 @@ describe('SYSTEM prompt', () => {
     assert.match(SYSTEM, /listede olmayan bir yiyeceği kendiliğinden önerme/)
   })
 
-  test('tibbi tani yok, hekime yonlendirme kuralı duruyor', () => {
-    assert.match(SYSTEM, /Tıbbi tanı koymazsın; işaret görürsen hekime yönlendirirsin/)
+  test('tibbi tani yok, saglik siniri somut', () => {
+    assert.match(SYSTEM, /Teşhis koymazsın/)
+    assert.match(SYSTEM, /"bir şeyin yok" demezsin/)
+  })
+
+  test('kirmizi bayraklar isimle sayiliyor - genel bir cumle yetmez', () => {
+    for (const flag of [/göğüs/, /bayılma/, /istemsiz kilo kaybı/, /dinlenme nabzı/, /[Yy]eme bozukluğu/, /[Gg]ebelik/, /tip 1 diyabet/]) {
+      assert.match(SYSTEM, flag)
+    }
+  })
+
+  test('yonlendirme cumlesi kalibi istemde var', () => {
+    assert.match(SYSTEM, /ne gördüm → ne yapmalısın → ben ne yapabilirim/)
+  })
+
+  test('araliklı oruc: kanit cercevesi ve kimlere uygun olmadigi birlikte', () => {
+    assert.match(SYSTEM, /[Aa]ralıklı oruç/)
+    assert.match(SYSTEM, /mekanizma değil/)
+    assert.match(SYSTEM, /hekim onayı olmadan başlatma/)
+  })
+
+  test('haftalik kayip hedefi yuzde olarak sinirli', () => {
+    assert.match(SYSTEM, /%0\.5-1/)
   })
 })
 

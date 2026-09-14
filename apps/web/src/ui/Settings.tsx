@@ -143,7 +143,20 @@ export function Settings() {
 
       <Card title="Hedefler">
         <NumberField label="Günlük protein" unit="g" value={goals.protein_g} onCommit={(v) => void saveGoals({ ...goals, protein_g: v ?? 140 })} />
-        <NumberField label="Haftalık kilo kaybı" unit="kg" step={0.05} value={goals.weekly_weight_loss_kg} onCommit={(v) => void saveGoals({ ...goals, weekly_weight_loss_kg: v ?? 0.6 })} />
+        <NumberField
+          label="Haftalık kilo kaybı"
+          unit="% / hafta"
+          step={0.05}
+          value={goals.weekly_loss_pct}
+          // Hedef yuzdedir: ayni kilogram 60 ve 110 kiloda farkli seydir. Ust kirpma
+          // %2 - fikir vermeyen bir yazim hatasini engeller, hedefi sessizce degistirmez.
+          onCommit={(v) => void saveGoals({ ...goals, weekly_loss_pct: Math.min(Math.max(v ?? 0.7, 0), 2) })}
+        />
+        <p className="text-xs text-ink-faint">
+          Vücut ağırlığının yüzdesi. Kanıtın işaret ettiği aralık %0,5-1; 0 bakım demek.
+          {goals.weekly_weight_loss_kg != null &&
+            ` Eski hedefin ${goals.weekly_weight_loss_kg} kg/hafta olarak duruyor ve kullanılıyor — bu alanı kaydedince yüzdeye geçer.`}
+        </p>
         <NumberField label="Kas grubu başına set" value={goals.sets_per_group} onCommit={(v) => void saveGoals({ ...goals, sets_per_group: v ?? 10 })} />
       </Card>
 

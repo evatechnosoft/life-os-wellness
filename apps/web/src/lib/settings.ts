@@ -4,13 +4,25 @@ import { db } from './db'
 
 export interface Goals {
   protein_g: number
-  weekly_weight_loss_kg: number
+  /**
+   * Haftalik kayip hedefi, vucut agirliginin yuzdesi. Sabit kilogram yaniltir:
+   * 0.6 kg 60 kiloda %1 (kanit araliginin sinirinda), 110 kiloda %0.55'tir.
+   * Kanit araligi %0.5-1, orta nokta %0.7 (Helms 2014 · Garthe 2011).
+   */
+  weekly_loss_pct: number
   sets_per_group: number
+  /**
+   * Yuzdeye gecmeden once kg olarak kaydedilmis hedef. GOC YOLU: kayitliysa
+   * efektif hedef budur - kullanicinin kendi kaydettigi sayi sessizce degismesin.
+   * Kullanici ayari elle guncelledigi anda `saveGoals` bu alani siler ve yuzde
+   * devralir. Yeni kayitlarda hic bulunmaz.
+   */
+  weekly_weight_loss_kg?: number
 }
 
 export const DEFAULT_GOALS: Goals = {
   protein_g: 140,
-  weekly_weight_loss_kg: 0.6,
+  weekly_loss_pct: 0.7,
   sets_per_group: 10,
 }
 
@@ -20,5 +32,8 @@ export function useGoals(): Goals {
 }
 
 export async function saveGoals(goals: Goals): Promise<void> {
-  await db.settings.put({ key: 'goals', value: goals })
+  // Kullanici hedefe dokundu: eski kg alani burada birakilir, yuzde devralir.
+  const next: Goals = { ...goals }
+  delete next.weekly_weight_loss_kg
+  await db.settings.put({ key: 'goals', value: next })
 }

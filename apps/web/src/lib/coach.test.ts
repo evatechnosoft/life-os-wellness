@@ -20,9 +20,9 @@ describe('volumeTips', () => {
     expect(volumeTips([session('2026-01-05', ['sırt'], { sets_total: 14 })], goals, {})).toEqual([])
   })
 
-  test('a group over the hypertrophy ceiling is flagged', () => {
+  test('a group over the diminishing-returns threshold is reported as info, not a warning', () => {
     const tips = volumeTips([session('2026-01-05', ['kol'], { sets_total: 24 })], goals, {})
-    expect(tips).toEqual([{ kind: 'volume_high', muscle: 'kol', sets: 24, cap: 20, severity: 'warn' }])
+    expect(tips).toEqual([{ kind: 'volume_high', muscle: 'kol', sets: 24, cap: 20, severity: 'info' }])
   })
 
   test('a group the split plans but the week never touched is its own warning', () => {

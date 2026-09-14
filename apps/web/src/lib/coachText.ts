@@ -10,10 +10,11 @@ import type { FoodSuggestion, MealSlot, Severity, SlotGap } from './nutrition'
 const num = (n: number): string => n.toLocaleString('tr-TR')
 
 /** Yalin ve yonelme hali ayri tutulur: "ogle icin" ve "oglene" ikisi de gerekiyor. */
-const SLOT_LABEL: Record<Exclude<MealSlot, 'snack'>, { nom: string; dat: string }> = {
+const SLOT_LABEL: Record<MealSlot, { nom: string; dat: string }> = {
   morning: { nom: 'sabah', dat: 'sabaha' },
   noon: { nom: 'öğle', dat: 'öğlene' },
   evening: { nom: 'akşam', dat: 'akşama' },
+  snack: { nom: 'ara öğün', dat: 'ara öğüne' },
 }
 
 /** "200 g tavuk göğsü (62 g protein)" - porsiyon gecmisten biliniyorsa yazilir. */
@@ -44,7 +45,7 @@ export function tipText(tip: CoachTip): string {
     case 'volume_low':
       return `${tip.muscle}: bu hafta ${num(tip.sets)} set, hedef ${num(tip.target)} — ${num(tip.add)} set daha ekleyebilirsin.`
     case 'volume_high':
-      return `${tip.muscle}: bu hafta ${num(tip.sets)} set; ${num(tip.cap)} üstü toparlanmayı zorlayabilir.`
+      return `${tip.muscle}: bu hafta ${num(tip.sets)} set; ${num(tip.cap)} üstünde kazanç azalan verimle sürüyor — toparlanmanı izle.`
     case 'volume_none':
       return `${tip.muscle} bu hafta programda var ama henüz kaydı yok.`
     case 'progress_weight':
@@ -59,7 +60,7 @@ export function tipText(tip: CoachTip): string {
       return `${tip.muscle} için ağırlık ve tekrar kaydı yok — girmeye başlarsan ilerlemeyi ben takip ederim.`
     case 'deload':
       return tip.reason === 'buildup'
-        ? `${num(tip.weeks)} haftadır hacim kesintisiz artıyor — hafif bir hafta toparlanmaya iyi gelebilir.`
+        ? `${num(tip.weeks)} haftadır hacim kesintisiz artıyor — toparlanman zorlanıyorsa hafif bir hafta iyi gelebilir.`
         : `${num(tip.weeks)} haftadır hacim düşüyor — hafif bir hafta sonrası genelde daha iyi başlıyor.`
     case 'today':
       return todayText(tip)

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { Meal } from './db'
-import { foldTr, mealSlot, proteinTarget, slotGaps, suggestFoods, weightTrend } from './nutrition'
+import { foldTr, mealSlot, proteinTarget, slotGaps, suggestFoods, weeklyLossKg, weightTrend } from './nutrition'
 
 const meal = (time: string, note: string, protein_g: number, date = '2026-01-10'): Meal =>
   ({ id: `${date}-${time}-${note}`, date, time, note, protein_g, kcal: null, estimated: false })
@@ -21,20 +21,20 @@ describe('mealSlot', () => {
 
 describe('proteinTarget', () => {
   test('range comes from the 7-day average weight, not a single day', () => {
-    const t = proteinTarget(80, { protein_g: 140, weekly_weight_loss_kg: 0, sets_per_group: 10 })
+    const t = proteinTarget(80, { protein_g: 140, weekly_loss_pct: 0, sets_per_group: 10 })
     expect(t?.min_g).toBe(128)
     expect(t?.max_g).toBe(176)
   })
 
   test('in a deficit it recommends the upper end to protect muscle', () => {
-    const cutting = proteinTarget(80, { protein_g: 140, weekly_weight_loss_kg: 0.6, sets_per_group: 10 })
-    const maintaining = proteinTarget(80, { protein_g: 140, weekly_weight_loss_kg: 0, sets_per_group: 10 })
+    const cutting = proteinTarget(80, { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 })
+    const maintaining = proteinTarget(80, { protein_g: 140, weekly_loss_pct: 0, sets_per_group: 10 })
     expect(cutting?.recommended_g).toBe(176)
     expect(maintaining?.recommended_g).toBe(144)
   })
 
   test('reports the difference from the stored goal without changing it', () => {
-    const goals = { protein_g: 140, weekly_weight_loss_kg: 0.6, sets_per_group: 10 }
+    const goals = { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 }
     const t = proteinTarget(80, goals)
     expect(t?.current_goal_g).toBe(140)
     expect(t?.delta_g).toBe(36)
@@ -42,21 +42,21 @@ describe('proteinTarget', () => {
   })
 
   test('a goal below the effective range is flagged', () => {
-    expect(proteinTarget(80, { protein_g: 100, weekly_weight_loss_kg: 0, sets_per_group: 10 })?.severity).toBe('warn')
-    expect(proteinTarget(80, { protein_g: 140, weekly_weight_loss_kg: 0, sets_per_group: 10 })?.severity).toBe('info')
+    expect(proteinTarget(80, { protein_g: 100, weekly_loss_pct: 0, sets_per_group: 10 })?.severity).toBe('warn')
+    expect(proteinTarget(80, { protein_g: 140, weekly_loss_pct: 0, sets_per_group: 10 })?.severity).toBe('info')
   })
 
   test('no weight average means no advice at all', () => {
-    expect(proteinTarget(null, { protein_g: 140, weekly_weight_loss_kg: 0.6, sets_per_group: 10 })).toBeNull()
+    expect(proteinTarget(null, { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 })).toBeNull()
   })
 })
 
 describe('slotGaps', () => {
-  const goals = { protein_g: 140, weekly_weight_loss_kg: 0.6, sets_per_group: 10 }
+  const goals = { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 }
 
   test('per-slot target is 0.4 g/kg of the average weight', () => {
     const gaps = slotGaps([], 80, goals, '21:00')
-    expect(gaps.map((g) => g.target_g)).toEqual([32, 32, 32])
+    expect(gaps.filter((g) => g.slot !== 'snack').map((g) => g.target_g)).toEqual([32, 32, 32])
   })
 
   test('subtracts what the slot already got', () => {
@@ -75,9 +75,29 @@ describe('slotGaps', () => {
     expect(gaps.find((g) => g.slot === 'evening')).toMatchObject({ upcoming: true, severity: 'info' })
   })
 
-  test('snacks count toward the day but have no slot target of their own', () => {
+  // Uc ana slot x 0.4 g/kg = 1.2 g/kg; gunluk hedef bunun ustunde (Schoenfeld & Aragon
+  // 2018 en az dort ogun ister). Dorduncu ogun atistirmalik slotudur.
+  test('the snack slot carries the rest of the daily goal, so three slots are not the whole day', () => {
+    const gaps = slotGaps([], 80, goals, '21:00')
+    const snack = gaps.find((g) => g.slot === 'snack')
+    expect(snack?.target_g).toBe(44)
+    expect(gaps.reduce((sum, g) => sum + g.target_g, 0)).toBe(goals.protein_g)
+  })
+
+  test('meeting all three main slots still leaves the day short, and it is reported', () => {
+    const full = [meal('08:00', 'yumurta beyazi', 32), meal('13:00', 'tavuk', 32), meal('19:00', 'mercimek', 32)]
+    const gaps = slotGaps(full, 80, goals, '21:00')
+    expect(gaps.map((g) => String(g.slot))).toEqual(['snack'])
+    expect(gaps[0]?.gap_g).toBe(44)
+  })
+
+  test('a snack already eaten counts against that slot', () => {
     const gaps = slotGaps([meal('23:00', 'yogurt', 20)], 80, goals, '23:30')
-    expect(gaps.map((g) => String(g.slot))).toEqual(['morning', 'noon', 'evening'])
+    expect(gaps.find((g) => g.slot === 'snack')?.gap_g).toBe(24)
+  })
+
+  test('without a weight average the three main slots already cover the daily goal', () => {
+    expect(slotGaps([], null, goals, '21:00').some((g) => g.slot === 'snack')).toBe(false)
   })
 
   test('without a weight average it falls back to a third of the daily goal', () => {
@@ -149,30 +169,68 @@ describe('suggestFoods', () => {
   })
 })
 
+describe('weeklyLossKg', () => {
+  test('the goal is a percentage of body weight, not a fixed kilogram', () => {
+    expect(weeklyLossKg({ protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 }, 60)).toBe(0.42)
+    expect(weeklyLossKg({ protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 }, 110)).toBe(0.77)
+  })
+
+  test('a goal saved in kilograms before the switch is kept as it was', () => {
+    const legacy = { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10, weekly_weight_loss_kg: 0.6 }
+    expect(weeklyLossKg(legacy, 110)).toBe(0.6)
+  })
+})
+
 describe('weightTrend', () => {
+  const goals = { protein_g: 140, weekly_loss_pct: 0.75, sets_per_group: 10 }
+  const maintain = { ...goals, weekly_loss_pct: 0 }
+
   test('loss close to the goal is on track', () => {
-    expect(weightTrend(80.6, 80, 0.6)).toMatchObject({ status: 'on_track', severity: 'info' })
+    expect(weightTrend(80.6, 80, goals)).toMatchObject({ status: 'on_track', severity: 'info' })
   })
 
   test('losing far faster than the goal risks muscle', () => {
-    expect(weightTrend(81.5, 80, 0.6)).toMatchObject({ status: 'too_fast', severity: 'warn' })
+    expect(weightTrend(81.5, 80, goals)).toMatchObject({ status: 'too_fast', severity: 'warn' })
   })
 
   test('no movement means the deficit is not there', () => {
-    expect(weightTrend(80.1, 80, 0.6)).toMatchObject({ status: 'too_slow', severity: 'warn' })
+    expect(weightTrend(80.1, 80, goals)).toMatchObject({ status: 'too_slow', severity: 'warn' })
   })
 
   test('reports the measured weekly change against the target', () => {
-    expect(weightTrend(80.6, 80, 0.6)).toMatchObject({ actual_kg: 0.6, target_kg: 0.6, delta_kg: 0 })
+    expect(weightTrend(80.6, 80, goals)).toMatchObject({ actual_kg: 0.6, target_kg: 0.6, delta_kg: 0 })
+  })
+
+  test('the target follows the weight: the same percentage is a different kilogram', () => {
+    const evidenceDefault = { ...goals, weekly_loss_pct: 0.7 }
+    expect(weightTrend(80.6, 80, evidenceDefault)?.target_kg).toBe(0.56)
+    expect(weightTrend(110.6, 110, evidenceDefault)?.target_kg).toBe(0.77)
+  })
+
+  // Garthe 2011 / Helms 2014: haftada %1'in ustu, hedef ne olursa olsun kas kaybi riski.
+  test('above one percent a week is too fast even when the goal itself is higher', () => {
+    const aggressive = { ...goals, weekly_loss_pct: 1.5 }
+    expect(weightTrend(81, 80, aggressive)?.status).toBe('too_fast')
+    expect(weightTrend(80.7, 80, aggressive)?.status).toBe('on_track')
+  })
+
+  test('a goal still stored in kilograms keeps working', () => {
+    const legacy = { ...goals, weekly_weight_loss_kg: 0.6 }
+    expect(weightTrend(80.6, 80, legacy)).toMatchObject({ target_kg: 0.6, status: 'on_track' })
   })
 
   test('a missing week of averages yields nothing', () => {
-    expect(weightTrend(null, 80, 0.6)).toBeNull()
-    expect(weightTrend(80, null, 0.6)).toBeNull()
+    expect(weightTrend(null, 80, goals)).toBeNull()
+    expect(weightTrend(80, null, goals)).toBeNull()
   })
 
   test('gaining while the goal is loss is not on track', () => {
-    expect(weightTrend(79.5, 80, 0.6)?.status).toBe('too_slow')
+    expect(weightTrend(79.5, 80, goals)?.status).toBe('too_slow')
+  })
+
+  test('at a maintenance goal both directions have a noise band', () => {
+    expect(weightTrend(80.1, 80, maintain)?.status).toBe('on_track')
+    expect(weightTrend(80.5, 80, maintain)?.status).toBe('too_fast')
   })
 })
 

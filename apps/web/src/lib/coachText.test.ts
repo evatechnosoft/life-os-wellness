@@ -73,8 +73,8 @@ describe('tipText', () => {
     ],
     [
       'volume_high',
-      { kind: 'volume_high', muscle: 'omuz', sets: 24, cap: 20, severity: 'warn' },
-      'omuz: bu hafta 24 set; 20 üstü toparlanmayı zorlayabilir.',
+      { kind: 'volume_high', muscle: 'omuz', sets: 24, cap: 20, severity: 'info' },
+      'omuz: bu hafta 24 set; 20 üstünde kazanç azalan verimle sürüyor — toparlanmanı izle.',
     ],
     [
       'volume_none',
@@ -109,7 +109,7 @@ describe('tipText', () => {
     [
       'deload/buildup',
       { kind: 'deload', reason: 'buildup', weeks: 5, severity: 'warn' },
-      '5 haftadır hacim kesintisiz artıyor — hafif bir hafta toparlanmaya iyi gelebilir.',
+      '5 haftadır hacim kesintisiz artıyor — toparlanman zorlanıyorsa hafif bir hafta iyi gelebilir.',
     ],
     [
       'deload/decline',
