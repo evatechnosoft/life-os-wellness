@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-14 · dev @ v0.13.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.13.0
+> 2026-09-14 · dev @ v0.15.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.15.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 46 pass / 0 fail, web 199 pass / 0 fail
+npm test                                 # api 46 pass / 0 fail, web 205 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -15,8 +15,9 @@ curl -s https://fit.evaitec.com/health   # {"ok":true}
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
 `cd apps/web/android && JAVA_HOME="/c/Program Files/Android/openjdk/jdk-21.0.8" ./gradlew testDebugUnitTest`
-(49 test: HealthMath 14, HighBpmWindow 10, ExerciseSegment 9, ActivityIntervals 9,
-SnoreAnalyzer 6, Example 1).
+(71 test: HealthMath 14, OtaManifest 14, HighBpmWindow 10, ExerciseSegment 9,
+ActivityIntervals 9, SampleInterval 7, SnoreAnalyzer 6, Example 1). Saat modülü de
+aynı komutla koşuyor: `./gradlew :app:assembleDebug :wear:assembleDebug :wear:lintDebug`.
 
 ## Sıradaki iş — 1. adım
 
@@ -114,6 +115,46 @@ durgun verir — foreground service yok, olay tabanlı. Yüksek nabız penceresi
 Health Connect'in 42 tipinde de yok, saatin EKG'si Samsung partner onayı istiyor.
 Manşonsuz kan basıncı — hiçbir standarda göre doğrulanmadı (ISO 81060-3:2022, ESH 2023).
 Cepteki telefonla bench/squat ayrımı ve tekrar sayımı. Bunları tekrar önerme.
+
+## Saat uygulaması ve evaitecOTA
+
+`docs/PLAN-WEAR.md` planı, `apps/web/android/wear/` modülü. Health Services kullanılıyor,
+ham `SensorManager` değil (pil). `MeasureClient` ile canlı nabız; aynı ekranda **yetenek
+dökümü** — saat hangi ölçüm tiplerini destekliyor ve `REP_COUNT` hangi egzersiz
+tiplerinde var. Bu, cihazsız kapanmayan en büyük bilinmez; saati ilk açışta cevap orada.
+
+Ölçüm `DataClient` ile telefona geçiyor (`MessageClient` değil — teslim garantisi yok),
+telefonda `WearBridgePlugin.drain()` → `recordMetrics('watch_app', …)`. Her kayıt kendi
+yolunu alır: tek yol kullanılsaydı `DataClient` yalnız son hâli taşıdığı için telefon
+uzaktayken ikinci ölçüm birincisini silerdi.
+
+**Saatte de olmayacaklar:** EKG, tansiyon, canlı SpO2 — Health Services `DataType`
+listesinde sabitleri yok; tansiyon Samsung'un ayrıcalıklı SDK tracker listesinde de yok.
+Egzersiz tipini saat tanımaz, kullanıcı seçer.
+
+### evaitecOTA — kurulum kiti
+
+Çekirdek `apps/web/android/shared/.../com/evaitec/ota/` (`OtaManifest`, `ApkInstaller`),
+wellness'a özel tek dosya `WellnessOta.kt`. Ayrı gradle modülü yok; `srcDirs` ile `:app`
+ve `:wear` aynı kopyayı derliyor — iki kopya OTA mantığı iki farklı güvenlik davranışı
+demek olurdu. İkinci müşteri çıkınca dizin olduğu gibi taşınır.
+
+Manifest release'te `latest.json`: `apps` listesi (bizim okuyucumuz) **ve** düz alanlar
+(`wearApk`/`wearUrl`/`wearSha256` — evaglass gibi eski tüketiciler). Düz alanlar listeden
+`jq` ile türetilir, elle yazılmaz; CI türetmeyi doğrular.
+
+Kurulum tek kapıdan geçer (`ApkInstaller.install`), dört kilit: sha256, paket adı,
+versionCode, ve paket kuruluysa imza + sadece-yükselt. **Beklenen sha256 telefondan
+değil, saatin kendi çektiği manifestten okunur** — telefon yalnız taşıyıcı. Manifest
+okunamazsa kurulum yapılmaz.
+
+⚠️ **İlk kurulum hâlâ kablosuz ADB.** Saatte dinleyen bir uygulama olmadan telefon oraya
+dosya gönderemez. Zincir ikinci kurulumdan sonrasını çözüyor. ADB'siz bootstrap için tek
+yol saatte kurulu duran evaglass: manifestimiz onun biçimini de taşıyor, karşı tarafta
+"komşu paketi kur" akışı gerekiyor (o iş `D:\projects\evaglass` deposunda, yapılmadı).
+
+⚠️ **Telefon ve saat APK'ları aynı CI koşusunda derlenmeli** — ayrı koşulardan gelirlerse
+imzalar tutmaz ve Data Layer *hata vermeden* susar. `apk.yml` ikisini birlikte derliyor.
 
 ## Uyku — kod hazır, veri Samsung'da kilitli
 
