@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-14 · dev @ v0.12.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.12.0
+> 2026-09-14 · dev @ v0.13.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.13.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 46 pass / 0 fail, web 169 pass / 0 fail
+npm test                                 # api 46 pass / 0 fail, web 199 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -15,7 +15,8 @@ curl -s https://fit.evaitec.com/health   # {"ok":true}
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
 `cd apps/web/android && JAVA_HOME="/c/Program Files/Android/openjdk/jdk-21.0.8" ./gradlew testDebugUnitTest`
-(31 test: HealthMath 14, HighBpmWindow 10, SnoreAnalyzer 6, Example 1).
+(49 test: HealthMath 14, HighBpmWindow 10, ExerciseSegment 9, ActivityIntervals 9,
+SnoreAnalyzer 6, Example 1).
 
 ## Sıradaki iş — 1. adım
 
@@ -92,6 +93,27 @@ sessizce bozulurdu.
 Sabit değiştirmeden önce o dosyaya bak; kod ona uyar, tersi değil. Kilo hedefi artık
 yüzde (`Goals.weekly_loss_pct`, varsayılan %0.7); eski `weekly_weight_loss_kg` kayıtlıysa
 korunur ve kullanılır, kullanıcı yeni alanı kaydedince yüzde devralır.
+
+## Duman testinde bakılacak iki sayaç
+
+`docs/SENSORS-FEASIBILITY.md` neyin mümkün olduğunu kaynaklarıyla yazıyor. İki soru
+cihazsız kapanmadı, Saat kartındaki sayaçlar tam bunun için:
+
+- **"Saatteki seans" / "Segment (tekrar dökümü)"** — seans 1 / segment 0 çıkarsa üretici
+  `ExerciseSegment`'i doldurmuyor demektir, konu kapanır. Segment > 0 çıkarsa `reps_total`
+  ve kas grupları kendiliğinden dolar ve double progression çalışmaya başlar.
+- **"Nabız gecikmesi · N dk"** (`hr_lag_min`) — en taze nabız örneğinin yaşı. Senkron
+  zaten 15 dk'da bir olduğu için gecikmenin tabanı 15 dk; gerçek sayı burada görülecek.
+
+Telefon hareket tanıma (`ActivityPlugin`, Transition API) yürüme/koşu/bisiklet/araç/
+durgun verir — foreground service yok, olay tabanlı. Yüksek nabız penceresi hareketle
+%50 örtüşüyorsa soru sorulmaz, dolu taslak onaya gider. `in_vehicle` ne sorar ne kayıt
+üretir; `still` eşleşme üretmez (telefon cepteyken ağırlık seansı "hareketsiz" görünür).
+
+**Telefonla olmayacaklar** (fizibilite raporu, kaynaklı): EKG — telefonda elektrot yok,
+Health Connect'in 42 tipinde de yok, saatin EKG'si Samsung partner onayı istiyor.
+Manşonsuz kan basıncı — hiçbir standarda göre doğrulanmadı (ISO 81060-3:2022, ESH 2023).
+Cepteki telefonla bench/squat ayrımı ve tekrar sayımı. Bunları tekrar önerme.
 
 ## Uyku — kod hazır, veri Samsung'da kilitli
 

@@ -1,7 +1,7 @@
 // Surum tek kaynak: git etiketi ile ayni tutulur (v0.10.0 -> 0.10.0).
 // versionCode ondan turer; OTA katalogu guncellemeyi bu sayiyla anlar, sabit 1
 // kalirsa yeni surum "zaten kurulu" gorunur.
-def appVersion = '0.12.0'
+def appVersion = '0.13.0'
 
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
