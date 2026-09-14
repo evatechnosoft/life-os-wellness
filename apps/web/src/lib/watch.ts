@@ -1,4 +1,4 @@
-import { Capacitor, registerPlugin } from '@capacitor/core'
+import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core'
 
 import { recordMetrics } from './store'
 
@@ -14,6 +14,11 @@ export interface WatchRecord {
 interface WearBridgePlugin {
   drain(): Promise<{ records: string[] }>
   status(): Promise<{ connectedNodes: number; error?: string }>
+  pushApk(): Promise<{ ok: boolean; status: string }>
+  addListener(
+    event: 'apkPush',
+    listener: (data: { status: string }) => void,
+  ): Promise<PluginListenerHandle>
 }
 
 /** android/app/src/main/java/com/evaitec/wellness/WearBridgePlugin.kt. */
@@ -78,6 +83,27 @@ export async function drainWatch(): Promise<number> {
   const days = parseWatchRecords(records)
   for (const day of days) await recordMetrics(SOURCE_WATCH, day.date, day.metrics)
   return days.length
+}
+
+/**
+ * Saat uygulamasini telefondan kurar: telefon APK'yi yayindan indirir, saate Data Layer
+ * kanaliyla akitir, kurulumu saat onaylatir. Saatin kendi interneti Bluetooth vekilinden
+ * gectigi icin indirmeyi telefon yapiyor.
+ *
+ * Ilk kurulum bununla yapilamaz - saatte dinleyen bir uygulama yoksa gonderilecek kanal
+ * da yok; o tek sefer kablosuz ADB ile.
+ */
+export async function pushWatchApp(): Promise<{ ok: boolean; status: string }> {
+  if (!isNative()) return { ok: false, status: 'Yalnız Android uygulamasında çalışır' }
+  return WearBridge.pushApk()
+}
+
+/** Gonderimin ara durumlari (indiriliyor / gonderiliyor). Web'de dinleyici yok. */
+export async function onWatchAppPush(
+  listener: (status: string) => void,
+): Promise<PluginListenerHandle | null> {
+  if (!isNative()) return null
+  return WearBridge.addListener('apkPush', ({ status }) => listener(status))
 }
 
 /** Eslesmis saat var mi - "gonderdim ama gelmedi" ile "saat yok"u ayirmak icin. */

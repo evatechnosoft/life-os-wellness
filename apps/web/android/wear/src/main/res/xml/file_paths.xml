@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kurulacak APK yalniz burada duruyor. FileProvider yoksa getUriForFile firlar ve
+     kullanici bunu "indirme hatasi" diye okur. -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="ota" path="ota/" />
+</paths>

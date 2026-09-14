@@ -13,6 +13,11 @@ android {
         versionCode rootProject.ext.wellnessVersion.tokenize('.').with { it[0].toInteger() * 10000 + it[1].toInteger() * 100 + it[2].toInteger() }
         versionName rootProject.ext.wellnessVersion
     }
+    // OTA karar mantigi :app ile ayni kaynaktan derleniyor; iki kopya = iki farkli
+    // guvenlik davranisi. Yeni modul acmadan tek dosya paylasmanin en ucuz yolu.
+    sourceSets {
+        main.java.srcDirs += '../shared/src/main/java'
+    }
     kotlin {
         jvmToolchain(21)
     }
@@ -36,4 +41,7 @@ dependencies {
     // Health Services ListenableFuture donduruyor; await() bu modulden geliyor.
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$coroutinesVersion"
     testImplementation "junit:junit:$junitVersion"
+    // OtaManifest org.json kullaniyor; android.jar'in stub'i unit testte bos donuyor.
+    // Robolectric yerine gercek org.json - tek test bagimliligi, calisma zamanina girmiyor.
+    testImplementation 'org.json:json:20240303'
 }

@@ -8,6 +8,7 @@ import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.google.android.gms.wearable.Wearable
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 /** Saat kuyrugunu JS'e acar. Donusturmeyi JS yapar (src/lib/watch.ts) - sema orada. */
 @CapacitorPlugin(name = "WearBridge")
@@ -18,6 +19,25 @@ class WearBridgePlugin : Plugin() {
         val records = JSArray()
         WearBridgeService.drain(context).forEach { records.put(it) }
         call.resolve(JSObject().put("records", records))
+    }
+
+    /**
+     * Saat APK'sini yayindan indirip saate akitir (WearApkSender). Uzun surer: indirme +
+     * Bluetooth uzerinden aktarim. Ara durumlar `apkPush` olayiyla gidiyor, cagri yalniz
+     * sonucla doner.
+     */
+    @PluginMethod
+    fun pushApk(call: PluginCall) {
+        thread(isDaemon = true) {
+            val result = WearApkSender.push(context) { status ->
+                notifyListeners("apkPush", JSObject().put("status", status))
+            }
+            call.resolve(
+                JSObject()
+                    .put("ok", result.isSuccess)
+                    .put("status", result.fold({ it }, { "Gönderilemedi: ${it.message}" })),
+            )
+        }
     }
 
     /** Eslesmis bir saat var mi - "gonderiyorum ama gelmiyor" durumunu ayirt etmek icin. */

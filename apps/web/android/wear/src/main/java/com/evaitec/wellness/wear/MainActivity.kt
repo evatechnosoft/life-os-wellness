@@ -15,11 +15,13 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.evaitec.wellness.ota.OtaManifest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Tek ekran: ham nabiz, olcumun kabul edilebilirlik durumu, gercek ornek araligi ve
@@ -34,12 +36,14 @@ class MainActivity : Activity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val measure by lazy { HeartRateMeasure(this) }
     private val sender by lazy { WearSender(this) }
+    private val updater by lazy { WearUpdater(this) }
 
     private lateinit var bpmView: TextView
     private lateinit var statusView: TextView
     private lateinit var intervalView: TextView
     private lateinit var sendView: TextView
     private lateinit var capsView: TextView
+    private lateinit var otaView: TextView
 
     private var lastBpm: Double? = null
     private var sampleTimes: List<Long> = emptyList()
@@ -56,6 +60,8 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        // Telefondan gelen APK arka plandaki servise dusuyor; sonucu kullanici ancak burada gorur.
+        ApkReceiverService.lastStatus(this)?.let { otaView.text = it }
         if (!hasHeartRatePermission()) {
             statusView.text = "Nabiz izni yok"
             return
@@ -100,6 +106,32 @@ class MainActivity : Activity() {
         }
     }
 
+    /**
+     * Kendini guncelle. Karar WearUpdater'da: sadece-yukselt, https, sha256 - hicbiri
+     * burada tekrarlanmiyor, ekran yalnizca sonucu yaziyor.
+     */
+    private fun checkUpdate() {
+        otaView.text = "Guncelleme araniyor…"
+        scope.launch {
+            when (val decision = withContext(Dispatchers.IO) { updater.check() }) {
+                is OtaManifest.Decision.UpToDate -> otaView.text = "Guncel"
+                is OtaManifest.Decision.Blocked -> otaView.text = "Guncelleme yok: ${decision.reason}"
+                is OtaManifest.Decision.Available -> {
+                    otaView.text = "${decision.versionName} indiriliyor…"
+                    val result = withContext(Dispatchers.IO) {
+                        updater.download(decision) { pct ->
+                            runOnUiThread { otaView.text = "${decision.versionName} indiriliyor %$pct" }
+                        }
+                    }
+                    otaView.text = result.fold(
+                        { "Kurulum istemi acildi - onayla" },
+                        { "Guncellenemedi: ${it.message}" },
+                    )
+                }
+            }
+        }
+    }
+
     // Wear OS 6'da (API 36) BODY_SENSORS yerini health.READ_HEART_RATE'e birakiyor.
     private fun heartRatePermission(): String =
         if (Build.VERSION.SDK_INT >= 36) HEALTH_READ_HEART_RATE else Manifest.permission.BODY_SENSORS
@@ -134,6 +166,14 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT),
         )
         sendView = line(column, "")
+        column.addView(
+            Button(this).apply {
+                text = "Guncelle"
+                setOnClickListener { checkUpdate() }
+            },
+            LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT),
+        )
+        otaView = line(column, "", sizeSp = 11f)
         capsView = line(column, "yetenekler okunuyor…", sizeSp = 11f)
         return ScrollView(this).apply {
             setBackgroundColor(Color.BLACK)

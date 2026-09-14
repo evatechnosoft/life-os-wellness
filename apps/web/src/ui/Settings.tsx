@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { getApiBase, getToken, setApiBase, setToken } from '../lib/api'
 import { db } from '../lib/db'
@@ -7,6 +7,7 @@ import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
 import { saveSplit, useSplit, WEEKDAYS } from '../lib/split'
 import { syncOutbox } from '../lib/store'
+import { onWatchAppPush, pushWatchApp } from '../lib/watch'
 import { Card, NumberField } from './Field'
 
 function NoteHistory() {
@@ -26,6 +27,54 @@ function NoteHistory() {
         </li>
       ))}
     </ul>
+  )
+}
+
+/**
+ * Saatteki uygulamayi telefondan gunceller. Telefon APK'yi yayindan indirir ve saate
+ * kanalla akitir; onayi saat sorar. Saat kendi basina da guncellenebiliyor, ama kendi
+ * interneti Bluetooth vekilinden gectigi icin megabaytlar surunuyor.
+ *
+ * Ilk kurulum buradan yapilamaz: saatte dinleyen uygulama yoksa kanal da yok.
+ */
+function WatchAppPush() {
+  const [status, setStatus] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    const handle = onWatchAppPush(setStatus)
+    return () => {
+      void handle.then((h) => h?.remove())
+    }
+  }, [])
+
+  const send = async () => {
+    setBusy(true)
+    setStatus('Başlatılıyor…')
+    try {
+      setStatus((await pushWatchApp()).status)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card title="Saat uygulaması">
+      <p className="text-xs text-ink-faint">
+        Saatteki uygulamanın son sürümünü telefon indirir ve saate gönderir. Kurulumu saat
+        sorar — onayı saatin ekranından ver. Saatte uygulama hiç yoksa bu düğme işe yaramaz;
+        ilk kurulum kablosuz ADB ile yapılır.
+      </p>
+      <button
+        type="button"
+        onClick={() => void send()}
+        disabled={busy}
+        className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
+      >
+        {busy ? 'Gönderiliyor…' : 'Saate gönder'}
+      </button>
+      {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
+    </Card>
   )
 }
 
@@ -199,6 +248,8 @@ export function Settings() {
       <Card title="Notlar">
         <NoteHistory />
       </Card>
+
+      <WatchAppPush />
 
       <Card title="Veri">
         <button type="button" onClick={() => void exportJson()} className="w-full rounded-field bg-glass-strong py-3 text-sm active:bg-glass-strong">

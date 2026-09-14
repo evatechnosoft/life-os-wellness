@@ -23,6 +23,10 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Saat modulu ile ayni OTA karar mantigi (wear/build.gradle'da da bagli).
+    sourceSets {
+        main.java.srcDirs += '../shared/src/main/java'
+    }
     kotlin {
         jvmToolchain(21)
     }
