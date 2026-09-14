@@ -45,6 +45,7 @@ const WORKOUT_BODY = {
     notes: { type: ['string', 'null'], maxLength: 2000 },
     needs_review: { type: 'boolean' },
     weight_kg: { type: ['number', 'null'], minimum: 0, maximum: 500 },
+    reps_total: { type: ['integer', 'null'], minimum: 0, maximum: 1000 },
   },
 } as const
 
@@ -173,20 +174,21 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     // Ayni id ikinci kez gelirse uzerine yazilir: saatin bulduğu seansi kullanici
     // "bu neydi?" karti uzerinden tamamlayinca ayni satir guncellenmeli.
     const { rows } = await pool.query(
-      `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes, needs_review, weight_kg)
-       values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9)
+      `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes, needs_review, weight_kg, reps_total)
+       values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10)
        on conflict (id) do update set
          type = excluded.type, duration_min = excluded.duration_min, sets_total = excluded.sets_total,
          muscle_groups = excluded.muscle_groups, notes = excluded.notes,
          -- Bir kez onaylandiysa onayli kalir: disa aktarimi ikinci kez almak
          -- kullanicinin tamamladigi seansi yeniden "bu neydi?" yapmasin.
          needs_review = workout.needs_review and excluded.needs_review,
-         weight_kg = excluded.weight_kg
+         weight_kg = excluded.weight_kg, reps_total = excluded.reps_total
        -- xmax = 0 yalniz yeni eklenen satirda dogru; guncelleme 200 donsun diye.
        returning *, (xmax = 0) as inserted`,
       [
         b.id ?? null, b.date, b.type, b.duration_min ?? null, b.sets_total ?? null,
         b.muscle_groups ?? [], b.notes ?? null, b.needs_review ?? false, b.weight_kg ?? null,
+        b.reps_total ?? null,
       ],
     )
     const { inserted, ...workout } = rows[0]

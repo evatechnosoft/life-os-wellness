@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { lastDates, toLocalDate } from './date'
+import { daysBetween, lastDates, toLocalDate } from './date'
 
 describe('toLocalDate', () => {
   test('uses the local calendar day, not UTC', () => {
@@ -24,5 +24,24 @@ describe('lastDates', () => {
 
   test('crosses a month boundary', () => {
     expect(lastDates(3, new Date(2026, 2, 1))).toEqual(['2026-02-27', '2026-02-28', '2026-03-01'])
+  })
+})
+
+describe('daysBetween', () => {
+  test('counts whole local days forward', () => {
+    expect(daysBetween('2026-01-01', '2026-01-08')).toBe(7)
+  })
+
+  test('is negative when the second date is earlier', () => {
+    expect(daysBetween('2026-01-08', '2026-01-01')).toBe(-7)
+  })
+
+  test('crosses a DST change without half days', () => {
+    // 2026-03-29 is the European DST jump; the arithmetic must stay whole days.
+    expect(daysBetween('2026-03-28', '2026-03-30')).toBe(2)
+  })
+
+  test('the same day is zero', () => {
+    expect(daysBetween('2026-02-28', '2026-02-28')).toBe(0)
   })
 })

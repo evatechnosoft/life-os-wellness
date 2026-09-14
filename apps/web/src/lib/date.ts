@@ -15,3 +15,15 @@ export function lastDates(count: number, end: Date = new Date()): string[] {
   }
   return dates
 }
+
+/**
+ * Whole local days from `from` to `to`, both YYYY-MM-DD. Rounding keeps the
+ * count whole across a DST change, where the raw difference is off by an hour.
+ */
+export function daysBetween(from: string, to: string): number {
+  const at = (date: string): number => {
+    const [year, month, day] = date.split('-').map(Number)
+    return new Date(year!, month! - 1, day!).getTime()
+  }
+  return Math.round((at(to) - at(from)) / 86400000)
+}

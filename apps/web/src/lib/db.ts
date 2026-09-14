@@ -25,6 +25,8 @@ export interface Workout {
   needs_review?: boolean
   /** Kaldirilan agirlik (kg) - kullanici girer, saat bilmez. */
   weight_kg?: number | null
+  /** Seansta yapilan toplam tekrar - ilerleme onerisi bunsuz tahmin uretemez. */
+  reps_total?: number | null
 }
 
 export interface Retro {

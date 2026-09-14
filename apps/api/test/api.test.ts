@@ -129,6 +129,23 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(reimport.json().needs_review, false)
   })
 
+  test('a session keeps the total reps it was logged with', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/workouts', headers: auth,
+      payload: { date: '2099-01-07', type: 'resistance', sets_total: 4, reps_total: 48, weight_kg: 60 },
+    })
+    assert.equal(res.statusCode, 201)
+    assert.equal(res.json().reps_total, 48)
+  })
+
+  test('rejects an impossible rep count', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/workouts', headers: auth,
+      payload: { date: '2099-01-07', type: 'resistance', reps_total: 5000 },
+    })
+    assert.equal(res.statusCode, 400)
+  })
+
   test('rejects an unknown workout type', async () => {
     const res = await app.inject({
       method: 'POST', url: '/api/workouts', headers: auth, payload: { date: '2099-01-01', type: 'yoga' },
