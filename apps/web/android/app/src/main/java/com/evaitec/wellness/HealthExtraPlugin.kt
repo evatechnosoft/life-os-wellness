@@ -4,6 +4,8 @@ import androidx.activity.result.ActivityResult
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.NutritionRecord
@@ -60,6 +62,7 @@ class HealthExtraPlugin : Plugin() {
         HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class),
         HealthPermission.getReadPermission(SleepSessionRecord::class),
         HealthPermission.getReadPermission(NutritionRecord::class),
+        HealthPermission.getReadPermission(BloodPressureRecord::class),
     )
 
     @PluginMethod
@@ -97,7 +100,8 @@ class HealthExtraPlugin : Plugin() {
 
     /**
      * Verilen aralikta gun basina ozetlenmis olcumler. Donus:
-     * { days: [{ date, total_kcal?, resting_hr?, spo2_pct?, spo2_low_pct?, hrv_ms?, sleep_min?, protein_g? }] }
+     * { days: [{ date, total_kcal?, resting_hr?, spo2_pct?, spo2_low_pct?, hrv_ms?, sleep_min?,
+     *            protein_g?, bp_systolic?, bp_diastolic?, session_count?, segment_count? }] }
      * - olcumu olmayan gun hic gelmez, esigin altinda ornek varsa o alan yazilmaz.
      */
     @PluginMethod
@@ -196,12 +200,52 @@ class HealthExtraPlugin : Plugin() {
                     }
                 }
 
+                // Kan basincini biz uretmiyoruz: mansonlu cihazdan ya da saatten gelen
+                // olcum ne ise o. Gunde birden fazla olcum olur, ortancasi alinir -
+                // tek bozuk olcum gunu kaydirmasin (SpO2/HRV ile ayni kural).
+                val sysByDay = mutableMapOf<String, MutableList<Double>>()
+                val diaByDay = mutableMapOf<String, MutableList<Double>>()
+                readAll(client, BloodPressureRecord::class.java, range) { record ->
+                    val day = localDay(record.time)
+                    sysByDay.getOrPut(day) { mutableListOf() }.add(record.systolic.inMillimetersOfMercury)
+                    diaByDay.getOrPut(day) { mutableListOf() }.add(record.diastolic.inMillimetersOfMercury)
+                }
+
+                // ExerciseSegment semasi tekrar sayisini tasiyor ama bu alani dolduran
+                // bir uretici uygulama dogrulanmadi (docs/SENSORS-FEASIBILITY.md 4.3).
+                // Bos segment listesi hata degil, beklenen durum - sessizce gecilir;
+                // gun basina iki sayac (seans + segment) telefonda cevabi gosterir.
+                val segments = mutableListOf<HealthMath.SegmentEntry>()
+                val sessionCountByDay = mutableMapOf<String, Int>()
+                try {
+                    readAll(client, ExerciseSessionRecord::class.java, range) { record ->
+                        val day = localDay(record.startTime)
+                        sessionCountByDay[day] = (sessionCountByDay[day] ?: 0) + 1
+                        for (seg in record.segments) {
+                            segments.add(
+                                HealthMath.SegmentEntry(
+                                    date = day,
+                                    sessionStartMillis = record.startTime.toEpochMilli(),
+                                    type = seg.segmentType,
+                                    repetitions = seg.repetitions,
+                                    minutes = Duration.between(seg.startTime, seg.endTime).toMinutes(),
+                                ),
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    // READ_EXERCISE iznini capacitor-health istiyor, bu eklenti degil;
+                    // verilmediyse diger olcumler yine yazilir.
+                }
+                val bySession = HealthMath.sessionSegments(segments)
+                val segmentCountByDay = HealthMath.dailySegmentCount(segments)
+
                 val kcalByDay = HealthMath.dailyCalories(calories)
                 val proteinByDay = HealthMath.dailyProteinGrams(nutrition)
                 val sleepByDay = HealthMath.dailySleepMinutes(sleepEntries)
                 val days = JSArray()
                 val dates = kcalByDay.keys + bpmByDay.keys + spo2ByDay.keys + hrvByDay.keys +
-                    sleepByDay.keys + proteinByDay.keys
+                    sleepByDay.keys + proteinByDay.keys + sysByDay.keys + sessionCountByDay.keys
                 for (date in dates.sorted()) {
                     val entry = JSObject().put("date", date)
                     kcalByDay[date]?.let { entry.put("total_kcal", it) }
@@ -217,6 +261,14 @@ class HealthExtraPlugin : Plugin() {
                     }
                     sleepByDay[date]?.let { entry.put("sleep_min", it) }
                     proteinByDay[date]?.let { entry.put("protein_g", it) }
+                    sysByDay[date]?.let { s -> HealthMath.median(s)?.let { entry.put("bp_systolic", it) } }
+                    diaByDay[date]?.let { s -> HealthMath.median(s)?.let { entry.put("bp_diastolic", it) } }
+                    // Sifir da yazilir: "seans var ama segment yok" ile "seans yok"
+                    // ancak boyle ayirt edilir - sorunun kapanmasi buna bagli.
+                    sessionCountByDay[date]?.let { count ->
+                        entry.put("session_count", count)
+                        entry.put("segment_count", segmentCountByDay[date] ?: 0)
+                    }
                     days.put(entry)
                 }
                 val windows = JSArray()
@@ -234,8 +286,24 @@ class HealthExtraPlugin : Plugin() {
                 // Health Connect canli akis vermez: kaynak uygulama ne zaman yazdiysa
                 // o zaman gorunur. En taze ornegin yasi gercek gecikmeyi olcer -
                 // cihazda "ne kadar geriden geliyoruz" sorusunun tek kanitli cevabi.
+                // Seans basina segment ozeti: cagiran taraf bunu seansin baslangic
+                // zamanina gore kendi kaydiyla eslestirir (src/lib/health.ts).
+                val sessions = JSArray()
+                for ((startMillis, summary) in bySession) {
+                    val types = JSArray()
+                    summary.types.forEach { types.put(it) }
+                    sessions.put(
+                        JSObject()
+                            .put("start_ms", startMillis)
+                            .put("reps_total", summary.repsTotal)
+                            .put("minutes", summary.minutes)
+                            .put("types", types),
+                    )
+                }
+
                 val newest = bpmSamples.maxOfOrNull { it.atMillis }
                 val result = JSObject().put("days", days).put("windows", windows)
+                    .put("sessions", sessions)
                 if (newest != null) {
                     result.put("hr_lag_min", (System.currentTimeMillis() - newest) / 60_000L)
                 }

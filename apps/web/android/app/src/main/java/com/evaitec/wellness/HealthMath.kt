@@ -99,6 +99,58 @@ object HealthMath {
     fun lowSpo2(samples: List<Double>, minSamples: Int = 5): Double? =
         lowestDecileMedian(samples, minSamples)
 
+    /**
+     * ExerciseSession icindeki tek segment. Health Connect semasi tekrar sayisini
+     * tasiyor (`ExerciseSegment.getRepetitions()`) ama bu alani dolduran bir uretici
+     * uygulama **dogrulanmadi** (docs/SENSORS-FEASIBILITY.md 4.3) - bos liste hata
+     * degil, beklenen durum.
+     */
+    data class SegmentEntry(
+        val date: String,
+        val sessionStartMillis: Long,
+        val type: Int,
+        val repetitions: Int,
+        val minutes: Long,
+    )
+
+    /** Bir seansin segment ozeti: toplam tekrar, gecen tipler, toplam segment suresi. */
+    data class SessionSegments(val repsTotal: Int, val types: List<Int>, val minutes: Long)
+
+    /**
+     * Seans basina segment ozeti. Tekrar yalniz pozitifse toplanir: PAUSE/REST
+     * segmentinde tekrar yok, negatif deger bozuk kaynak demek. Tip ise her segment
+     * icin bildirilir (tanimadigimiz tip dahil) - kas grubuna esleme cagiran tarafin
+     * isi, burada uydurma yapilmaz.
+     */
+    fun sessionSegments(entries: List<SegmentEntry>): Map<Long, SessionSegments> {
+        val reps = mutableMapOf<Long, Int>()
+        val minutes = mutableMapOf<Long, Long>()
+        val types = mutableMapOf<Long, MutableList<Int>>()
+        for (e in entries) {
+            if (e.repetitions > 0) reps[e.sessionStartMillis] = (reps[e.sessionStartMillis] ?: 0) + e.repetitions
+            if (e.minutes > 0) minutes[e.sessionStartMillis] = (minutes[e.sessionStartMillis] ?: 0L) + e.minutes
+            val seen = types.getOrPut(e.sessionStartMillis) { mutableListOf() }
+            if (e.type !in seen) seen.add(e.type)
+        }
+        return types.mapValues { (session, seen) ->
+            SessionSegments(
+                repsTotal = reps[session] ?: 0,
+                types = seen.toList(),
+                minutes = minutes[session] ?: 0L,
+            )
+        }
+    }
+
+    /**
+     * Gun basina okunan segment sayisi. Tek isi olculebilirlik: "uretici bu alani
+     * dolduruyor mu" sorusu ancak telefonda bu sayaca bakilarak kapanir.
+     */
+    fun dailySegmentCount(entries: List<SegmentEntry>): Map<String, Int> {
+        val byDay = mutableMapOf<String, Int>()
+        for (e in entries) byDay[e.date] = (byDay[e.date] ?: 0) + 1
+        return byDay
+    }
+
     /** Health Connect'ten gelen tek nabiz ornegi: mutlak zaman + bpm. */
     data class BpmSample(val atMillis: Long, val bpm: Long)
 

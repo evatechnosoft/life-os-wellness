@@ -56,6 +56,10 @@ dependencies {
     // HealthExtraPlugin: capacitor-health de ayni surumu getiriyor, burada acikca
     // bildiriliyor cunku kod bu modulde.
     implementation 'androidx.health.connect:connect-client:1.2.0-alpha01'
+    // ActivityPlugin: Activity Recognition Transition API burada yasiyor. Alternatifi
+    // ham ivmeolcerden kendi siniflandiricimizi yazmak - cok daha buyuk bakim yuzeyi
+    // ve surekli sensor dinleme maliyeti (AGENTS.md, Sinirlar: yeni bagimlilik gerekcesi).
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
 }
 
 apply from: 'capacitor.build.gradle'

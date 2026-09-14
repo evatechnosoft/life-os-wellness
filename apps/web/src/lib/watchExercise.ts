@@ -56,3 +56,67 @@ const EXERCISES: Record<string, { type: WorkoutType; label: string }> = {
 export function detectedExercise(name: string): { type: WorkoutType; label: string } | null {
   return EXERCISES[name.trim().toUpperCase()] ?? null
 }
+
+/**
+ * Health Connect `ExerciseSegment.segmentType` (int sabit) -> bizim kas gruplarimiz
+ * (Settings/WorkoutForm ile ayni alti kelime).
+ *
+ * Sema tekrari ve hareketi tasiyor (`getRepetitions()`), ama bu alani dolduran bir
+ * uretici uygulama **dogrulanmadi** (docs/SENSORS-FEASIBILITY.md 4.3) - bos gelmesi
+ * beklenen durum. Dolu gelirse `Workout.reps_total` ve `muscle_groups` bedava dolar.
+ *
+ * Kova belirsizse **uydurma yok**, null doner: WEIGHTLIFTING gibi genel bir tip hangi
+ * kasi calistirdigini soylemiyor, REST/PAUSE zaten hareket degil.
+ */
+const SEGMENT_MUSCLES: Record<number, string[]> = {
+  1: ['kol'], // ARM_CURL
+  2: ['sırt'], // BACK_EXTENSION
+  4: ['omuz'], // BARBELL_SHOULDER_PRESS
+  5: ['göğüs'], // BENCH_PRESS
+  6: ['karın'], // BENCH_SIT_UP
+  10: ['karın'], // CRUNCH
+  11: ['sırt', 'bacak'], // DEADLIFT
+  12: ['kol'], // DOUBLE_ARM_TRICEPS_EXTENSION
+  13: ['kol'], // DUMBBELL_CURL_LEFT_ARM
+  14: ['kol'], // DUMBBELL_CURL_RIGHT_ARM
+  15: ['omuz'], // DUMBBELL_FRONT_RAISE
+  16: ['omuz'], // DUMBBELL_LATERAL_RAISE
+  17: ['sırt'], // DUMBBELL_ROW
+  18: ['kol'], // DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM
+  19: ['kol'], // DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM
+  20: ['kol'], // DUMBBELL_TRICEPS_EXTENSION_TWO_ARM
+  22: ['karın'], // FORWARD_TWIST
+  23: ['omuz'], // FRONT_RAISE
+  25: ['bacak'], // HIP_THRUST
+  29: ['sırt', 'bacak'], // KETTLEBELL_SWING
+  30: ['omuz'], // LATERAL_RAISE
+  31: ['sırt'], // LAT_PULL_DOWN
+  32: ['bacak'], // LEG_CURL
+  33: ['bacak'], // LEG_EXTENSION
+  34: ['bacak'], // LEG_PRESS
+  35: ['karın'], // LEG_RAISE
+  36: ['bacak'], // LUNGE
+  41: ['karın'], // PLANK
+  42: ['sırt'], // PULL_UP
+  48: ['omuz'], // SHOULDER_PRESS
+  49: ['kol'], // SINGLE_ARM_TRICEPS_EXTENSION
+  50: ['karın'], // SIT_UP
+  51: ['bacak'], // SQUAT
+  63: ['karın'], // UPPER_TWIST
+}
+
+/** Tek segment tipinin kas gruplari; bilmedigimiz tip null (uydurulmaz). */
+export function segmentMuscles(type: number): string[] | null {
+  return SEGMENT_MUSCLES[type] ?? null
+}
+
+/** Bir seansin butun segment tiplerinden tekrarsiz kas grubu listesi. */
+export function segmentMusclesOf(types: number[]): string[] {
+  const groups: string[] = []
+  for (const type of types) {
+    for (const muscle of segmentMuscles(type) ?? []) {
+      if (!groups.includes(muscle)) groups.push(muscle)
+    }
+  }
+  return groups
+}

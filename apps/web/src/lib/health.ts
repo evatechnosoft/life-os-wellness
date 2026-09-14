@@ -5,7 +5,7 @@ import { api } from './api'
 import { lastDates, toLocalDate } from './date'
 import { db, type Workout } from './db'
 import type { WearableRecord } from './db'
-import { detectedExercise } from './watchExercise'
+import { detectedExercise, segmentMusclesOf } from './watchExercise'
 import { dismissedWorkouts, hasServer, saveDaily, upsertWorkout } from './store'
 
 export const SOURCE = 'health_connect'
@@ -28,6 +28,29 @@ export interface HealthExtraDay {
    * (AGENTS.md), otomatik veri onu ezmez.
    */
   protein_g?: number
+  /**
+   * Mansonlu cihazdan ya da saatten gelen kan basinci, gunun ortancasi. Olcumu biz
+   * uretmiyoruz (docs/SENSORS-FEASIBILITY.md 2.1). daily_log.bp_systolic elle girilen
+   * kalici katman - buradan gelen yalniz wearable tablosuna yazilir, onu ezmez.
+   */
+  bp_systolic?: number
+  bp_diastolic?: number
+  /** O gun okunan egzersiz seansi sayisi. */
+  session_count?: number
+  /**
+   * O gun seanslardan okunan segment sayisi. Sema tekrari tasiyor ama bu alani
+   * dolduran bir uretici **dogrulanmadi**: seans var + segment 0 ise cevap "hayir".
+   */
+  segment_count?: number
+}
+
+/** Bir seansin segment dokumu; seansin baslangic aninda kendi kaydimizla eslesir. */
+export interface HealthSessionSegments {
+  start_ms: number
+  reps_total: number
+  minutes: number
+  /** Health Connect ExerciseSegment.segmentType sabitleri. */
+  types: number[]
 }
 
 /**
@@ -52,6 +75,7 @@ const HealthExtra = registerPlugin<{
   readDaily(range: { startDate: string; endDate: string }): Promise<{
     days: HealthExtraDay[]
     windows?: HealthHrWindow[]
+    sessions?: HealthSessionSegments[]
     /** En taze nabiz ornegi kac dakika geriden geliyor - gercek gecikmenin olcusu. */
     hr_lag_min?: number
   }>
@@ -202,9 +226,13 @@ export async function syncHealth(days = 7): Promise<number> {
   // capacitor-health'in okuyamadigi olcumler, kendi eklentimizden geliyor: toplam
   // kalori (HC'de aktif kalori bos, dolu olan bu), nabiz, kan oksijeni, HRV, uyku, protein.
   let hrWindows: HealthHrWindow[] = []
+  const segmentsByStart = new Map<number, HealthSessionSegments>()
   try {
     const extra = await HealthExtra.readDaily({ startDate, endDate })
-    const metrics = ['total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms', 'sleep_min', 'protein_g'] as const
+    const metrics = [
+      'total_kcal', 'resting_hr', 'spo2_pct', 'spo2_low_pct', 'hrv_ms', 'sleep_min', 'protein_g',
+      'bp_systolic', 'bp_diastolic', 'session_count', 'segment_count',
+    ] as const
     for (const day of extra.days) {
       for (const metric of metrics) {
         const value = day[metric]
@@ -213,6 +241,7 @@ export async function syncHealth(days = 7): Promise<number> {
       }
     }
     hrWindows = extra.windows ?? []
+    for (const session of extra.sessions ?? []) segmentsByStart.set(session.start_ms, session)
     // Gecikme olculur, varsayilmaz: Health Connect canli akis vermedigi icin
     // "nabiz ne kadar geriden geliyor" sorusunun tek kanitli cevabi bu sayi.
     if (extra.hr_lag_min != null) {
@@ -236,6 +265,10 @@ export async function syncHealth(days = 7): Promise<number> {
       if (dismissed.has(id)) continue
       const existing = await db.workout.get(id)
       const known = detectedExercise(w.workoutType ?? '')
+      // Saat seansi segmentlediyse tekrar sayisi ve kas grubu bedava gelir. Ikisi de
+      // kullanicinin girdigini **ezmez**: dolu olan kalir (AGENTS "manuel giris kalici").
+      const seg = segmentsByStart.get(start.getTime())
+      const segMuscles = seg ? segmentMusclesOf(seg.types) : []
       const entry: Workout = {
         id,
         date: toLocalDate(start),
@@ -244,7 +277,8 @@ export async function syncHealth(days = 7): Promise<number> {
         type: known?.type ?? 'cardio',
         duration_min: minutes > 0 ? minutes : null,
         sets_total: null,
-        muscle_groups: [],
+        muscle_groups: existing?.muscle_groups?.length ? existing.muscle_groups : segMuscles,
+        reps_total: existing?.reps_total ?? (seg && seg.reps_total > 0 ? seg.reps_total : null),
         // Saat sureyi bilir, ne yapildigini bilmeyebilir: kullanici onaylayana
         // kadar kartta bekler. Zaten onaylanmissa tekrar sorulmaz.
         needs_review: existing?.needs_review ?? true,

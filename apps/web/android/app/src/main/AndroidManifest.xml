@@ -30,6 +30,12 @@
             android:exported="false"
             android:foregroundServiceType="microphone" />
 
+        <!-- Hareket gecisleri: Play Services olay geldiginde tetikler, surekli
+             dinleyen servis yok. exported=false: yalniz sistem gonderir. -->
+        <receiver
+            android:name=".ActivityTransitionReceiver"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -73,6 +79,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Hareket tanima (ActivityPlugin): telefon yurume/kosu/bisiklet/aracta/hareketsiz
+         gecislerini kendisi bilir. Android 10+ runtime izni, oncesinde gms izni. -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
     <!-- Health Connect: only what the watch actually gives us (see src/lib/health.ts). -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
@@ -91,6 +102,10 @@
     <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY" />
     <uses-permission android:name="android.permission.health.READ_SLEEP" />
     <uses-permission android:name="android.permission.health.READ_NUTRITION" />
+
+    <!-- Kan basincini uretmiyoruz, mansonlu cihazdan/saatten geleni okuyoruz
+         (docs/SENSORS-FEASIBILITY.md 2.1: mansonsuz KB dogrulanmis bir olcum degil). -->
+    <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE" />
 
     <!-- The plugin library declares more health permissions than we read; drop them so the
          Health Connect consent screen only lists what src/lib/health.ts actually asks for. -->

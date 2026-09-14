@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { detectedExercise } from './watchExercise'
+import { detectedExercise, segmentMuscles, segmentMusclesOf } from './watchExercise'
 
 describe('detectedExercise', () => {
   it('kuvvet antrenmanini direnc kovasina koyar', () => {
@@ -35,5 +35,38 @@ describe('detectedExercise', () => {
 
   it('eski regex tuzagi: GYMNASTICS "gym" diye direnc sayilmaz', () => {
     expect(detectedExercise('GYMNASTICS')).toBeNull()
+  })
+})
+
+describe('segmentMuscles', () => {
+  it('bench press gogus, deadlift sirt ve bacak', () => {
+    expect(segmentMuscles(5)).toEqual(['göğüs'])
+    expect(segmentMuscles(11)).toEqual(['sırt', 'bacak'])
+  })
+
+  it('hip thrust ve squat bacak, lat pulldown sirt', () => {
+    expect(segmentMuscles(25)).toEqual(['bacak'])
+    expect(segmentMuscles(51)).toEqual(['bacak'])
+    expect(segmentMuscles(31)).toEqual(['sırt'])
+  })
+
+  it('tanimadigimiz ya da kas grubu olmayan tip icin uydurmaz', () => {
+    expect(segmentMuscles(0)).toBeNull() // UNKNOWN
+    expect(segmentMuscles(44)).toBeNull() // REST
+    expect(segmentMuscles(39)).toBeNull() // PAUSE
+    expect(segmentMuscles(46)).toBeNull() // RUNNING
+    expect(segmentMuscles(65)).toBeNull() // WEIGHTLIFTING - hangi kas belli degil
+    expect(segmentMuscles(999)).toBeNull() // sema disi
+    expect(segmentMuscles(-1)).toBeNull()
+  })
+
+  it('esleseni birlestirir, tekrar etmez, sirayi korur', () => {
+    // bench press + incline yok; bench(gogus) + deadlift(sirt,bacak) + squat(bacak)
+    expect(segmentMusclesOf([5, 11, 51])).toEqual(['göğüs', 'sırt', 'bacak'])
+  })
+
+  it('hicbiri eslesmezse bos dizi doner - kayit kas grubusuz kalir', () => {
+    expect(segmentMusclesOf([44, 39, 999])).toEqual([])
+    expect(segmentMusclesOf([])).toEqual([])
   })
 })

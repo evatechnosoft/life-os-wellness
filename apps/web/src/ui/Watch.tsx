@@ -26,6 +26,12 @@ const LABELS: Record<string, { label: string; unit: string }> = {
   // Health Connect canli akis vermez; bu sayi nabzin ne kadar geriden geldigini
   // olcer - "canli nabiz" sanmamak icin ekranda duruyor.
   hr_lag_min: { label: 'Nabız gecikmesi', unit: 'dk' },
+  bp_systolic: { label: 'Büyük tansiyon', unit: 'mmHg' },
+  bp_diastolic: { label: 'Küçük tansiyon', unit: 'mmHg' },
+  // Bu iki sayac "saat tekrar sayisini yaziyor mu" sorusunu tek bakista kapatir:
+  // seans var + segment 0 ise cevap hayir (docs/SENSORS-FEASIBILITY.md 4.3).
+  session_count: { label: 'Saatteki seans', unit: '' },
+  segment_count: { label: 'Segment (tekrar dökümü)', unit: '' },
   sleep_min: { label: 'Uyku', unit: 'dk' },
   sleep_monitored_min: { label: 'Dinlenen süre', unit: 'dk' },
   snore_min: { label: 'Horlama', unit: 'dk' },
@@ -79,8 +85,8 @@ export function Watch({ date }: { date: string }) {
       {status?.available && !status.granted && (
         <div>
           <p className="text-xs text-ink-dim">
-            Adım, kalori, kilo, antrenman ve nabız izni gerekiyor. Kan oksijeni, HRV ve
-            uyku ayrı bir onay ekranında sorulur.
+            Adım, kalori, kilo, antrenman ve nabız izni gerekiyor. Kan oksijeni, HRV,
+            uyku, beslenme ve tansiyon ayrı bir onay ekranında sorulur.
           </p>
           <button type="button" onClick={() => void act(requestHealthPermissions)} disabled={busy} className="mt-3 w-full rounded-field bg-a1/90 py-3 text-sm font-medium active:bg-a1 disabled:opacity-50">
             İzin ver
