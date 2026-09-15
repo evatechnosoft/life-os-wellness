@@ -43,8 +43,10 @@ eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ay
 1. Cihazda duman testi (yukarıda). **Saat verisi 15 Eylül itibarıyla sunucuya hiç gelmedi:**
    `wearable_sync` tablosunda yalnız `health_connect` var (277 satır, son yazım 11 Eylül
    08:15); `watch_app` kaynaklı sıfır satır, 11 Eylül'den beri telefon hiç senkron atmamış.
-   Telefon ADB'de de görünmüyor. Doğrulama telefonda: Saat kartı → "Saatteki seans" ve
-   "Nabız gecikmesi" dolu mu.
+   Telefon ADB'de de görünmüyor. **Sunucu tarafı sağlam:** API log'unda `/api/chat`
+   istekleri 200 dönüyor (tünel + token çalışıyor), gelmeyen tek şey senkron yazması —
+   yani "ulaşamıyor" değil, uygulama açılıp senkron çalıştırmamış. Doğrulama telefonda:
+   Saat kartı → "Saatteki seans" ve "Nabız gecikmesi" dolu mu.
 2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın. **Bloke:** 192.168.1.186 ping'e
    yanıt vermiyor (13 Eylül'de de denendi).
 3. Gözlük (evaglass) köprüsü — API hazır, iş karşı repoda bir istemci yazmak
