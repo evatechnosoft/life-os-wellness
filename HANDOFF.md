@@ -1,16 +1,20 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-15 · dev @ v0.16.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.16.0
+> 2026-09-15 · `feature/offline-eva` @ fca05f6 · 0 kirli dosya · origin ile eşit
+> · dev'den 7 commit ileri, **PR #2 açık ve inceleme bekliyor** · yayınlanan sürüm v0.16.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
-git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
+git fetch -q && git status -sb           # feature/offline-eva, origin ile eşit (fca05f6)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 46 pass / 0 fail, web 209 pass / 0 fail
+git log --oneline origin/dev..HEAD | wc -l  # 7 — hepsi offline Eva işi
+npm test                                 # api 46 pass / 0 fail, web 224 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
+
+Beşi de 15 Eylül 10:45'te bu değerlerle koştu. Farklı çıkarsa repoya güven, bu dosyaya değil.
 
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
@@ -21,13 +25,27 @@ aynı komutla koşuyor: `./gradlew :app:assembleDebug :wear:assembleDebug :wear:
 
 ## Sıradaki iş — 1. adım
 
-**Telefonda ve saatte duman testi.** Kod tarafında bekleyen iş yok; 13-15 Eylül'de
-eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ayrıca aşağıdaki
-"Saat uygulaması" bölümüne bak — ilk kurulum kablosuz ADB istiyor. Telefon sırası:
+**PR #2'yi incele ve `dev`'e al**, sonra duman testi. Kod tarafında bekleyen iş yok,
+cihazsız her şey bitti: model dosyası yayında, testler ve derleme yeşil.
+
+```bash
+gh pr view 2 --repo evatechnosoft/life-os-wellness      # kapsam ve kanıt tablosu
+gh pr merge 2 --repo evatechnosoft/life-os-wellness --squash --delete-branch
+```
+
+Merge `dev`'e düşünce Pages otomatik yayınlanır (`pages.yml`); APK yayını ayrı, `v*`
+etiketi ister. **Duman testi APK gerektiriyor** — sürüm yükseltmeden yerel APK yeter:
+`npm run apk`. Sürüm çıkarılacaksa `apps/web/android/app/build.gradle` → `appVersion`
+0.17.0, commit, `v0.17.0` etiketi push.
+
+**Telefonda ve saatte duman testi.** 13-15 Eylül'de eklenen hiçbir şey gerçek cihazda
+çalıştırılmadı. Saat tarafı için aşağıdaki "Saat uygulaması" bölümüne bak — ilk kurulum
+kablosuz ADB istiyor. Telefon sırası:
 
 1. **Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç.** Bu yapılmadan
    uyku verisi gelmez (aşağıda "Uyku" başlığı).
-2. APK'yı kur (`releases/latest`, v0.10.0), `npm run link` → QR → token cihaza gider.
+2. APK'yı kur (`releases/latest`, v0.16.0 — PR merge edilip yeni sürüm çıkılmadıysa
+   offline Eva içermez; onun için `npm run apk`), `npm run link` → QR → token cihaza gider.
 3. Saat kartı → "İzin ver". **İki onay ekranı** çıkar; ikincisinde kan oksijeni, HRV ve
    uyku var — atlanırsa o üç ölçüm boş kalır.
 4. Bugün ekranında kontrol: toplam kalori, dinlenme nabzı, SpO2, HRV, uyku dolu mu.
@@ -35,10 +53,22 @@ eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ay
    `SleepService.PERIOD_MS` artırılır).
 6. Hatırlatma bildirimi saatinde düşüyor mu (Ayar → Hatırlatmalar, varsayılan 09:00/21:00).
 7. Kamerayla öğün, sesli not (Türkçe tanıma).
+8. **Offline Eva, modelsiz:** uçak modunda bir şey sor. Kural tabanlı yanıt gelmeli
+   ("Sunucu kapalı, kendi kayıtlarından yanıtlıyorum…"), "84 kg" yazınca onay düğmesi.
+9. **Offline Eva, modelli:** Ayar → "Cihaz-içi Eva" → indir (~530 MB, Wi-Fi). Sonra uçak
+   modunda sor. Ölçülecek üç şey: **ilk yanıt kaç saniye** (motor tembel kurulur, ilk
+   soru en yavaşıdır), RAM ve Türkçe kalitesi. Zayıf kalırsa q8/ekv4096 sürümüne geçilir
+   (`MAX_TOKENS` 4096, `MODEL_SHA256` yenilenir).
 
 ## Sıradaki iş (öncelik sırası)
 
-1. Cihazda duman testi (yukarıda)
+1. Cihazda duman testi (yukarıda). **Saat verisi 15 Eylül itibarıyla sunucuya hiç gelmedi:**
+   `wearable_sync` tablosunda yalnız `health_connect` var (277 satır, son yazım 11 Eylül
+   08:15); `watch_app` kaynaklı sıfır satır, 11 Eylül'den beri telefon hiç senkron atmamış.
+   Telefon ADB'de de görünmüyor. **Sunucu tarafı sağlam:** API log'unda `/api/chat`
+   istekleri 200 dönüyor (tünel + token çalışıyor), gelmeyen tek şey senkron yazması —
+   yani "ulaşamıyor" değil, uygulama açılıp senkron çalıştırmamış. Doğrulama telefonda:
+   Saat kartı → "Saatteki seans" ve "Nabız gecikmesi" dolu mu.
 2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın. **Bloke:** 192.168.1.186 ping'e
    yanıt vermiyor (13 Eylül'de de denendi).
 3. Gözlük (evaglass) köprüsü — API hazır, iş karşı repoda bir istemci yazmak
@@ -209,19 +239,69 @@ mikrofonun dinlediği pencereyi sayar ve elle başlatılır.
   Capacitor `Plugin` sınıfındakileri gölgeler, derleme hatası.
 - `capacitor-health` ile uyku/SpO2/HRV okumaya çalışmak: kütüphanede yolu yok, kendi
   eklentimiz bu yüzden var.
+- `hf auth login`'i ajan oturumunda çalıştırmak: komut token'ı stdin'den ister, `!` ile
+  sessizce takılır. Ayrı terminal penceresi şart — orada token da sohbete düşmez.
+- MediaPipe'ı dört ABI ile bırakmak: APK 11 MB'dan 65 MB'a çıkıyordu. `abiFilters
+  'arm64-v8a'` ile 24 MB; bedeli x86 emülatörde kurulamaması.
+- Cihaz-içi modeli APK'ya gömmek: dosya 529 MB, her OTA güncellemesi o kadar inerdi.
 
 ## Nerede duruyor
 
 Canlı PWA: https://evatechnosoft.github.io/life-os-wellness/
-APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.10.0)
+APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.16.0)
+Model dosyası: `releases/download/models/gemma3-1b-it-int4.task` (sürümlenmez)
 
 Biten: F0 Sprint 1-4 + Aurora Glass teması + Health Connect + gece horlama ölçümü +
 kamerayla öğün + sesli not + geçmiş veri aktarımı (153 gün) + haftalık program +
 seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku/protein) + koç katmanı.
+PR #2'de bekleyen: offline Eva (kural motoru + cihaz-içi Gemma 3 1B).
 
 Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git etiketiyle aynı
 tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
 → Actions APK derleyip release'e ekler. Her `dev` push'u Pages'e gider.
+
+## Eva sunucu yokken — iki katman, tek giriş noktası
+
+`ask()` (`apps/web/src/lib/chat.ts`) sunucu yoksa ya da istek düşerse `offline()`'a
+iner; 429'da inmez (sunucu ayakta, kota dolu — kullanıcı beklesin). Fotoğraf modelsiz
+yorumlanmaz. Bağlam bir kez toplanır (`gather`): modele metin, offline katmana yapı.
+
+1. **Kural tabanlı** (`offline.ts`, PWA dahil, 0 MB): koç/beslenme motorunun hesapladığı
+   öneriler `coachText` cümleleriyle; cümledeki sayılar `<kayit>` taslağına (`parseDraft`).
+   Sayısız antrenman cümlesi soru sayılır, yalın "84 kg" tartıdır, "60 kg kaldırdım"
+   antrenman. Kırmızı bayrak hekime yönlendirir. Hesaplanmamış rakam yazılmaz.
+   Fotoğraf bu katmanda okunmaz: cihaz-içi model görme yeteneği taşımıyor, kural motoru
+   da tabağa bakamaz. Sunucusuz çekilen fotoğrafa Eva bunu açıkça söyler.
+2. **Cihaz-içi model** (yalnız APK): `LocalLlmPlugin.kt` + MediaPipe `tasks-genai:0.10.27`,
+   Gemma 3 1B int4 (~530 MB dosya, ~1.1 GB RAM, S24 Ultra CPU'da ~47 token/sn). Persona
+   **`apps/api/src/persona.ts`** — sunucu ve telefon aynı dosyayı okur (web göreli yoldan
+   içeri alır), `splitReply` de orada. Gemma'da sistem rolü yok: `gemmaPrompt` personayı
+   ilk kullanıcı turuna gömer, son 4 tur + 1800 karakter bağlam (KV penceresi 1280 token,
+   `MAX_TOKENS` bunun üstüne çıkamaz). Model varsa o konuşur; yüklenemezse 1. katman.
+
+**Model dosyası yayında** (`models` etiketi, sürümlenmiyor — `LocalLlmPlugin.MODEL_URL`
+sabit bu etikete bakar, `v*` yayınları modeli taşımaz). 554.661.243 bayt,
+sha256 `e3d981c0…bd9dee`; değer `LocalLlmPlugin.MODEL_SHA256`'da sabit ve indirme sonrası
+doğrulanıyor — tutmazsa dosya silinir, motor hiç açılmaz. **Dosya yenilenirse bu sabit de
+güncellenmeli**, yoksa indirme reddedilir.
+
+Kaynak `litert-community/Gemma3-1B-IT`, Gemma lisansıyla kapılı. Yeniden indirmek gerekirse:
+lisans hesapta bir kez kabul edilir (tarayıcı), `hf auth login` **ayrı bir terminalde**
+çalıştırılır (stdin ister, ajan oturumunda `!` ile takılır ve token sohbete düşer).
+`hf` yolu: `~/.platformio/penv/Scripts`. Oturum açık: `deancjx`.
+
+Adres `LocalLlmPlugin.MODEL_URL` → `releases/download/models/gemma3-1b-it-int4.task`
+(`latest` değil: sürüm yayınları modeli taşımaz). İndirme her zaman Ayarlar → "Cihaz-içi
+Eva" düğmesiyle, `.part` üzerinden; `Content-Length` ya da sha256 tutmazsa reddedilir. Cihazda doğrulanmadı: derleme (`:app:assembleDebug`, `:wear:assembleDebug`,
+`:wear:lintDebug`), 71 Kotlin testi ve web/api testleri yeşil.
+
+⚠️ **`abiFilters 'arm64-v8a'` eklendi** (`app/build.gradle`). MediaPipe'ın LLM motoru ABI
+başına 12-16 MB taşıyor; dördü birden debug APK'yı 65 MB yapıyordu, tek ABI ile 24 MB
+(eski sürüm 11 MB'tı). Bunun bedeli: **APK artık x86 emülatörde kurulmaz.** Emülatör
+gerekirse listeye `'x86_64'` eklenir. Saat APK'sı etkilenmedi (13 MB, tasks-genai `:app`'te).
+Duman testinde bakılacak: ilk yanıt süresi (motor tembel kurulur), RAM, Türkçe kalitesi —
+1B model zayıf kalırsa `Gemma3-1B-IT_multi-prefill-seq_q8_ekv4096.task` (1 GB) denenir,
+o zaman `MAX_TOKENS` 4096'ya çıkar.
 
 ## Eva ve model erişimi
 
@@ -232,7 +312,8 @@ sağlayıcıya doğrudan bağlanmaz; sağlayıcı değiştirmek `config/litellm.
 Her istekte son 7 günün özeti + sık yenen yiyeceklerin geçmiş değerleri system'e ekleniyor
 (`apps/web/src/lib/chat.ts` `buildContext`). Model eğitimi yok. Yanıttaki
 `<kayit>{...}</kayit>` bloğu "Günlüğe kaydet" düğmesine dönüşür — onaylanmadan hiçbir şey
-yazılmaz.
+yazılmaz. Sistem istemi `apps/api/src/persona.ts`'te (`SYSTEM`); `chat.ts` yeniden dışa
+aktarır, testler oradan okur.
 
 Web araması Gemini'nin kendi grounding'i (`web_search_options: {}`), atıflar
 `annotations[].url_citation`. ⚠️ Atıf URL'leri `vertexaisearch.cloud.google.com`

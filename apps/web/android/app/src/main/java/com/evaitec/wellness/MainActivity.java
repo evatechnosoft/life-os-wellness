@@ -15,6 +15,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(ActivityPlugin.class);
         // Saatteki uygulamadan gelen olcum kuyrugu.
         registerPlugin(WearBridgePlugin.class);
+        // Sunucu yokken cihaz-ici Eva (Gemma 3 1B).
+        registerPlugin(LocalLlmPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

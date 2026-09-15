@@ -2,7 +2,7 @@ import { api, ApiError } from './api'
 import { coachTips, type CoachTip, type TodayTip } from './coach'
 import { lastDates, toLocalDate } from './date'
 import { db, type ChatMessage } from './db'
-import { foodMemory, movingAverage } from './metrics'
+import { foodMemory, movingAverage, type FoodMemory } from './metrics'
 import {
   mealSlot,
   proteinTarget,
@@ -15,6 +15,8 @@ import {
   type SlotGap,
   type WeightTrend,
 } from './nutrition'
+import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
+import { offlineReply } from './offline'
 import { DEFAULT_GOALS, type Goals } from './settings'
 import { type Split } from './split'
 import { hasServer } from './store'
@@ -141,6 +143,11 @@ export function coachLines(ctx: CoachContext): string[] {
  * no training, just the real history as context.
  */
 export async function buildContext(now: Date = new Date()): Promise<string> {
+  return (await gather(now)).text
+}
+
+/** Baglam bir kez toplanir: modele metin olarak, offline Eva'ya yapilandirilmis olarak gider. */
+async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; known: FoodMemory[] }> {
   const dates = lastDates(7, now)
   const start = dates[0]!
   const end = dates[dates.length - 1]!
@@ -207,16 +214,15 @@ export async function buildContext(now: Date = new Date()): Promise<string> {
   const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
   const gaps = slotGaps(meals.filter((m) => m.date === end), avgWeight, goals, time)
   const slot = gaps[0]?.slot ?? mealSlot(time)
-  lines.push(
-    ...coachLines({
-      tips: coachTips(workouts35, goals, split, end),
-      protein: proteinTarget(avgWeight, goals),
-      gaps,
-      foods: suggestFoods(recentMeals, slot, { recentMeals: meals, limit: MAX_FOODS }),
-      trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals),
-    }),
-  )
-  return lines.join('\n').slice(0, MAX_CONTEXT)
+  const ctx: CoachContext = {
+    tips: coachTips(workouts35, goals, split, end),
+    protein: proteinTarget(avgWeight, goals),
+    gaps,
+    foods: suggestFoods(recentMeals, slot, { recentMeals: meals, limit: MAX_FOODS }),
+    trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals),
+  }
+  lines.push(...coachLines(ctx))
+  return { text: lines.join('\n').slice(0, MAX_CONTEXT), ctx, known }
 }
 
 /**
@@ -252,23 +258,38 @@ export async function ask(
 ): Promise<ChatMessage> {
   await remember({ role: 'user', text, via: opts.via ?? 'text' })
 
-  if (!hasServer()) {
-    return remember({
-      role: 'eva',
-      text: 'Sunucu bağlı değil, sorunu yanıtlayamıyorum. Söylediğini not olarak sakladım.',
-      via: 'text',
-    })
-  }
-
+  const { text: context, ctx, known } = await gather(new Date())
   const history = (await db.chat.orderBy('id').reverse().limit(12).toArray())
     .reverse()
     .map((m) => ({ role: m.role === 'eva' ? ('assistant' as const) : ('user' as const), content: m.text }))
 
-  const body: Record<string, unknown> = { messages: history, context: await buildContext() }
+  // Sunucu yoksa ya da dustuyse Eva susmaz: persona ve veri telefonda. Model indirildiyse
+  // (APK) o konusur; yoksa ya da tikanirsa kural motoru. Fotograf yalniz sunucuyla.
+  const offline = async (): Promise<ChatMessage> => {
+    // Fotograf sunucusuz okunamaz (cihaz-ici model gorme yetenegi tasimiyor). Bunu
+    // soylemeden metin cevabi vermek, tabaga bakilmis gibi gorunurdu.
+    if (opts.image) {
+      return remember({ role: 'eva', text: 'Fotoğrafı ancak sunucu açıkken okuyabilirim. Ne yediğini yazarsan kaydederim.', via: 'text' })
+    }
+    if (await localModelReady()) {
+      try {
+        const r = await askLocal(context, history)
+        return remember({ role: 'eva', text: `${LOCAL_NOTE} ${r.text}`, via: 'text', draft: fillWorkout(r.draft, text) ?? undefined })
+      } catch {
+        // Model yuklenemedi / bellek yetmedi: kural tabanli cevap yine de verilir.
+      }
+    }
+    const r = offlineReply(text, ctx, known)
+    return remember({ role: 'eva', text: r.text, via: 'text', draft: r.draft ?? undefined })
+  }
+  if (!hasServer()) return offline()
+
+  const body: Record<string, unknown> = { messages: history, context }
   if (opts.image) body.image = await toBase64(opts.image)
 
   try {
-    const reply = await api<ChatReply>('/api/chat', { method: 'POST', body: JSON.stringify(body) })
+    // Ulasilamayan LAN adresi TCP zaman asimina kadar asar; offline cevap o kadar beklemesin.
+    const reply = await api<ChatReply>('/api/chat', { method: 'POST', body: JSON.stringify(body), signal: AbortSignal.timeout(25_000) })
     return remember({
       role: 'eva',
       text: reply.text,
@@ -278,7 +299,9 @@ export async function ask(
       draft: fillWorkout(reply.draft, text) ?? undefined,
     })
   } catch (err) {
-    return remember({ role: 'eva', text: chatErrorMessage(err), via: 'text' })
+    // 429 sunucunun ayakta oldugunu soyler: kullanici beklesin, offline cevaba dusme.
+    if (err instanceof ApiError && err.status === 429) return remember({ role: 'eva', text: chatErrorMessage(err), via: 'text' })
+    return offline()
   }
 }
 
