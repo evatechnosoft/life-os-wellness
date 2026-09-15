@@ -1,16 +1,20 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-15 · `feature/offline-eva` @ 184476f (dev v0.16.0 üstüne 2 commit, push edilmedi) · 0 kirli dosya · yayınlanan sürüm v0.16.0
+> 2026-09-15 · `feature/offline-eva` @ fca05f6 · 0 kirli dosya · origin ile eşit
+> · dev'den 7 commit ileri, **PR #2 açık ve inceleme bekliyor** · yayınlanan sürüm v0.16.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
-git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
+git fetch -q && git status -sb           # feature/offline-eva, origin ile eşit (fca05f6)
 git status --porcelain | wc -l           # 0 bekleniyor
+git log --oneline origin/dev..HEAD | wc -l  # 7 — hepsi offline Eva işi
 npm test                                 # api 46 pass / 0 fail, web 224 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
+
+Beşi de 15 Eylül 10:45'te bu değerlerle koştu. Farklı çıkarsa repoya güven, bu dosyaya değil.
 
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
@@ -21,13 +25,27 @@ aynı komutla koşuyor: `./gradlew :app:assembleDebug :wear:assembleDebug :wear:
 
 ## Sıradaki iş — 1. adım
 
-**Telefonda ve saatte duman testi.** Kod tarafında bekleyen iş yok; 13-15 Eylül'de
-eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ayrıca aşağıdaki
-"Saat uygulaması" bölümüne bak — ilk kurulum kablosuz ADB istiyor. Telefon sırası:
+**PR #2'yi incele ve `dev`'e al**, sonra duman testi. Kod tarafında bekleyen iş yok,
+cihazsız her şey bitti: model dosyası yayında, testler ve derleme yeşil.
+
+```bash
+gh pr view 2 --repo evatechnosoft/life-os-wellness      # kapsam ve kanıt tablosu
+gh pr merge 2 --repo evatechnosoft/life-os-wellness --squash --delete-branch
+```
+
+Merge `dev`'e düşünce Pages otomatik yayınlanır (`pages.yml`); APK yayını ayrı, `v*`
+etiketi ister. **Duman testi APK gerektiriyor** — sürüm yükseltmeden yerel APK yeter:
+`npm run apk`. Sürüm çıkarılacaksa `apps/web/android/app/build.gradle` → `appVersion`
+0.17.0, commit, `v0.17.0` etiketi push.
+
+**Telefonda ve saatte duman testi.** 13-15 Eylül'de eklenen hiçbir şey gerçek cihazda
+çalıştırılmadı. Saat tarafı için aşağıdaki "Saat uygulaması" bölümüne bak — ilk kurulum
+kablosuz ADB istiyor. Telefon sırası:
 
 1. **Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç.** Bu yapılmadan
    uyku verisi gelmez (aşağıda "Uyku" başlığı).
-2. APK'yı kur (`releases/latest`, v0.10.0), `npm run link` → QR → token cihaza gider.
+2. APK'yı kur (`releases/latest`, v0.16.0 — PR merge edilip yeni sürüm çıkılmadıysa
+   offline Eva içermez; onun için `npm run apk`), `npm run link` → QR → token cihaza gider.
 3. Saat kartı → "İzin ver". **İki onay ekranı** çıkar; ikincisinde kan oksijeni, HRV ve
    uyku var — atlanırsa o üç ölçüm boş kalır.
 4. Bugün ekranında kontrol: toplam kalori, dinlenme nabzı, SpO2, HRV, uyku dolu mu.
@@ -35,6 +53,12 @@ eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ay
    `SleepService.PERIOD_MS` artırılır).
 6. Hatırlatma bildirimi saatinde düşüyor mu (Ayar → Hatırlatmalar, varsayılan 09:00/21:00).
 7. Kamerayla öğün, sesli not (Türkçe tanıma).
+8. **Offline Eva, modelsiz:** uçak modunda bir şey sor. Kural tabanlı yanıt gelmeli
+   ("Sunucu kapalı, kendi kayıtlarından yanıtlıyorum…"), "84 kg" yazınca onay düğmesi.
+9. **Offline Eva, modelli:** Ayar → "Cihaz-içi Eva" → indir (~530 MB, Wi-Fi). Sonra uçak
+   modunda sor. Ölçülecek üç şey: **ilk yanıt kaç saniye** (motor tembel kurulur, ilk
+   soru en yavaşıdır), RAM ve Türkçe kalitesi. Zayıf kalırsa q8/ekv4096 sürümüne geçilir
+   (`MAX_TOKENS` 4096, `MODEL_SHA256` yenilenir).
 
 ## Sıradaki iş (öncelik sırası)
 
@@ -215,15 +239,22 @@ mikrofonun dinlediği pencereyi sayar ve elle başlatılır.
   Capacitor `Plugin` sınıfındakileri gölgeler, derleme hatası.
 - `capacitor-health` ile uyku/SpO2/HRV okumaya çalışmak: kütüphanede yolu yok, kendi
   eklentimiz bu yüzden var.
+- `hf auth login`'i ajan oturumunda çalıştırmak: komut token'ı stdin'den ister, `!` ile
+  sessizce takılır. Ayrı terminal penceresi şart — orada token da sohbete düşmez.
+- MediaPipe'ı dört ABI ile bırakmak: APK 11 MB'dan 65 MB'a çıkıyordu. `abiFilters
+  'arm64-v8a'` ile 24 MB; bedeli x86 emülatörde kurulamaması.
+- Cihaz-içi modeli APK'ya gömmek: dosya 529 MB, her OTA güncellemesi o kadar inerdi.
 
 ## Nerede duruyor
 
 Canlı PWA: https://evatechnosoft.github.io/life-os-wellness/
-APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.10.0)
+APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.16.0)
+Model dosyası: `releases/download/models/gemma3-1b-it-int4.task` (sürümlenmez)
 
 Biten: F0 Sprint 1-4 + Aurora Glass teması + Health Connect + gece horlama ölçümü +
 kamerayla öğün + sesli not + geçmiş veri aktarımı (153 gün) + haftalık program +
 seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku/protein) + koç katmanı.
+PR #2'de bekleyen: offline Eva (kural motoru + cihaz-içi Gemma 3 1B).
 
 Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git etiketiyle aynı
 tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
