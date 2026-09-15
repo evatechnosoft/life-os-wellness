@@ -15,6 +15,7 @@ import {
   type SlotGap,
   type WeightTrend,
 } from './nutrition'
+import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
 import { offlineReply } from './offline'
 import { DEFAULT_GOALS, type Goals } from './settings'
 import { type Split } from './split'
@@ -258,17 +259,25 @@ export async function ask(
   await remember({ role: 'user', text, via: opts.via ?? 'text' })
 
   const { text: context, ctx, known } = await gather(new Date())
-  // Sunucu yoksa ya da dustuyse Eva susmaz: persona ve veri telefonda, kural
-  // motoru cevabi kurar. Fotograf yorumu modelsiz olmaz, o yalniz sunucuyla.
-  const offline = (): Promise<ChatMessage> => {
+  const history = (await db.chat.orderBy('id').reverse().limit(12).toArray())
+    .reverse()
+    .map((m) => ({ role: m.role === 'eva' ? ('assistant' as const) : ('user' as const), content: m.text }))
+
+  // Sunucu yoksa ya da dustuyse Eva susmaz: persona ve veri telefonda. Model indirildiyse
+  // (APK) o konusur; yoksa ya da tikanirsa kural motoru. Fotograf yalniz sunucuyla.
+  const offline = async (): Promise<ChatMessage> => {
+    if (await localModelReady()) {
+      try {
+        const r = await askLocal(context, history)
+        return remember({ role: 'eva', text: `${LOCAL_NOTE} ${r.text}`, via: 'text', draft: fillWorkout(r.draft, text) ?? undefined })
+      } catch {
+        // Model yuklenemedi / bellek yetmedi: kural tabanli cevap yine de verilir.
+      }
+    }
     const r = offlineReply(text, ctx, known)
     return remember({ role: 'eva', text: r.text, via: 'text', draft: r.draft ?? undefined })
   }
   if (!hasServer()) return offline()
-
-  const history = (await db.chat.orderBy('id').reverse().limit(12).toArray())
-    .reverse()
-    .map((m) => ({ role: m.role === 'eva' ? ('assistant' as const) : ('user' as const), content: m.text }))
 
   const body: Record<string, unknown> = { messages: history, context }
   if (opts.image) body.image = await toBase64(opts.image)

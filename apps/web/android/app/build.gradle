@@ -75,6 +75,9 @@ dependencies {
     // WearBridgeService: saatten gelen olcumu Data Layer uzerinden alir. Saat modulu ile
     // ayni surum; alternatifi yok, Data Layer tek kapi.
     implementation 'com.google.android.gms:play-services-wearable:19.0.0'
+    // LocalLlmPlugin: sunucu yokken Gemma 3 1B telefonda. Alternatifi llama.cpp JNI'yi
+    // kendimiz derlemek - NDK + bakim yuzeyi; MediaPipe hazir .task dosyasini calistiriyor.
+    implementation 'com.google.mediapipe:tasks-genai:0.10.27'
 }
 
 apply from: 'capacitor.build.gradle'

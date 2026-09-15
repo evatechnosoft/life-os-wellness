@@ -35,32 +35,7 @@ class OtaUpdater(
     /** Karari uygula: indir, dogrula, kurulum istemini ac. */
     fun download(app: OtaManifest.App, onProgress: (Int) -> Unit): Result<Unit> = runCatching {
         val apk = File(File(context.cacheDir, "ota").apply { mkdirs() }, "${app.id}.apk")
-        val conn = open(app.url)
-        try {
-            val total = conn.contentLengthLong
-            apk.outputStream().use { out ->
-                conn.inputStream.use { input ->
-                    val buf = ByteArray(64 * 1024)
-                    var written = 0L
-                    var lastPct = -1
-                    while (true) {
-                        val read = input.read(buf)
-                        if (read <= 0) break
-                        out.write(buf, 0, read)
-                        written += read
-                        if (total > 0) {
-                            val pct = ((written * 100) / total).toInt()
-                            if (pct != lastPct) {
-                                lastPct = pct
-                                onProgress(pct)
-                            }
-                        }
-                    }
-                }
-            }
-        } finally {
-            conn.disconnect()
-        }
+        fetchTo(app.url, apk, "evaitec-ota/$appId", onProgress)
         ApkInstaller.install(context, apk, app).getOrThrow()
     }
 
@@ -77,7 +52,7 @@ class OtaUpdater(
     }
 
     private fun get(url: String): ByteArray {
-        val conn = open(url)
+        val conn = open(url, "evaitec-ota/$appId")
         return try {
             conn.inputStream.readBytes()
         } finally {
@@ -85,18 +60,53 @@ class OtaUpdater(
         }
     }
 
-    private fun open(url: String): HttpURLConnection {
-        require(url.startsWith("https://")) { "https degil: $url" }
-        val conn = URL(url).openConnection() as HttpURLConnection
-        conn.connectTimeout = 15_000
-        conn.readTimeout = 60_000
-        conn.instanceFollowRedirects = true
-        conn.setRequestProperty("User-Agent", "evaitec-ota/$appId")
-        val code = conn.responseCode
-        if (code !in 200..299) {
-            conn.disconnect()
-            error("HTTP $code")
+    companion object {
+        /**
+         * Buyuk dosyayi diske akitir, yuzdeyi bildirir. APK ve cihaz-ici model ayni yolu
+         * kullanir (LocalLlmPlugin) - iki indirme dongusu iki farkli hata davranisi olurdu.
+         */
+        fun fetchTo(url: String, target: File, userAgent: String, onProgress: (Int) -> Unit) {
+            val conn = open(url, userAgent)
+            try {
+                val total = conn.contentLengthLong
+                target.outputStream().use { out ->
+                    conn.inputStream.use { input ->
+                        val buf = ByteArray(64 * 1024)
+                        var written = 0L
+                        var lastPct = -1
+                        while (true) {
+                            val read = input.read(buf)
+                            if (read <= 0) break
+                            out.write(buf, 0, read)
+                            written += read
+                            if (total > 0) {
+                                val pct = ((written * 100) / total).toInt()
+                                if (pct != lastPct) {
+                                    lastPct = pct
+                                    onProgress(pct)
+                                }
+                            }
+                        }
+                    }
+                }
+            } finally {
+                conn.disconnect()
+            }
         }
-        return conn
+
+        private fun open(url: String, userAgent: String): HttpURLConnection {
+            require(url.startsWith("https://")) { "https degil: $url" }
+            val conn = URL(url).openConnection() as HttpURLConnection
+            conn.connectTimeout = 15_000
+            conn.readTimeout = 60_000
+            conn.instanceFollowRedirects = true
+            conn.setRequestProperty("User-Agent", userAgent)
+            val code = conn.responseCode
+            if (code !in 200..299) {
+                conn.disconnect()
+                error("HTTP $code")
+            }
+            return conn
+        }
     }
 }

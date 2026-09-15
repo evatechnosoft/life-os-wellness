@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { getApiBase, getToken, setApiBase, setToken } from '../lib/api'
 import { db } from '../lib/db'
+import { downloadLocalModel, localModelStatus, onModelDownload, removeLocalModel } from '../lib/localLlm'
 import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
 import { saveSplit, useSplit, WEEKDAYS } from '../lib/split'
@@ -145,6 +146,64 @@ function PhoneAppUpdate() {
         className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
       >
         {busy ? 'Çalışıyor…' : available ? 'İndir ve kur' : 'Güncelleme denetle'}
+      </button>
+      {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
+    </Card>
+  )
+}
+
+/**
+ * Cihaz-ici Eva: sunucu yokken telefondaki model konussun. ~530 MB indirme, calisirken
+ * ~1 GB RAM - o yuzden yalniz kullanici isterse. Web'de kart hic gorunmez (model yok).
+ */
+function LocalEva() {
+  const [model, setModel] = useState<{ ready: boolean; sizeMb: number } | null>(null)
+  const [status, setStatus] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    void localModelStatus().then(setModel)
+    const handle = onModelDownload(setStatus)
+    return () => {
+      void handle.then((h) => h?.remove())
+    }
+  }, [])
+
+  if (model === null) return null
+
+  const run = async (action: () => Promise<void>) => {
+    setBusy(true)
+    try {
+      await action()
+      setModel(await localModelStatus())
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card title="Cihaz-içi Eva">
+      <p className="text-xs text-ink-faint">
+        {model.ready
+          ? `Model telefonda (${model.sizeMb} MB). Sunucu kapalıyken Eva buradan yanıtlar.`
+          : 'Sunucu kapalıyken de yanıt için Gemma 3 1B indirilebilir (~530 MB, Wi-Fi önerilir). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
+      </p>
+      <button
+        type="button"
+        onClick={() =>
+          void run(async () => {
+            if (model.ready) {
+              await removeLocalModel()
+              setStatus('Model silindi')
+            } else {
+              setStatus((await downloadLocalModel()).status)
+            }
+          })
+        }
+        disabled={busy}
+        className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
+      >
+        {busy ? 'Çalışıyor…' : model.ready ? 'Modeli sil' : 'Modeli indir'}
       </button>
       {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
     </Card>
@@ -323,6 +382,7 @@ export function Settings() {
       </Card>
 
       <PhoneAppUpdate />
+      <LocalEva />
 
       <WatchAppPush />
 
