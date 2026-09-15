@@ -38,8 +38,6 @@ eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ay
 
 ## Sıradaki iş (öncelik sırası)
 
-0. **Cihaz-içi model dosyasını yayına koy** (aşağıda "Eva sunucu yokken"). Bunsuz Ayarlar'daki
-   "Modeli indir" düğmesi 404 alır; kural tabanlı offline yanıt yine çalışır.
 1. Cihazda duman testi (yukarıda). **Saat verisi 15 Eylül itibarıyla sunucuya hiç gelmedi:**
    `wearable_sync` tablosunda yalnız `health_connect` var (277 satır, son yazım 11 Eylül
    08:15); `watch_app` kaynaklı sıfır satır, 11 Eylül'den beri telefon hiç senkron atmamış.
@@ -250,29 +248,20 @@ yorumlanmaz. Bağlam bir kez toplanır (`gather`): modele metin, offline katmana
    ilk kullanıcı turuna gömer, son 4 tur + 1800 karakter bağlam (KV penceresi 1280 token,
    `MAX_TOKENS` bunun üstüne çıkamaz). Model varsa o konuşur; yüklenemezse 1. katman.
 
-**Model dosyası yayında değil (bloke).** `litert-community/Gemma3-1B-IT` Gemma lisansıyla
-kapılı (anonim istek 401), makinede HF token yok. Yapılacak:
+**Model dosyası yayında** (`models` etiketi, sürümlenmiyor — `LocalLlmPlugin.MODEL_URL`
+sabit bu etikete bakar, `v*` yayınları modeli taşımaz). 554.661.243 bayt,
+sha256 `e3d981c0…bd9dee`; değer `LocalLlmPlugin.MODEL_SHA256`'da sabit ve indirme sonrası
+doğrulanıyor — tutmazsa dosya silinir, motor hiç açılmaz. **Dosya yenilenirse bu sabit de
+güncellenmeli**, yoksa indirme reddedilir.
 
-1. Tarayıcıda https://huggingface.co/litert-community/Gemma3-1B-IT → "Agree and access
-   repository". Lisans kabulü hesap bazlı, komutla yapılamaz.
-2. **Ayrı bir terminal penceresinde** (ajan oturumunda değil — komut stdin bekler ve
-   `!` ile çalıştırılırsa takılır, token da sohbete düşmemeli):
-   ```bash
-   hf auth login        # token: https://huggingface.co/settings/tokens (read yetkisi yeter)
-   ```
-3. Gerisi ajanda çalışır (`hf` yolu: `~/.platformio/penv/Scripts`):
-   ```bash
-   hf download litert-community/Gemma3-1B-IT gemma3-1b-it-int4.task --local-dir <scratch>/llm
-   gh release create models --repo evatechnosoft/life-os-wellness \
-     --title "Cihaz-içi model dosyaları" --notes "Gemma 3 1B int4, MediaPipe .task" \
-     <scratch>/llm/gemma3-1b-it-int4.task
-   ```
-   `gh` tarafı hazır: token `repo` scope'una ve depoda admin yetkisine sahip.
+Kaynak `litert-community/Gemma3-1B-IT`, Gemma lisansıyla kapılı. Yeniden indirmek gerekirse:
+lisans hesapta bir kez kabul edilir (tarayıcı), `hf auth login` **ayrı bir terminalde**
+çalıştırılır (stdin ister, ajan oturumunda `!` ile takılır ve token sohbete düşer).
+`hf` yolu: `~/.platformio/penv/Scripts`. Oturum açık: `deancjx`.
 
 Adres `LocalLlmPlugin.MODEL_URL` → `releases/download/models/gemma3-1b-it-int4.task`
 (`latest` değil: sürüm yayınları modeli taşımaz). İndirme her zaman Ayarlar → "Cihaz-içi
-Eva" düğmesiyle, `.part` üzerinden; `Content-Length` tutmazsa ve 100 MB altındaysa
-reddedilir. Cihazda doğrulanmadı: derleme (`:app:assembleDebug`, `:wear:assembleDebug`,
+Eva" düğmesiyle, `.part` üzerinden; `Content-Length` ya da sha256 tutmazsa reddedilir. Cihazda doğrulanmadı: derleme (`:app:assembleDebug`, `:wear:assembleDebug`,
 `:wear:lintDebug`), 71 Kotlin testi ve web/api testleri yeşil.
 
 ⚠️ **`abiFilters 'arm64-v8a'` eklendi** (`app/build.gradle`). MediaPipe'ın LLM motoru ABI

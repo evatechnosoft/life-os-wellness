@@ -1,5 +1,6 @@
 package com.evaitec.wellness
 
+import com.evaitec.ota.OtaManifest
 import com.evaitec.ota.OtaUpdater
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
@@ -26,6 +27,13 @@ class LocalLlmPlugin : Plugin() {
         const val MODEL_URL =
             "https://github.com/evatechnosoft/life-os-wellness/releases/download/models/gemma3-1b-it-int4.task"
         const val MODEL_FILE = "gemma3-1b-it-int4.task"
+
+        /**
+         * Yayindaki dosyanin sha256'si - kaynaktaki (HuggingFace) degerle ayni dogrulandi.
+         * APK'daki kilidin esi: dosya degistirilirse motor onu hic acmaz. Dosya yenilenirse
+         * bu sabit de guncellenir, yoksa indirme reddedilir.
+         */
+        const val MODEL_SHA256 = "e3d981c01aeaaac69a84ffa0d4be13281b3176731063f1bea1c9fe6887bd9dee"
         /** Bu model dosyasinin KV onbellegi 1280 token; ustu calisma aninda hata. */
         const val MAX_TOKENS = 1280
 
@@ -54,7 +62,9 @@ class LocalLlmPlugin : Plugin() {
                 OtaUpdater.fetchTo(MODEL_URL, part, "evaitec-llm") { pct ->
                     notifyListeners("modelDownload", JSObject().put("status", "İndiriliyor %$pct"))
                 }
-                check(part.length() > 100L * 1024 * 1024) { "dosya beklenenden küçük" }
+                notifyListeners("modelDownload", JSObject().put("status", "Doğrulanıyor"))
+                val actual = part.inputStream().use { OtaManifest.sha256(it) }
+                check(OtaManifest.matches(actual, MODEL_SHA256)) { "sha256 tutmadı" }
                 check(part.renameTo(target)) { "dosya taşınamadı" }
             }
             part.delete()
