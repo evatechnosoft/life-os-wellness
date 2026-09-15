@@ -190,7 +190,10 @@ OS'ta ACTION_VIEW yolu ekranı açıyor ama 'Kur' düğmesi iş görmüyor"* —
 denemesinde çıkan kusur. Duman testinde saat kurulumu takılırsa sebebi budur.
 
 Karar Dean'in: ya o yolu bizim kite taşı, ya da evaitecOTA'yı bırakıp appkit'i AAR olarak
-bağla. **appkit'te bizde olmayanlar:** çok uygulamalı katalog (`catalog/AppCatalog.kt`),
+bağla. Tercih ikincisinden yana olmalı, çünkü ekosistemde **dört ayrı "kendini güncelle"
+uygulaması** var ve dördü de aynı hatayı ayrı ayrı öğrenmek zorunda: bizimki, appkit 0.1.7,
+`evaglass/core/network/.../update/UpdateChecker.kt` (+ `deploy_ota_github.ps1`), ve
+`evamania/lib/data/update_service.dart` (Flutter — yol adından çıkarım, **doğrulanmadı**). **appkit'te bizde olmayanlar:** çok uygulamalı katalog (`catalog/AppCatalog.kt`),
 kurulum sonucu geri bildirimi (`install/InstallResultReceiver.kt`), telefon↔saat↔TV APK
 aktarımı (`transfer/`), ve metin yerine olay üreten arayüz (`ota/OtaEvent.kt` — kullanıcıya
 ne yazılacağına tüketen uygulama karar veriyor). Manifest biçimleri zaten uyumlu: bizim
