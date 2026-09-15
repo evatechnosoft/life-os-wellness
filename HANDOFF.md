@@ -181,6 +181,22 @@ JS'e sabit yazılmadı), saatte `MainActivity` altında.
 `cache/ota/`'yı hem Capacitor Camera'nın kullandığı kökü kapsıyor; `ota/` ile daraltmak
 kamerayı kırar.
 
+🔴 **Saatteki "Kur" düğmesi büyük olasılıkla iş görmeyecek — kardeş depoda çözülmüş.**
+Bizim `ApkInstaller.kt:50` yalnız `Intent.ACTION_VIEW` kullanıyor.
+`D:\projects\evaitec-appkit` (github.com/evatechnosoft/evaitec-appkit, sürüm 0.1.7) aynı
+işi yapan olgun bir kit ve orada `install/ApkInstaller.kt:105` şu notu taşıyor: *"Wear
+OS'ta ACTION_VIEW yolu ekranı açıyor ama 'Kur' düğmesi iş görmüyor"* — çözümü
+`PackageInstaller` oturumu (aynı dosya, satır 124). Bu, appkit'in 11 Eylül saha
+denemesinde çıkan kusur. Duman testinde saat kurulumu takılırsa sebebi budur.
+
+Karar Dean'in: ya o yolu bizim kite taşı, ya da evaitecOTA'yı bırakıp appkit'i AAR olarak
+bağla. **appkit'te bizde olmayanlar:** çok uygulamalı katalog (`catalog/AppCatalog.kt`),
+kurulum sonucu geri bildirimi (`install/InstallResultReceiver.kt`), telefon↔saat↔TV APK
+aktarımı (`transfer/`), ve metin yerine olay üreten arayüz (`ota/OtaEvent.kt` — kullanıcıya
+ne yazılacağına tüketen uygulama karar veriyor). Manifest biçimleri zaten uyumlu: bizim
+`latest.json`'daki düz alanlar (`versionCode/versionName/apk/url/sha256`) appkit'in
+beklediği şemanın aynısı, yani iki taraf birbirinin manifestini okuyabiliyor.
+
 ⚠️ **İlk kurulum hâlâ kablosuz ADB.** Saatte dinleyen bir uygulama olmadan telefon oraya
 dosya gönderemez. Zincir ikinci kurulumdan sonrasını çözüyor. ADB'siz bootstrap için tek
 yol saatte kurulu duran evaglass: manifestimiz onun biçimini de taşıyor, karşı tarafta
