@@ -1,6 +1,6 @@
 ext {
     // Telefon ve saat APK'si ayni surumu tasir: OTA/eslesme karsilastirmasi bunun uzerinden.
-    wellnessVersion = '0.16.0'
+    wellnessVersion = '0.17.0'
     minSdkVersion = 26  // Health Connect (androidx.health.connect) requires Android 8+
     compileSdkVersion = 36
     targetSdkVersion = 36
