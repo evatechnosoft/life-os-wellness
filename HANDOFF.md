@@ -253,11 +253,21 @@ yorumlanmaz. Bağlam bir kez toplanır (`gather`): modele metin, offline katmana
 **Model dosyası yayında değil (bloke).** `litert-community/Gemma3-1B-IT` Gemma lisansıyla
 kapılı (anonim istek 401), makinede HF token yok. Yapılacak:
 
-```bash
-hf auth login                      # HF'de lisansı kabul ettikten sonra
-hf download litert-community/Gemma3-1B-IT gemma3-1b-it-int4.task --local-dir /tmp/llm
-gh release create models --repo evatechnosoft/life-os-wellness --title "Cihaz-içi model dosyaları" --notes "Gemma 3 1B int4, MediaPipe .task" /tmp/llm/gemma3-1b-it-int4.task
-```
+1. Tarayıcıda https://huggingface.co/litert-community/Gemma3-1B-IT → "Agree and access
+   repository". Lisans kabulü hesap bazlı, komutla yapılamaz.
+2. **Ayrı bir terminal penceresinde** (ajan oturumunda değil — komut stdin bekler ve
+   `!` ile çalıştırılırsa takılır, token da sohbete düşmemeli):
+   ```bash
+   hf auth login        # token: https://huggingface.co/settings/tokens (read yetkisi yeter)
+   ```
+3. Gerisi ajanda çalışır (`hf` yolu: `~/.platformio/penv/Scripts`):
+   ```bash
+   hf download litert-community/Gemma3-1B-IT gemma3-1b-it-int4.task --local-dir <scratch>/llm
+   gh release create models --repo evatechnosoft/life-os-wellness \
+     --title "Cihaz-içi model dosyaları" --notes "Gemma 3 1B int4, MediaPipe .task" \
+     <scratch>/llm/gemma3-1b-it-int4.task
+   ```
+   `gh` tarafı hazır: token `repo` scope'una ve depoda admin yetkisine sahip.
 
 Adres `LocalLlmPlugin.MODEL_URL` → `releases/download/models/gemma3-1b-it-int4.task`
 (`latest` değil: sürüm yayınları modeli taşımaz). İndirme her zaman Ayarlar → "Cihaz-içi
