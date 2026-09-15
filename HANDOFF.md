@@ -1,13 +1,13 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-15 · dev @ v0.16.0 · 0 kirli dosya · origin/dev ile eşit · yayınlanan sürüm v0.16.0
+> 2026-09-15 · `feature/offline-eva` @ 184476f (dev v0.16.0 üstüne 2 commit, push edilmedi) · 0 kirli dosya · yayınlanan sürüm v0.16.0
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
 git fetch -q && git status -sb           # dev, origin/dev ile eşit (ef13034 veya sonrası)
 git status --porcelain | wc -l           # 0 bekleniyor
-npm test                                 # api 46 pass / 0 fail, web 209 pass / 0 fail
+npm test                                 # api 46 pass / 0 fail, web 224 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
 ```
@@ -38,7 +38,13 @@ eklenen hiçbir şey gerçek cihazda çalıştırılmadı. Saat tarafı için ay
 
 ## Sıradaki iş (öncelik sırası)
 
-1. Cihazda duman testi (yukarıda)
+0. **Cihaz-içi model dosyasını yayına koy** (aşağıda "Eva sunucu yokken"). Bunsuz Ayarlar'daki
+   "Modeli indir" düğmesi 404 alır; kural tabanlı offline yanıt yine çalışır.
+1. Cihazda duman testi (yukarıda). **Saat verisi 15 Eylül itibarıyla sunucuya hiç gelmedi:**
+   `wearable_sync` tablosunda yalnız `health_connect` var (277 satır, son yazım 11 Eylül
+   08:15); `watch_app` kaynaklı sıfır satır, 11 Eylül'den beri telefon hiç senkron atmamış.
+   Telefon ADB'de de görünmüyor. Doğrulama telefonda: Saat kartı → "Saatteki seans" ve
+   "Nabız gecikmesi" dolu mu.
 2. API'yi ZimaOS'a taşı → PC kapalıyken de çalışsın. **Bloke:** 192.168.1.186 ping'e
    yanıt vermiyor (13 Eylül'de de denendi).
 3. Gözlük (evaglass) köprüsü — API hazır, iş karşı repoda bir istemci yazmak
@@ -223,6 +229,40 @@ Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git et
 tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
 → Actions APK derleyip release'e ekler. Her `dev` push'u Pages'e gider.
 
+## Eva sunucu yokken — iki katman, tek giriş noktası
+
+`ask()` (`apps/web/src/lib/chat.ts`) sunucu yoksa ya da istek düşerse `offline()`'a
+iner; 429'da inmez (sunucu ayakta, kota dolu — kullanıcı beklesin). Fotoğraf modelsiz
+yorumlanmaz. Bağlam bir kez toplanır (`gather`): modele metin, offline katmana yapı.
+
+1. **Kural tabanlı** (`offline.ts`, PWA dahil, 0 MB): koç/beslenme motorunun hesapladığı
+   öneriler `coachText` cümleleriyle; cümledeki sayılar `<kayit>` taslağına (`parseDraft`).
+   Sayısız antrenman cümlesi soru sayılır, yalın "84 kg" tartıdır, "60 kg kaldırdım"
+   antrenman. Kırmızı bayrak hekime yönlendirir. Hesaplanmamış rakam yazılmaz.
+2. **Cihaz-içi model** (yalnız APK): `LocalLlmPlugin.kt` + MediaPipe `tasks-genai:0.10.27`,
+   Gemma 3 1B int4 (~530 MB dosya, ~1.1 GB RAM, S24 Ultra CPU'da ~47 token/sn). Persona
+   **`apps/api/src/persona.ts`** — sunucu ve telefon aynı dosyayı okur (web göreli yoldan
+   içeri alır), `splitReply` de orada. Gemma'da sistem rolü yok: `gemmaPrompt` personayı
+   ilk kullanıcı turuna gömer, son 4 tur + 1800 karakter bağlam (KV penceresi 1280 token,
+   `MAX_TOKENS` bunun üstüne çıkamaz). Model varsa o konuşur; yüklenemezse 1. katman.
+
+**Model dosyası yayında değil (bloke).** `litert-community/Gemma3-1B-IT` Gemma lisansıyla
+kapılı (anonim istek 401), makinede HF token yok. Yapılacak:
+
+```bash
+hf auth login                      # HF'de lisansı kabul ettikten sonra
+hf download litert-community/Gemma3-1B-IT gemma3-1b-it-int4.task --local-dir /tmp/llm
+gh release create models --repo evatechnosoft/life-os-wellness --title "Cihaz-içi model dosyaları" --notes "Gemma 3 1B int4, MediaPipe .task" /tmp/llm/gemma3-1b-it-int4.task
+```
+
+Adres `LocalLlmPlugin.MODEL_URL` → `releases/download/models/gemma3-1b-it-int4.task`
+(`latest` değil: sürüm yayınları modeli taşımaz). İndirme her zaman Ayarlar → "Cihaz-içi
+Eva" düğmesiyle, `.part` üzerinden, 100 MB altı dosya reddedilir. Cihazda doğrulanmadı:
+derleme (`:app:compileDebugKotlin`, `:wear`), 71 Kotlin testi ve web/api testleri yeşil.
+Duman testinde bakılacak: ilk yanıt süresi (motor tembel kurulur), RAM, Türkçe kalitesi —
+1B model zayıf kalırsa `Gemma3-1B-IT_multi-prefill-seq_q8_ekv4096.task` (1 GB) denenir,
+o zaman `MAX_TOKENS` 4096'ya çıkar.
+
 ## Eva ve model erişimi
 
 Tek uç: `POST /api/chat` — OpenAI-uyumlu istemci, LiteLLM proxy'de `wellness-chat` /
@@ -232,7 +272,8 @@ sağlayıcıya doğrudan bağlanmaz; sağlayıcı değiştirmek `config/litellm.
 Her istekte son 7 günün özeti + sık yenen yiyeceklerin geçmiş değerleri system'e ekleniyor
 (`apps/web/src/lib/chat.ts` `buildContext`). Model eğitimi yok. Yanıttaki
 `<kayit>{...}</kayit>` bloğu "Günlüğe kaydet" düğmesine dönüşür — onaylanmadan hiçbir şey
-yazılmaz.
+yazılmaz. Sistem istemi `apps/api/src/persona.ts`'te (`SYSTEM`); `chat.ts` yeniden dışa
+aktarır, testler oradan okur.
 
 Web araması Gemini'nin kendi grounding'i (`web_search_options: {}`), atıflar
 `annotations[].url_citation`. ⚠️ Atıf URL'leri `vertexaisearch.cloud.google.com`
