@@ -1,20 +1,20 @@
 # HANDOFF — life-os-wellness
 
-> 2026-09-15 · `feature/offline-eva` @ fca05f6 · 0 kirli dosya · origin ile eşit
-> · dev'den 7 commit ileri, **PR #2 açık ve inceleme bekliyor** · yayınlanan sürüm v0.16.0
+> 2026-09-15 · `dev` @ v0.17.0 · 0 kirli dosya · origin ile eşit · yayınlanan sürüm v0.17.0
+> · PR #2 (offline Eva) squash ile `dev`'e alındı
 
 ## Doğrula (önce bunu çalıştır)
 
 ```bash
-git fetch -q && git status -sb           # feature/offline-eva, origin ile eşit (fca05f6)
+git fetch -q && git status -sb           # dev, origin/dev ile eşit
 git status --porcelain | wc -l           # 0 bekleniyor
-git log --oneline origin/dev..HEAD | wc -l  # 7 — hepsi offline Eva işi
 npm test                                 # api 46 pass / 0 fail, web 224 pass / 0 fail
 docker compose ps                        # db, litellm, api, cloudflared dördü de Up
 curl -s https://fit.evaitec.com/health   # {"ok":true}
+gh release view v0.17.0 --repo evatechnosoft/life-os-wellness  # iki APK + latest.json
 ```
 
-Beşi de 15 Eylül 10:45'te bu değerlerle koştu. Farklı çıkarsa repoya güven, bu dosyaya değil.
+İlk beşi 15 Eylül 10:45'te bu değerlerle koştu. Farklı çıkarsa repoya güven, bu dosyaya değil.
 
 API testleri postgres ister: kapalıysa `ECONNREFUSED 127.0.0.1:5433` görürsün, kod
 hatası değil — `npm run db:up` yeter. Kotlin testleri ayrı:
@@ -25,27 +25,16 @@ aynı komutla koşuyor: `./gradlew :app:assembleDebug :wear:assembleDebug :wear:
 
 ## Sıradaki iş — 1. adım
 
-**PR #2'yi incele ve `dev`'e al**, sonra duman testi. Kod tarafında bekleyen iş yok,
-cihazsız her şey bitti: model dosyası yayında, testler ve derleme yeşil.
-
-```bash
-gh pr view 2 --repo evatechnosoft/life-os-wellness      # kapsam ve kanıt tablosu
-gh pr merge 2 --repo evatechnosoft/life-os-wellness --squash --delete-branch
-```
-
-Merge `dev`'e düşünce Pages otomatik yayınlanır (`pages.yml`); APK yayını ayrı, `v*`
-etiketi ister. **Duman testi APK gerektiriyor** — sürüm yükseltmeden yerel APK yeter:
-`npm run apk`. Sürüm çıkarılacaksa `apps/web/android/app/build.gradle` → `appVersion`
-0.17.0, commit, `v0.17.0` etiketi push.
-
-**Telefonda ve saatte duman testi.** 13-15 Eylül'de eklenen hiçbir şey gerçek cihazda
+**Telefonda ve saatte duman testi.** Kod tarafında bekleyen iş yok; cihazsız her şey
+bitti. v0.17.0 yayında, telefon OTA'sı bu sürümü kendi görecek (Ayar → Telefon
+uygulaması → "Güncelleme denetle"). 13-15 Eylül'de eklenen hiçbir şey gerçek cihazda
 çalıştırılmadı. Saat tarafı için aşağıdaki "Saat uygulaması" bölümüne bak — ilk kurulum
 kablosuz ADB istiyor. Telefon sırası:
 
 1. **Samsung Health → Ayarlar → Health Connect → Uyku'yu paylaşıma aç.** Bu yapılmadan
    uyku verisi gelmez (aşağıda "Uyku" başlığı).
-2. APK'yı kur (`releases/latest`, v0.16.0 — PR merge edilip yeni sürüm çıkılmadıysa
-   offline Eva içermez; onun için `npm run apk`), `npm run link` → QR → token cihaza gider.
+2. APK'yı kur (`releases/latest`, v0.17.0 — offline Eva bu sürümde), `npm run link` →
+   QR → token cihaza gider. Telefonda v0.16.0 kuruluysa OTA da getirir.
 3. Saat kartı → "İzin ver". **İki onay ekranı** çıkar; ikincisinde kan oksijeni, HRV ve
    uyku var — atlanırsa o üç ölçüm boş kalır.
 4. Bugün ekranında kontrol: toplam kalori, dinlenme nabzı, SpO2, HRV, uyku dolu mu.
@@ -248,13 +237,13 @@ mikrofonun dinlediği pencereyi sayar ve elle başlatılır.
 ## Nerede duruyor
 
 Canlı PWA: https://evatechnosoft.github.io/life-os-wellness/
-APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.16.0)
+APK: https://github.com/evatechnosoft/life-os-wellness/releases/latest (v0.17.0)
 Model dosyası: `releases/download/models/gemma3-1b-it-int4.task` (sürümlenmez)
 
 Biten: F0 Sprint 1-4 + Aurora Glass teması + Health Connect + gece horlama ölçümü +
 kamerayla öğün + sesli not + geçmiş veri aktarımı (153 gün) + haftalık program +
 seans onayı + yiyecek hafızası + hatırlatmalar + HealthExtra (kalori/nabız/SpO2/HRV/uyku/protein) + koç katmanı.
-PR #2'de bekleyen: offline Eva (kural motoru + cihaz-içi Gemma 3 1B).
+v0.17.0'da gelen: offline Eva (kural motoru + cihaz-içi Gemma 3 1B).
 
 Sürüm tek kaynak: `apps/web/android/app/build.gradle` → `appVersion`. Git etiketiyle aynı
 tutulur, `versionCode` ondan türer. Yayın: `appVersion` güncelle → commit → `v*` tag push
