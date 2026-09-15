@@ -266,6 +266,11 @@ export async function ask(
   // Sunucu yoksa ya da dustuyse Eva susmaz: persona ve veri telefonda. Model indirildiyse
   // (APK) o konusur; yoksa ya da tikanirsa kural motoru. Fotograf yalniz sunucuyla.
   const offline = async (): Promise<ChatMessage> => {
+    // Fotograf sunucusuz okunamaz (cihaz-ici model gorme yetenegi tasimiyor). Bunu
+    // soylemeden metin cevabi vermek, tabaga bakilmis gibi gorunurdu.
+    if (opts.image) {
+      return remember({ role: 'eva', text: 'Fotoğrafı ancak sunucu açıkken okuyabilirim. Ne yediğini yazarsan kaydederim.', via: 'text' })
+    }
     if (await localModelReady()) {
       try {
         const r = await askLocal(context, history)
@@ -296,7 +301,6 @@ export async function ask(
   } catch (err) {
     // 429 sunucunun ayakta oldugunu soyler: kullanici beklesin, offline cevaba dusme.
     if (err instanceof ApiError && err.status === 429) return remember({ role: 'eva', text: chatErrorMessage(err), via: 'text' })
-    if (opts.image) return remember({ role: 'eva', text: chatErrorMessage(err), via: 'text' })
     return offline()
   }
 }

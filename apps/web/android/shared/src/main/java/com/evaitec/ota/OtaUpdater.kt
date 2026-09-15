@@ -89,6 +89,11 @@ class OtaUpdater(
                         }
                     }
                 }
+                // Yarim inen dosya sessizce kalirsa APK kurulumu sha256'da patlar ama model
+                // dosyasinin dogrulayicisi yok - kesilen indirme burada yakalanir.
+                if (total > 0 && target.length() != total) {
+                    error("indirme yarim kaldi: ${target.length()}/$total bayt")
+                }
             } finally {
                 conn.disconnect()
             }

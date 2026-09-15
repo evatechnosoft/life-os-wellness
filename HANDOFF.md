@@ -239,6 +239,8 @@ yorumlanmaz. Bağlam bir kez toplanır (`gather`): modele metin, offline katmana
    öneriler `coachText` cümleleriyle; cümledeki sayılar `<kayit>` taslağına (`parseDraft`).
    Sayısız antrenman cümlesi soru sayılır, yalın "84 kg" tartıdır, "60 kg kaldırdım"
    antrenman. Kırmızı bayrak hekime yönlendirir. Hesaplanmamış rakam yazılmaz.
+   Fotoğraf bu katmanda okunmaz: cihaz-içi model görme yeteneği taşımıyor, kural motoru
+   da tabağa bakamaz. Sunucusuz çekilen fotoğrafa Eva bunu açıkça söyler.
 2. **Cihaz-içi model** (yalnız APK): `LocalLlmPlugin.kt` + MediaPipe `tasks-genai:0.10.27`,
    Gemma 3 1B int4 (~530 MB dosya, ~1.1 GB RAM, S24 Ultra CPU'da ~47 token/sn). Persona
    **`apps/api/src/persona.ts`** — sunucu ve telefon aynı dosyayı okur (web göreli yoldan
@@ -257,8 +259,14 @@ gh release create models --repo evatechnosoft/life-os-wellness --title "Cihaz-i�
 
 Adres `LocalLlmPlugin.MODEL_URL` → `releases/download/models/gemma3-1b-it-int4.task`
 (`latest` değil: sürüm yayınları modeli taşımaz). İndirme her zaman Ayarlar → "Cihaz-içi
-Eva" düğmesiyle, `.part` üzerinden, 100 MB altı dosya reddedilir. Cihazda doğrulanmadı:
-derleme (`:app:compileDebugKotlin`, `:wear`), 71 Kotlin testi ve web/api testleri yeşil.
+Eva" düğmesiyle, `.part` üzerinden; `Content-Length` tutmazsa ve 100 MB altındaysa
+reddedilir. Cihazda doğrulanmadı: derleme (`:app:assembleDebug`, `:wear:assembleDebug`,
+`:wear:lintDebug`), 71 Kotlin testi ve web/api testleri yeşil.
+
+⚠️ **`abiFilters 'arm64-v8a'` eklendi** (`app/build.gradle`). MediaPipe'ın LLM motoru ABI
+başına 12-16 MB taşıyor; dördü birden debug APK'yı 65 MB yapıyordu, tek ABI ile 24 MB
+(eski sürüm 11 MB'tı). Bunun bedeli: **APK artık x86 emülatörde kurulmaz.** Emülatör
+gerekirse listeye `'x86_64'` eklenir. Saat APK'sı etkilenmedi (13 MB, tasks-genai `:app`'te).
 Duman testinde bakılacak: ilk yanıt süresi (motor tembel kurulur), RAM, Türkçe kalitesi —
 1B model zayıf kalırsa `Gemma3-1B-IT_multi-prefill-seq_q8_ekv4096.task` (1 GB) denenir,
 o zaman `MAX_TOKENS` 4096'ya çıkar.
