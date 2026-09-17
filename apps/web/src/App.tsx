@@ -5,12 +5,13 @@ import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
 import { syncHealth } from './lib/health'
-import { autoCheckPhoneUpdate, drainWatch } from './lib/watch'
+import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch } from './lib/watch'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
-import { hasServer, pullRange, startSyncLoop } from './lib/store'
+import { hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
 import { Eva } from './ui/Eva'
 import { Settings } from './ui/Settings'
+import { PullToRefresh } from './ui/PullToRefresh'
 import { Today } from './ui/Today'
 import { Week } from './ui/Week'
 
@@ -72,6 +73,23 @@ export function App() {
     }
   }, [])
 
+  /**
+   * Asagi cekip birakinca: kuyrugu bosalt, sunucudan 30 gunu tazele, OTA manifestine
+   * TEKRAR bak. `checkPhoneUpdate` gunluk onbellegi atlar - kullanici yenilemeyi
+   * kendisi istediyse "bugun zaten baktim" cevabi dogru cevap degildir.
+   */
+  const refresh = async (): Promise<void> => {
+    const window30 = lastDates(30)
+    if (hasServer()) {
+      await syncOutbox()
+      await pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
+      await pullSplit().catch(() => {})
+    }
+    const update = await checkPhoneUpdate().catch(() => null)
+    setUpdateReady(update?.state === 'available')
+    setDate(toLocalDate())
+  }
+
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
       <header className="flex items-baseline justify-between px-4 pt-6 pb-1">
@@ -82,10 +100,12 @@ export function App() {
       </header>
 
       <main className="flex-1 px-4 pb-24">
-        {tab === 'today' && <Today date={date} />}
-        {tab === 'chat' && <Eva />}
-        {tab === 'week' && <Week />}
-        {tab === 'settings' && <Settings />}
+        <PullToRefresh onRefresh={refresh}>
+          {tab === 'today' && <Today date={date} />}
+          {tab === 'chat' && <Eva />}
+          {tab === 'week' && <Week />}
+          {tab === 'settings' && <Settings />}
+        </PullToRefresh>
       </main>
 
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
