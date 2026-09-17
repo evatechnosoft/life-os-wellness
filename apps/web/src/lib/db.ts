@@ -8,6 +8,12 @@ export interface DailyLog {
   bp_systolic?: number | null
   bp_diastolic?: number | null
   notes?: string | null
+  /** S1: "bugun abarttim" isareti - kullanicinin tek dokunusu, tahmin degil. */
+  overate?: boolean | null
+  /** S4: sebze/baklagil porsiyonu, hedef 5. Lif grami sayilmaz. */
+  veg_servings?: number | null
+  /** S4: haftada bir olculen bel cevresi - kilo disi ilerleme gostergesi. */
+  waist_cm?: number | null
   updated_at: string
 }
 
@@ -69,7 +75,15 @@ export interface Meal {
   photo?: Blob
   /** Set when the numbers came from a photo estimate the user accepted. */
   estimated: boolean
+  /** S3 aclik skoru 1-10, opsiyonel: bos birakmak serbest, 60 sn kurali. */
+  hunger?: number | null
+  /** Sayinin kaynagi (S6 hibrit): elle, fotograf, barkod, USDA, TurKomp. */
+  source?: MealSource | null
+  /** OFF barkodu - ayni urun ikinci kez okununca ayni degerler gelsin. */
+  barcode?: string | null
 }
+
+export type MealSource = 'manual' | 'photo' | 'barcode' | 'usda' | 'turkomp'
 
 /** Every note you typed or spoke, kept as a plain log - not a chat transcript on screen. */
 export interface NoteEntry {
@@ -141,4 +155,11 @@ db.version(4).stores({
 
 db.version(5).stores({
   chat: 'id, date',
+})
+
+// Ogun artik sunucuya da gidiyor (db/005): indeks degismedi, yalniz alanlar eklendi.
+// Dexie sema disi alanlari zaten tasir; surum yine de artiyor ki eski kurulumda
+// upgrade zinciri kirilmadan ilerlesin.
+db.version(6).stores({
+  meal: 'id, date',
 })

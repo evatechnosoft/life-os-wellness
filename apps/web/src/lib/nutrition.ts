@@ -331,3 +331,120 @@ export function weightTrend(
     severity: status === 'on_track' ? 'info' : 'warn',
   }
 }
+
+export interface MenuSet {
+  kind: 'menu'
+  /** Alisik: gecmisten; Degisiklik: bu hafta hic gecmemis; Hizli: porsiyonu bilinen <=2 kalem. */
+  set: 'usual' | 'change' | 'quick'
+  slot: MealSlot
+  items: FoodSuggestion[]
+  protein_g: number
+  /** Slot acigini kapatiyor mu - kapatmiyorsa UI eksigi soyler, uydurmaz. */
+  covers_gap: boolean
+  /** Onceden secili gelen set (S2b: varsayilan tercihi degistirir). */
+  selected: boolean
+  /** Bu hafta hic yenmemis kalem - meydan okuma seti. */
+  challenge: boolean
+  severity: Severity
+}
+
+/** Hizli set en fazla bu kadar kalem tasir: tek dokunusla kaydolabilmeli. */
+const QUICK_MAX_ITEMS = 2
+const SET_MAX_ITEMS = 3
+
+/**
+ * Acigi kapatan en kucuk kombinasyon. Tek kalemle kapaniyorsa en az tasiran kalem
+ * secilir - acigi 34 g olan bir slota 62 g tavuk yazmak "kapattim" degildir.
+ */
+function packFor(candidates: FoodSuggestion[], gap_g: number, max: number): FoodSuggestion[] {
+  const sorted = [...candidates].sort((a, b) => b.protein_g - a.protein_g || a.food.localeCompare(b.food))
+  const smallestThatCovers = [...sorted].reverse().find((c) => c.protein_g >= gap_g)
+  if (smallestThatCovers) return [smallestThatCovers]
+  const picked: FoodSuggestion[] = []
+  let total = 0
+  for (const c of sorted) {
+    if (picked.length >= max) break
+    picked.push(c)
+    total += c.protein_g
+    if (total >= gap_g) break
+  }
+  return picked
+}
+
+function signatureOf(items: FoodSuggestion[]): string {
+  return items.map((i) => foldTr(i.food)).sort().join('|')
+}
+
+/**
+ * Tek liste yerine uc senaryo (PLAN-DIET S2/S2b). `suggestFoods` skorlamasinin
+ * uzerine ince bir katman: yeni veri kaynagi yok, ayni adaylar uc bicimde
+ * gruplanir. Bos ya da bir digeriyle ayni olan set atilir - uc yerine iki set
+ * gostermek, uydurma bir set gostermekten iyidir.
+ *
+ * Biri `selected: true` gelir (varsayilan tercihi degistirir); "Degisiklik" seti
+ * her zaman meydan okumadir. Hicbiri kisitlama dili uretmez: itme = eklemek.
+ */
+export function suggestMenus(
+  meals: Meal[],
+  gap: SlotGap,
+  opts: { recentMeals?: Meal[]; maxItems?: number } = {},
+): MenuSet[] {
+  const maxItems = opts.maxItems ?? SET_MAX_ITEMS
+  const candidates = suggestFoods(meals, gap.slot, { recentMeals: opts.recentMeals, limit: 12 })
+  if (candidates.length === 0) return []
+
+  const recentNames = new Set(
+    (opts.recentMeals ?? [])
+      .filter((m) => m.note)
+      .map((m) => foldTr(parsePortion(m.note!).name)),
+  )
+
+  const drafts: { set: MenuSet['set']; items: FoodSuggestion[]; challenge: boolean }[] = [
+    {
+      set: 'usual',
+      items: packFor(candidates.filter((c) => c.source === 'history'), gap.gap_g, maxItems),
+      challenge: false,
+    },
+    {
+      set: 'change',
+      items: packFor(candidates.filter((c) => !recentNames.has(foldTr(c.food))), gap.gap_g, maxItems),
+      challenge: true,
+    },
+    {
+      set: 'quick',
+      items: packFor(
+        candidates.filter((c) => c.grams != null || c.count != null),
+        gap.gap_g,
+        QUICK_MAX_ITEMS,
+      ),
+      challenge: false,
+    },
+  ]
+
+  const seen = new Set<string>()
+  const sets: MenuSet[] = []
+  for (const draft of drafts) {
+    if (draft.items.length === 0) continue
+    const signature = signatureOf(draft.items)
+    if (seen.has(signature)) continue
+    seen.add(signature)
+    const protein_g = draft.items.reduce((sum, i) => sum + i.protein_g, 0)
+    sets.push({
+      kind: 'menu',
+      set: draft.set,
+      slot: gap.slot,
+      items: draft.items,
+      protein_g,
+      covers_gap: protein_g >= gap.gap_g,
+      selected: false,
+      challenge: draft.challenge,
+      severity: 'info',
+    })
+  }
+
+  // Varsayilan: acigi kapatan ilk set; hicbiri kapatmiyorsa ilki. "Alisik" onde
+  // oldugu icin bugunku davranis varsayilan olur, degisiklik bilincli secilir.
+  const target = sets.find((s) => s.covers_gap) ?? sets[0]
+  if (target) target.selected = true
+  return sets
+}

@@ -1,5 +1,5 @@
 import { api, ApiError, getToken } from './api'
-import { db, type DailyLog, type OutboxEntry, type Retro, type WearableRecord, type Workout } from './db'
+import { db, type DailyLog, type Meal, type OutboxEntry, type Retro, type WearableRecord, type Workout } from './db'
 
 const now = () => new Date().toISOString()
 
@@ -84,6 +84,19 @@ export async function dismissWorkout(id: string): Promise<void> {
   await deleteWorkout(id)
 }
 
+/**
+ * Ogunu kuyruga koyar. Fotograf gitmez: cihazda kalir (PLAN-DIET S6), zaten
+ * Blob JSON'a serilesmez. Id istemcide uretildigi icin POST idempotenttir.
+ */
+export async function queueMeal(meal: Meal): Promise<void> {
+  const { photo: _photo, ...body } = meal
+  await queue({ method: 'POST', path: '/api/meals', body })
+}
+
+export async function queueMealDelete(id: string): Promise<void> {
+  await queue({ method: 'DELETE', path: `/api/meals/${id}` })
+}
+
 export async function saveRetro(date: string, patch: Partial<Retro>): Promise<void> {
   const existing = await db.retro.get(date)
   await db.retro.put({ ...existing, ...patch, date, updated_at: now() })
@@ -125,19 +138,23 @@ export async function syncOutbox(): Promise<number> {
 /** Pulls the server's copy into IndexedDB. Used on load so a second device sees existing data. */
 export async function pullRange(start: string, end: string): Promise<void> {
   const query = `?start=${start}&end=${end}`
-  const [daily, workouts, retros, wearable] = await Promise.all([
+  const [daily, workouts, retros, wearable, meals] = await Promise.all([
     api<DailyLog[]>(`/api/daily${query}`),
     api<Workout[]>(`/api/workouts${query}`),
     api<Retro[]>(`/api/retro${query}`),
     api<WearableRecord[]>(`/api/wearable${query}`),
+    api<Meal[]>(`/api/meals${query}`),
   ])
-  await db.transaction('rw', db.daily_log, db.workout, db.retro, db.wearable, async () => {
+  await db.transaction('rw', db.daily_log, db.workout, db.retro, db.wearable, db.meal, async () => {
     await db.daily_log.bulkPut(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? now() })))
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
     // Sunucu kendi uuid'sini veriyor; yerel anahtar date+metric oldugu icin
     // yeniden cekmek satiri cogaltmasin diye id burada turetiliyor.
     await db.wearable.bulkPut(wearable.map((w) => ({ ...w, id: `${w.date}:${w.metric}` })))
+    // Fotograf sunucuda yok; cekilen kopya yerel fotografi silmesin.
+    const local = await db.meal.bulkGet(meals.map((m) => m.id))
+    await db.meal.bulkPut(meals.map((m, i) => (local[i]?.photo ? { ...m, photo: local[i]!.photo } : m)))
   })
 }
 

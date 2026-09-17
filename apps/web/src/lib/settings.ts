@@ -18,6 +18,11 @@ export interface Goals {
    * devralir. Yeni kayitlarda hic bulunmaz.
    */
   weekly_weight_loss_kg?: number
+  /**
+   * Oneri itme dozu (S2b). Bos birakilirsa ADAPTIF: telafi gunu `push`, diger
+   * gunler `soft` (`lapse.ts > nudgeFor`). Elle secim adaptifi kapatir.
+   */
+  nudge?: 'soft' | 'push'
 }
 
 export const DEFAULT_GOALS: Goals = {
