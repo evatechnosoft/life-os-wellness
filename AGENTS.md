@@ -10,7 +10,9 @@ Bu repoda çalışan her ajanın önce okuduğu çalışma kuralları. Ürün ge
 - **Offline-first.** Her yazma önce IndexedDB'ye, sonra `outbox` üzerinden sunucuya.
   Ağ yokken kayıt kaybı bu uygulamanın tek gerçek başarısızlık modudur.
 - **Manuel giriş kalıcı katmandır**, geçici çözüm değil.
-- **Kalori/besin veritabanı kapsam dışı.** Protein gramı yeterli.
+- **Besin veritabanı hibrit** (kilit 2026-09-16'da spec sahibince açıldı, `docs/PLAN-DIET.md` S6):
+  barkod → Open Food Facts, Türk ev yemeği → TürKomp CSV, jenerik → USDA, kalanı LLM tahmini.
+  Günlük kalori **hedefi** ve "kalan kalori" sayacı yine yok; karar birimi haftalık ortalama.
 - **Karar birimi 7-gün hareketli ortalamadır**, günlük kilo değil.
 - **Tek kullanıcı.** Auth sistemi yok, tek statik bearer token yeterli.
 
