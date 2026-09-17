@@ -21,3 +21,6 @@ apps/web/android/build/
 apps/web/android/app/build/
 apps/web/android/app/src/main/assets/public/
 apps/web/android/capacitor-cordova-android-plugins/
+
+# vitest --coverage ciktisi
+coverage/

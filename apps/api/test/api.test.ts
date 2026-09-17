@@ -17,7 +17,7 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
 
   // Tests share the dev database; fixtures live in 2099 and are wiped on both ends.
   const wipeFixtures = async () => {
-    for (const table of ['daily_log', 'workout', 'retro', 'wearable_sync']) {
+    for (const table of ['daily_log', 'workout', 'retro', 'wearable_sync', 'meal']) {
       await pool.query(`delete from ${table} where date between '2099-01-01' and '2099-12-31'`)
     }
   }
@@ -217,6 +217,50 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.ok(Array.isArray(body.workout))
     assert.ok(Array.isArray(body.retro))
     assert.ok(Array.isArray(body.wearable_sync))
+  })
+
+  test('meal upsert is idempotent: the same id overwrites instead of duplicating', async () => {
+    const id = '00000000-0000-4000-8000-000000000101'
+    const body = { id, date: '2099-03-01', time: '19:30', protein_g: 42, kcal: 610, hunger: 6, note: '160 g ton', source: 'manual', estimated: false }
+    const first = await app.inject({ method: 'POST', url: '/api/meals', headers: auth, payload: body })
+    assert.equal(first.statusCode, 201)
+    const second = await app.inject({ method: 'POST', url: '/api/meals', headers: auth, payload: { ...body, protein_g: 44 } })
+    assert.equal(second.statusCode, 200)
+
+    const list = await app.inject({ method: 'GET', url: '/api/meals?start=2099-03-01&end=2099-03-01', headers: auth })
+    const rows = list.json() as { id: string; protein_g: number; hunger: number }[]
+    assert.equal(rows.length, 1)
+    assert.equal(rows[0]?.protein_g, 44)
+    assert.equal(rows[0]?.hunger, 6)
+  })
+
+  test('rejects an out-of-range hunger score', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/meals', headers: auth,
+      payload: { id: '00000000-0000-4000-8000-000000000102', date: '2099-03-02', time: '12:00', hunger: 11 },
+    })
+    assert.equal(res.statusCode, 400)
+  })
+
+  test('deleting a meal twice reports gone the second time', async () => {
+    const id = '00000000-0000-4000-8000-000000000103'
+    await app.inject({ method: 'POST', url: '/api/meals', headers: auth, payload: { id, date: '2099-03-03', time: '08:00' } })
+    const first = await app.inject({ method: 'DELETE', url: `/api/meals/${id}`, headers: auth })
+    assert.equal(first.statusCode, 204)
+    const second = await app.inject({ method: 'DELETE', url: `/api/meals/${id}`, headers: auth })
+    assert.equal(second.statusCode, 404)
+  })
+
+  test('daily upsert carries the diet layer fields', async () => {
+    const res = await app.inject({
+      method: 'PUT', url: '/api/daily/2099-03-04', headers: auth,
+      payload: { overate: true, veg_servings: 4, waist_cm: 101.5 },
+    })
+    assert.equal(res.statusCode, 200)
+    const row = res.json() as { overate: boolean; veg_servings: number; waist_cm: string }
+    assert.equal(row.overate, true)
+    assert.equal(row.veg_servings, 4)
+    assert.equal(Number(row.waist_cm), 101.5)
   })
 })
 
@@ -421,4 +465,5 @@ describe('rate limit', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, (
     const res = await app.inject({ method: 'GET', url: '/health' })
     assert.equal(res.statusCode, 200)
   })
+
 })

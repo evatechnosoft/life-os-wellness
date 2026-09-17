@@ -1,7 +1,18 @@
 import { describe, expect, test } from 'vitest'
 
 import type { Meal } from './db'
-import { foldTr, mealSlot, proteinTarget, slotGaps, suggestFoods, weeklyLossKg, weightTrend } from './nutrition'
+import {
+  foldTr,
+  mealSlot,
+  proteinTarget,
+  slotGaps,
+  suggestFoods,
+  suggestMenus,
+  weeklyLossKg,
+  weightTrend,
+  type MealSlot,
+  type SlotGap,
+} from './nutrition'
 
 const meal = (time: string, note: string, protein_g: number, date = '2026-01-10'): Meal =>
   ({ id: `${date}-${time}-${note}`, date, time, note, protein_g, kcal: null, estimated: false })
@@ -264,5 +275,76 @@ describe('suggestFoods - seed does not duplicate a learned food', () => {
     const first = suggestFoods(asciiSpelling, 'morning')[0]
     expect(first?.food).toBe('yumurta beyazi')
     expect(first?.source).toBe('history')
+  })
+})
+
+describe('suggestMenus', () => {
+  const gap = (gap_g: number, slot: MealSlot = 'evening'): SlotGap => ({
+    kind: 'slot_gap',
+    slot,
+    consumed_g: 0,
+    target_g: gap_g,
+    gap_g,
+    upcoming: false,
+    severity: 'warn',
+  })
+
+  const history: Meal[] = [
+    meal('19:00', '200 g tavuk göğsü', 62, '2026-01-01'),
+    meal('19:10', '200 g tavuk göğsü', 62, '2026-01-02'),
+    meal('19:20', '250 g mercimek', 23, '2026-01-03'),
+    meal('19:30', '250 g mercimek', 23, '2026-01-04'),
+  ]
+
+  test('setler birbirinden en az bir kalem farkli', () => {
+    const sets = suggestMenus(history, gap(40), { recentMeals: history })
+    const signatures = sets.map((s) => s.items.map((i) => i.food).sort().join('|'))
+    expect(new Set(signatures).size).toBe(signatures.length)
+  })
+
+  test('her set acigi kapatmaya calisir ve kapatip kapatmadigini bildirir', () => {
+    for (const set of suggestMenus(history, gap(40), {})) {
+      expect(set.covers_gap).toBe(set.protein_g >= 40)
+    }
+  })
+
+  test('acigi tek kalemle kapatan en kucuk secenek gelir', () => {
+    const [first] = suggestMenus(history, gap(20), {})
+    expect(first?.items).toHaveLength(1)
+    // 62 g tavuk da kapatir ama 23 g mercimek yeter; fazlasi "kapattim" degildir.
+    expect(first?.items[0]?.protein_g).toBe(23)
+  })
+
+  test('tek kalem yetmiyorsa kalemler birikir', () => {
+    const set = suggestMenus(history, gap(80), {})[0]!
+    expect(set.items.length).toBeGreaterThan(1)
+    expect(set.protein_g).toBeGreaterThanOrEqual(80)
+  })
+
+  test('degisiklik seti bu hafta yenen kalemleri disarida birakir ve meydan okumadir', () => {
+    const recent = [meal('19:00', '200 g tavuk göğsü', 62, '2026-01-09')]
+    const change = suggestMenus(history, gap(40), { recentMeals: recent }).find((s) => s.set === 'change')
+    expect(change?.challenge).toBe(true)
+    expect(change?.items.map((i) => i.food)).not.toContain('tavuk göğsü')
+  })
+
+  test('hizli set porsiyonu bilinen en fazla iki kalem tasir', () => {
+    const quick = suggestMenus(history, gap(200), {}).find((s) => s.set === 'quick')
+    expect(quick?.items.length).toBeLessThanOrEqual(2)
+    for (const item of quick?.items ?? []) expect(item.grams ?? item.count).not.toBeNull()
+  })
+
+  test('tam olarak bir set onceden secili gelir ve o acigi kapatir', () => {
+    const sets = suggestMenus(history, gap(40), { recentMeals: history })
+    expect(sets.filter((s) => s.selected)).toHaveLength(1)
+    expect(sets.find((s) => s.selected)?.covers_gap).toBe(true)
+  })
+
+  test('gecmis yokken tohum listesinden set kurulur', () => {
+    const sets = suggestMenus([], gap(40), {})
+    expect(sets.length).toBeGreaterThan(0)
+    for (const set of sets) {
+      for (const item of set.items) expect(item.source).toBe('seed')
+    }
   })
 })

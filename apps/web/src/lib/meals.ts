@@ -4,7 +4,7 @@ import { api, ApiError } from './api'
 import { toLocalDate } from './date'
 import { db, type Meal } from './db'
 import { isNative } from './health'
-import { hasServer, saveDaily } from './store'
+import { hasServer, queueMeal, queueMealDelete, saveDaily } from './store'
 
 export interface Estimate {
   items: string[]
@@ -58,11 +58,27 @@ export async function estimateFromPhoto(photo: Blob): Promise<Estimate | null> {
 
 /** Saves the meal and adds its protein to the day's running total. */
 export async function saveMeal(
-  input: { protein_g: number | null; kcal: number | null; note: string | null; photo?: Blob; estimated: boolean },
+  input: {
+    protein_g: number | null
+    kcal: number | null
+    note: string | null
+    photo?: Blob
+    estimated: boolean
+    hunger?: number | null
+    source?: Meal['source']
+    barcode?: string | null
+  },
   date = toLocalDate(),
 ): Promise<Meal> {
-  const meal: Meal = { id: crypto.randomUUID(), date, time: nowTime(), ...input }
+  const meal: Meal = {
+    id: crypto.randomUUID(),
+    date,
+    time: nowTime(),
+    source: input.photo ? 'photo' : 'manual',
+    ...input,
+  }
   await db.meal.put(meal)
+  await queueMeal(meal)
 
   if (meal.protein_g != null && meal.protein_g > 0) {
     const existing = await db.daily_log.get(date)
@@ -79,6 +95,7 @@ export async function saveMeal(
 
 export async function deleteMeal(meal: Meal): Promise<void> {
   await db.meal.delete(meal.id)
+  await queueMealDelete(meal.id)
   if (meal.protein_g != null && meal.protein_g > 0) {
     const existing = await db.daily_log.get(meal.date)
     await saveDaily(meal.date, { protein_g: Math.max(0, (existing?.protein_g ?? 0) - meal.protein_g) })

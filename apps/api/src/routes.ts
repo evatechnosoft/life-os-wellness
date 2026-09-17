@@ -18,6 +18,9 @@ const DAILY_BODY = {
     bp_systolic: { type: ['integer', 'null'], minimum: 50, maximum: 300 },
     bp_diastolic: { type: ['integer', 'null'], minimum: 30, maximum: 200 },
     notes: { type: ['string', 'null'], maxLength: 2000 },
+    overate: { type: ['boolean', 'null'] },
+    veg_servings: { type: ['integer', 'null'], minimum: 0, maximum: 30 },
+    waist_cm: { type: ['number', 'null'], minimum: 40, maximum: 200 },
   },
 } as const
 
@@ -94,6 +97,24 @@ const WEARABLE_BODY = {
   },
 } as const
 
+const MEAL_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['id', 'date', 'time'],
+  properties: {
+    id: { type: 'string', format: 'uuid' },
+    date: DATE,
+    time: { type: 'string', pattern: '^[0-2][0-9]:[0-5][0-9]$' },
+    protein_g: { type: ['integer', 'null'], minimum: 0, maximum: 500 },
+    kcal: { type: ['integer', 'null'], minimum: 0, maximum: 10000 },
+    hunger: { type: ['integer', 'null'], minimum: 1, maximum: 10 },
+    note: { type: ['string', 'null'], maxLength: 2000 },
+    source: { type: ['string', 'null'], enum: ['manual', 'photo', 'barcode', 'usda', 'turkomp', null] },
+    barcode: { type: ['string', 'null'], pattern: '^[0-9]{8,14}$' },
+    estimated: { type: 'boolean' },
+  },
+} as const
+
 const DAILY_FIELDS = [
   'weight_kg',
   'protein_g',
@@ -101,6 +122,9 @@ const DAILY_FIELDS = [
   'bp_systolic',
   'bp_diastolic',
   'notes',
+  'overate',
+  'veg_servings',
+  'waist_cm',
 ] as const
 const RETRO_FIELDS = ['went_well', 'resistance', 'experiment'] as const
 
@@ -252,13 +276,52 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     return { written: records.length }
   })
 
+  app.get('/api/meals', { schema: { querystring: RANGE } }, async (req) => {
+    const { start, end } = req.query as { start: string; end: string }
+    const { rows } = await pool.query(
+      'select * from meal where date between $1 and $2 order by date, time',
+      [start, end],
+    )
+    return rows
+  })
+
+  // Fotograf telefonda kalir; buraya yalniz sayilar gelir. Id istemciden geldigi
+  // icin kuyrugun yeniden oynatilmasi satiri cogaltmaz, uzerine yazar.
+  app.post('/api/meals', { schema: { body: MEAL_BODY } }, async (req, reply) => {
+    const b = req.body as Record<string, unknown>
+    const { rows } = await pool.query(
+      `insert into meal (id, date, time, protein_g, kcal, hunger, note, source, barcode, estimated)
+       values ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       on conflict (id) do update set
+         date = excluded.date, time = excluded.time, protein_g = excluded.protein_g,
+         kcal = excluded.kcal, hunger = excluded.hunger, note = excluded.note,
+         source = excluded.source, barcode = excluded.barcode, estimated = excluded.estimated
+       returning *, (xmax = 0) as inserted`,
+      [
+        b.id, b.date, b.time, b.protein_g ?? null, b.kcal ?? null, b.hunger ?? null,
+        b.note ?? null, b.source ?? null, b.barcode ?? null, b.estimated ?? false,
+      ],
+    )
+    const { inserted, ...meal } = rows[0]
+    reply.code(inserted ? 201 : 200)
+    return meal
+  })
+
+  app.delete('/api/meals/:id', async (req, reply) => {
+    const { id } = req.params as { id: string }
+    const { rowCount } = await pool.query('delete from meal where id = $1', [id])
+    if (rowCount === 0) return reply.code(404).send({ error: 'not found' })
+    return reply.code(204).send()
+  })
+
   // Whole-database dump for the JSON export acceptance criterion.
   app.get('/api/export', async () => {
-    const [daily, workouts, retros, wearable] = await Promise.all([
+    const [daily, workouts, retros, wearable, meals] = await Promise.all([
       pool.query('select * from daily_log order by date'),
       pool.query('select * from workout order by date, created_at'),
       pool.query('select * from retro order by date'),
       pool.query('select * from wearable_sync order by date'),
+      pool.query('select * from meal order by date, time'),
     ])
     return {
       exported_at: new Date().toISOString(),
@@ -266,6 +329,7 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
       workout: workouts.rows,
       retro: retros.rows,
       wearable_sync: wearable.rows,
+      meal: meals.rows,
     }
   })
 }
