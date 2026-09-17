@@ -87,6 +87,13 @@ export function parseDraft(text: string, known: FoodMemory[] = []): NoteDraft | 
     parts.push(`${num(lifted)} kg`)
   }
 
+  // "Dun abarttim", "kacirdim", "dugun vardi" - isaret kullanicinin kendi ifadesidir,
+  // tahmin degil. Kisitlama uretmez, yalniz gunu isaretler (PLAN-DIET S1 tetik 1).
+  if (/abart|kacirdim|kacti|dugun vard|davet vard|cok yedim|tikindim/.test(folded)) {
+    draft.overate = true
+    parts.push('abarttım işareti')
+  }
+
   const ate = /\b(yedim|ictim|yiyorum|iciyorum)\b/.test(folded)
   if (ate) {
     draft.meal_note = text.trim()

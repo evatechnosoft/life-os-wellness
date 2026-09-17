@@ -43,6 +43,7 @@ export function Week() {
   const logs = useLiveQuery(() => db.daily_log.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
   const workouts = useLiveQuery(() => db.workout.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
   const wearable = useLiveQuery(() => db.wearable.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
+  const meals = useLiveQuery(() => db.meal.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
 
   const byDate = new Map(logs.map((l) => [l.date, l]))
   const weights = dates.map((d) => byDate.get(d)?.weight_kg ?? null)
@@ -55,6 +56,11 @@ export function Week() {
   // Ust sinir coach.ts ile ayni: hedef ile 20 setin buyugu.
   const cap = Math.max(goals.sets_per_group, 20)
   const volume = volumeTips(workouts, goals, split).slice(0, 3)
+  // Diyet katmani (PLAN-DIET S3/S4): bel, sebze ortalamasi, cok ac karnina yenen ogun.
+  const waistPoints = logs.filter((l) => l.waist_cm != null)
+  const waist = waistPoints.at(-1)?.waist_cm ?? null
+  const vegAvg = movingAverage(logs.map((l) => l.veg_servings))
+  const highHunger = meals.filter((m) => (m.hunger ?? 0) >= 8).length
   const restingHr = dayAverage(wearable, 'resting_hr')
   const kcal = dayAverage(wearable, 'total_kcal')
 
@@ -125,6 +131,26 @@ export function Week() {
         )}
         <p className="mt-3 text-xs text-ink-faint">
           Hedef: grup başına {goals.sets_per_group} set, üst sınır {cap}.
+        </p>
+      </Card>
+
+      <Card title="Beslenme">
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div className="text-2xl font-semibold tabular-nums">{waist == null ? '—' : waist.toFixed(1)}</div>
+            <div className="text-xs text-ink-faint">bel cm</div>
+          </div>
+          <div>
+            <div className="text-2xl font-semibold tabular-nums">{vegAvg == null ? '—' : vegAvg.toFixed(1)}</div>
+            <div className="text-xs text-ink-faint">sebze ort.</div>
+          </div>
+          <div>
+            <div className="text-2xl font-semibold tabular-nums">{highHunger}</div>
+            <div className="text-xs text-ink-faint">8+ açlıkla öğün</div>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-ink-faint">
+          Sebze hedefi günde 5 porsiyon. Bel, kilo durduğunda ilerlemeyi gösteren ikinci ölçüdür.
         </p>
       </Card>
 

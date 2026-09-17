@@ -23,12 +23,20 @@ export interface Goals {
    * gunler `soft` (`lapse.ts > nudgeFor`). Elle secim adaptifi kapatir.
    */
   nudge?: 'soft' | 'push'
+  /**
+   * Haftalik serbest ogun gunu (0 = pazar, JavaScript getDay()). Planlidir,
+   * kazanilmaz: o gun telafi plani cikmaz (PLAN-DIET S7). `useGoals` her zaman
+   * doldurur; opsiyonel isaret yalniz eski kayitlar ve testler icin.
+   */
+  free_meal_day?: number
 }
 
 export const DEFAULT_GOALS: Goals = {
   protein_g: 140,
   weekly_loss_pct: 0.7,
   sets_per_group: 10,
+  // Cumartesi aksam (Dean, 2026-09-17).
+  free_meal_day: 6,
 }
 
 export function useGoals(): Goals {

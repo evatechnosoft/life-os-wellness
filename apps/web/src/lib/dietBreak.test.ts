@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { BREAK_DAYS, dietBreak, type WeekPoint } from './dietBreak'
+import type { DailyLog } from './db'
+import { BREAK_DAYS, dietBreak, weeklyPoints, type WeekPoint } from './dietBreak'
 
 const week = (patch: Partial<WeekPoint> = {}): WeekPoint => ({
   status: 'on_track',
@@ -60,5 +61,42 @@ describe('dietBreak', () => {
 
   test('veri yoksa sessiz', () => {
     expect(dietBreak([])).toBeNull()
+  })
+})
+
+describe('weeklyPoints', () => {
+  const goals = { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 }
+  const today = '2026-09-17'
+  const day = (back: number): string => {
+    const d = new Date(2026, 8, 17 - back)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+  const log = (back: number, weight_kg: number, waist_cm?: number): DailyLog => ({
+    date: day(back), weight_kg, waist_cm: waist_cm ?? null, updated_at: '',
+  })
+
+  test('her 7 gun bir nokta, ilk hafta karsilastirilamadigi icin dusuyor', () => {
+    const logs = [log(21, 90), log(14, 89), log(7, 88), log(0, 87)]
+    expect(weeklyPoints(logs, goals, today)).toHaveLength(3)
+  })
+
+  test('kilo dususu yavassa durum too_slow olur', () => {
+    const logs = [log(14, 90), log(7, 89.95), log(0, 89.9)]
+    const points = weeklyPoints(logs, goals, today)
+    expect(points.map((p) => p.status)).toEqual(['too_slow', 'too_slow'])
+    expect(points.every((p) => p.target_kg > 0)).toBe(true)
+  })
+
+  test('tartisiz hafta atlanir, bel o haftanin son olcusunden alinir', () => {
+    const logs = [log(14, 90), log(8, 89, 104), log(7, 89, 103), log(0, 88)]
+    const points = weeklyPoints(logs, goals, today)
+    expect(points).toHaveLength(2)
+    expect(points[0]?.waist_cm).toBe(103)
+    expect(points[1]?.waist_cm).toBeNull()
+  })
+
+  test('pencere disindaki eski kayitlar sayilmaz', () => {
+    const logs = [log(200, 100), log(7, 88), log(0, 87)]
+    expect(weeklyPoints(logs, goals, today, 4)).toHaveLength(1)
   })
 })

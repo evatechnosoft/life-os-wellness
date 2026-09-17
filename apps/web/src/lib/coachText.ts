@@ -1,4 +1,6 @@
 import type { CoachTip, TodayTip } from './coach'
+import type { DietBreak } from './dietBreak'
+import type { RecoveryPlan } from './lapse'
 import type { FoodSuggestion, MealSlot, Severity, SlotGap } from './nutrition'
 
 /**
@@ -102,4 +104,30 @@ export function coachLines(
 
   const rank = (line: CoachLine): number => (line.severity === 'warn' ? 0 : 1)
   return [...fromGaps, ...fromTips].sort((a, b) => rank(a) - rank(b))
+}
+
+const WEEK_STATUS: Record<RecoveryPlan['week_status'], string> = {
+  on_track: 'Hafta hâlâ yolunda',
+  slight: 'Hafta biraz kaydı ama duruyor',
+  reset: 'Bu hafta üst üste geldi',
+}
+
+/**
+ * Telafi plani cumlesi. Tek kural: KISITLAMA DILI YOK. Burada "az ye", "atla",
+ * "telafi et" gecmez; ne EKLENECEGI yazilir (COACH-PERSONA §2.2).
+ */
+export function recoveryText(plan: RecoveryPlan): string {
+  const when = plan.applies_to === 'today' ? 'Günün kalan öğününde' : 'Yarın'
+  const parts = [`${num(plan.protein_g)} g proteini tamamla`, `${num(plan.fiber_servings)} porsiyon sebze`]
+  if (plan.steps_add > 0) parts.push(`+${num(plan.steps_add)} adım`)
+  const tail = plan.refer_support
+    ? ' Son bir aydır bu sık tekrarlıyor; istersen bir uzmanla konuşmak iyi gelebilir.'
+    : ''
+  return `${WEEK_STATUS[plan.week_status]}. ${when} ${parts.join(', ')}. Öğün atlama; yarınki tartı su tutar, ona bakma.${tail}`
+}
+
+/** Diyet molasi cumlesi. "Metabolizmani sifirlar" demez: kanit sinirli, arac. */
+export function dietBreakText(b: DietBreak): string {
+  const waist = b.waist_known ? ' ve bel de düşmüyor' : ''
+  return `${num(b.weeks_in_deficit)} haftadır açıktasın, son üç hafta kilo neredeyse durdu${waist}. ${num(b.days)} gün bakımda kalmak (protein aynı, antrenman aynı, kayıp hedefi 0) sonrasını kolaylaştırabilir — mucize değil, bir araç.`
 }

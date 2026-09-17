@@ -1,3 +1,5 @@
+import { daysBetween } from './date'
+import type { DailyLog, Meal } from './db'
 import type { Goals } from './settings'
 
 /**
@@ -139,4 +141,65 @@ export function recoveryPlan(input: LapseInput): RecoveryPlan | null {
 export function nudgeFor(goals: Pick<Goals, 'nudge'>, recovery: RecoveryPlan | null): 'soft' | 'push' {
   if (goals.nudge) return goals.nudge
   return recovery ? 'push' : 'soft'
+}
+
+/** Telafi penceresi: "bu hafta" son 7 gun, "bu ay" son 30 gun - takvim ayi degil,
+ * cunku ayin 1'inde sayacin sifirlanmasi isaretin anlamini degistirmez. */
+const WEEK_DAYS = 7
+const MONTH_DAYS = 30
+
+export interface LapseSources {
+  /** Degerlendirilen gun (YYYY-MM-DD). */
+  date: string
+  /** Son ~31 gunun gunlukleri - `overate` isaretleri buradan sayilir. */
+  logs: Pick<DailyLog, 'date' | 'overate'>[]
+  /** Son ~15 gunun ogunleri; bugununkiler de icinde. */
+  meals: Meal[]
+  protein_target_g: number
+  avg_steps: number | null
+  support_shown: boolean
+  free_meal_planned: boolean
+  /** Yerel saat HH:MM. */
+  now: string
+}
+
+/**
+ * Ham kayitlari `recoveryPlan` girdisine cevirir. Ayri tutuldu ki ekran bilesenleri
+ * hesap yapmasin: bilesen veriyi getirir, karar burada test edilebilir kalir.
+ */
+export function buildLapseInput(src: LapseSources): LapseInput {
+  const kcalByDate = new Map<string, number>()
+  const hunger_scores: number[] = []
+  for (const m of src.meals) {
+    if (typeof m.kcal === 'number' && m.kcal > 0) {
+      kcalByDate.set(m.date, (kcalByDate.get(m.date) ?? 0) + m.kcal)
+    }
+    if (m.date === src.date && typeof m.hunger === 'number') hunger_scores.push(m.hunger)
+  }
+
+  const withinDays = (date: string, days: number): boolean => {
+    const back = daysBetween(date, src.date)
+    return back >= 0 && back < days
+  }
+
+  const kcal_history = [...kcalByDate.entries()]
+    .filter(([date]) => date < src.date && withinDays(date, 15))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, kcal]) => kcal)
+
+  const marked = src.logs.filter((l) => l.overate === true)
+
+  return {
+    overate: src.logs.find((l) => l.date === src.date)?.overate === true,
+    kcal_today: kcalByDate.get(src.date) ?? null,
+    kcal_history,
+    hunger_scores,
+    protein_target_g: src.protein_target_g,
+    avg_steps: src.avg_steps,
+    overate_days_this_week: marked.filter((l) => withinDays(l.date, WEEK_DAYS)).length,
+    overate_days_this_month: marked.filter((l) => withinDays(l.date, MONTH_DAYS)).length,
+    support_shown: src.support_shown,
+    free_meal_planned: src.free_meal_planned,
+    now: src.now,
+  }
 }

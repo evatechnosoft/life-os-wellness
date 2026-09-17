@@ -349,6 +349,25 @@ describe('SYSTEM prompt', () => {
     assert.match(SYSTEM, /hekim onayı olmadan başlatma/)
   })
 
+  test('telafi kisitlama olarak tarif edilmiyor, yasakli kaliplar isimle sayiliyor', () => {
+    assert.match(SYSTEM, /telafi KISITLAMA DEĞİLDİR/i)
+    for (const banned of ['Yarın az ye', 'öğün atla', 'oruç tut']) {
+      assert.ok(SYSTEM.includes(banned), `yasak kalip istemde sayilmali: ${banned}`)
+    }
+    assert.match(SYSTEM, /plan yoksa rakam yazma/)
+  })
+
+  test('diyet molasi arac olarak anlatiliyor, metabolizma vaadi yasak', () => {
+    assert.match(SYSTEM, /mola bir araçtır, mucize değil/)
+    assert.match(SYSTEM, /metabolizmanı sıfırlar/)
+  })
+
+  test('kayit blogu diyet katmani alanlarini tasiyor', () => {
+    for (const field of ['veg_servings', 'waist_cm', 'overate']) {
+      assert.ok(SYSTEM.includes(`"${field}":null`), `<kayit> alani eksik: ${field}`)
+    }
+  })
+
   test('haftalik kayip hedefi yuzde olarak sinirli', () => {
     assert.match(SYSTEM, /%0\.5-1/)
   })

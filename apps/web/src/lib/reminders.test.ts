@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import type { DailyLog, Retro } from './db'
 import { nextFireAt, pendingReminders, type ReminderSettings } from './reminders'
 
-const times: ReminderSettings = { enabled: true, weigh_at: '09:00', retro_at: '21:00' }
+const times: ReminderSettings = { enabled: true, weigh_at: '09:00', retro_at: '21:00', waist_day: 1 }
 const log = (fields: Partial<DailyLog> = {}): DailyLog => ({ date: '2026-09-13', updated_at: '', ...fields })
 const retro = (fields: Partial<Retro> = {}): Retro => ({ date: '2026-09-13', updated_at: '', ...fields })
 
@@ -75,5 +75,37 @@ describe('nextFireAt', () => {
   test('ay sonunda ertesi gun sonraki aya tasar', () => {
     const now = new Date(2026, 8, 30, 22, 0)
     expect(at(nextFireAt('21:00', false, now))).toBe('2026-10-1 21:0')
+  })
+})
+
+describe('bel hatirlatmasi', () => {
+  const settings = { enabled: true, weigh_at: '09:00', retro_at: '21:00', waist_day: 1 }
+  const ask = (patch: Parameters<typeof pendingReminders>[0]) => pendingReminders(patch).map((r) => r.id)
+
+  test('gunu geldiginde ve o hafta olculmediyse sorulur', () => {
+    expect(ask({ log: { date: '2026-09-14', weight_kg: 84, updated_at: '' }, retro: undefined, now: '09:30', settings, weekday: 1 }))
+      .toContain('waist')
+  })
+
+  test('baska gunlerde sorulmaz', () => {
+    expect(ask({ log: { date: '2026-09-15', weight_kg: 84, updated_at: '' }, retro: undefined, now: '09:30', settings, weekday: 2 }))
+      .not.toContain('waist')
+  })
+
+  test('bugun olculmusse ya da hafta icinde olculmusse tekrar sorulmaz', () => {
+    const log = { date: '2026-09-14', weight_kg: 84, waist_cm: 101, updated_at: '' }
+    expect(ask({ log, retro: undefined, now: '09:30', settings, weekday: 1 })).not.toContain('waist')
+    expect(ask({
+      log: { date: '2026-09-14', weight_kg: 84, updated_at: '' },
+      retro: undefined, now: '09:30', settings, weekday: 1, waist_logged_this_week: true,
+    })).not.toContain('waist')
+  })
+
+  test('tarti saatinden once sorulmaz - ikisi de ac karnina', () => {
+    expect(ask({ log: undefined, retro: undefined, now: '07:00', settings, weekday: 1 })).not.toContain('waist')
+  })
+
+  test('gun bilinmiyorsa sorulmaz', () => {
+    expect(ask({ log: undefined, retro: undefined, now: '09:30', settings })).not.toContain('waist')
   })
 })

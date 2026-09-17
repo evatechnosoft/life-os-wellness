@@ -86,3 +86,21 @@ describe('offlineReply', () => {
     expect(r.draft).toBeNull()
   })
 })
+
+describe('abarttim isareti', () => {
+  test('kullanicinin kendi ifadesi gunu isaretler', () => {
+    for (const said of ['dün abarttım', 'akşam kaçırdım', 'düğün vardı, çok yedim']) {
+      expect(parseDraft(said)?.overate).toBe(true)
+    }
+  })
+
+  test('siradan ogun cumlesi isaret uretmez', () => {
+    expect(parseDraft('akşam 200 g tavuk yedim')?.overate).toBeUndefined()
+  })
+
+  test('isaret ozetle birlikte gorunur ve kisitlama uretmez', () => {
+    const draft = parseDraft('bugün abarttım')
+    expect(draft?.summary).toContain('abarttım')
+    expect(draft?.protein_g).toBeUndefined()
+  })
+})
