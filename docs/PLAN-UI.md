@@ -45,16 +45,26 @@ renk paleti ve evaglass dili, alt navigasyon dörtlüsü (Bugün · Eva · Hafta
 
 | Seçenek | Lisans | Getirisi | Bedeli | Karar |
 |---|---|---|---|---|
-| **Native `<details>` / `<summary>`** | — | Sıfır bağımlılık; klavye ve ekran okuyucu desteği tarayıcıdan gelir; açık durumu CSS ile stillenir | Animasyon elle yazılır; çoklu-açık davranışı elle | **Seçildi (P1)** |
-| Radix Primitives | MIT | Accordion/Select/Switch davranışı, WAI-ARIA; stil getirmez, evaglass korunur | Üç paket daha, bundle artışı | Yedek (P3, gerekirse) |
+| **Radix Primitives** | MIT | Accordion / Select / Switch / Dialog davranışı ve WAI-ARIA'sı; **stil getirmez** — her rengi, yüzeyi ve yazıyı biz veririz | İki-üç paket, bundle artışı | **Seçildi (Dean, 17 Eyl: "kit al ama renkler bizden")** |
+| Native `<details>` / `<summary>` | — | Sıfır bağımlılık katlama | Select/Switch/Dialog'u çözmez; çoklu-açık ve animasyon elle | Radix'in olmadığı yerde kalır |
 | shadcn/ui | MIT | Hazır bileşen seti, Tailwind ile | Kendi tema katmanını getirir, evaglass tokenlarıyla çakışır; CLI kod kopyalar | Hayır |
 | DaisyUI | MIT | Hazır sınıflar | Tasarım dilini ezer, cam/blur dili gider | Hayır |
 | Ionic React | MIT | Tam mobil kabuk, Capacitor ile birinci sınıf | Uygulamanın görünümünü domine eder, 1 MB üstü | Hayır |
 
-**Gerekçe:** burada eksik olan bileşen değil **düzen**. Kit getirmek 10 kartı
-sıralamaz, aynı 10 kartı başka bir temayla çizer. Katlama işini `<details>`
-bağımlılıksız çözüyor; gerçek ihtiyaç (Select/Switch erişilebilirliği) çıkarsa
-Radix sonradan eklenir, o kapı kapanmıyor.
+**Gerekçe (karar 17 Eylül, Dean):** kit alınır ama **görünüm bizden**. Radix tam
+olarak bunu veriyor: yalnız davranış ve erişilebilirlik; tek bir renk, gölge ya da
+yazı tipi getirmiyor. Böylece klavye gezinmesi, odak tuzağı, `aria-expanded`,
+ekran okuyucu duyurusu hazır gelir; yüzeyler `evaglass.tokens.json`'daki aurora ·
+wash · graffiti değerleriyle çizilir.
+
+Stil **getiren** kitler (shadcn/ui, Preline, FlyonUI, TailGrids, Ionic) bu yüzden
+elendi: hepsi kendi tema katmanını dayatıyor, evaglass'ın cam/glow dili gidiyor.
+shadcn/ui zaten Radix'in üstüne kendi temasını koyan bir katman — o katmanı atıp
+doğrudan Radix kullanmak aynı erişilebilirliği tema çakışması olmadan veriyor.
+
+**Kural:** Radix'ten gelen hiçbir bileşen kendi rengiyle kullanılmaz; her biri
+`index.css` tokenlarıyla sarılır. Bağımlılık listesine giren her paket PR'da
+gerekçesiyle yazılır (AGENTS.md sınırı).
 
 ## 3. Bilgi mimarisi — Ayar
 
@@ -91,7 +101,7 @@ Kurallar:
 
 | Bileşen | Sorumluluk | Durum |
 |---|---|---|
-| `Section` | `<details>` sarmalayıcı: başlık, özet satırı, kalıcı açık/kapalı durumu | Yeni |
+| `Section` | Radix Accordion.Item sarmalayıcısı: başlık, özet satırı, kalıcı açık/kapalı durumu; görünümün tamamı evaglass tokenlarından | Yeni |
 | `Row` | Etiket + kontrol, tek satır, en az 44 px dokunma hedefi | Yeni; `NumberField` bunun üstüne oturur |
 | `Card` | Var olan cam kart; bundan sonra bölüm değil, içerik grubu | Mevcut |
 | `Segmented` | 2–4 seçenekli tercih (nudge gibi), `select` yerine | Yeni, küçük |
@@ -119,16 +129,17 @@ Aynı ilke: her gün gereken üstte, gerisi katlanır.
       **10 saniyenin altında**, gerçek telefonda kronometreyle.
 - [ ] 60 sn kuralı bozulmadı: Bugün ekranında protein ve öğün girişi hâlâ ilk
       ekranda, kaydırmasız erişilebilir.
-- [ ] Yeni npm bağımlılığı yok.
+- [ ] Yeni bağımlılık yalnız Radix paketleri; her biri PR'da gerekçeli. Stil getiren kit yok.
+- [ ] Radix bileşenlerinin hiçbiri kendi rengiyle görünmüyor: tüm yüzeyler evaglass tokenlarından.
 - [ ] `npm test` + `npm run typecheck --workspaces` yeşil, `npm run build` başarılı.
 
 ## 7. Uygulama sırası
 
 | Faz | İş | Dal |
 |---|---|---|
-| P1 | `Section` / `Row`, Ayar'ın üç bölgeye ayrılması, web'de cihaz bölümünün gizlenmesi | `feature/ui-settings` |
+| P1 | `@radix-ui/react-accordion` kurulumu + evaglass sarmalayıcısı (`Section`/`Row`), Ayar'ın üç bölgeye ayrılması, web'de cihaz bölümünün gizlenmesi | `feature/ui-settings` |
 | P2 | Bugün ekranı katlama, boş kartların çizilmemesi | `feature/ui-today` |
-| P3 | Gerekirse Radix ile Select/Switch erişilebilirliği ve animasyon | — |
+| P3 | Animasyon ve ince ayar (Radix `data-state` geçişleri) | — |
 
 ## 8. Riskler
 
@@ -137,6 +148,9 @@ Aynı ilke: her gün gereken üstte, gerisi katlanır.
   Bugün ekranında kalır.
 - **Durum kalıcılığı** yeni bir `settings` anahtarı demek; şema değişmiyor, eski
   kurulumda anahtar yoksa varsayılan uygulanır (ilk bölüm açık).
-- `<details>` içinde `position: sticky` ve blur birlikte bazı Android WebView
+- Radix Accordion'da `position: sticky` ve blur birlikte bazı Android WebView
   sürümlerinde titreyebilir; P1 sonunda gerçek cihazda bakılır, sorun çıkarsa
   başlık sticky olmaktan çıkar.
+- **Bağımlılık sızması:** Radix bir bileşeni çözerken ikinci, üçüncü paketi davet
+  eder. Kural: her paket ayrı gerekçeyle girer; Accordion ile başlanır, Select ve
+  Switch ancak yerli öğe yetmediğinde eklenir.
