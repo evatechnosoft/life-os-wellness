@@ -121,7 +121,9 @@ yoğunluğu en yüksek kalem ("bu hafta ilk kez: 160 g ton"). Kabul edilirse haf
 "deneme" sayacına yazılır (Week ekranı, retro `experiment` alanıyla aynı mantık).
 Kaynak: choice architecture — varsayılan ve sıralama tercihi değiştirir (§5.10).
 İtme dozu ayardan: `nudge: 'soft' | 'push'` (push: akşam slotu boşsa 19:00'da
-hatırlatma, mevcut `reminders.ts`). Kısıtlama diline hiç girmez; itme = protein/
+hatırlatma, mevcut `reminders.ts`). **Varsayılan adaptif (Dean, 17 Eyl):** taban
+`soft`; S1 telafi tetiği o gün ateşlendiyse gün `push` olur, ertesi gün `soft`a döner.
+Ayardan elle sabitlenebilir (`soft`/`push` seçimi adaptifi kapatır). Kısıtlama diline hiç girmez; itme = protein/
 sebze **ekletmek**, hiçbir zaman **çıkartmak** değil (S1 kuralı aynen).
 
 ### S6 — Besin veritabanı (kilit spec sahibince açıldı, 2026-09-16)
@@ -139,7 +141,11 @@ zorunlu değil:
 **Kısmen doğrulandı (16 Eyl):** OFF'ta gerçek Türk barkodları var — `8691316520027`
 (Yağlı Ayran, `countries_tags: en:turkey`, tuz 0.8 g/100 ml, protein 2 g) ve
 `8695077041067` (Ayran, tuz 0.7 g) `status:1` döndü. `search` uç noktası o an kapalıydı.
-Kapsam oranı hâlâ ölçülmedi: Dean mutfağından 10 gerçek barkod, %70 altı → TürKomp öne.
+Kapsam oranı hâlâ ölçülmedi. **Karar (Dean, 17 Eyl): hibrit — isabet testi kapı
+olmaktan çıktı.** Sorgu türü kaynağı seçer: barkodlu paket ürün → OFF (katman 2),
+Türk ev yemeği / jenerik pişmiş yemek → TürKomp (katman 4), ikisi de tutmazsa USDA
+(katman 3), o da yoksa LLM tahmini (katman 1). TürKomp CSV ilk sürümde gelir, OFF
+kapsamının ölçülmesi beklenmez.
 
 **`meal` sunucuya çekilir** (`db/005`: `meal(id, date, time, protein_g, kcal, hunger,
 note, source, barcode)`; fotoğraf cihazda kalır, `routes.ts`'e `/api/meals` upsert +
@@ -427,12 +433,16 @@ platformu özellikleri (meal plan builder, mesajlaşma) tek kullanıcıda YAGNI.
 ## 6. Adversarial Verify — Dean onay masası
 
 Kapananlar (Dean, 2026-09-16): kcal tetiği KALIR; `meal` sunucuya çekilir; besin DB
-kilidi açıldı (S6). AGENTS.md'deki "kalori/besin veritabanı kapsam dışı" satırı
-S6 ile güncellenmeli — bunu spec sahibi yapar.
+kilidi açıldı (S6).
+
+Kapananlar (Dean, 2026-09-17):
+1. **`nudge` varsayılanı adaptif** — taban `soft`, S1 telafi tetiği ateşlenen gün
+   `push`, ertesi gün `soft`. Elle sabitleme adaptifi kapatır. (S2b)
+2. **Serbest öğün varsayılan slotu Cumartesi akşam, plan üretim günü Pazar akşam.** (S7)
+3. **Besin kaynağı hibrit** — barkod OFF, Türk yemeği TürKomp, jenerik USDA, kalanı
+   LLM tahmini. 10 barkodluk isabet testi kapı değil. (S6)
+4. AGENTS.md "kalori/besin veritabanı kapsam dışı" satırı S6 ile güncellendi.
 
 Açık kalan:
-1. **OFF isabet testi** (S6): 10 gerçek barkod, sonuç %70 altıysa TürKomp öne.
-2. **`nudge` varsayılanı** `soft` mu `push` mu? (S2b)
-4. **Serbest öğün varsayılan slotu** Cumartesi akşam mı? Plan üretim günü Pazar akşam mı? (S7)
-3. **Diyet molası otomatik hedef değiştirmesin**, yalnız önersin (bu planın varsayımı).
-   Onaylıyorsan S5 UI'daki "molayı başlat" düğmesi hedefi 14 gün 0'a çeker.
+- **Diyet molası otomatik hedef değiştirmesin**, yalnız önersin (bu planın varsayımı).
+  Onaylıyorsan S5 UI'daki "molayı başlat" düğmesi hedefi 14 gün 0'a çeker.
