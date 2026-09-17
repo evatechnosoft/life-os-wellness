@@ -24,3 +24,8 @@ apps/web/android/capacitor-cordova-android-plugins/
 
 # vitest --coverage ciktisi
 coverage/
+
+# Konusma malzemesi (etiket/tabak/ekran/fatura fotograflari) - repo herkese acik,
+# kisisel veri git gecmisine girmesin. Kural: docs/assets/README.md
+docs/assets/*
+!docs/assets/README.md
