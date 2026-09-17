@@ -341,6 +341,41 @@ export function Settings() {
         <NumberField label="Kas grubu başına set" value={goals.sets_per_group} onCommit={(v) => void saveGoals({ ...goals, sets_per_group: v ?? 10 })} />
       </Card>
 
+      <Card title="Beslenme itmesi">
+        <label className="flex items-center justify-between gap-3 py-2">
+          <span className="text-sm text-ink-dim">Öneri dozu</span>
+          <select
+            value={goals.nudge ?? 'adaptive'}
+            onChange={(e) =>
+              void saveGoals({
+                ...goals,
+                nudge: e.target.value === 'adaptive' ? undefined : (e.target.value as 'soft' | 'push'),
+              })
+            }
+            className="rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
+          >
+            <option value="adaptive">Uyarlanır (varsayılan)</option>
+            <option value="soft">Yumuşak</option>
+            <option value="push">İtici</option>
+          </select>
+        </label>
+        <label className="flex items-center justify-between gap-3 py-2">
+          <span className="text-sm text-ink-dim">Serbest öğün günü</span>
+          <select
+            value={goals.free_meal_day ?? 6}
+            onChange={(e) => void saveGoals({ ...goals, free_meal_day: Number(e.target.value) })}
+            className="rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
+          >
+            {WEEKDAYS.map((label, day) => (
+              <option key={label} value={day}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <p className="mt-1 text-xs text-ink-faint">
+          Uyarlanır: normal günlerde yumuşak, telafi gününde itici. Serbest öğün planlıdır — o gün telafi çıkmaz.
+        </p>
+      </Card>
+
       <Card title="Haftalık program">
         <p className="mb-3 text-xs text-ink-faint">
           Hangi gün hangi bölge. Eva bugünün bölgesini bilir, o güne ait kaydı takip eder.
@@ -371,6 +406,18 @@ export function Settings() {
             </label>
           ))}
         </div>
+        <label className="mt-3 flex items-center justify-between gap-3">
+          <span className="text-sm text-ink-dim">Bel ölçüsü günü</span>
+          <select
+            value={reminders.waist_day}
+            onChange={(e) => void saveReminderSettings({ ...reminders, waist_day: Number(e.target.value) })}
+            className="rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
+          >
+            {WEEKDAYS.map((label, day) => (
+              <option key={label} value={day}>{label}</option>
+            ))}
+          </select>
+        </label>
         <p className="mt-2 text-xs text-ink-faint">
           Uygulama açıkken ekranın üstünde çıkar. Telefon bildirimi yalnız APK'da; tarayıcı
           uygulama kapalıyken bildirim atamaz.

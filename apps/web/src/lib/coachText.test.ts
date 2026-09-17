@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { CoachTip } from './coach'
-import { coachLines, foodText, gapText, tipText, todayText } from './coachText'
+import { coachLines, dietBreakText, foodText, gapText, recoveryText, tipText, todayText } from './coachText'
 import type { FoodSuggestion, SlotGap } from './nutrition'
 
 const food = (patch: Partial<FoodSuggestion> = {}): FoodSuggestion => ({
@@ -170,5 +170,77 @@ describe('coachLines', () => {
       [],
     )
     expect(lines).toHaveLength(1)
+  })
+})
+
+describe('recoveryText', () => {
+  const plan = {
+    kind: 'recovery' as const,
+    triggers: ['flag' as const],
+    week_status: 'on_track' as const,
+    applies_to: 'today' as const,
+    protein_g: 176,
+    steps_add: 1200,
+    fiber_servings: 5,
+    no_skip_meals: true as const,
+    next_weigh_in: 'skip_tomorrow' as const,
+    refer_support: false,
+    severity: 'info' as const,
+  }
+
+  test('kisitlama dili hicbir bicimde gecmez', () => {
+    for (const variant of [plan, { ...plan, applies_to: 'tomorrow' as const }, { ...plan, week_status: 'reset' as const }]) {
+      const text = recoveryText(variant)
+      for (const banned of ['az ye', 'oruç', 'ceza', 'telafi et']) {
+        expect(text.toLowerCase()).not.toContain(banned)
+      }
+      // "atlama" serbest, "atla" emri yasak: olumsuzlugu ayirmadan arama yanilir.
+      expect(text.toLowerCase()).not.toMatch(/atla(?!ma)/)
+    }
+  })
+
+  test('ne EKLENECEGINI soyler ve tartiyi bekletir', () => {
+    const text = recoveryText(plan)
+    expect(text).toContain('176 g protein')
+    expect(text).toContain('5 porsiyon sebze')
+    expect(text).toContain('1.200 adım')
+    expect(text).toContain('Öğün atlama')
+    expect(text).toContain('tartı')
+  })
+
+  test('adim bilinmiyorsa adim cumlesi hic kurulmaz', () => {
+    expect(recoveryText({ ...plan, steps_add: 0 })).not.toContain('adım')
+  })
+
+  test('gun bitmisse plan yarina yazilir', () => {
+    expect(recoveryText({ ...plan, applies_to: 'tomorrow' })).toContain('Yarın')
+  })
+
+  test('uzman onerisi yumusak ve yalniz istendiginde', () => {
+    expect(recoveryText(plan)).not.toContain('uzman')
+    expect(recoveryText({ ...plan, refer_support: true })).toContain('uzmanla konuşmak')
+  })
+})
+
+describe('dietBreakText', () => {
+  const suggestion = {
+    kind: 'diet_break' as const,
+    weeks_in_deficit: 9,
+    days: 14 as const,
+    action: 'suggest_maintenance' as const,
+    waist_known: true,
+    severity: 'info' as const,
+  }
+
+  test('arac oldugunu soyler, metabolizma vaadi vermez', () => {
+    const text = dietBreakText(suggestion)
+    expect(text).toContain('mucize değil')
+    expect(text.toLowerCase()).not.toContain('metabolizma')
+    expect(text).toContain('9 hafta')
+    expect(text).toContain('14 gün')
+  })
+
+  test('bel olculmemisse bel cumlesi kurulmaz', () => {
+    expect(dietBreakText({ ...suggestion, waist_known: false })).not.toContain('bel')
   })
 })

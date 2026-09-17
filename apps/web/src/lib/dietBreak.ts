@@ -1,4 +1,7 @@
-import type { WeightTrend } from './nutrition'
+import { daysBetween } from './date'
+import type { DailyLog } from './db'
+import { weeklyLossKg, weightTrend, type WeightTrend } from './nutrition'
+import type { Goals } from './settings'
 
 /**
  * Diyet molasi (PLAN-DIET S5). Saf fonksiyon; haftalik trend serisini alir,
@@ -85,4 +88,38 @@ export function dietBreak(weeks: WeekPoint[], opts: { on_break?: boolean } = {})
     waist_known: waist.known,
     severity: 'info',
   }
+}
+
+/**
+ * Gunluk kayitlari haftalik trend noktalarina cevirir: her nokta bir 7-gun
+ * penceresinin ortalama kilosu, bir onceki pencereye gore durumu ve o haftanin
+ * son bel olcusudur. Tartisi hic olmayan hafta atlanir - bos hafta "durgunluk"
+ * degildir, olcum yoklugudur.
+ */
+export function weeklyPoints(logs: DailyLog[], goals: Goals, today: string, weeks = 12): WeekPoint[] {
+  const buckets = new Map<number, { weights: number[]; waist: { date: string; cm: number }[] }>()
+  for (const log of logs) {
+    const back = daysBetween(log.date, today)
+    if (back < 0 || back >= weeks * 7) continue
+    const index = Math.floor(back / 7)
+    const bucket = buckets.get(index) ?? { weights: [], waist: [] }
+    if (typeof log.weight_kg === 'number') bucket.weights.push(log.weight_kg)
+    if (typeof log.waist_cm === 'number') bucket.waist.push({ date: log.date, cm: log.waist_cm })
+    buckets.set(index, bucket)
+  }
+
+  const points: WeekPoint[] = []
+  let prevAvg: number | null = null
+  // Eskiden yeniye: trend bir onceki haftaya gore hesaplanir.
+  for (let index = weeks - 1; index >= 0; index -= 1) {
+    const bucket = buckets.get(index)
+    if (!bucket || bucket.weights.length === 0) continue
+    const avg = bucket.weights.reduce((sum, w) => sum + w, 0) / bucket.weights.length
+    const trend = weightTrend(prevAvg, avg, goals)
+    prevAvg = avg
+    if (!trend) continue
+    const lastWaist = [...bucket.waist].sort((a, b) => a.date.localeCompare(b.date)).at(-1)
+    points.push({ status: trend.status, target_kg: weeklyLossKg(goals, avg), waist_cm: lastWaist?.cm ?? null })
+  }
+  return points
 }

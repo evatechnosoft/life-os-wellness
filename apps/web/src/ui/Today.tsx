@@ -1,12 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
-import { toLocalDate } from '../lib/date'
+import { lastDates, toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { pendingReminders, useReminderSettings } from '../lib/reminders'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
 import { Coach } from './Coach'
+import { Diet } from './Diet'
 import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
 import { DayHeader } from './DayHeader'
@@ -17,6 +18,9 @@ import { Watch } from './Watch'
 import { draftToWorkout, emptyDraft, TYPES, WorkoutFields, type WorkoutDraft } from './WorkoutForm'
 
 
+/** Gunluk sebze/baklagil porsiyon hedefi (PLAN-DIET S4). */
+const VEG_TARGET = 5
+
 export function Today({ date }: { date: string }) {
   const log = useLiveQuery(() => db.daily_log.get(date), [date])
   const workouts = useLiveQuery(() => db.workout.where('date').equals(date).toArray(), [date]) ?? []
@@ -26,6 +30,10 @@ export function Today({ date }: { date: string }) {
   // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
   const watchProtein = useLiveQuery(() => db.wearable.get(`${date}:protein_g`), [date])
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
+  // Bel haftada bir sorulur: bu hafta olculduyse hatirlatma cikmaz.
+  const week = lastDates(7)
+  const weekLogs =
+    useLiveQuery(() => db.daily_log.where('date').between(week[0]!, week[6]!, true, true).toArray(), [date]) ?? []
 
   const done = workouts.filter((w) => !w.needs_review)
   const pulses = frequentPortions(recentMeals.map((m) => m.protein_g))
@@ -40,6 +48,8 @@ export function Today({ date }: { date: string }) {
         retro,
         now: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
         settings: reminders,
+        weekday: now.getDay(),
+        waist_logged_this_week: weekLogs.some((l) => l.waist_cm != null),
       })
     : []
 
@@ -83,6 +93,8 @@ export function Today({ date }: { date: string }) {
 
       <Coach date={date} />
 
+      <Diet date={date} />
+
       <Eva compact />
 
       {eveningFirst && retroCard}
@@ -108,6 +120,27 @@ export function Today({ date }: { date: string }) {
             −
           </button>
         </div>
+        <div className="mt-4 flex items-center gap-2">
+          <span className="text-xs text-ink-faint">
+            Sebze/baklagil {log?.veg_servings ?? 0}/{VEG_TARGET}
+          </span>
+          <button
+            type="button"
+            onClick={() => void saveDaily(date, { veg_servings: (log?.veg_servings ?? 0) + 1 })}
+            className="ml-auto rounded-field bg-glass-strong px-4 py-2 text-sm"
+          >
+            +1
+          </button>
+          <button
+            type="button"
+            onClick={() => void saveDaily(date, { veg_servings: Math.max(0, (log?.veg_servings ?? 0) - 1) })}
+            disabled={(log?.veg_servings ?? 0) === 0}
+            className="rounded-field bg-glass-strong px-4 py-2 text-sm text-ink-dim disabled:opacity-40"
+          >
+            −
+          </button>
+        </div>
+
         {watchProtein && (
           <p className="mt-3 text-xs text-ink-faint">
             Saatten {Math.round(watchProtein.value).toLocaleString('tr-TR')} g
@@ -126,6 +159,13 @@ export function Today({ date }: { date: string }) {
           onCommit={(v) => void saveDaily(date, { weight_kg: v })}
         />
         <NumberField label="Adım" value={log?.steps} step={100} onCommit={(v) => void saveDaily(date, { steps: v })} />
+        <NumberField
+          label="Bel (haftada bir)"
+          unit="cm"
+          step={0.5}
+          value={log?.waist_cm}
+          onCommit={(v) => void saveDaily(date, { waist_cm: v })}
+        />
         <div className="flex gap-3">
           <NumberField label="Tansiyon büyük" value={log?.bp_systolic} onCommit={(v) => void saveDaily(date, { bp_systolic: v })} />
           <NumberField label="küçük" value={log?.bp_diastolic} onCommit={(v) => void saveDaily(date, { bp_diastolic: v })} />

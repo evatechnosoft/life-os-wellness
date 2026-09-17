@@ -23,6 +23,12 @@ export interface NoteDraft {
   } | null
   retro?: { went_well?: string | null; resistance?: string | null; experiment?: string | null } | null
   meal_note?: string | null
+  /** "Bugun abarttim" isareti (S1). Kisitlama degil, gunun etiketi. */
+  overate?: boolean | null
+  /** Sebze/baklagil porsiyonu (S4). */
+  veg_servings?: number | null
+  /** Haftalik bel olcusu (S4). */
+  waist_cm?: number | null
   summary: string
 }
 
@@ -172,6 +178,9 @@ export async function applyDraft(draft: NoteDraft, date = toLocalDate()): Promis
   if (draft.steps != null) daily.steps = draft.steps
   if (draft.bp_systolic != null) daily.bp_systolic = draft.bp_systolic
   if (draft.bp_diastolic != null) daily.bp_diastolic = draft.bp_diastolic
+  if (draft.veg_servings != null) daily.veg_servings = draft.veg_servings
+  if (draft.waist_cm != null) daily.waist_cm = draft.waist_cm
+  if (draft.overate === true) await saveDaily(date, { overate: true })
   if (Object.keys(daily).length > 0) await saveDaily(date, daily)
 
   if (draft.meal_note || draft.protein_g != null || draft.kcal != null) {

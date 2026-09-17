@@ -9,12 +9,19 @@ export interface ReminderSettings {
   /** HH:MM, local. */
   weigh_at: string
   retro_at: string
+  /** Bel olcusu haftada bir sorulur; 0 = pazar, JavaScript getDay() ile ayni. */
+  waist_day: number
 }
 
-export const DEFAULT_REMINDERS: ReminderSettings = { enabled: true, weigh_at: '09:00', retro_at: '21:00' }
+export const DEFAULT_REMINDERS: ReminderSettings = {
+  enabled: true,
+  weigh_at: '09:00',
+  retro_at: '21:00',
+  waist_day: 1,
+}
 
 export interface Reminder {
-  id: 'weigh' | 'retro'
+  id: 'weigh' | 'retro' | 'waist'
   title: string
   body: string
 }
@@ -22,6 +29,7 @@ export interface Reminder {
 const TEXT: Record<Reminder['id'], Omit<Reminder, 'id'>> = {
   weigh: { title: 'Sabah tartısı', body: 'Aç karnına tartıldın mı? Kiloyu gir.' },
   retro: { title: 'Akşam retrosu', body: 'Bugün ne iyi gitti, nerede zorlandın?' },
+  waist: { title: 'Bel ölçüsü', body: 'Haftalık ölçüm: göbek deliği hizasından, nefes verirken.' },
 }
 
 /** "9:05" -> 545. Metin karsilastirmasi "9:05" > "21:00" derdi, dakikaya cevirmek sart. */
@@ -44,6 +52,10 @@ export function pendingReminders(input: {
   /** HH:MM, local. */
   now: string
   settings: ReminderSettings
+  /** Bugunun gunu (0-6); bel hatirlatmasi icin. Verilmezse bel sorulmaz. */
+  weekday?: number
+  /** Son 7 gunde bel olculdu mu - olculduyse gun gelse de sorulmaz. */
+  waist_logged_this_week?: boolean
 }): Reminder[] {
   if (!input.settings.enabled) return []
   const now = minutesOf(input.now)
@@ -53,6 +65,19 @@ export function pendingReminders(input: {
   }
   if (now >= minutesOf(input.settings.retro_at) && isBlank(input.retro)) {
     due.push({ id: 'retro', ...TEXT.retro })
+  }
+  // Bel haftada bir: gunu geldiyse ve o hafta hic olculmediyse. Sabah tartisiyla
+  // ayni saatte sorulur - ikisi de ac karnina, tek ayaga kalkis.
+  if (
+    // typeof kontrolu sart: gun verilmediginde `undefined === undefined` dogru
+    // cikar ve bel her gun sorulur.
+    typeof input.weekday === 'number' &&
+    input.weekday === input.settings.waist_day &&
+    now >= minutesOf(input.settings.weigh_at) &&
+    input.log?.waist_cm == null &&
+    !input.waist_logged_this_week
+  ) {
+    due.push({ id: 'waist', ...TEXT.waist })
   }
   return due
 }
@@ -67,7 +92,15 @@ export async function saveReminderSettings(settings: ReminderSettings): Promise<
   await scheduleNotifications(settings)
 }
 
-const NOTIFICATION_IDS: Record<Reminder['id'], number> = { weigh: 1, retro: 2 }
+/**
+ * Yerel bildirimi olan hatirlatmalar. Bel haftalik oldugu icin gunluk zincire
+ * girmez; ekran karti olarak gorunur.
+ * ponytail: haftalik bildirim isteniyorsa Capacitor `on: { weekday }` alani
+ * eklenir - once o alanin gun numaralandirmasi cihazda dogrulanmali.
+ */
+type ScheduledReminder = 'weigh' | 'retro'
+
+const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1, retro: 2 }
 
 /**
  * Bir sonraki atesleme ani, yerel saatle. Bugun girilmisse ya da saat gectiyse
@@ -111,7 +144,7 @@ export async function scheduleNotifications(settings: ReminderSettings, now: Dat
 
   const today = toLocalDate(now)
   const [log, retro] = await Promise.all([db.daily_log.get(today), db.retro.get(today)])
-  const done: Record<Reminder['id'], boolean> = { weigh: log?.weight_kg != null, retro: !isBlank(retro) }
+  const done: Record<ScheduledReminder, boolean> = { weigh: log?.weight_kg != null, retro: !isBlank(retro) }
 
   await LocalNotifications.schedule({
     notifications: (['weigh', 'retro'] as const).map((key) => ({

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { nudgeFor, recoveryPlan, type LapseInput } from './lapse'
+import type { Meal } from './db'
+import { buildLapseInput, nudgeFor, recoveryPlan, type LapseInput } from './lapse'
 
 const base: LapseInput = {
   overate: false,
@@ -125,5 +126,79 @@ describe('nudgeFor', () => {
   test('elle secim adaptifi kapatir', () => {
     expect(nudgeFor({ nudge: 'soft' }, plan)).toBe('soft')
     expect(nudgeFor({ nudge: 'push' }, null)).toBe('push')
+  })
+})
+
+describe('buildLapseInput', () => {
+  const meal = (date: string, kcal: number | null, hunger?: number): Meal => ({
+    id: `${date}-${kcal}-${hunger ?? 'x'}`,
+    date,
+    time: '13:00',
+    protein_g: 30,
+    kcal,
+    note: null,
+    estimated: false,
+    hunger: hunger ?? null,
+  })
+
+  const sources = {
+    date: '2026-09-17',
+    logs: [],
+    meals: [],
+    protein_target_g: 176,
+    avg_steps: 9000,
+    support_shown: false,
+    free_meal_planned: false,
+    now: '20:00',
+  }
+
+  test('gunun kcal toplami ile gecmis gunler ayrilir', () => {
+    const built = buildLapseInput({
+      ...sources,
+      meals: [meal('2026-09-17', 900), meal('2026-09-17', 800), meal('2026-09-16', 2000), meal('2026-09-15', 1900)],
+    })
+    expect(built.kcal_today).toBe(1700)
+    expect(built.kcal_history).toEqual([1900, 2000])
+  })
+
+  test('15 gunden eski ogunler gecmise girmez', () => {
+    const built = buildLapseInput({ ...sources, meals: [meal('2026-08-20', 2500), meal('2026-09-16', 2000)] })
+    expect(built.kcal_history).toEqual([2000])
+  })
+
+  test('kcal girilmemis gun ortancaya karismaz', () => {
+    const built = buildLapseInput({ ...sources, meals: [meal('2026-09-16', null), meal('2026-09-15', 2000)] })
+    expect(built.kcal_history).toEqual([2000])
+    expect(built.kcal_today).toBeNull()
+  })
+
+  test('aclik skorlari yalniz degerlendirilen gunden alinir', () => {
+    const built = buildLapseInput({
+      ...sources,
+      meals: [meal('2026-09-17', 500, 9), meal('2026-09-17', 500), meal('2026-09-16', 500, 8)],
+    })
+    expect(built.hunger_scores).toEqual([9])
+  })
+
+  test('isaretler hafta ve ay pencerelerine ayri sayilir', () => {
+    const built = buildLapseInput({
+      ...sources,
+      logs: [
+        { date: '2026-09-17', overate: true },
+        { date: '2026-09-14', overate: true },
+        { date: '2026-09-02', overate: true },
+        { date: '2026-08-01', overate: true },
+        { date: '2026-09-16', overate: false },
+      ],
+    })
+    expect(built.overate).toBe(true)
+    expect(built.overate_days_this_week).toBe(2)
+    expect(built.overate_days_this_month).toBe(3)
+  })
+
+  test('gelecek tarihli kayit pencereye girmez', () => {
+    const built = buildLapseInput({ ...sources, logs: [{ date: '2026-09-20', overate: true }] })
+    expect(built.overate_days_this_week).toBe(0)
+    expect(built.overate).toBe(false)
   })
 })

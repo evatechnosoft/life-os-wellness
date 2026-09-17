@@ -328,75 +328,15 @@ Sıra: 1–5 tek PR (`feature/diet-layer-core`, saf katman + test), 6–9 ikinci
 - [ ] Uçak modunda "dün abarttım" → kural motoru taslak üretir.
 - [ ] Coverage: `lapse.ts`, `dietBreak.ts`, `suggestMenus` %100 (`vitest --coverage`).
 
-## 5. Kanıt notları (COACH-EVIDENCE §9'a taşınacak)
+## 5. Kanıt notları
 
-### 5.1 Lapse ≠ relapse; tehlike "nasılsa bozuldu" kararı — **Güçlü kanıt**
-Başarısız kilo kaybı, lapse'in kendisinden çok sonrasındaki öz-kontrol çöküşü ve
-abstinence-violation etkisi (AVE) ile ilişkili; hepsi-ya-hiç hedefi en yüksek risk.
-Roordink ve ark., concept mapping, *Int J Behav Nutr Phys Act* 2021: https://pmc.ncbi.nlm.nih.gov/articles/PMC8725894/ ·
-EMA sistematik derlemesi (iştah/duygu → lapse), 2024: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10909537/ ·
-Momentary predictors, *Ann Behav Med* 2021: https://pubmed.ncbi.nlm.nih.gov/34807334/
-
-### 5.2 Telafi öğünde olur, günde daha az — **Sınırlı kanıt**
-Uygulama tabanlı yemek günlüğü verisinde öğün telafisi gün telafisinden, akşam
-yemeği telafisi öğle telafisinden daha olası. (Tek gözlemsel veri seti; makale
-metnine erişilemedi, özet arama sonucundan.)
-https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10536014/
-
-### 5.3 Tek günün "hasarı" sınırlı — **Sınırlı kanıt**
-8 hafta günde +1000 kcal aşırı beslemede fazlanın ~%43'ü depolandı, ~%53'ü NEAT ile
-yakıldı (Levine 1999, popüler özet: https://fitchef.com/shorts/weekend-overeating-undo-dieting-week/).
-Egzersizin "boşa gittiği" iddiası 2025 verisiyle çürüdü: https://sciencedaily.com/releases/2025/12/251228020012.htm
-
-### 5.4 Lif ve tansiyon — **Güçlü kanıt**
-Hipertansiflerde lif artışı SKB −4.3 / DKB −3.1 mmHg (yüksek kesinlik); tüm nedenli
-ölüm azalması (orta kesinlik). Reynolds ve ark., *BMC Medicine* 2022:
-https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9027105/ · AHA lif önerisi:
-https://www.ahajournals.org/doi/pdf/10.1161/HYPERTENSIONAHA.123.22575 ·
-Dijital DASH müdahaleleri (24 çalışma, ~7000 kişi) tansiyon/tuz/kiloda olumlu, 2025:
-https://pmc.ncbi.nlm.nih.gov/articles/PMC12413951/
-
-### 5.5 Açlık-tokluk skalası — **Sınırlı/Tartışmalı**
-Mindful eating uygulamaları derlemesi: skor yazdırmak tek başına yetmez, yine de
-farkındalık için ucuz araç. JMIR Mental Health 2019: https://pmc.ncbi.nlm.nih.gov/articles/PMC6727629/
-
-### 5.6 Bel çevresi ve kilo dışı göstergeler — **Güçlü kanıt (uygulama etkisi), Sınırlı (NSV)**
-Mobil/web müdahale şemsiye meta-analizi: kilo −1.32 kg, bel çevresi ve tansiyonda
-anlamlı iyileşme; katılım arttıkça sonuç iyileşiyor. *IJERPH* 2025: https://doi.org/10.3390/ijerph22071152 ·
-JITAI scoping (35 çalışma): tartı + diyet davranışı tetikli anlık müdahaleler, 2025:
-https://www.sciencedirect.com/org/science/article/pii/S1438887125016279
-
-### 5.7 Diyet molası (MATADOR) — **Sınırlı kanıt**
-2 hafta açık / 2 hafta bakım, sürekli açığa göre daha fazla kayıp (14.1 vs 9.1 kg) ve
-daha az REE düşüşü; 51 obez erkek, tek RCT. Byrne ve ark., *Int J Obes* 2018:
-https://www.nature.com/articles/ijo2017206 · BREAK protokolü (devam ediyor):
-https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0294131
-
-### 5.8 Kalori takibinin bedeli — **Sınırlı kanıt (kesitsel)**
-5902 fitness odaklı bireyde kalori takibi zayıflık/kas dürtüsü ve egzersiz kaçırınca
-duygusal sıkıntı ile ilişkili; rijit takip uyarısı. *PMC* 2025/26:
-https://pmc.ncbi.nlm.nih.gov/articles/PMC12909219/
-
-### 5.10 Choice architecture: varsayılan + sıralama seçimi değiştirir — **Güçlü kanıt (bağlam farklı)**
-Menüde sıralama/varsayılan değişimi kalori ve besin kalitesini iyileştirip memnuniyeti
-artırdı (online sipariş, RCT). https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11450623/ ·
-Okul kantini küme-RCT uzun dönem: https://pmc.ncbi.nlm.nih.gov/articles/PMC10988364/ ·
-Sağlık ortamlarında tipoloji (varsayılan, konum, boyut), 2025: https://pmc.ncbi.nlm.nih.gov/articles/PMC12379066/
-Uygulamada karşılığı S2b. Tek kullanıcıda etki büyüklüğü ölçülmedi.
+> 5.1–5.8, 5.10 ve 5.12 **taşındı**: kod karşılıkları yayına girdiği için artık
+> `docs/COACH-EVIDENCE.md` §9'da (aynı numaralarla, 9.x). Aşağıda kalanlar henüz
+> kod karşılığı olmayan maddelerdir.
 
 ### 5.11 Besin veritabanı API'leri (kanıt değil, teknik)
 OFF v2: https://freeapihub.com/apis/open-food-facts-api · USDA FDC: https://fdc.nal.usda.gov/api-guide
 (1000 istek/saat, ücretsiz key).
-
-### 5.12 Serbest öğün — **Sınırlı kanıt**, planlı olursa
-Haftada bir planlı sapma (6 gün 1300 kcal + 1 gün 2700) öz-düzenleme ve motivasyonu
-korudu, plansız sapma korumadı; n=36, 14 gün. Coelho do Vale ve ark., *J Consumer
-Psychol* 2016: https://www.sciencedirect.com/science/article/abs/pii/S1057740815000443
-Scoping derleme (8 çalışma): cheat meal'li gruplarda kilo kaybı korunuyor, yıpranma
-%15.7 vs %36.8; ama "ödül / kural bozma" diye çerçevelenince tıkınma-telafi döngüsüne
-benziyor; yeme bozukluğuna yatkın kişide önerilmez. *Nutrition Reviews* 2025:
-https://academic.oup.com/nutritionreviews/article/83/11/2240/8162961
-Uygulamada karşılığı: S7 "serbest öğün" (tek öğün, planlı, ödül dili yok, S1 bayrağında durur).
 
 ### 5.13 Basmati vs jasmin — **Sınırlı kanıt** (GI tek sayı değildir)
 Basmati GI ~50–58, jasmin 68–80; amiloz oranı belirleyici; pişirme ve çeşit değiştirir.
