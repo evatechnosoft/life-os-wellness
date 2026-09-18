@@ -10,6 +10,7 @@ import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
 import { Eva } from './ui/Eva'
+import { Exercises } from './ui/Exercises'
 import { Settings } from './ui/Settings'
 import { PullToRefresh } from './ui/PullToRefresh'
 import { Today } from './ui/Today'
@@ -18,6 +19,7 @@ import { Week } from './ui/Week'
 const TABS = [
   { id: 'today', label: 'Bugün' },
   { id: 'chat', label: 'Eva' },
+  { id: 'moves', label: 'Hareket' },
   { id: 'week', label: 'Hafta' },
   { id: 'settings', label: 'Ayar' },
 ] as const
@@ -103,6 +105,7 @@ export function App() {
         <PullToRefresh onRefresh={refresh}>
           {tab === 'today' && <Today date={date} />}
           {tab === 'chat' && <Eva />}
+          {tab === 'moves' && <Exercises />}
           {tab === 'week' && <Week />}
           {tab === 'settings' && <Settings />}
         </PullToRefresh>
@@ -118,7 +121,7 @@ export function App() {
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
-              className={`min-h-11 rounded-pill px-5 text-sm ${
+              className={`min-h-11 rounded-pill px-3.5 text-sm ${
                 tab === t.id ? 'bg-glass-strong text-ink' : 'text-ink-faint'
               }`}
             >

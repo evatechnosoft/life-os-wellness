@@ -114,6 +114,13 @@ export interface ChatMessage {
   applied?: string[]
 }
 
+/** Egzersiz karesi. Anahtar URL: ayni kare iki hareketde kullanilsa da bir kez iner. */
+export interface ExerciseMedia {
+  url: string
+  blob: Blob
+  cached_at: string
+}
+
 export interface Settings {
   key: string
   value: unknown
@@ -130,6 +137,7 @@ export const db = new Dexie('wellness') as Dexie & {
   meal: EntityTable<Meal, 'id'>
   note_log: EntityTable<NoteEntry, 'id'>
   chat: EntityTable<ChatMessage, 'id'>
+  exercise_media: EntityTable<ExerciseMedia, 'url'>
 }
 
 db.version(1).stores({
@@ -162,4 +170,10 @@ db.version(5).stores({
 // upgrade zinciri kirilmadan ilerlesin.
 db.version(6).stores({
   meal: 'id, date',
+})
+
+// Egzersiz gorselleri: uzak URL'den bir kez inip burada kalir (PLAN-COACH S2).
+// Katalogun kendisi derlemeye gomulu, yalniz kareler agdan geliyor.
+db.version(7).stores({
+  exercise_media: 'url',
 })

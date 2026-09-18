@@ -1,0 +1,341 @@
+{
+  "_comment": "Elle bakimli Turkce esleme. Anahtar = free-exercise-db id (Unlicense / kamu mali). Buraya eklenen her id data/exercises.json'a girer; eklenmeyen 850+ hareket disarida kalir.",
+  "muscles": {
+    "chest": "göğüs",
+    "lats": "kanat (latissimus)",
+    "middle back": "orta sırt",
+    "lower back": "bel",
+    "traps": "trapez",
+    "shoulders": "omuz",
+    "biceps": "biseps",
+    "triceps": "triseps",
+    "forearms": "önkol",
+    "quadriceps": "ön bacak",
+    "hamstrings": "arka bacak",
+    "glutes": "kalça",
+    "calves": "baldır",
+    "abdominals": "karın",
+    "abductors": "kalça dış",
+    "adductors": "kalça iç",
+    "neck": "boyun"
+  },
+  "equipment": {
+    "machine": "makine",
+    "cable": "kablo",
+    "dumbbell": "dambıl",
+    "barbell": "barbell",
+    "kettlebells": "kettlebell",
+    "body only": "vücut ağırlığı",
+    "bands": "direnç bandı",
+    "e-z curl bar": "EZ bar",
+    "exercise ball": "pilates topu",
+    "medicine ball": "sağlık topu",
+    "foam roll": "köpük rulo",
+    "other": "diğer"
+  },
+  "exercises": {
+    "Machine_Bench_Press": {
+      "name": "Oturarak göğüs presi (makine)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Kulplar göğüs hizasında olacak şekilde koltuğu ayarla. Omuz kürekleri mindere yapışık.",
+      "focus": []
+    },
+    "Butterfly": {
+      "name": "Butterfly / pec deck",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Üst kollar yere paralel olacak şekilde koltuğu ayarla; arkada fazla açılma.",
+      "focus": []
+    },
+    "Incline_Dumbbell_Press": {
+      "name": "Dambıl eğimli bench press",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Sehpa 30 derece yeter; 45 derece işi omuza kaydırır.",
+      "focus": []
+    },
+    "Leverage_Incline_Chest_Press": {
+      "name": "Eğimli göğüs presi (makine)",
+      "load": [],
+      "cue": "",
+      "focus": []
+    },
+    "Wide-Grip_Lat_Pulldown": {
+      "name": "Lat pulldown (geniş tutuş)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Barı ensene değil göğsüne çek; geriye yatma.",
+      "focus": []
+    },
+    "Close-Grip_Front_Lat_Pulldown": {
+      "name": "Lat pulldown (dar/nötr tutuş)",
+      "load": [],
+      "cue": "Dirsekleri gövdeye yakın tut; çekiş kanattan gelsin.",
+      "focus": []
+    },
+    "Seated_Cable_Rows": {
+      "name": "Oturarak kablo çekiş (row)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Gövdeyi sallamadan çek; bel sabit kalsın.",
+      "focus": []
+    },
+    "Leverage_Iso_Row": {
+      "name": "Makine row",
+      "load": [],
+      "cue": "Göğsün minderde kalsın; kopuyorsa ağırlık fazla.",
+      "focus": []
+    },
+    "Leg_Press": {
+      "name": "Leg press",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Dizleri göğse fazla çekme; kalçan minderden kalkıyorsa menzil bitmiştir, orada dur.",
+      "focus": []
+    },
+    "Hack_Squat": {
+      "name": "Hack squat (makine)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Bel minderde kalsın, topuk platformdan kalkmasın.",
+      "focus": []
+    },
+    "Leg_Extensions": {
+      "name": "Leg extension",
+      "load": [],
+      "cue": "Minderi ayak bileğinin hemen üstüne ayarla.",
+      "focus": []
+    },
+    "Lying_Leg_Curls": {
+      "name": "Yatarak leg curl",
+      "load": [],
+      "cue": "Kalçan minderden kalkmasın; kalkıyorsa ağırlık fazla.",
+      "focus": []
+    },
+    "Romanian_Deadlift": {
+      "name": "Romanian deadlift",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Bel düz kalacak. Hareket dizden değil kalçadan; sırt yuvarlanırsa ağırlık fazla.",
+      "focus": []
+    },
+    "Barbell_Hip_Thrust": {
+      "name": "Hip thrust",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Tepede kaburgayı yukarı açma; beli değil kalçayı sık.",
+      "focus": []
+    },
+    "Goblet_Squat": {
+      "name": "Goblet squat",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Dambılı göğüste dik tut; topuk yerden kalkmasın.",
+      "focus": []
+    },
+    "Leverage_Shoulder_Press": {
+      "name": "Omuz presi (makine)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Kulplar omuz hizasında başlasın. Tansiyon için: iterken nefes ver, tutma.",
+      "focus": []
+    },
+    "Side_Lateral_Raise": {
+      "name": "Dambıl yan kaldırış",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Omuz hizasını geçme, dirsek hafif bükülü. Sallayarak kaldırıyorsan ağırlık fazla.",
+      "focus": []
+    },
+    "Face_Pull": {
+      "name": "Face pull (kablo)",
+      "load": [],
+      "cue": "Kabloyu alına doğru çek, dirsekler omuz hizasında ve yukarıda.",
+      "focus": []
+    },
+    "Triceps_Pushdown": {
+      "name": "Triceps pushdown (kablo)",
+      "load": [],
+      "cue": "Dirsekler gövdeye yapışık; öne eğilerek ağırlığı bastırma.",
+      "focus": []
+    },
+    "Machine_Triceps_Extension": {
+      "name": "Triceps (makine)",
+      "load": [],
+      "cue": "Dirsek minderde sabit kalsın.",
+      "focus": []
+    },
+    "Machine_Bicep_Curl": {
+      "name": "Biseps curl (makine)",
+      "load": [],
+      "cue": "Koltuğu dirsek mindere denk gelecek şekilde ayarla.",
+      "focus": []
+    },
+    "Plank": {
+      "name": "Plank",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Kalça ne düşsün ne kalksın. Nefesini tutma.",
+      "focus": []
+    },
+    "Arnold_Dumbbell_Press": {
+      "name": "Arnold press (dambıl)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Dönüş kontrollü olsun; omuz hassassa düz dambıl presi daha güvenli.",
+      "focus": []
+    },
+    "Dumbbell_Shrug": {
+      "name": "Dambıl shrug (trapez)",
+      "load": [],
+      "cue": "Omuzu yukarı kaldır, döndürme.",
+      "focus": []
+    },
+    "Reverse_Flyes": {
+      "name": "Ters fly (arka omuz)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Sırt düz, gövde sabit; kollar hafif bükülü.",
+      "focus": []
+    },
+    "Pallof_Press": {
+      "name": "Pallof press (kablo, anti-rotasyon)",
+      "load": [
+        "lower back",
+        "shoulders"
+      ],
+      "cue": "Kaldırdığın ağırlık değil, direndiğin dönme. Gövden kıpırdıyorsa ya da omzun kabloya kaçıyorsa bir kademe düşür.",
+      "focus": [
+        [
+          {
+            "region": "karin",
+            "x": 79,
+            "y": 62,
+            "r": 9
+          },
+          {
+            "region": "oblik",
+            "x": 72,
+            "y": 62,
+            "r": 6
+          },
+          {
+            "region": "omuz",
+            "x": 84,
+            "y": 30,
+            "r": 7
+          },
+          {
+            "region": "bel",
+            "x": 87,
+            "y": 62,
+            "r": 7,
+            "far": true
+          }
+        ],
+        [
+          {
+            "region": "karin",
+            "x": 58,
+            "y": 82,
+            "r": 10
+          },
+          {
+            "region": "oblik",
+            "x": 50,
+            "y": 80,
+            "r": 7
+          },
+          {
+            "region": "omuz",
+            "x": 68,
+            "y": 45,
+            "r": 8
+          },
+          {
+            "region": "bel",
+            "x": 67,
+            "y": 82,
+            "r": 7,
+            "far": true
+          }
+        ]
+      ]
+    },
+    "Dead_Bug": {
+      "name": "Dead bug (yerde, anti-ekstansiyon)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Belin yerden kalkıyorsa menzili kısalt. Elini belinin altına koy; hareket boyunca elini sıkıştırmaya devam etmelisin.",
+      "focus": [
+        [
+          {
+            "region": "karin",
+            "x": 48,
+            "y": 80,
+            "r": 13
+          },
+          {
+            "region": "bel",
+            "x": 46,
+            "y": 89,
+            "r": 9,
+            "far": true
+          },
+          {
+            "region": "onBacak",
+            "x": 63,
+            "y": 60,
+            "r": 10
+          }
+        ],
+        [
+          {
+            "region": "karin",
+            "x": 42,
+            "y": 72,
+            "r": 12
+          },
+          {
+            "region": "bel",
+            "x": 41,
+            "y": 83,
+            "r": 8,
+            "far": true
+          },
+          {
+            "region": "onBacak",
+            "x": 58,
+            "y": 52,
+            "r": 9
+          }
+        ]
+      ]
+    },
+    "Cable_Crunch": {
+      "name": "Kablo crunch (diz üstü)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Kalçadan değil karından bük; sırt yuvarlanarak inecek.",
+      "focus": []
+    }
+  }
+}
