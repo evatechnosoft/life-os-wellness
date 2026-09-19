@@ -27,6 +27,7 @@ const LABELS: Record<string, { label: string; unit: string }> = {
   weight_kg: { label: 'Kilo', unit: 'kg' },
   protein_g: { label: 'Protein', unit: 'g' },
   resting_hr: { label: 'Dinlenme nabzı', unit: 'bpm' },
+  distance_km: { label: 'Egzersiz mesafesi', unit: 'km' },
   spo2_pct: { label: 'Kan oksijeni', unit: '%' },
   spo2_low_pct: { label: 'En düşük oksijen', unit: '%' },
   hrv_ms: { label: 'HRV', unit: 'ms' },

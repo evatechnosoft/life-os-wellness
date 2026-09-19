@@ -96,6 +96,12 @@ export function collect(db) {
   for (const [day, energy] of dailyMax(db, 'total_calories_burned_record_table', 'energy')) {
     push(isoDate(day), 'total_kcal', Math.round(energy / 1000))
   }
+  // Mesafe metre tutulur. DIKKAT: bu tablo gunun tamamini degil, yalniz kaydedilmis
+  // egzersiz araliklarini icerir - 7261 adimlik bir gun 0,4 km gosterebilir. Gunluk
+  // yurume mesafesi diye okunmasin diye etiketi "egzersiz mesafesi" (Watch.tsx LABELS).
+  for (const [day, meters] of dailyMax(db, 'distance_record_table', 'distance')) {
+    push(isoDate(day), 'distance_km', Math.round(meters / 100) / 10)
+  }
   for (const { day, avg_bpm, min_bpm } of heartRate(db)) {
     const date = isoDate(day)
     push(date, 'avg_hr', Math.round(avg_bpm))
