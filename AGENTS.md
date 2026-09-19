@@ -27,7 +27,7 @@ Bu repoda çalışan her ajanın önce okuduğu çalışma kuralları. Ürün ge
 
 ## Akış
 
-- Branch: `feature/<ad>` · `fix/<ad>`; `dev → test → prod`, doğrudan push yok.
+- Branch: `feature/<ad>` · `fix/<ad>` büyük iş için; küçük iş (doküman, devir, sürüm) doğrudan `dev`'e. PR açıldıysa sorulmadan squash-merge edilir (Dean, 19 Eylül). `test` ve `prod`'a doğrudan push yok.
 - Commit öncesi: `npm test` + `npm run typecheck --workspaces` yeşil.
 - Hesaplama katmanı (ortalama, uyum yüzdesi, streak) TDD ile yazılır — hedef %100 kapsam.
 - İddia = kanıt: "çalışıyor" demek için komut çıktısı gerekir.
