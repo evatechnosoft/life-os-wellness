@@ -349,3 +349,66 @@ kapalı kalınca 14 MB oldu). Saate ONNX/ML konmaz.
   kurulum yeterli. Sürüm trafiği artarsa rehber §4 hazır duruyor.
 - **Watch face.** Bu ürünün işi değil; ayrıca Wear OS 6 + Watch Face Push + validator
   token istiyor (rehber §7).
+
+---
+
+## 8. Kardiyo yükü — kendi hesabımız (19 Eylül 2026, Dean)
+
+Samsung'un "Daily Cardio Load" ve "Fitness Index" özellikleri Watch7+ ile One UI 9 Watch
+istiyor; Watch6 Classic'te açılmıyor ve bu bir bölge kilidi değil, model listesi kilidi.
+Metriğin kendisi lisanslı bir şey değil: nabız zaman serisinden bölge süresi çıkarılıp
+TRIMP benzeri bir yük hesaplanır. Yani **hesabı biz yapabiliriz** — sorun formül değil,
+girdi.
+
+### 8.1 Girdi gerçeği (Health Connect dışa aktarımı, 19 Eyl 2026 · kanıtlandı)
+
+`heart_rate_record_series_table` içinde 4.237 örnek var ama **14 güne** yayılmış
+(14 Tem – 18 Eyl). Örnekleme düzensiz:
+
+| Gün | Örnek | Medyan aralık | Kapsam | Maks |
+|---|---|---|---|---|
+| 8 Eyl | 1391 | 1 sn | 14,8 saat | 116 |
+| 12 Eyl | 562 | 1 sn | 10,5 saat | 117 |
+| 15 Eyl (yüzme) | 48 | 600 sn | 13,3 saat | 114 |
+| 17 Eyl (yüzme) | **3** | 1200 sn | 0,5 saat | 99 |
+| 18 Eyl | 302 | 1 sn | 0,1 saat | 118 |
+
+İki ayrı kip görünüyor: egzersiz kaydı açıkken saniyede bir örnek, normal günde on
+dakikada bir. **Yüzme seanslarının ikisinde de nabız yok** — 17 Eylül'ün üç örneği
+15:11–15:40 arasında, seans ise 21:00 sonrası. Bölge 3 ve üstü hiçbir günde görünmüyor;
+43 yaş için eşik ~154 bpm, kayıtlı en yüksek değer 138.
+
+Sonuç: Health Connect'ten gelen nabızla kardiyo yükü hesaplamak bugün **mümkün değil**.
+Veri yoksa formül boş çıkar.
+
+### 8.2 Üç katmanlı çözüm
+
+1. **Saatten doğrudan topla** (asıl çözüm). `com.evatechnosoft.sport_app_mobile` zaten
+   saatte koşuyor ve Health Services'ten `HEART_RATE_BPM` okuyabiliyor (§2). Seans
+   sırasında 1 Hz örnekleyip kuyruğa yazsın, telefon `drainWatch` ile alsın. Böylece
+   Samsung Health'in yazıp yazmamasına bağlı kalmayız.
+2. **Nabız yoksa süre + tip ile tahmin.** Egzersiz kaydında süre ve tür var; MET
+   katsayısıyla (yüzme ~7, tempolu yürüyüş ~4,3, direnç ~5) yük tahmini üretilir ve
+   `estimated: true` işaretlenir. Bugünkü 90 dk ve 60 dk yüzme böyle sayılabilir.
+3. **Elle eşik girişi.** Dean seansta algıladığı zorluğu (RPE 1–10) girerse, nabız
+   olmadan da Banister TRIMP'in RPE karşılığı (session-RPE = süre × RPE) hesaplanır.
+
+### 8.3 Hesaplama katmanı
+
+Yeni dosya `apps/web/src/lib/cardioLoad.ts`, saf fonksiyonlar, TDD (AGENTS.md kuralı):
+
+- `zoneOf(bpm, restingHr, maxHr)` → 1–5
+- `trimpFromSeries(samples, profile)` → gün yükü (Banister, cinsiyet katsayılı)
+- `trimpFromSession(minutes, met, profile)` → nabızsız tahmin
+- `acuteChronicRatio(daily, 7, 28)` → yüklenme/dinlenme dengesi; Samsung'un
+  "önerilen hedef" karşılığı buradan çıkar
+- Girdi kaynağı ne olursa olsun çıktı tek tip: `{ load, source: 'hr' | 'met' | 'rpe' }`
+
+Gösterim: Hafta ekranında mevcut sparkline'ın yanına ikinci bir seri; Bugün ekranına
+kart eklenmez (60 sn kuralı).
+
+### 8.4 Yapılmayacak
+
+- Samsung'un skorunu birebir taklit etmek. Onların katsayıları açık değil; kendi
+  yükümüzü kendi eşiğimize göre raporlarız, "Samsung'unkiyle aynı sayı" iddia etmeyiz.
+- Fitness Index benzeri akran kıyaslaması. Referans veri kümemiz yok, uydurma olur.
