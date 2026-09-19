@@ -393,6 +393,21 @@ Veri yoksa formül boş çıkar.
 3. **Elle eşik girişi.** Dean seansta algıladığı zorluğu (RPE 1–10) girerse, nabız
    olmadan da Banister TRIMP'in RPE karşılığı (session-RPE = süre × RPE) hesaplanır.
 
+### 8.2b Yüzmede nabız neden hiç gelmeyecek (19 Eyl araştırması)
+
+- **Fizik:** su PPG sinyalini bozar; su altında optik nabız güvenilmez. Galaxy Watch'un
+  yüzerken PPG'yi bilinçli kapattığı iddiası dolaşıyor ama Samsung belgesinde karşılığı
+  yok — **doğrulanmadı**. Sonuç değişmiyor: havuzda nabız ya gelmiyor ya absürt yüksek.
+- **Zincir:** Health Connect Wear OS'ta çalışmıyor. Saat verisi önce telefondaki Samsung
+  Health'e iner, oradan Health Connect'e geçer ([Samsung Developer, Health Connect FAQ](https://developer.samsung.com/health/health-connect-faq.html)).
+  İki kopma noktası var ve sahada ikincisi kopuyor: bir güncellemeden sonra uyku akmaya
+  devam ederken egzersiz hiç yazılmıyor ([Samsung Community](https://us.community.samsung.com/t5/Samsung-Apps-and-Services/Samsung-Health-won-t-sync-exercise-since-update/td-p/3607275)).
+- **Bize etkisi:** §8.2'deki 2. katman (süre + MET) yüzme için **yedek değil, asıl yol**.
+  1. katman (saatten doğrudan Health Services) karadaki seanslar için geçerli; o yol
+  Samsung Health zincirini tamamen atladığı için yukarıdaki kopmadan etkilenmez.
+- Su altı nabzı gerçekten istenirse tek yol Bluetooth göğüs bandı. Bu ürünün kapsamında
+  değil, kullanıcı isterse ayrı karar.
+
 ### 8.3 Hesaplama katmanı
 
 Yeni dosya `apps/web/src/lib/cardioLoad.ts`, saf fonksiyonlar, TDD (AGENTS.md kuralı):
