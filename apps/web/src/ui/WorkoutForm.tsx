@@ -1,5 +1,5 @@
 import type { WorkoutType } from '../lib/db'
-import { Chip } from './Chip'
+import { BodyPicker, type Muscle } from './BodyPicker'
 
 export const TYPES: { id: WorkoutType; label: string }[] = [
   { id: 'resistance', label: 'Direnç' },
@@ -7,7 +7,6 @@ export const TYPES: { id: WorkoutType; label: string }[] = [
   { id: 'walk', label: 'Yürüyüş' },
   { id: 'rest', label: 'Dinlenme' },
 ]
-const MUSCLES = ['göğüs', 'sırt', 'bacak', 'omuz', 'kol', 'karın']
 
 export interface WorkoutDraft {
   type: WorkoutType
@@ -71,18 +70,12 @@ export function WorkoutFields({
       </div>
 
       {value.type === 'resistance' && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {MUSCLES.map((m) => (
-            <Chip
-              key={m}
-              label={m}
-              selected={value.groups.includes(m)}
-              onToggle={() =>
-                set({ groups: value.groups.includes(m) ? value.groups.filter((x) => x !== m) : [...value.groups, m] })
-              }
-            />
-          ))}
-        </div>
+        <BodyPicker
+          selected={value.groups as Muscle[]}
+          onToggle={(m) =>
+            set({ groups: value.groups.includes(m) ? value.groups.filter((x) => x !== m) : [...value.groups, m] })
+          }
+        />
       )}
 
       <div className="mt-3 flex gap-2">
