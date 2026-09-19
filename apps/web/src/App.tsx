@@ -26,6 +26,13 @@ const TABS = [
   { id: 'settings', label: 'Ayar', d: 'M4 7h10M18 7h2M4 12h2M10 12h10M4 17h10M18 17h2M14 5v4M6 10v4M14 15v4' },
 ] as const
 
+/** Kenardan ortaya: 0 = uc, 2 = orta. */
+const SCALE = [
+  { box: 'size-10', icon: 'size-4' },
+  { box: 'size-11', icon: 'size-[18px]' },
+  { box: 'size-12', icon: 'size-5' },
+] as const
+
 type TabId = (typeof TABS)[number]['id']
 
 export function App() {
@@ -117,9 +124,11 @@ export function App() {
 
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
       <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex gap-1 p-1.5">
-          {TABS.map((t) => {
+        <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex items-end gap-1 p-1.5">
+          {TABS.map((t, i) => {
             const active = tab === t.id
+            // Kenardan ortaya buyuyen ritim (Dean, 19 Eylul): kucuk - orta - buyuk - orta - kucuk.
+            const step = SCALE[Math.min(i, TABS.length - 1 - i)] ?? SCALE[2]
             return (
               <button
                 key={t.id}
@@ -128,11 +137,11 @@ export function App() {
                 aria-selected={active}
                 aria-label={t.label}
                 onClick={() => setTab(t.id)}
-                className={`relative flex size-12 flex-col items-center justify-center rounded-full transition-[background-color,transform,color] duration-300 ease-out ${
+                className={`relative flex ${step.box} flex-col items-center justify-center rounded-full transition-[background-color,transform,color] duration-300 ease-out ${
                   active ? 'scale-110 bg-glass-strong text-a1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]' : 'text-ink-faint active:scale-95'
                 }`}
               >
-                <svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" aria-hidden className={step.icon} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                   <path d={t.d} />
                 </svg>
                 <span className={`mt-0.5 text-[9px] leading-none ${active ? 'text-ink' : ''}`}>{t.label}</span>

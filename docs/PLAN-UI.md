@@ -223,3 +223,16 @@ Sıra, her adım ayrı dal + PR, merge sorulmaz (hafıza: `pr-otomatik-merge`):
    (katlı) → Eva compact → Ölçüm (katlı) → Retro (katlı).
 
 Yapılmayacak: yeni kit/bağımlılık; renk/cam dili değişimi; günlük akışa alan ekleme.
+
+## 12. Gezinme ve bölüm atlama (19 Eylül, Dean)
+
+- Alt gezinme: daire butonlar, 24'lük stroke ikon + 9 px etiket, kenardan ortaya
+  büyüyen ritim (`SCALE`, App.tsx). Seçili olan `scale-110` + `bg-glass-strong` + a1 rengi,
+  geçiş 300 ms. Metin sekme yerine ikon = dar telefonda beş sekme sığar.
+- Bugün ekranının başında "bölüme git" çip satırı (`#protein`, `#ogunler`, `#olcum`,
+  `#antrenman`, `#retro`); `Card` artık `id` alır, `scroll-mt-2` ile başlık gizlenmez.
+  Uzun sayfayı kaydırmadan hedefe gitmek için; sekme bölmeye gerek kalmadı.
+- Koç kartı Bugün'den çıkıp Eva sekmesinin başına taşındı — öneri sohbetle aynı yerde.
+- Kas grubu seçimi çip yerine vücut figürü (`ui/BodyPicker.tsx`): tek gövde konturu
+  `clipPath`, uzuvlar yuvarlak uçlu çizgi; Ön/Arka görünüm, sırt yalnız arkada.
+  Bölge seçilince a1 ile dolar. Yeni bağımlılık yok, tek inline SVG.
