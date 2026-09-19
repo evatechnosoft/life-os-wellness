@@ -12,6 +12,7 @@ import { refreshNotifications } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
 import { Eva } from './ui/Eva'
 import { Exercises } from './ui/Exercises'
+import { QuickAdd } from './ui/QuickAdd'
 import { Settings } from './ui/Settings'
 import { PullToRefresh } from './ui/PullToRefresh'
 import { Today } from './ui/Today'
@@ -44,6 +45,7 @@ export function App() {
   const [online, setOnline] = useState(navigator.onLine)
   const [date, setDate] = useState(toLocalDate())
   const [updateReady, setUpdateReady] = useState(false)
+  const [quickAdd, setQuickAdd] = useState(false)
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
 
   useEffect(() => {
@@ -127,7 +129,7 @@ export function App() {
       </main>
 
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
-      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex items-end gap-1 p-1.5">
           {TABS.map((t, i) => {
             const active = tab === t.id
@@ -156,7 +158,17 @@ export function App() {
             )
           })}
         </div>
+        <button
+          type="button"
+          aria-label="Hızlı ekle"
+          onClick={() => setQuickAdd(true)}
+          className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-a1 text-2xl leading-none text-solid shadow-[0_10px_24px_rgba(45,212,191,0.35)] active:scale-95"
+        >
+          +
+        </button>
       </nav>
+
+      <QuickAdd date={date} open={quickAdd} onClose={() => setQuickAdd(false)} />
     </div>
   )
 }

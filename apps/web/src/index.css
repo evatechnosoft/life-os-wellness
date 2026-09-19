@@ -85,3 +85,19 @@ textarea,
 button {
   transition: all 200ms var(--ease-out);
 }
+
+/* Alt sayfa (ui/Sheet.tsx) girisi: kisa ve tek yonlu, hareket hassasiyetine saygili. */
+@keyframes sheet-up {
+  from { transform: translateY(12%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+dialog[open] > div {
+  animation: sheet-up 220ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog[open] > div {
+    animation: none;
+  }
+}

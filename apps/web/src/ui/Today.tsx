@@ -3,8 +3,10 @@ import { useState } from 'react'
 
 import { lastDates, toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
+import { isNative } from '../lib/health'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { pendingReminders, useReminderSettings } from '../lib/reminders'
+import { useGoals } from '../lib/settings'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
 import { Diet } from './Diet'
 import { Eva } from './Eva'
@@ -37,6 +39,8 @@ export function Today({ date }: { date: string }) {
   // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
   const watchProtein = useLiveQuery(() => db.wearable.get(`${date}:protein_g`), [date])
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
+  const goals = useGoals()
+  const native = isNative()
   // Bel haftada bir sorulur: bu hafta olculduyse hatirlatma cikmaz.
   const week = lastDates(7)
   const weekLogs =
@@ -65,8 +69,15 @@ export function Today({ date }: { date: string }) {
     setDraft(emptyDraft)
   }
 
+  const retroFilled = (['went_well', 'resistance', 'experiment'] as const).filter((f) => retro?.[f]).length
   const retroCard = (
-    <Card id="retro" title="Akşam retrosu">
+    <Card
+      id="retro"
+      title="Akşam retrosu"
+      collapsible
+      defaultOpen={eveningFirst}
+      summary={retroFilled > 0 ? `${retroFilled}/3 yanıt` : eveningFirst ? 'yanıt yok' : "20:00'de"}
+    >
       {(['went_well', 'resistance', 'experiment'] as const).map((field, i) => (
         <textarea
           key={field}
@@ -113,7 +124,12 @@ export function Today({ date }: { date: string }) {
 
       {eveningFirst && retroCard}
 
-      <Card id="protein" title="Protein ekle">
+      <Card
+        id="protein"
+        title="Protein ekle"
+        collapsible
+        summary={`${protein} / ${goals.protein_g} g · sebze ${log?.veg_servings ?? 0}/${VEG_TARGET}`}
+      >
         <div className="flex gap-2">
           {pulses.map((g) => (
             <button
@@ -167,7 +183,12 @@ export function Today({ date }: { date: string }) {
       </div>
 
       {/* Kilo ve adim ust seride tasindi (DayHeader); burada haftalik/seyrek olculenler kalir. */}
-      <Card id="olcum" title="Ölçüm">
+      <Card
+        id="olcum"
+        title="Ölçüm"
+        collapsible
+        summary={`bel ${log?.waist_cm ?? '—'} · tansiyon ${log?.bp_systolic ?? '—'}/${log?.bp_diastolic ?? '—'}`}
+      >
         <NumberField
           label="Bel (haftada bir)"
           unit="cm"
@@ -183,7 +204,13 @@ export function Today({ date }: { date: string }) {
 
       <ReviewWorkout date={date} bodyKg={log?.weight_kg ?? null} />
 
-      <Card id="antrenman" title="Antrenman">
+      <Card
+        id="antrenman"
+        title="Antrenman"
+        collapsible
+        defaultOpen={done.length === 0}
+        summary={done.length > 0 ? `${done.length} kayıt` : 'bugün 0 kayıt'}
+      >
         <WorkoutFields value={draft} onChange={setDraft} />
 
         <button
@@ -223,9 +250,10 @@ export function Today({ date }: { date: string }) {
         )}
       </Card>
 
-      <Watch date={date} />
+      {/* Web'de saat/uyku karti hic cizilmez: var olup calismayan kart, olmayan karttan kotudur (PLAN-UI S11-2). */}
+      {native && <Watch date={date} />}
 
-      <Sleep date={date} />
+      {native && <Sleep date={date} />}
 
       {!eveningFirst && retroCard}
     </div>
