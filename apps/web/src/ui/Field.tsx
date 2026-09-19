@@ -36,7 +36,7 @@ export function NumberField({ label, unit, value, step = 1, onCommit }: NumberFi
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-          className="w-24 rounded-field bg-glass-inset px-3 py-2 text-right text-lg tabular-nums text-ink outline-none focus:ring-2 focus:ring-a1"
+          className="w-20 rounded-field bg-glass-inset px-3 py-2 text-right text-base tabular-nums text-ink outline-none focus:ring-2 focus:ring-a1"
         />
         {unit && <span className="text-xs text-ink-faint">{unit}</span>}
       </span>
@@ -46,8 +46,8 @@ export function NumberField({ label, unit, value, step = 1, onCommit }: NumberFi
 
 export function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="glass-card mt-3 p-5">
-      <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-faint">{title}</h2>
+    <section className="glass-card mt-3 p-4">
+      <h2 className="mb-1 text-[11px] font-medium uppercase tracking-wide text-ink-faint">{title}</h2>
       {children}
     </section>
   )

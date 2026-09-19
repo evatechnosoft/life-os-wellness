@@ -1,4 +1,5 @@
 import type { WorkoutType } from '../lib/db'
+import { Chip } from './Chip'
 
 export const TYPES: { id: WorkoutType; label: string }[] = [
   { id: 'resistance', label: 'Direnç' },
@@ -62,7 +63,7 @@ export function WorkoutFields({
             key={t.id}
             type="button"
             onClick={() => set({ type: t.id })}
-            className={`flex-1 rounded-field py-3 text-xs ${value.type === t.id ? 'bg-glass-strong text-ink' : 'bg-glass-inset text-ink-faint'}`}
+            className={`flex-1 rounded-field py-2 text-xs ${value.type === t.id ? 'bg-glass-strong text-ink' : 'bg-glass-inset text-ink-faint'}`}
           >
             {t.label}
           </button>
@@ -70,18 +71,16 @@ export function WorkoutFields({
       </div>
 
       {value.type === 'resistance' && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {MUSCLES.map((m) => (
-            <button
+            <Chip
               key={m}
-              type="button"
-              onClick={() =>
+              label={m}
+              selected={value.groups.includes(m)}
+              onToggle={() =>
                 set({ groups: value.groups.includes(m) ? value.groups.filter((x) => x !== m) : [...value.groups, m] })
               }
-              className={`min-h-11 rounded-full px-4 text-xs ${value.groups.includes(m) ? 'bg-a1/90' : 'bg-glass-inset text-ink-faint'}`}
-            >
-              {m}
-            </button>
+            />
           ))}
         </div>
       )}
@@ -96,7 +95,7 @@ export function WorkoutFields({
               placeholder="set"
               value={value.sets}
               onChange={(e) => set({ sets: e.target.value })}
-              className="w-20 rounded-field bg-glass-inset px-3 py-3 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
+              className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
             />
             <input
               type="number"
@@ -105,7 +104,7 @@ export function WorkoutFields({
               placeholder="tekrar"
               value={value.reps}
               onChange={(e) => set({ reps: e.target.value })}
-              className="w-20 rounded-field bg-glass-inset px-3 py-3 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
+              className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
             />
             <input
               type="number"
@@ -114,7 +113,7 @@ export function WorkoutFields({
               placeholder="kg"
               value={value.weight}
               onChange={(e) => set({ weight: e.target.value })}
-              className="w-20 rounded-field bg-glass-inset px-3 py-3 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
+              className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
             />
           </>
         ) : null}
@@ -126,7 +125,7 @@ export function WorkoutFields({
             placeholder="dk"
             value={value.minutes}
             onChange={(e) => set({ minutes: e.target.value })}
-            className="w-20 rounded-field bg-glass-inset px-3 py-3 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
+            className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
           />
         )}
       </div>

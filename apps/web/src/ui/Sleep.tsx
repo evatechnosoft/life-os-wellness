@@ -48,16 +48,8 @@ export function Sleep({ date }: { date: string }) {
     void sleepStatus().then(setStatus).catch(() => {})
   }, [])
 
-  if (!isNative()) {
-    return (
-      <Card title="Uyku (telefon)">
-        <p className="text-xs text-ink-faint">
-          Gece ölçümü yalnız Android uygulamasında çalışır — tarayıcı sekmesi ekran kapanınca
-          askıya alınır, mikrofonu gece boyu dinleyemez.
-        </p>
-      </Card>
-    )
-  }
+  // PLAN-UI §11-2: web'de cihaz kartı çizilmez.
+  if (!isNative()) return null
 
   const values = new Map(stored.filter((r) => r.source === 'phone_mic').map((r) => [r.metric, r.value]))
 
