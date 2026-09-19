@@ -1,54 +1,77 @@
-# Handoff: PLAN-UI §14 düzen uygulandı, Dean'in cihaz doğrulaması bekliyor
+# Handoff: UI düzen yayında, cihaz doğrulaması bekliyor
 
-> 2026-09-19 20:23 · `dev` @ `c9f41fc` · çalışma ağacı temiz · Pages yayında
+> 2026-09-19 · `dev` @ `9edf7e8` · çalışma ağacı temiz · Pages koşusu `35458720827` success
 
-## Hedef
-Dean: "ux ui master olarak güzel modern trend yapıda bir uygulama düzeni sun planla"
-→ sonra "başlayalım alt ajanlarla güzelce yap doğrula bitir". Planlandı (`docs/PLAN-UI.md` §14),
-maket çıkarıldı, beş adım tek dalda uygulandı, PR #16 `dev`'e squash-merge edildi.
+## Goal
+PLAN-UI §14 düzen dili uygulandı: okunan üstte (glance şeridi), girilen alt sayfada
+(`+`), gerisi katlı. Detay `docs/PLAN-UI.md` §14 ve §14.4; ölçümler orada.
 
-## Durum — kanıtlı
-- Commit zinciri: `8352073` plan+maket → `cdfb102` katlanır `Card` → `d8ba431` ana iş →
-  PR #16 merge `6d09010` → `eec1d17` §14.4 ölçümler → `c9f41fc` silme etiketi düzeltmesi.
-- `npm test` 339 pass, `npx tsc --noEmit -p apps/web` çıktısız, `npm run build` başarılı
-  (her adımda tekrar koşuldu, son koşu `c9f41fc` öncesi).
-- Pages: `gh run list --workflow=pages.yml` son koşu `35456426733` **completed success**.
-- Headless ölçüm (Chrome `--headless=new`, 448 px, boş IndexedDB, sabit gezinme hariç):
-  Bugün **1416 px** (önce 2020), Ayar **922 px** (önce ~6 ekran), Hafta **701 px**.
-- Ekran görüntüleriyle doğrulanan: glance şeridi, katlı Bugün kartları, Ayar üç bölge +
-  Profil katlı + Segmented, Hafta gün şeridi/tile/katlı kartlar.
+## State
+- Altı commit `dev`'de, PR #16 squash-merge edildi. Son üçü bu oturumun düzeltmeleri:
+  `c9f41fc` silme etiketi, `38b91ee` devir, `9edf7e8` kilo girişi geri.
+- `npm test` 339 pass · `npx tsc --noEmit -p apps/web` çıktısız · `npm run build` başarılı.
+- **Gerileme bulundu ve kapatıldı:** glance şeridi salt-okunur olunca kilo girişi yalnız
+  `+` alt sayfasında kaldı, Dean kilosunu yazacak yeri bulamadı. `Today.tsx › Ölçüm`
+  kartına kilo alanı geri kondu, kilo boşsa kart açık geliyor.
+- **Bugünün öğün kaydı sunucuda** (`https://fit.evaitec.com`, token `.env: API_TOKEN`):
+  08:30 23 g · 11:45 38 g · 16:30 tavuk 207 g → 60 g · 16:30 kabaklı meze 10 g ·
+  19:00 tavuk çorba 14 g. Toplam 145 g protein / 1830 kcal, `daily_log.protein_g` = 145.
+  Tansiyon: ana alanda akşam 134/87, sabah 140/91 `notes` içinde (şema günde tek ölçüm tutuyor).
 
 ## Doğrulanmadı
-- **Alt sayfanın (`ui/Sheet.tsx`) açık hâli** — headless tıklayamıyor, hiç görülmedi.
-- 7×6 program matrisinin dokunuşu ve `saveSplit` yolu gerçek cihazda denenmedi.
-- Katlama durumunun (`db.settings['ui_sections']`) yeniden açılışta korunması denenmedi.
-- Bugün ekranı hedef 1,5 ekranı **tutmadı** (1,86). Kalan yükseklik: Eva compact, Diet
-  önerisi, `Meals` kartının kendi giriş satırları.
+- `ui/Sheet.tsx` alt sayfasının açık hâli **hiç görülmedi** — headless tıklayamıyor.
+- 7×6 program matrisinin dokunuşu, katlama durumunun (`db.settings['ui_sections']`)
+  yeniden açılışta korunması gerçek cihazda denenmedi.
+- Dean'in telefonunun sunucudan çekip çekmediği: "yediklerim ekli değil" dedi, öğünler
+  sunucuda duruyor. Token telefonda girili mi bilinmiyor (`hasServer()` boş token'da false).
 
-## Kararlar ve gerekçe
-- **Yeni kit yok, Radix bile yok.** PLAN-UI §2 Radix'i seçmişti; native `<details>` ve
-  `<dialog>` katlama + alt sayfa + odak tuzağı + ESC'yi zaten veriyor. Bağımlılık eklenmedi.
-- Ortak sözleşme önce yazıldı (`Card` `collapsible/summary/defaultOpen` + `lib/ui.ts`),
-  sonra dört ajan paralel çalıştı. Dosya sahipliği ayrıldığı için çakışma olmadı:
-  A=Sheet+QuickAdd+App · B=DayHeader · C=Week · D=Settings · ben=Today+Field.
-- Glance şeridi **salt-okunur**; kilo/adım girişi `+` alt sayfasına taşındı. Şeride input
-  koymak 60 sn kuralını değil, okunabilirliği bozuyordu.
-- `Week` eski kartları silinmedi, `collapsible` ile kapatıldı — veri kaybolmadan ilk ekran
-  dörde indi.
-- Silme düğmesi etiketi "Tüm veriyi sil" → **"Bu cihazdaki veriyi sil"**: `db.delete()`
-  yalnız yerel Dexie'yi siliyor, `App.tsx` açılışta `pullRange` ile son 30 günü geri
-  çekiyor. Eski etiket yalandı.
+## Next
+1. Dean telefonda Bugün ekranını aşağı çekip bıraksın; öğünler görünüyor mu, kilo alanı
+   Ölçüm kartında çıkıyor mu bak. Görünmüyorsa Ayar → Veri ve sunucu → token girilecek.
+2. `+` alt sayfası ve 7×6 matris cihazda denensin.
+3. Onay gelirse: `apps/web/src/ui/Meals.tsx` içindeki giriş satırlarını sadeleştir
+   (öğün ekleme artık `+` sayfasında da var). Bugün ekranı 1416 px, hedef ≤ 1140 px
+   (1,5 ekran); kalan tek kaldıraç bu.
 
-## Tekrarlama
-- **448 px headless ekran görüntüsünde sağ kenar kesik görünür — bu artefakt, gerçek taşma
-  değil.** 600 px'te taşma yok; kesilmeyi kovalayıp CSS'e dokunma.
+## Don't repeat
+- **448 px headless ekran görüntüsünde sağ kenarın kesik görünmesi artefakt**, gerçek
+  taşma değil — 600 px'te temiz. CSS'e dokunma.
 - Sayfa yüksekliği ölçerken `body::before` aurora glow tüm sayfayı doldurur; "dolu piksel"
-  taraması yanıltır. Doğru yöntem: `x=200` (kart içi) ile `x=2` (kart dışı) parlaklık farkı,
-  ve sabit gezinmeyi dışlamak için `y < 2850` sınırı.
-- `vite preview` **https** açıyor (mkcert); `curl -k` / `--ignore-certificate-errors` şart.
-- Ajanlara "git komutu çalıştırma" demek işe yaradı; commit tek elden yapıldı, çakışma çıkmadı.
+  taraması yanıltır. Doğrusu: `x=200` (kart içi) ile `x=2` (kart dışı) parlaklık farkı,
+  sabit gezinmeyi dışlamak için `y < 2850`.
+- `vite preview` **https** açıyor (mkcert): `curl -k` / `--ignore-certificate-errors` şart.
+- Radix eklenmedi ve gerekmiyor — native `<details>` ve `<dialog>` katlama, ESC, scrim ve
+  odak tuzağını zaten veriyor. PLAN-UI §2'deki Radix kararı bu yüzden uygulanmadı.
+- Haşlanmış tavuk için 34 g/100g kullanma: göğüs 30-31, but 26-28. Daha önce 200 g'a
+  68 g protein denmişti, fazlaydı.
+- `db.delete()` sunucudaki kaydı silmiyor; açılışta `pullRange` geri çekiyor. Düğme etiketi
+  bu yüzden "Bu cihazdaki veriyi sil".
 
-## Next (tek adım)
-Dean telefondan `+` alt sayfasını, 7×6 matrisi ve katlama hafızasını onaylasın.
-Onay gelirse sıradaki iş: `Meals` kartındaki giriş satırlarını sadeleştirmek (öğün ekleme
-artık `+` sayfasında da var) — Bugün'ü 1,5 ekran hedefine indirecek tek kalan kaldıraç.
+## Read first
+1. `docs/PLAN-UI.md` §14 ve §14.4 — düzen kararları ve ölçümler
+2. `apps/web/src/ui/Field.tsx` — `Card collapsible` sözleşmesi, `lib/ui.ts` kalıcılığı
+3. `apps/web/src/ui/QuickAdd.tsx` + `Sheet.tsx` — cihazda denenecek olan
+4. `AGENTS.md` — kilitli kararlar
+
+## Verify
+```bash
+git rev-parse --short HEAD          # 9edf7e8 bekleniyor
+git status --porcelain | wc -l      # 0
+npm test                            # 339 pass
+gh run list --workflow=pages.yml --limit 1
+```
+
+## Yeniden başlangıç promptu (yapıştır)
+
+```
+life-os-wellness (D:\projects\evaitec\lifeOS\life-os-wellness), dal dev @ 9edf7e8, ağaç temiz.
+Dün PLAN-UI §14 düzeni uygulandı ve Pages'e çıktı: Bugün ekranında salt-okunur glance
+şeridi, sağ altta + ile açılan hızlı ekle alt sayfası, katlı kartlar, Ayar üç bölge,
+haftalık program 7×6 matris. Kod tarafı yeşil (339 test, tsc temiz, build başarılı) ama
+alt sayfanın açık hâli ve matris dokunuşu gerçek cihazda hiç denenmedi.
+
+Önce HANDOFF.md'yi oku ve Verify bloğunu çalıştır.
+Öncelik sırası: (1) Dean'in cihaz geri bildirimini al ve çıkan kusuru düzelt,
+(2) onay gelirse Meals.tsx giriş satırlarını sadeleştir.
+Yeni iş açma, PLAN-UI §14.3 sırasının dışına çıkma.
+```
