@@ -21,6 +21,12 @@
   --color-a2: #6366f1;
   --color-a3: #ec4899;
 
+  /* Kas isaretleme renkleri aksandan ayri tutuldu: a1 (teal) yesille karisiyordu.
+     Role gore adlandirildi - "yesil" degil "work", tema degisse de anlam kalsin. */
+  --color-work: #4ade80;
+  --color-assist: #fbbf24;
+  --color-load: #f87171;
+
   --radius-card: 26px;
   --radius-field: 16px;
   --radius-pill: 100px;
