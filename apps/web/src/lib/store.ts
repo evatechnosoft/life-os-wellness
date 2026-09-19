@@ -21,6 +21,11 @@ export async function queueSplit(split: Record<number, string[]>): Promise<void>
   await queue({ method: 'PUT', path: '/api/split', body: { days } })
 }
 
+/** Profil tek satir (db/006): tum alanlar birlikte gider, alan bazli uc yok. */
+export async function queueProfile(profile: object): Promise<void> {
+  await queue({ method: 'PUT', path: '/api/profile', body: profile })
+}
+
 /**
  * Bildirim zamanlamasi o gunun verisine bakiyor, veri degisince yeniden kurulmali.
  * Dinamik import: reminders -> health -> store dongusunu modul grafiginde acmamak icin.

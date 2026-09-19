@@ -115,6 +115,30 @@ const MEAL_BODY = {
   },
 } as const
 
+const STR_LIST = { type: 'array', items: { type: 'string', maxLength: 120 }, maxItems: 40 } as const
+
+const PROFILE_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    birth_year: { type: ['integer', 'null'], minimum: 1900, maximum: 2100 },
+    height_cm: { type: ['integer', 'null'], minimum: 80, maximum: 250 },
+    sex: { type: ['string', 'null'], enum: ['male', 'female', null] },
+    goal: { type: ['string', 'null'], enum: ['cut', 'maintain', 'gain', null] },
+    target_weight_kg: { type: ['number', 'null'], minimum: 20, maximum: 400 },
+    training_years: { type: ['number', 'null'], minimum: 0, maximum: 80 },
+    conditions: STR_LIST,
+    medications: STR_LIST,
+    injuries: STR_LIST,
+    dislikes: STR_LIST,
+    allergies: STR_LIST,
+    cuisine: { type: ['string', 'null'], maxLength: 120 },
+    equipment: STR_LIST,
+    days_per_week: { type: ['integer', 'null'], minimum: 0, maximum: 7 },
+    session_min: { type: ['integer', 'null'], minimum: 10, maximum: 240 },
+  },
+} as const
+
 const DAILY_FIELDS = [
   'weight_kg',
   'protein_g',
@@ -126,6 +150,12 @@ const DAILY_FIELDS = [
   'veg_servings',
   'waist_cm',
 ] as const
+const PROFILE_FIELDS = [
+  'birth_year', 'height_cm', 'sex', 'goal', 'target_weight_kg', 'training_years',
+  'conditions', 'medications', 'injuries', 'dislikes', 'allergies', 'cuisine',
+  'equipment', 'days_per_week', 'session_min',
+] as const
+
 const RETRO_FIELDS = ['went_well', 'resistance', 'experiment'] as const
 
 /** Builds an upsert that only overwrites the columns actually sent. */
@@ -248,6 +278,28 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     return rows
   })
 
+  // Profil tek satir (db/006): kullanici tablosu yok, auth yok. Bos satir da
+  // donulur ki istemci "profil hic girilmemis" ile "sunucu yok"u ayirt edebilsin.
+  app.get('/api/profile', async () => {
+    const { rows } = await pool.query('select * from profile where id = 1')
+    return rows[0] ?? null
+  })
+
+  app.put('/api/profile', { schema: { body: PROFILE_BODY } }, async (req) => {
+    const body = req.body as Record<string, unknown>
+    const cols = PROFILE_FIELDS.filter((f) => f in body)
+    const values = cols.map((f) => body[f])
+    const insertCols = ['id', ...cols].join(', ')
+    const placeholders = ['1', ...cols.map((_, i) => `$${i + 1}`)].join(', ')
+    const updates = [...cols.map((c, i) => `${c} = $${i + 1}`), 'updated_at = now()'].join(', ')
+    const { rows } = await pool.query(
+      `insert into profile (${insertCols}) values (${placeholders})
+       on conflict (id) do update set ${updates} returning *`,
+      values,
+    )
+    return rows[0]
+  })
+
   app.get('/api/wearable', { schema: { querystring: RANGE } }, async (req) => {
     const { start, end } = req.query as { start: string; end: string }
     const { rows } = await pool.query(
@@ -316,12 +368,13 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
 
   // Whole-database dump for the JSON export acceptance criterion.
   app.get('/api/export', async () => {
-    const [daily, workouts, retros, wearable, meals] = await Promise.all([
+    const [daily, workouts, retros, wearable, meals, profile] = await Promise.all([
       pool.query('select * from daily_log order by date'),
       pool.query('select * from workout order by date, created_at'),
       pool.query('select * from retro order by date'),
       pool.query('select * from wearable_sync order by date'),
       pool.query('select * from meal order by date, time'),
+      pool.query('select * from profile where id = 1'),
     ])
     return {
       exported_at: new Date().toISOString(),
@@ -330,6 +383,7 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
       retro: retros.rows,
       wearable_sync: wearable.rows,
       meal: meals.rows,
+      profile: profile.rows[0] ?? null,
     }
   })
 }

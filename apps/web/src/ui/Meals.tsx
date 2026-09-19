@@ -9,6 +9,7 @@ import { slotGaps, suggestMenus, type MenuSet } from '../lib/nutrition'
 import { useGoals } from '../lib/settings'
 import { saveDaily } from '../lib/store'
 import { Card } from './Field'
+import { ProductPicker } from './ProductPicker'
 
 const SET_LABEL: Record<MenuSet['set'], string> = {
   usual: 'Alışık olduğun',
@@ -191,6 +192,8 @@ export function Meals({ date }: { date: string }) {
           </div>
         </div>
       )}
+
+      <ProductPicker date={date} />
 
       <button
         type="button"
