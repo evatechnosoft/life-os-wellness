@@ -187,8 +187,16 @@ export function Today({ date }: { date: string }) {
         id="olcum"
         title="Ölçüm"
         collapsible
-        summary={`bel ${log?.waist_cm ?? '—'} · tansiyon ${log?.bp_systolic ?? '—'}/${log?.bp_diastolic ?? '—'}`}
+        defaultOpen={log?.weight_kg == null}
+        summary={`${log?.weight_kg ?? '—'} kg · bel ${log?.waist_cm ?? '—'} · tansiyon ${log?.bp_systolic ?? '—'}/${log?.bp_diastolic ?? '—'}`}
       >
+        <NumberField
+          label="Kilo"
+          unit="kg"
+          step={0.1}
+          value={log?.weight_kg}
+          onCommit={(v) => void saveDaily(date, { weight_kg: v })}
+        />
         <NumberField
           label="Bel (haftada bir)"
           unit="cm"
