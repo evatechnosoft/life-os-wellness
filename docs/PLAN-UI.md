@@ -314,3 +314,24 @@ BUGÜN                              EVA                          HAFTA
 
 Yapılmayacak: yeni kit (Radix dahil — native `details`/`dialog` yetiyor), açık tema,
 kalori sayacı, günlük kilo vurgusu. Maket: `docs/img/layout-2026-09-19.html`.
+
+### 14.4 Sonuç (19 Eylül, PR #16 → `dev` @ `6d09010`)
+
+Beş adımın hepsi tek dalda (`feature/ui-layout`) uygulandı, dört paralel ajan + ortak
+`Card collapsible` sözleşmesi. Kanıt: `npm test` 339 pass · `tsc --noEmit` temiz ·
+`npm run build` başarılı · Pages koşusu `35456426733` completed success.
+
+Headless ölçüm (448 px genişlik, boş veritabanı, sabit gezinme hariç):
+
+| Ekran | Önce | Sonra | Hedef |
+|---|---|---|---|
+| Bugün | 2020 px (~2,4 ekran) | **1416 px (1,86 ekran)** | ≤ 1,5 — tutmadı |
+| Ayar | ~6 ekran | **922 px (1,21 ekran)** | ilk ekran kaydırmasız — yaklaştı |
+| Hafta | — | **701 px (0,92 ekran)** | tek ekran — tuttu |
+
+Bugün hedefi tutmadı: kalan yüksekliğin büyük kısmı Eva compact kartı, Diet önerisi ve
+`Meals` kartının kendi giriş alanları. Öğün ekleme artık `+` alt sayfasında da olduğu
+için `Meals` içindeki giriş satırları sadeleştirilebilir — ayrı iş, bu PR'a alınmadı.
+
+Doğrulanmadı: alt sayfanın açık hâli, 7×6 matris dokunuşu ve katlama durumunun
+yeniden açılışta korunması gerçek cihazda denenmedi (headless tıklayamıyor).
