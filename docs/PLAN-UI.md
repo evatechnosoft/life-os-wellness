@@ -236,3 +236,13 @@ Yapılmayacak: yeni kit/bağımlılık; renk/cam dili değişimi; günlük akı�
 - Kas grubu seçimi çip yerine vücut figürü (`ui/BodyPicker.tsx`): tek gövde konturu
   `clipPath`, uzuvlar yuvarlak uçlu çizgi; Ön/Arka görünüm, sırt yalnız arkada.
   Bölge seçilince a1 ile dolar. Yeni bağımlılık yok, tek inline SVG.
+
+## 13. Hareket sekmesi listesi (19 Eylül, Dean)
+
+- Bölge filtresi yatay çip yerine solda sabit dikey liste (`w-20`, `sticky`): on bölge
+  kaydırmadan görünür, seçim tek dokunuş.
+- Sağ sütun: arama, alet için tek `select` (çip satırı değil), ardından dik liste.
+  Her satır 44 px küçük resim + hareket adı + `alet · bölge` alt satırı.
+- Görsel `loading="lazy"` ile doğrudan katalog URL'inden; detay ekranı görseli
+  IndexedDB'ye zaten yazıyor, liste için ikinci bir önbellek katmanı eklenmedi.
+- `?tab=<id>` sorgu parametresi doğrudan sekme açar (kısayol ve ekran doğrulaması).
