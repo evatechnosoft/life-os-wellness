@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import { setSection, useSections } from '../lib/ui'
+
 interface NumberFieldProps {
   label: string
   unit?: string
@@ -44,11 +46,53 @@ export function NumberField({ label, unit, value, step = 1, onCommit }: NumberFi
   )
 }
 
-export function Card({ id, title, children }: { id?: string; title: string; children: React.ReactNode }) {
+interface CardProps {
+  id?: string
+  title: string
+  /** Baslikta gorunen tek satir ozet: acmadan ne oldugu okunur (PLAN-UI S3). */
+  summary?: string
+  /** true ise native <details>; durum db.settings['ui_sections'] icinde saklanir. */
+  collapsible?: boolean
+  defaultOpen?: boolean
+  children: React.ReactNode
+}
+
+const HEAD = 'text-[11px] font-medium uppercase tracking-wide text-ink-faint'
+
+/**
+ * Cam kart. `collapsible` verilirse native <details> ile katlanir - Radix ya da
+ * baska bir kit gerekmiyor, klavye ve ekran okuyucu davranisi tarayicidan gelir.
+ */
+export function Card({ id, title, summary, collapsible, defaultOpen = false, children }: CardProps) {
+  const sections = useSections()
+
+  if (!collapsible) {
+    return (
+      <section id={id} className="glass-card mt-3 scroll-mt-2 p-4">
+        <h2 className={`mb-1 ${HEAD}`}>{title}</h2>
+        {children}
+      </section>
+    )
+  }
+
+  const key = id ?? title
+  const open = sections[key] ?? defaultOpen
+
   return (
-    <section id={id} className="glass-card mt-3 scroll-mt-2 p-4">
-      <h2 className="mb-1 text-[11px] font-medium uppercase tracking-wide text-ink-faint">{title}</h2>
-      {children}
-    </section>
+    <details
+      id={id}
+      open={open}
+      onToggle={(e) => void setSection(key, e.currentTarget.open)}
+      className="glass-card mt-3 scroll-mt-2 [&[open]_.chev]:rotate-90"
+    >
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-2 [&::-webkit-details-marker]:hidden">
+        <h2 className={HEAD}>{title}</h2>
+        {summary && <span className="ml-auto truncate text-xs text-ink-faint">{summary}</span>}
+        <span aria-hidden className={`chev shrink-0 text-ink-faint transition-transform ${summary ? '' : 'ml-auto'}`}>
+          ›
+        </span>
+      </summary>
+      <div className="px-4 pb-4">{children}</div>
+    </details>
   )
 }
