@@ -311,7 +311,11 @@ const NUDGE_OPTIONS = [
   { value: 'push', label: 'İtici' },
 ] as const satisfies readonly SegmentedOption<'adaptive' | 'soft' | 'push'>[]
 
-/** Yikici islem tek basina, en altta ve iki adimli onayla (PLAN-UI S3). */
+/**
+ * Yikici islem tek basina, en altta ve iki adimli onayla (PLAN-UI S3).
+ * `db.delete()` YALNIZ bu cihazi temizler; sunucu baglıysa acilista `pullRange`
+ * son 30 gunu geri ceker. Etiket bu yuzden "tum veri" demiyor - yalan olurdu.
+ */
 function DangerZone() {
   const [armed, setArmed] = useState(false)
 
@@ -330,7 +334,9 @@ function DangerZone() {
       onBlur={() => setArmed(false)}
       className="mt-6 min-h-11 w-full rounded-field bg-glass-inset px-4 py-3 text-sm text-a3"
     >
-      {armed ? 'Emin misin? Geri alınamaz — silmek için tekrar dokun' : 'Tüm veriyi sil'}
+      {armed
+        ? 'Emin misin? Bu cihazdaki kayıtlar gider — silmek için tekrar dokun'
+        : 'Bu cihazdaki veriyi sil'}
     </button>
   )
 }
