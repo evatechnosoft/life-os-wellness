@@ -18,6 +18,8 @@ import {
   pushWatchApp,
   type PhoneUpdate,
 } from '../lib/watch'
+import { isNative } from '../lib/health'
+import { Chip } from './Chip'
 import { Card, NumberField } from './Field'
 import { ProfileCard } from './Profile'
 
@@ -229,19 +231,9 @@ function SplitEditor() {
       {order.map((weekday) => (
         <li key={weekday}>
           <div className="text-xs text-ink-faint">{WEEKDAYS[weekday]}</div>
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="mt-1 flex flex-wrap gap-1.5">
             {MUSCLES.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => toggle(weekday, m)}
-                aria-pressed={(split[weekday] ?? []).includes(m)}
-                className={`min-h-11 rounded-full px-4 text-xs ${
-                  (split[weekday] ?? []).includes(m) ? 'bg-a1/90 text-solid' : 'bg-glass-inset text-ink-faint'
-                }`}
-              >
-                {m}
-              </button>
+              <Chip key={m} label={m} selected={(split[weekday] ?? []).includes(m)} onToggle={() => toggle(weekday, m)} />
             ))}
           </div>
         </li>
@@ -431,10 +423,13 @@ export function Settings() {
         <NoteHistory />
       </Card>
 
-      <PhoneAppUpdate />
-      <LocalEva />
-
-      <WatchAppPush />
+      {isNative() && (
+        <>
+          <PhoneAppUpdate />
+          <LocalEva />
+          <WatchAppPush />
+        </>
+      )}
 
       <Card title="Veri">
         <button type="button" onClick={() => void exportJson()} className="w-full rounded-field bg-glass-strong py-3 text-sm active:bg-glass-strong">

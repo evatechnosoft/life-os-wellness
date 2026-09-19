@@ -112,16 +112,8 @@ export function Watch({ date }: { date: string }) {
     void healthStatus().then(setStatus)
   }, [])
 
-  if (!isNative()) {
-    return (
-      <Card title="Saat">
-        <p className="text-xs text-ink-faint">
-          Saat verisi yalnız Android uygulamasında okunabilir — Health Connect web'e kapalı bir
-          Android API'si. Tarayıcı sürümünde girişler manuel.
-        </p>
-      </Card>
-    )
-  }
+  // PLAN-UI §11-2: web'de cihaz kartı çizilmez.
+  if (!isNative()) return null
 
   const act = async (fn: () => Promise<unknown>) => {
     setBusy(true)
