@@ -1,77 +1,87 @@
-# Handoff: UI düzen yayında, cihaz doğrulaması bekliyor
+# Handoff: UI düzeni yayında, sıradaki iş kardiyo yükü
 
-> 2026-09-19 · `dev` @ `9edf7e8` · çalışma ağacı temiz · Pages koşusu `35458720827` success
+> 2026-09-19 · `dev` @ `7c38f3f` · çalışma ağacı temiz · Pages koşusu `35463916225` success
 
 ## Goal
-PLAN-UI §14 düzen dili uygulandı: okunan üstte (glance şeridi), girilen alt sayfada
-(`+`), gerisi katlı. Detay `docs/PLAN-UI.md` §14 ve §14.4; ölçümler orada.
+İki koldan ilerledi: (1) PLAN-UI §14 düzen dili uygulandı ve yayına çıktı, (2) Dean'in
+günlük sağlık verisi (öğün, tartı, tansiyon, EKG, Health Connect) sunucuya girildi.
+Sıradaki iş `docs/PLAN-WEAR.md` §8: kendi kardiyo yükü hesabımız.
 
 ## State
-- Altı commit `dev`'de, PR #16 squash-merge edildi. Son üçü bu oturumun düzeltmeleri:
-  `c9f41fc` silme etiketi, `38b91ee` devir, `9edf7e8` kilo girişi geri.
-- `npm test` 339 pass · `npx tsc --noEmit -p apps/web` çıktısız · `npm run build` başarılı.
-- **Gerileme bulundu ve kapatıldı:** glance şeridi salt-okunur olunca kilo girişi yalnız
-  `+` alt sayfasında kaldı, Dean kilosunu yazacak yeri bulamadı. `Today.tsx › Ölçüm`
-  kartına kilo alanı geri kondu, kilo boşsa kart açık geliyor.
-- **Bugünün öğün kaydı sunucuda** (`https://fit.evaitec.com`, token `.env: API_TOKEN`):
-  08:30 23 g · 11:45 38 g · 16:30 tavuk 207 g → 60 g · 16:30 kabaklı meze 10 g ·
-  19:00 tavuk çorba 14 g. Toplam 145 g protein / 1830 kcal, `daily_log.protein_g` = 145.
-  Tansiyon: ana alanda akşam 134/87, sabah 140/91 `notes` içinde (şema günde tek ölçüm tutuyor).
+- Sekiz commit `dev`'de. UI tarafı: PR #16 + üç düzeltme (`9edf7e8` kilo girişi,
+  `c9f41fc` silme etiketi, `a9c3604` saat kartı web'de görünür).
+- `npm test` 339 pass · `tsc --noEmit` çıktısız · `npm run build` başarılı (son koşu `31790cd` öncesi).
+- **Sunucudaki veri** (`https://fit.evaitec.com`, token `.env: API_TOKEN`):
+  - 19 Eyl öğünler: 5 kayıt, 145 g protein / 1830 kcal, `daily_log.protein_g` = 145
+  - Kilo: 12 Eyl 109,1 · 15 Eyl 108,4 · 19 Eyl 107,6 (OKOK tartı PDF'i). 14 Eyl'in
+    çakışan kaydı temizlendi; 8 ve 9 Eyl'deki 109,1 raporun kapsamı dışında, **dokunulmadı**.
+  - Vücut kompozisyonu üç gün için `wearable` içinde, kaynak `okok` (bmi, body_fat_pct,
+    muscle_kg, water_pct, bone_kg).
+  - Tansiyon: 8 Eyl 137/93 · 10 Eyl 136/92 · 18 Eyl 141/88 · 19 Eyl 138/87 (gün ort).
+    EKG 19 Eyl 21:52 sinüs ritmi normal, 79 bpm. Kaynak `shm`.
+  - Health Connect aktarımı: 162 gün (11 Nis – 19 Eyl), 308 ölçüm, 10 antrenman.
+  - Antrenman: 15 Eyl 90 dk yüzme+gezinti · 17 Eyl 60 dk yüzme (580 kcal) · 18 Eyl 11 dk.
 
 ## Doğrulanmadı
-- `ui/Sheet.tsx` alt sayfasının açık hâli **hiç görülmedi** — headless tıklayamıyor.
-- 7×6 program matrisinin dokunuşu, katlama durumunun (`db.settings['ui_sections']`)
-  yeniden açılışta korunması gerçek cihazda denenmedi.
-- Dean'in telefonunun sunucudan çekip çekmediği: "yediklerim ekli değil" dedi, öğünler
-  sunucuda duruyor. Token telefonda girili mi bilinmiyor (`hasServer()` boş token'da false).
+- `ui/Sheet.tsx` alt sayfasının açık hâli, 7×6 matris dokunuşu, katlama hafızası —
+  hiçbiri gerçek cihazda denenmedi (headless tıklayamıyor).
+- Dean'in telefonunun sunucudan çekip çekmediği. Öğünler sunucuda, telefonda görüldüğü
+  teyit edilmedi.
 
 ## Next
-1. Dean telefonda Bugün ekranını aşağı çekip bıraksın; öğünler görünüyor mu, kilo alanı
-   Ölçüm kartında çıkıyor mu bak. Görünmüyorsa Ayar → Veri ve sunucu → token girilecek.
-2. `+` alt sayfası ve 7×6 matris cihazda denensin.
-3. Onay gelirse: `apps/web/src/ui/Meals.tsx` içindeki giriş satırlarını sadeleştir
-   (öğün ekleme artık `+` sayfasında da var). Bugün ekranı 1416 px, hedef ≤ 1140 px
-   (1,5 ekran); kalan tek kaldıraç bu.
+1. `apps/web/src/lib/cardioLoad.ts` yaz (TDD, AGENTS.md hesaplama kuralı): `zoneOf`,
+   `trimpFromSeries`, `trimpFromSession`, `acuteChronicRatio`. Sözleşme ve gerekçe
+   `docs/PLAN-WEAR.md` §8.3'te; çıktı her zaman `{ load, source: 'hr' | 'met' | 'rpe' }`.
+2. Aktarıma bölge süreleri ekle (`ops/import_health.mjs`): nabız serisinden gün başına
+   bölge 1-5 dakikaları, `wearable` metriği olarak.
+3. Hafta ekranındaki sparkline'ın yanına yük serisi. Bugün ekranına kart **eklenmez**.
 
 ## Don't repeat
-- **448 px headless ekran görüntüsünde sağ kenarın kesik görünmesi artefakt**, gerçek
-  taşma değil — 600 px'te temiz. CSS'e dokunma.
-- Sayfa yüksekliği ölçerken `body::before` aurora glow tüm sayfayı doldurur; "dolu piksel"
-  taraması yanıltır. Doğrusu: `x=200` (kart içi) ile `x=2` (kart dışı) parlaklık farkı,
-  sabit gezinmeyi dışlamak için `y < 2850`.
-- `vite preview` **https** açıyor (mkcert): `curl -k` / `--ignore-certificate-errors` şart.
-- Radix eklenmedi ve gerekmiyor — native `<details>` ve `<dialog>` katlama, ESC, scrim ve
-  odak tuzağını zaten veriyor. PLAN-UI §2'deki Radix kararı bu yüzden uygulanmadı.
-- Haşlanmış tavuk için 34 g/100g kullanma: göğüs 30-31, but 26-28. Daha önce 200 g'a
-  68 g protein denmişti, fazlaydı.
-- `db.delete()` sunucudaki kaydı silmiyor; açılışta `pullRange` geri çekiyor. Düğme etiketi
-  bu yüzden "Bu cihazdaki veriyi sil".
+- **Yüzmede nabız beklemeyi bırak.** Su PPG'yi bozar; 17 Eyl'de tüm gün 3 örnek var,
+  seans saatinde hiç yok. Yüzme için süre + MET yolu asıldır (`PLAN-WEAR` §8.2b).
+- **Health Connect Wear OS'ta çalışmıyor.** Saat → telefondaki Samsung Health → Health
+  Connect zinciri var ve ikinci halka kopuyor. Kendi saat uygulamamız Health Services
+  kullandığı için bu zinciri atlıyor.
+- Fitness Index / Daily Cardio Load **Watch7+ ve One UI 9 Watch** istiyor; Watch6
+  Classic'te açan yöntem yok (modded APK, bölge, ADB — hiçbiri). Bölge kilidi değil,
+  model beyaz listesi. Bir daha araştırma açma.
+- **Türkiye EKG ve tansiyon için resmî destekli.** Kilit aşmaya gerek yok.
+- **Reddit bu ortamdan erişilemiyor** (arama alan adını reddediyor, aynalar bloklu).
+  Eşdeğer kaynak: Samsung Community + XDA.
+- Haşlanmış tavuk 30-31 g/100g (göğüs), but 26-28. 34 g/100g kullanma.
+- 448 px headless ekran görüntüsünde sağ kenarın kesik görünmesi artefakt, gerçek taşma
+  değil (600 px'te temiz).
+- Sayfa yüksekliği ölçümünde `body::before` aurora glow sayfayı doldurur; doğru yöntem
+  `x=200` ile `x=2` parlaklık farkı, `y < 2850` sınırı.
+- `vite preview` https açıyor: `curl -k` / `--ignore-certificate-errors` şart.
+- PDF okumak için `pymupdf` kurulu (`python -c "import fitz"`); `pdftoppm` yok.
 
 ## Read first
-1. `docs/PLAN-UI.md` §14 ve §14.4 — düzen kararları ve ölçümler
-2. `apps/web/src/ui/Field.tsx` — `Card collapsible` sözleşmesi, `lib/ui.ts` kalıcılığı
-3. `apps/web/src/ui/QuickAdd.tsx` + `Sheet.tsx` — cihazda denenecek olan
+1. `docs/PLAN-WEAR.md` §8 — kardiyo yükü planı, girdi gerçeği, sözleşme
+2. `ops/import_health.mjs` — aktarım deseni, `dailyMax` ve `heartRate`
+3. `apps/web/src/lib/metrics.ts` — mevcut hesaplama deseni ve test stili
 4. `AGENTS.md` — kilitli kararlar
 
 ## Verify
 ```bash
-git rev-parse --short HEAD          # 9edf7e8 bekleniyor
+git rev-parse --short HEAD          # 7c38f3f
 git status --porcelain | wc -l      # 0
 npm test                            # 339 pass
-gh run list --workflow=pages.yml --limit 1
+curl -s -H "Authorization: Bearer $(grep '^API_TOKEN=' .env | cut -d= -f2-)" \
+  "https://fit.evaitec.com/api/daily?start=2026-09-19&end=2026-09-19"
 ```
 
 ## Yeniden başlangıç promptu (yapıştır)
 
 ```
-life-os-wellness (D:\projects\evaitec\lifeOS\life-os-wellness), dal dev @ 9edf7e8, ağaç temiz.
-Dün PLAN-UI §14 düzeni uygulandı ve Pages'e çıktı: Bugün ekranında salt-okunur glance
-şeridi, sağ altta + ile açılan hızlı ekle alt sayfası, katlı kartlar, Ayar üç bölge,
-haftalık program 7×6 matris. Kod tarafı yeşil (339 test, tsc temiz, build başarılı) ama
-alt sayfanın açık hâli ve matris dokunuşu gerçek cihazda hiç denenmedi.
+life-os-wellness (D:\projects\evaitec\lifeOS\life-os-wellness), dal dev @ 7c38f3f, ağaç temiz.
+Dün iki iş bitti: PLAN-UI §14 düzeni yayına çıktı (glance şeridi, + ile hızlı ekle,
+katlı kartlar, Ayar üç bölge) ve Dean'in 19 Eylül verisi sunucuya girildi (öğün, tartı,
+tansiyon, EKG, 162 günlük Health Connect aktarımı). Sıradaki iş kendi kardiyo yükü
+hesabımız: Samsung'un Daily Cardio Load'u Watch7+ istiyor, Watch6 Classic'te açılmıyor,
+metriği kendimiz hesaplayacağız.
 
-Önce HANDOFF.md'yi oku ve Verify bloğunu çalıştır.
-Öncelik sırası: (1) Dean'in cihaz geri bildirimini al ve çıkan kusuru düzelt,
-(2) onay gelirse Meals.tsx giriş satırlarını sadeleştir.
-Yeni iş açma, PLAN-UI §14.3 sırasının dışına çıkma.
+Önce HANDOFF.md'yi oku ve Verify bloğunu çalıştır, sonra docs/PLAN-WEAR.md §8'i oku.
+Next #1: apps/web/src/lib/cardioLoad.ts'i TDD ile yaz (sözleşme §8.3'te).
+Yeni araştırma açma — Fitness Index ve Reddit konuları kapandı, gerekçe HANDOFF'ta.
 ```
