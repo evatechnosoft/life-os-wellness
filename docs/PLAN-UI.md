@@ -154,3 +154,34 @@ Aynı ilke: her gün gereken üstte, gerisi katlanır.
 - **Bağımlılık sızması:** Radix bir bileşeni çözerken ikinci, üçüncü paketi davet
   eder. Kural: her paket ayrı gerekçeyle girer; Accordion ile başlanır, Select ve
   Switch ancak yerli öğe yetmediğinde eklenir.
+
+## 9. Düzen referansı kararları (19 Eylül, Dean)
+
+Referans sayfası: üç açık kaynak aday ekran görüntüleriyle karşılaştırıldı
+(OpenNutriTracker · wger Flutter · Waistline; workout.cool yalnız link).
+Alınan yalnız **düzen**; renk, cam ve yazı dili evaglass'ta kalır (§1 kilidi).
+
+| Bizim ekran | Referans | Ne alındı |
+|---|---|---|
+| Bugün üst bloğu | OpenNutriTracker ana ekran | iki hızlı giriş kartı (kilo · adım) → tek halka (protein) + yanında 7-gün ortalama ve haftalık değişim → üç eşit bilgi kartı (sebze · uyku · nabız). "Kalan kcal" ve oruç sayacı **alınmadı**. |
+| Öğün ekle | OpenNutriTracker öğün ekranı | arama + barkod tek satır, altında filtre çipleri; `ProductPicker` buraya taşınır (yapılmadı) |
+| Öğün listesi | Waistline günlük | öğün başına katlanır bölüm, fotoğraflı satır, altta gün toplamı (yapılmadı) |
+| Ayar → Haftalık program | wger pano kartı | gün satırları + sağda ok (yapılmadı) |
+
+Uygulanan: `ui/DayHeader.tsx` yeniden yazıldı, `Today.tsx › Ölçüm` kartından kilo/adım
+çıkarıldı (üst şeride taşındı). Kalanlar §7 sırasına eklenir.
+
+## 10. Ana ekran widget'ı (istek: 19 Eylül)
+
+Dean: "hoş bir görsel saat uygulaması widget'ı ana ekrana, kolay kullanım için."
+
+- **Ne:** Android ana ekran widget'ı — saat + günün özeti (protein x/y, 7-gün ortalama,
+  bugünün programı) ve tek dokunuşla uygulamayı ilgili karta açan kısayollar.
+- **Nerede:** `apps/web/android/app` içinde `AppWidgetProvider` (Kotlin) + `RemoteViews`
+  düzeni. Veri kaynağı: telefondaki Dexie'ye native'den erişim yok → uygulama her
+  kayıt/senkron sonrası küçük bir özet JSON'u `SharedPreferences`'a yazar (Capacitor
+  plugin köprüsü, `WearBridge` deseni); widget onu okur, 15 dk'da bir ve kayıt
+  olayında yenilenir.
+- **Sınır:** PWA/web'de widget yoktur; yalnız APK. Cam/blur RemoteViews'ta yok — düz
+  koyu zemin + aksan, evaglass tonunda ama sade.
+- **Durum:** planlandı, yapılmadı. Sıra: Bugün düzeni (§9) bitince.
