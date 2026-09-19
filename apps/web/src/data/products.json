@@ -1,0 +1,18 @@
+[
+  {
+    "name": "fıstıklı tahin helvası",
+    "brand": "Servet",
+    "per100g": { "kcal": 600, "protein_g": 14, "fat_g": 47, "carb_g": 34, "sugar_g": 23, "fibre_g": 8.2, "salt_g": 0.41 }
+  },
+  {
+    "name": "kakaolu tahin helvası",
+    "brand": "Servet",
+    "per100g": { "kcal": 595, "protein_g": 16, "fat_g": 46, "carb_g": 34, "sugar_g": 25, "fibre_g": 7.9, "salt_g": 0.53 }
+  },
+  {
+    "name": "fırında nohut cipsi",
+    "brand": "Züber",
+    "portion_g": 25,
+    "per100g": { "kcal": 459, "protein_g": 16, "fat_g": 20, "carb_g": 49, "sugar_g": 6.9, "fibre_g": 7.8, "salt_g": 2.1 }
+  }
+]

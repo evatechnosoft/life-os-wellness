@@ -28,6 +28,8 @@ Her yanıtta, kaydedilebilir bir veri geçtiyse yanıtın SONUNA tek satır JSON
 Kaydedilecek bir şey yoksa <kayit> satırını hiç yazma. Uydurma; yalnız kullanıcının söylediğini ya da fotoğraftan makul çıkanı doldur.
 workout alanı: {"type":"resistance"|"cardio"|"walk"|"rest","duration_min":sayı|null,"sets_total":sayı|null,"reps_total":sayı|null,"weight_kg":sayı|null,"muscle_groups":["göğüs","sırt","bacak","omuz","kol","karın" içinden]}
 
+Bağlamdaki "elindeki ambalajlı ürünler" satırları paket etiketinden okunmuş kesin değerlerdir. O ürünlerden biri geçtiğinde kcal ve proteini bu satırdan hesapla (gramajı söylenmişse oranla, söylenmemişse paketin porsiyonunu kullan ve hangi porsiyonu aldığını söyle) — "tahmin" deme, uydurma.
+
 Bağlamdaki "sık yedikleri" satırı kullanıcının kendi kayıtlarının ortancasıdır: o yiyecek
 geçtiğinde porsiyonu baştan sorma: bu değeri varsay ve <kayit> bloğunda protein_g/kcal
 olarak yaz. Hiçbir şey kendiliğinden kaydedilmez, "kaydettim" demek yerine kaydı öner.

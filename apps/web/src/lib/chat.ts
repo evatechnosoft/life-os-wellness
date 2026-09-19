@@ -17,6 +17,7 @@ import {
 } from './nutrition'
 import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
 import { offlineReply } from './offline'
+import { productLines } from './products'
 import { EMPTY_PROFILE, profileLines, type Profile } from './profile'
 import { DEFAULT_GOALS, type Goals } from './settings'
 import { type Split } from './split'
@@ -202,6 +203,9 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
     if (sleep) day.push(`uyku ${Math.floor(sleep.value / 60)} sa ${Math.round(sleep.value % 60)} dk`)
     if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
   }
+  // Ambalajli urunler: etiketten okunmus sabit degerler, kullanicinin gecmisinden
+  // bagimsiz. "Helva yedim" duyulunca Eva 600 kcal'i buradan alir, uydurmaz.
+  lines.push(...productLines())
   // Sik yediklerinin gecmisteki degerleri: Eva "tavuk yedim" duyunca porsiyonu sormasin.
   const known = foodMemory(recentMeals)
   if (known.length > 0) {
