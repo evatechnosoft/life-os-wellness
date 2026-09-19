@@ -6,7 +6,6 @@ import { db } from '../lib/db'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { pendingReminders, useReminderSettings } from '../lib/reminders'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
-import { Coach } from './Coach'
 import { Diet } from './Diet'
 import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
@@ -20,6 +19,14 @@ import { draftToWorkout, emptyDraft, TYPES, WorkoutFields, type WorkoutDraft } f
 
 /** Gunluk sebze/baklagil porsiyon hedefi (PLAN-DIET S4). */
 const VEG_TARGET = 5
+
+const SECTIONS = [
+  { id: 'protein', label: 'Protein' },
+  { id: 'ogunler', label: 'Öğünler' },
+  { id: 'olcum', label: 'Ölçüm' },
+  { id: 'antrenman', label: 'Antrenman' },
+  { id: 'retro', label: 'Retro' },
+] as const
 
 export function Today({ date }: { date: string }) {
   const log = useLiveQuery(() => db.daily_log.get(date), [date])
@@ -59,7 +66,7 @@ export function Today({ date }: { date: string }) {
   }
 
   const retroCard = (
-    <Card title="Akşam retrosu">
+    <Card id="retro" title="Akşam retrosu">
       {(['went_well', 'resistance', 'experiment'] as const).map((field, i) => (
         <textarea
           key={field}
@@ -91,7 +98,14 @@ export function Today({ date }: { date: string }) {
         </ul>
       )}
 
-      <Coach date={date} />
+      {/* Bölüm atlama: kaydırmadan hedefe git (PLAN-UI §11 ek istek, 19 Eylül). */}
+      <nav aria-label="Bölüme git" className="flex gap-1.5 overflow-x-auto pb-1">
+        {SECTIONS.map((s) => (
+          <a key={s.id} href={`#${s.id}`} className="shrink-0 rounded-pill bg-glass-inset px-3 py-1.5 text-xs text-ink-dim">
+            {s.label}
+          </a>
+        ))}
+      </nav>
 
       <Diet date={date} />
 
@@ -99,7 +113,7 @@ export function Today({ date }: { date: string }) {
 
       {eveningFirst && retroCard}
 
-      <Card title="Protein ekle">
+      <Card id="protein" title="Protein ekle">
         <div className="flex gap-2">
           {pulses.map((g) => (
             <button
@@ -148,10 +162,12 @@ export function Today({ date }: { date: string }) {
         )}
       </Card>
 
-      <Meals date={date} />
+      <div id="ogunler" className="scroll-mt-2">
+        <Meals date={date} />
+      </div>
 
       {/* Kilo ve adim ust seride tasindi (DayHeader); burada haftalik/seyrek olculenler kalir. */}
-      <Card title="Ölçüm">
+      <Card id="olcum" title="Ölçüm">
         <NumberField
           label="Bel (haftada bir)"
           unit="cm"
@@ -167,7 +183,7 @@ export function Today({ date }: { date: string }) {
 
       <ReviewWorkout date={date} bodyKg={log?.weight_kg ?? null} />
 
-      <Card title="Antrenman">
+      <Card id="antrenman" title="Antrenman">
         <WorkoutFields value={draft} onChange={setDraft} />
 
         <button
