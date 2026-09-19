@@ -19,6 +19,7 @@ import {
   type PhoneUpdate,
 } from '../lib/watch'
 import { Card, NumberField } from './Field'
+import { ProfileCard } from './Profile'
 
 function NoteHistory() {
   const notes = useLiveQuery(() => db.note_log.orderBy('id').reverse().limit(40).toArray(), []) ?? []
@@ -321,6 +322,8 @@ export function Settings() {
         </div>
         {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
       </Card>
+
+      <ProfileCard />
 
       <Card title="Hedefler">
         <NumberField label="Günlük protein" unit="g" value={goals.protein_g} onCommit={(v) => void saveGoals({ ...goals, protein_g: v ?? 140 })} />

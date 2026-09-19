@@ -17,6 +17,7 @@ import {
 } from './nutrition'
 import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
 import { offlineReply } from './offline'
+import { EMPTY_PROFILE, profileLines, type Profile } from './profile'
 import { DEFAULT_GOALS, type Goals } from './settings'
 import { type Split } from './split'
 import { hasServer } from './store'
@@ -155,13 +156,14 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
   // pencereler genis cekilir, gunluk satirlar bellekte daraltilir.
   const dates14 = lastDates(14, now)
   const start35 = lastDates(35, now)[0]!
-  const [logs14, workouts35, meals, wearable, splitRow, goalsRow, recentMeals] = await Promise.all([
+  const [logs14, workouts35, meals, wearable, splitRow, goalsRow, profileRow, recentMeals] = await Promise.all([
     db.daily_log.where('date').between(dates14[0]!, end, true, true).toArray(),
     db.workout.where('date').between(start35, end, true, true).toArray(),
     db.meal.where('date').between(start, end, true, true).toArray(),
     db.wearable.where('date').between(start, end, true, true).toArray(),
     db.settings.get('split'),
     db.settings.get('goals'),
+    db.settings.get('profile'),
     // Hafiza yedi gunden uzun: "tavuk kac gram" sorusu son iki haftaya sigmaz.
     db.meal.reverse().limit(60).toArray(),
   ])
@@ -169,6 +171,8 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
   const workouts = workouts35.filter((w) => w.date >= start)
 
   const lines: string[] = []
+  const profile: Profile = { ...EMPTY_PROFILE, ...((profileRow?.value as Partial<Profile> | undefined) ?? {}) }
+
   for (const date of dates) {
     const log = logs.find((l) => l.date === date)
     const day: string[] = []
@@ -222,6 +226,9 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
     trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals),
   }
   lines.push(...coachLines(ctx))
+  // Profil satirlari listenin basina: model once kiminle konustugunu bilsin. Yine de
+  // burada ekleniyorlar, cunku protein araligi 7 gun kilo ortalamasina dayaniyor.
+  lines.unshift(...profileLines(profile, avgWeight, now))
   return { text: lines.join('\n').slice(0, MAX_CONTEXT), ctx, known }
 }
 
