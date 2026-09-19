@@ -246,3 +246,71 @@ Yapılmayacak: yeni kit/bağımlılık; renk/cam dili değişimi; günlük akı�
 - Görsel `loading="lazy"` ile doğrudan katalog URL'inden; detay ekranı görseli
   IndexedDB'ye zaten yazıyor, liste için ikinci bir önbellek katmanı eklenmedi.
 - `?tab=<id>` sorgu parametresi doğrudan sekme açar (kısayol ve ekran doğrulaması).
+
+## 14. Düzen önerisi — modern, sakin, tek elle (19 Eylül, UX turu)
+
+Amaç: §11 yoğunluk işini bitirirken uygulamaya bütüncül bir düzen dili vermek.
+Kilitler aynen: 60 sn giriş, offline-first, evaglass renk/cam dili, yeni kit yok.
+Alınan çağdaş desenler ve **neden**:
+
+| Desen | Nerede | Neden bu uygulama |
+|---|---|---|
+| **Glance şeridi** (tek satır karar özeti) | Bugün üstü, sticky | Karar birimi 7-gün ortalama; günlük kilo gösterilmez, ortalama + Δ hafta ilk bakışta |
+| **Alt sayfa (bottom sheet) ile hızlı ekle** | Her sekmede sağ altta `+` | Giriş 60 sn kuralı: Öğün · Protein · Kilo · Antrenman tek dokunuşla, sayfa değişmeden. Native `<dialog>` + `translateY` geçişi, bağımlılık yok |
+| **Aşamalı açılım** (`details/summary`) | Bugün alt kartlar, Ayar bölgeleri | §11-4/§11-5 ile aynı; özet satırı başlıkta, açmadan bilgi görünür |
+| **Segmented control** | 2–4 seçenek (Ön/Arka, nudge, tip) | `select` yerine tek bakışta seçenekler; §4'teki `Segmented` |
+| **Sticky bölüm başlığı** | Öğün listesi, Hareket listesi | Uzun listede bağlam kaybolmaz |
+| **Bilgiyi renkle değil biçimle kodla** | Protein halkası, streak, uyum yüzdesi | a1/a2/a3 aksan; iyi/uyarı yalnız `work/assist/load` rolleriyle |
+| **44 px dokunma, `tabular-nums`, 8'lik ritim** | Her yer | Tek el, sayılar hizalı, boşluk sistemli |
+| **Boş durum çizilmez** | Saat/Uyku web'de, veri yoksa | "veri yok" kartı yerine hiçbir şey (§5) |
+
+### 14.1 Ekran iskeletleri
+
+```
+BUGÜN                              EVA                          HAFTA
+┌ 19 Eyl · çevrimiçi ┐            ┌ Koç kartı (öneri) ┐        ┌ Pzt…Paz şerit ┐
+│ glance: 82,4 ort · ▼0,3 kg │    │ sohbet akışı       │        │ ort. sparkline │
+│ ● protein 96/140  · bacak  │    │                    │        │ uyum %  streak │
+├────────────────────────────┤    │                    │        │ gün satırları  │
+│ atlama çipleri              │    └ giriş satırı ─────┘        └────────────────┘
+│ Öğünler   (katlı özet)     │
+│ Antrenman (katlı, bugün 0) │
+│ Ölçüm     (katlı: bel —)   │
+│ Retro     (20:00 sonrası)  │
+└── [+] ─── ○ ○ ● ○ ○ ───────┘
+```
+
+- **Glance şeridi** = `DayHeader`'ın sadeleşmiş hâli: sol 7-gün ortalama + Δ, orta protein
+  halkası (tek görsel vurgu), sağ günün bölgesi. Kilo/adım girişi şeritten çıkar,
+  `+` sayfasına taşınır — şerit yalnız **okunur**, girilmez.
+- **`+` düğmesi** nav pill'inin sağında, 56 px daire, a1 dolgu. Açılan sayfa dört
+  büyük satır; seçilince ilgili form aynı sayfada açılır, kaydedince kapanır.
+- **Kartlar** başlık + özet + ok; açık kart yalnız bir tane (`name="today"` ile native
+  tek-açık davranışı). Kapalı kart 52 px yüksek → Bugün ≤ 1,5 ekran.
+- **Hafta**: 7 günlük şerit üstte, altında tek sparkline (7-gün ortalama, uç nokta
+  vurgulu), uyum yüzdesi ve streak iki küçük tile, gün satırları en altta.
+- **Eva**: değişmez; Koç kartı başta (§12).
+- **Hareket**: §13 aynen.
+- **Ayar**: §3 üç bölge, native `details`.
+
+### 14.2 Token eklemeleri (`index.css`)
+
+```
+--space-1..6: 4 8 12 16 24 32   (8'lik ritim, p-5 → p-4)
+--tap: 44px                      (min-height her etkileşim)
+--sheet: rgba(13,16,23,.92) blur 30 — alt sayfa yüzeyi
+--ring: conic-gradient(a1 pct, glass-inset 0) — protein halkası
+```
+
+### 14.3 Sıra (her adım ayrı dal, PR sorulmadan merge)
+
+| # | İş | Dosya | Kabul |
+|---|---|---|---|
+| 1 | `ui/Sheet.tsx` (native dialog) + `+` düğmesi + 4 hızlı giriş | `App.tsx`, `Sheet.tsx`, `Today.tsx` | Öğün kaydı: 3 dokunuş, sayfa değişmez |
+| 2 | Glance şeridi (DayHeader sadeleşir, giriş alanları çıkar) | `DayHeader.tsx` | Şerit ≤ 96 px yüksek |
+| 3 | Bugün kartları `details` ile katlı, özet satırlı (§11-4) | `Field.tsx`, `Today.tsx` | Bugün ≤ 1,5 ekran |
+| 4 | Hafta: şerit + sparkline + iki tile | `Week.tsx` | tek ekran |
+| 5 | Ayar üç bölge (§11-5) + matris (§11-3) | `Settings.tsx` | ilk açılış kaydırmasız |
+
+Yapılmayacak: yeni kit (Radix dahil — native `details`/`dialog` yetiyor), açık tema,
+kalori sayacı, günlük kilo vurgusu. Maket: `docs/img/layout-2026-09-19.html`.
