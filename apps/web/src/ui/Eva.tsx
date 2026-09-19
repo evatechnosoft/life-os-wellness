@@ -6,7 +6,9 @@ import { db, type ChatMessage } from '../lib/db'
 import { isNative } from '../lib/health'
 import { capturePhoto } from '../lib/meals'
 import { draftLines, listenOnce, stopListening, voiceAvailable, type NoteDraft } from '../lib/voice'
+import { toLocalDate } from '../lib/date'
 import { Avatar } from './Avatar'
+import { Coach } from './Coach'
 
 /**
  * Eva ile konusma. Tek yol: hem Bugun ekranindaki kisa hali (compact) hem Eva
@@ -14,6 +16,7 @@ import { Avatar } from './Avatar'
  * istemciyken Bugun'dekinin gecmisi yoktu ve kaydettigi sey Notlar'a dusmuyordu.
  */
 export function Eva({ compact = false }: { compact?: boolean }) {
+  const today = toLocalDate()
   const all = useLiveQuery(() => db.chat.orderBy('id').toArray(), []) ?? []
   const messages = compact ? all.slice(-4) : all
   const [typed, setTyped] = useState('')
@@ -73,6 +76,7 @@ export function Eva({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={compact ? 'flex flex-col' : 'flex min-h-[70dvh] flex-col'}>
+      {!compact && <Coach date={today} />}
       <div className={compact ? 'max-h-[42vh] space-y-4 overflow-y-auto pr-1' : 'flex-1 space-y-5'}>
         {all.length === 0 && (
           <div className={`flex items-center gap-4 ${compact ? '' : 'pt-6'}`}>

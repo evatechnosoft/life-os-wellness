@@ -17,12 +17,13 @@ import { PullToRefresh } from './ui/PullToRefresh'
 import { Today } from './ui/Today'
 import { Week } from './ui/Week'
 
+/* Ikonlar 24 kare stroke; label erisilebilirlik icin kalir, gozle kucuk. */
 const TABS = [
-  { id: 'today', label: 'Bugün' },
-  { id: 'chat', label: 'Eva' },
-  { id: 'moves', label: 'Hareket' },
-  { id: 'week', label: 'Hafta' },
-  { id: 'settings', label: 'Ayar' },
+  { id: 'today', label: 'Bugün', d: 'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z' },
+  { id: 'chat', label: 'Eva', d: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z' },
+  { id: 'moves', label: 'Hareket', d: 'M3 10v4M6 8v8M9 11h6M18 8v8M21 10v4M6 12h3M15 12h3' },
+  { id: 'week', label: 'Hafta', d: 'M4 20V12M8 20V8M12 20v-4M16 20V6M20 20v-9' },
+  { id: 'settings', label: 'Ayar', d: 'M4 7h10M18 7h2M4 12h2M10 12h10M4 17h10M18 17h2M14 5v4M6 10v4M14 15v4' },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
@@ -117,23 +118,30 @@ export function App() {
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
       <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex gap-1 p-1.5">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`min-h-11 rounded-pill px-3.5 text-sm ${
-                tab === t.id ? 'bg-glass-strong text-ink' : 'text-ink-faint'
-              }`}
-            >
-              {t.label}
-              {t.id === 'settings' && updateReady && (
-                <span aria-label="güncelleme var" className="ml-1 inline-block size-1.5 rounded-full bg-a1 align-middle" />
-              )}
-            </button>
-          ))}
+          {TABS.map((t) => {
+            const active = tab === t.id
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-label={t.label}
+                onClick={() => setTab(t.id)}
+                className={`relative flex size-12 flex-col items-center justify-center rounded-full transition-[background-color,transform,color] duration-300 ease-out ${
+                  active ? 'scale-110 bg-glass-strong text-a1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]' : 'text-ink-faint active:scale-95'
+                }`}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                  <path d={t.d} />
+                </svg>
+                <span className={`mt-0.5 text-[9px] leading-none ${active ? 'text-ink' : ''}`}>{t.label}</span>
+                {t.id === 'settings' && updateReady && (
+                  <span aria-label="güncelleme var" className="absolute top-2 right-2 size-1.5 rounded-full bg-a1" />
+                )}
+              </button>
+            )
+          })}
         </div>
       </nav>
     </div>

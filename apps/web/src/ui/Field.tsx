@@ -44,9 +44,9 @@ export function NumberField({ label, unit, value, step = 1, onCommit }: NumberFi
   )
 }
 
-export function Card({ title, children }: { title: string; children: React.ReactNode }) {
+export function Card({ id, title, children }: { id?: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="glass-card mt-3 p-4">
+    <section id={id} className="glass-card mt-3 scroll-mt-2 p-4">
       <h2 className="mb-1 text-[11px] font-medium uppercase tracking-wide text-ink-faint">{title}</h2>
       {children}
     </section>
