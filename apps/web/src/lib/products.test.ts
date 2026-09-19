@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { PRODUCTS, findProduct, productLines, servingOf } from './products'
+import { PRODUCTS, findProduct, productLines, searchProducts, servingOf } from './products'
 
 describe('findProduct', () => {
   it('Turkce harf ve buyuk-kucuk farkini yok sayar', () => {
@@ -44,5 +44,25 @@ describe('productLines', () => {
   })
   it('katalogdaki her urun satira girer', () => {
     expect(productLines()).toHaveLength(PRODUCTS.length + 1)
+  })
+})
+
+describe('searchProducts', () => {
+  it('tek kelime yeter - listeden kullanici secer', () => {
+    expect(searchProducts('helva')).toHaveLength(2)
+    expect(searchProducts('nohut').map((p) => p.name)).toEqual(['fırında nohut cipsi'])
+  })
+  it('marka ile de arar, Turkce harf farkini yok sayar', () => {
+    expect(searchProducts('ZUBER')).toHaveLength(1)
+    expect(searchProducts('servet')).toHaveLength(2)
+  })
+  it('bos sorgu hicbir sey dondurmez, eslesmeyen de', () => {
+    expect(searchProducts('')).toEqual([])
+    expect(searchProducts('  ')).toEqual([])
+    expect(searchProducts('muz')).toEqual([])
+  })
+  it('iki kelimenin ikisi de gecmeli', () => {
+    expect(searchProducts('kakaolu helva')).toHaveLength(1)
+    expect(searchProducts('kakaolu nohut')).toEqual([])
   })
 })

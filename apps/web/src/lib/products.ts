@@ -51,6 +51,20 @@ export function findProduct(text: string): Product | null {
   return best?.product ?? null
 }
 
+
+/**
+ * Arama kutusu icin: yazilanin gectigi her urun. `findProduct`tan farki, tek bir
+ * kelime de yeter - kullanici listeden kendi secer, yanlis eslesme riski yok.
+ */
+export function searchProducts(query: string): Product[] {
+  const terms = words(query)
+  if (terms.length === 0) return []
+  return PRODUCTS.filter((p) => {
+    const hay = `${foldTr(p.name)} ${foldTr(p.brand)}`
+    return terms.every((t) => hay.includes(t))
+  })
+}
+
 /** Gramajdan kcal/protein. Gramaj yoksa paketin kendi porsiyonu, o da yoksa null. */
 export function servingOf(product: Product, grams: number | null): { kcal: number; protein_g: number } | null {
   const g = grams ?? product.portion_g ?? null
