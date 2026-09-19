@@ -21,7 +21,7 @@ Yeni oturum bunu uygular.
   hafıza `pr-otomatik-merge`. `test`/`prod`'a doğrudan push hâlâ yok.
 
 ## Doğrulanmadı
-- §11'in hiçbir adımı uygulanmadı.
+- §11-1 ve §11-2 `dev`'de (`8c5855c`), Pages yayında. Ölçüm: Bugün 2020 px ≈ 2,4 ekran (headless 448 px genişlik; telefon 390'da biraz uzar). §11-3…6 bekliyor.
 - S1 kabul testi (profil dolu → "16:8 bana uygun mu") — profil boş.
 - Referans artifact: https://claude.ai/code/artifact/e2811588-3b17-44b8-a27b-001c767de007
 
@@ -35,7 +35,7 @@ Yeni oturum bunu uygular.
 - API route ekleyince `docker compose up -d --build api` şart (bind mount yok).
 
 ## Next (tek adım)
-`feature/ui-density`: PLAN-UI §11-1 (`--radius-card 18`, `--radius-field 12`, `Card p-4`,
+PLAN-UI §11-3 matris split (`Settings.tsx › SplitEditor`), sonra §11-4 katlanır kart. Yapıldı: §11-1 (`--radius-card 18`, `--radius-field 12`, `Card p-4`,
 başlık 11 px, `ui/Chip.tsx` `px-3 py-1.5 text-xs`; WorkoutForm/SplitEditor/Profile/Meals
 çipleri buna geçer) + §11-2 (`isNative()` yoksa Saat/Uyku/APK/model kartları çizilmez).
 Test + typecheck + build → merge → Pages'te ekran boyu ölç (hedef Bugün ≤ 3 ekran) →
