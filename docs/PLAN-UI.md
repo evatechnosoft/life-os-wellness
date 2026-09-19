@@ -185,3 +185,41 @@ Dean: "hoş bir görsel saat uygulaması widget'ı ana ekrana, kolay kullanım i
 - **Sınır:** PWA/web'de widget yoktur; yalnız APK. Cam/blur RemoteViews'ta yok — düz
   koyu zemin + aksan, evaglass tonunda ama sade.
 - **Durum:** planlandı, yapılmadı. Sıra: Bugün düzeni (§9) bitince.
+
+## 11. Yoğunluk planı — "kocaman bölgeler, kocaman yazılar" (19 Eylül, Dean)
+
+Ekran görüntüsü kanıtı (Pages, telefon): Haftalık program 7 gün × 6 pill = 42 koca
+çip, tek başına bir ekran boyu; Antrenman kartı 4 tip + 6 kas çipi + 3 giriş + Ekle;
+web'de "Saat" ve "Uyku" kartları yalnız "Android'de çalışır" metni; Retro üç textarea
+hep açık. Sorun düzen değil **ölçek**: 26 px kart köşesi, `p-5`, `py-3` çipler,
+`text-lg` girişler telefonda 1,5× büyük duruyor.
+
+Sıra, her adım ayrı dal + PR, merge sorulmaz (hafıza: `pr-otomatik-merge`):
+
+1. **Ölçek tokenları — tek yerden** (`index.css`, `ui/Field.tsx`)
+   `--radius-card 26→18`, `--radius-field 16→12`; `Card` `p-5→p-4`, başlık 11 px;
+   `NumberField` girişi `text-lg→text-base`, genişlik `w-24→w-20`. Ortak `ui/Chip.tsx`:
+   `px-3 py-1.5 text-xs`, seçili = `bg-a1/90 text-solid`, seçili değil = `bg-glass-inset`.
+   WorkoutForm, SplitEditor, Profile ekipmanı, Meals filtreleri bu Chip'i kullanır.
+   **Kabul:** aynı ekranlar yeniden çekildiğinde Bugün ≤ 3 ekran boyu (şimdi ~6).
+
+2. **Web'de cihaz kartı çizilmez** (`Today.tsx`, `Settings.tsx`)
+   `isNative()` false ise Saat, Uyku (telefon), Saat uygulaması, Telefon uygulaması,
+   Cihaz-içi Eva kartları hiç render edilmez (§3 kuralı, hâlâ uygulanmamış).
+
+3. **Haftalık program → matris** (`Settings.tsx › SplitEditor`)
+   7 satır (Pzt…Paz) × 6 sütun (göğüs sırt bacak omuz kol karın), hücre 32 px kare
+   toggle, sütun başlıkları kısaltma (gö · sı · ba · om · ko · ka). Tek ekranda biter.
+
+4. **Katlanır kartlar** (`ui/Field.tsx › Card` + `details/summary`, Radix eklenmez)
+   `Card` `collapsible` alır; başlıkta tek satır özet (§3: "protein 140 g · kayıp %0,7").
+   Varsayılan kapalı: Antrenman ("bugün 0 kayıt"), Ölçüm (bel · tansiyon), Retro
+   (20:00 öncesi), Koç. Katlama durumu `db.settings['ui_sections']`.
+
+5. **Ayar üç bölge** (§3 ağacı) — Günlük ayarlar açık, Cihazlar (yalnız APK), Veri ve
+   sunucu kapalı. Profil kartı "Günlük ayarlar"ın başına.
+
+6. **Bugün sırası:** üst blok → Öğünler → Protein ekle → Antrenman (katlı) → Koç
+   (katlı) → Eva compact → Ölçüm (katlı) → Retro (katlı).
+
+Yapılmayacak: yeni kit/bağımlılık; renk/cam dili değişimi; günlük akışa alan ekleme.
