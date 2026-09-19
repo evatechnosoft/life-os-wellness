@@ -34,6 +34,15 @@ Yeni oturum bunu uygular.
 - Dean'in profilini uydurma; canlı DB'de test satırı bırakma.
 - API route ekleyince `docker compose up -d --build api` şart (bind mount yok).
 
+## 19 Eylül öğleden sonra — yapılanlar (kanıtlı)
+- Gezinme ikonlu daire + kademeli boyut; bölüm atlama çipleri; Koç → Eva sekmesi;
+  BodyPicker ile kas seçimi. `dev` @ `82b6712` üstü, Pages yayınlandı.
+- Eva "Yanıt alamadım" kök nedeni: cloudflared tüneli edge'e bağlanamıyordu
+  (`network is unreachable`, DNS resolver reddi). `docker compose --profile tunnel up -d
+  --force-recreate cloudflared` sonrası `https://fit.evaitec.com/health` 200,
+  `/api/chat` 200 (4,3 s, gerçek yanıt). API konteyneri yeniden kurulunca tünel de
+  yenilenmeli — HANDOFF.md'deki uyarı bugün doğrulandı.
+
 ## Next (tek adım)
 PLAN-UI §11-3 matris split (`Settings.tsx › SplitEditor`), sonra §11-4 katlanır kart. Yapıldı: §11-1 (`--radius-card 18`, `--radius-field 12`, `Card p-4`,
 başlık 11 px, `ui/Chip.tsx` `px-3 py-1.5 text-xs`; WorkoutForm/SplitEditor/Profile/Meals
