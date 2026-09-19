@@ -36,7 +36,11 @@ const SCALE = [
 type TabId = (typeof TABS)[number]['id']
 
 export function App() {
-  const [tab, setTab] = useState<TabId>('today')
+  // ?tab=moves ile dogrudan bir bolume acilir: kisayol ve ekran dogrulamasi icin.
+  const [tab, setTab] = useState<TabId>(() => {
+    const wanted = new URLSearchParams(window.location.search).get('tab')
+    return TABS.some((t) => t.id === wanted) ? (wanted as TabId) : 'today'
+  })
   const [online, setOnline] = useState(navigator.onLine)
   const [date, setDate] = useState(toLocalDate())
   const [updateReady, setUpdateReady] = useState(false)
