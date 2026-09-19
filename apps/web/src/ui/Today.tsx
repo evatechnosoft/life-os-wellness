@@ -150,15 +150,8 @@ export function Today({ date }: { date: string }) {
 
       <Meals date={date} />
 
+      {/* Kilo ve adim ust seride tasindi (DayHeader); burada haftalik/seyrek olculenler kalir. */}
       <Card title="Ölçüm">
-        <NumberField
-          label="Kilo (sabah, aç karnına)"
-          unit="kg"
-          step={0.1}
-          value={log?.weight_kg}
-          onCommit={(v) => void saveDaily(date, { weight_kg: v })}
-        />
-        <NumberField label="Adım" value={log?.steps} step={100} onCommit={(v) => void saveDaily(date, { steps: v })} />
         <NumberField
           label="Bel (haftada bir)"
           unit="cm"
