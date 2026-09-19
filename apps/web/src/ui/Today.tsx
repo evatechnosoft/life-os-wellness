@@ -258,8 +258,9 @@ export function Today({ date }: { date: string }) {
         )}
       </Card>
 
-      {/* Web'de saat/uyku karti hic cizilmez: var olup calismayan kart, olmayan karttan kotudur (PLAN-UI S11-2). */}
-      {native && <Watch date={date} />}
+      {/* Watch kendi karar verir: web'de olcum varsa gosterir, yoksa cizilmez.
+          Uyku yalniz telefonda olculuyor, web'de hic cizilmez. */}
+      <Watch date={date} />
 
       {native && <Sleep date={date} />}
 

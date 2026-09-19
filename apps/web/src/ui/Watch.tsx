@@ -112,8 +112,11 @@ export function Watch({ date }: { date: string }) {
     void healthStatus().then(setStatus)
   }, [])
 
-  // PLAN-UI §11-2: web'de cihaz kartı çizilmez.
-  if (!isNative()) return null
+  const native = isNative()
+  // Web'de kurulum/izin dugmeleri calismaz, ama sunucudan cekilen olcumler gercek
+  // veridir - onlari gizlemek kullaniciyi "saat verim yok" sanmaya iter (19 Eylul).
+  // Kart yalniz ikisi de yoksa cizilmez.
+  if (!native && today.length === 0) return null
 
   const act = async (fn: () => Promise<unknown>) => {
     setBusy(true)
@@ -127,7 +130,7 @@ export function Watch({ date }: { date: string }) {
 
   return (
     <Card title="Saat">
-      {status && !status.available && (
+      {native && status && !status.available && (
         <div>
           <p className="text-xs text-ink-dim">Health Connect kurulu değil.</p>
           <button type="button" onClick={() => void act(installHealthConnect)} className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm">
@@ -136,7 +139,7 @@ export function Watch({ date }: { date: string }) {
         </div>
       )}
 
-      {status?.available && !status.granted && (
+      {native && status?.available && !status.granted && (
         <div>
           <p className="text-xs text-ink-dim">
             Adım, kalori, kilo, antrenman ve nabız izni gerekiyor. Kan oksijeni, HRV,
@@ -148,7 +151,7 @@ export function Watch({ date }: { date: string }) {
         </div>
       )}
 
-      {status?.granted && (
+      {(!native || status?.granted) && (
         <div>
           {today.length === 0 ? (
             <p className="text-xs text-ink-faint">Bugün için saatten veri gelmedi.</p>
@@ -164,18 +167,18 @@ export function Watch({ date }: { date: string }) {
               ))}
             </ul>
           )}
-          <div className="mt-3 flex gap-2">
+          {native && <div className="mt-3 flex gap-2">
             <button type="button" onClick={() => void act(async () => { await syncActivity(); await syncHealth() })} disabled={busy} className="flex-1 rounded-field bg-glass-strong py-2.5 text-sm disabled:opacity-50">
               {busy ? 'Okunuyor…' : 'Şimdi oku'}
             </button>
             <button type="button" onClick={() => void act(openHealthConnect)} className="rounded-field bg-glass-inset px-4 text-xs text-ink-faint">
               İzinler
             </button>
-          </div>
+          </div>}
         </div>
       )}
 
-      <PhoneActivity />
+      {native && <PhoneActivity />}
     </Card>
   )
 }
