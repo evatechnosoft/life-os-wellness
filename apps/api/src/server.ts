@@ -145,7 +145,8 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
     app.register(fastifyStatic, { root: webDist })
   }
   if (servesOta) {
-    app.register(fastifyStatic, { root: otaDir, prefix: '/ota/', decorateReply: !servesWeb })
+    // list: fit.evaitec.com/ota/ acilinca eldeki APK'lar gorunsun (depo bu makine, Dean 20 Eyl).
+    app.register(fastifyStatic, { root: otaDir, prefix: '/ota/', decorateReply: !servesWeb, list: { format: 'json', names: ['index', ''] } })
   }
 
   registerRoutes(app, pool)
