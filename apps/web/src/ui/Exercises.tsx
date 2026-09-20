@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { EXERCISES, find, search } from '../lib/exercises'
+import { Chip } from './Chip'
 import { Exercise } from './Exercise'
 
 /** Salonda sorulan gercek soru: "hangi aletle?" Liste once ona gore daralir. */
@@ -52,7 +53,7 @@ export function Exercises() {
         <button
           type="button"
           onClick={() => setOpen(null)}
-          className="mt-3 min-h-11 rounded-field bg-glass-strong px-4 text-sm"
+          className="mt-3 min-h-11 rounded-pill bg-glass-strong px-4 text-sm"
         >
           ← Listeye dön
         </button>
@@ -62,86 +63,76 @@ export function Exercises() {
   }
 
   return (
-    <div className="flex gap-2 pt-3">
-      {/* Bölge listesi dikey ve sabit: kaydırmadan hepsi görünür, seçim tek dokunuş. */}
-      <nav aria-label="Bölge" className="sticky top-2 flex h-fit w-20 shrink-0 flex-col gap-1">
+    <div className="flex flex-col gap-3 pt-3">
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Hareket ara"
+        className="min-h-11 rounded-pill bg-glass-inset px-4 text-sm text-ink outline-none focus:ring-2 focus:ring-a1"
+      />
+
+      {/* Iki filtre de yatay kaydirilan cip seridi: native select masaustu
+          acilir menusu aciyordu, telefonda yabanci duruyor. Kenara tasarak
+          (-mx-4) seridin devami oldugu gorunsun. */}
+      <div aria-label="Bölge" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {MUSCLE.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            aria-pressed={muscle === m.id}
-            onClick={() => setMuscle(m.id)}
-            className={`rounded-field px-2 py-1.5 text-left text-[11px] leading-tight ${
-              muscle === m.id ? 'bg-a1/90 text-solid' : 'bg-glass-inset text-ink-dim'
-            }`}
-          >
-            {m.label}
-          </button>
+          <span key={m.id} className="shrink-0">
+            <Chip label={m.label} selected={muscle === m.id} onToggle={() => setMuscle(m.id)} />
+          </span>
         ))}
-      </nav>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Hareket ara"
-          className="min-h-10 rounded-field bg-glass-inset px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-a1"
-        />
-        <select
-          value={equipment}
-          onChange={(e) => setEquipment(e.target.value as (typeof EQUIPMENT)[number]['id'])}
-          aria-label="Alet"
-          className="min-h-9 rounded-field bg-glass-inset px-3 text-xs text-ink-dim outline-none focus:ring-2 focus:ring-a1"
-        >
-          {EQUIPMENT.map((o) => (
-            <option key={o.id} value={o.id} className="bg-solid">
-              {o.label}
-            </option>
-          ))}
-        </select>
-
-        <p className="text-[11px] text-ink-faint">
-          {list.length} hareket{list.length !== EXERCISES.length && ` · ${EXERCISES.length} içinden`}
-        </p>
-
-        {list.length === 0 ? (
-          <p className="glass-card p-4 text-sm text-ink-dim">
-            Bu filtrede hareket yok. Kütüphane şu an salonundaki aletler kadar — eksik bir alet
-            varsa söyle, eklerim.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {list.map((e) => (
-              <li key={e.id}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(e.id)}
-                  className="glass-card flex w-full items-center gap-2.5 p-2 text-left"
-                >
-                  {e.media[0] === undefined ? (
-                    <span className="size-11 shrink-0 rounded-field bg-glass-inset" />
-                  ) : (
-                    <img
-                      src={e.media[0].url}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="size-11 shrink-0 rounded-field bg-bg-deep object-cover"
-                    />
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-ink">{e.name}</span>
-                    <span className="block truncate text-[11px] text-ink-faint">
-                      {e.equipment_tr} · {e.primary_tr.join(' · ')}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
+      <div aria-label="Alet" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {EQUIPMENT.map((o) => (
+          <span key={o.id} className="shrink-0">
+            <Chip label={o.label} selected={equipment === o.id} onToggle={() => setEquipment(o.id)} />
+          </span>
+        ))}
+      </div>
+
+      <p className="text-[11px] text-ink-faint">
+        {list.length} hareket{list.length !== EXERCISES.length && ` · ${EXERCISES.length} içinden`}
+      </p>
+
+      {list.length === 0 ? (
+        <p className="glass-card p-4 text-sm text-ink-dim">
+          Bu filtrede hareket yok. Kütüphane şu an salonundaki aletler kadar — eksik bir alet
+          varsa söyle, eklerim.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {list.map((e) => (
+            <li key={e.id}>
+              <button
+                type="button"
+                onClick={() => setOpen(e.id)}
+                className="glass-card flex w-full items-center gap-3 p-2.5 text-left active:scale-[0.99]"
+              >
+                {e.media[0] === undefined ? (
+                  <span className="size-14 shrink-0 rounded-field bg-glass-inset" />
+                ) : (
+                  <img
+                    src={e.media[0].url}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="size-14 shrink-0 rounded-field bg-bg-deep object-cover"
+                  />
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm text-ink">{e.name}</span>
+                  <span className="block truncate text-[11px] text-ink-faint">
+                    {e.equipment_tr} · {e.primary_tr.join(' · ')}
+                  </span>
+                </span>
+                <svg viewBox="0 0 24 24" aria-hidden className="size-4 shrink-0 text-ink-faint" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
