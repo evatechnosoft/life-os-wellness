@@ -21,6 +21,11 @@ export async function queueSplit(split: Record<number, string[]>): Promise<void>
   await queue({ method: 'PUT', path: '/api/split', body: { days } })
 }
 
+/** Hedefler tek satir jsonb (db/007); sunucu birlestirir. */
+export async function queueGoals(goals: object): Promise<void> {
+  await queue({ method: 'PUT', path: '/api/goals', body: goals })
+}
+
 /** Profil tek satir (db/006): tum alanlar birlikte gider, alan bazli uc yok. */
 export async function queueProfile(profile: object): Promise<void> {
   await queue({ method: 'PUT', path: '/api/profile', body: profile })

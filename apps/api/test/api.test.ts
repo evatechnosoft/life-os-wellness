@@ -33,6 +33,21 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     await wipeFixtures()
   })
 
+  test('hedefler: PUT birlestirir, GET ayni nesneyi doner; onceki deger geri yazilir', async () => {
+    const before = await app.inject({ method: 'GET', url: '/api/goals', headers: auth })
+    const prev = before.json() as Record<string, unknown> | null
+    const a = await app.inject({ method: 'PUT', url: '/api/goals', headers: auth, payload: { protein_g: 199 } })
+    assert.equal(a.statusCode, 200)
+    const b = await app.inject({ method: 'PUT', url: '/api/goals', headers: auth, payload: { weekly_loss_pct: 0.55 } })
+    assert.equal(b.json().protein_g, 199)
+    assert.equal(b.json().weekly_loss_pct, 0.55)
+    // Fastify AJV varsayilani removeAdditional: bilinmeyen alan reddedilmez, dusurulur.
+    const stripped = await app.inject({ method: 'PUT', url: '/api/goals', headers: auth, payload: { kcal: 1800 } })
+    assert.equal(stripped.statusCode, 200)
+    assert.equal('kcal' in stripped.json(), false)
+    if (prev) await app.inject({ method: 'PUT', url: '/api/goals', headers: auth, payload: prev })
+  })
+
   after(async () => {
     await wipeFixtures()
     await app.close()

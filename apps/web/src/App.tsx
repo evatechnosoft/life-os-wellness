@@ -7,6 +7,7 @@ import { syncActivity } from './lib/activity'
 import { syncHealth } from './lib/health'
 import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch } from './lib/watch'
 import { pullProfile } from './lib/profile'
+import { pullGoals } from './lib/settings'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
@@ -62,6 +63,7 @@ export function App() {
       void pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
       void pullSplit().catch(() => {})
       void pullProfile().catch(() => {})
+      void pullGoals().catch(() => {})
     }
     // Telefon bildirimleri her acilista yeniden kurulur: kullanici saati Ayar'dan
     // degistirmemis olsa da ilk kurulumda ve APK guncellemesinden sonra gerekiyor.
@@ -103,6 +105,7 @@ export function App() {
       await pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
       await pullSplit().catch(() => {})
       await pullProfile().catch(() => {})
+      await pullGoals().catch(() => {})
     }
     const update = await checkPhoneUpdate().catch(() => null)
     setUpdateReady(update?.state === 'available')
