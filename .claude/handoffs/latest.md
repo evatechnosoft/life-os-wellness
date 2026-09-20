@@ -63,13 +63,35 @@ Servis edilen bundle yeni kodu taşıyor: `/assets/index-D4wxUmFj.js` içinde
 `35505884477` **success**. Release varlıkları: `wellness-0.20.0.apk` (24.1 MB),
 `wellness-wear-0.20.0.apk` (13.1 MB), `latest.json` (1355 bayt).
 
-`releases/latest/download/latest.json` → versionName 0.20.0, versionCode 2000,
-`apps: [wellness-phone, wellness-wear]`. İndirilen telefon APK'sinin sha256'sı
-katalogdakiyle birebir: `7f52f209e3a6c419aad40014f951ad0c7d7782eb4e0fa13b072391a782965b80`.
+**Ama tag atmak yetmiyor.** evaitecOTA bu deponun release'lerini değil,
+`evatechnosoft/evaglass-releases` → `apps.json` kataloğunu okuyor. Oradaki Wellness
+kaydı **0.7.1 / 11 Eylül**'de donmuştu; arada 0.8–0.19 arası on iki sürüm yayınlandı
+ve hiçbiri telefonda görünmedi. Saat APK'si kataloğa hiç girmemişti.
+
+Şimdi katalogda (`raw.githubusercontent.com/.../evaglass-releases/main/apps.json`):
+
+```
+updated: 2026-09-20T11:11:07Z
+wellness-phone  0.20.0  code 2000  24.140.652 bayt
+wellness-wear   0.20.0  code 2000  13.053.264 bayt
+```
+
+APK'lar `evaglass-releases` release'i `wellness-v0.20.0` altında, iki bağlantı da 200,
+sha256'lar indirilen dosyalarla birebir (`7f52f209…`, `a9993574…`).
+
+Kök neden elle adımdı; `ops/publish_ota.mjs` onu tek komuta indirdi (commit `499dddd`).
+APK'ları sürüm release'inden alır, katalog deposuna yükler, `apps.json`'ı `gh` contents
+API'siyle tazeler — yerel çalışma kopyası istemiyor. İdempotent, doğrulandı:
+`katalog guncellendi: wellness 0.20.0 (versionCode 2000)` → ikinci koşu
+`katalog zaten 0.20.0 — degisiklik yok`.
+
+**Sürüm çıkarma sırası bundan sonra:** `variables.gradle` bump → commit → tag `vX.Y.Z`
+→ push → `Build APK` koşusunu bekle → `node ops/publish_ota.mjs`.
 
 ### Doğrulanmadı (açıkça)
 
-- APK cihaza kurulmadı, OTA güncellemesi telefonda denenmedi. APK ve Pages aynası `DEFAULT_BASE` mutlak URL yoluna
+- APK cihaza kurulmadı, OTA güncellemesi telefonda denenmedi. Kanıt katalog +
+  bağlantı + sha eşleşmesiyle sınırlı. APK ve Pages aynası `DEFAULT_BASE` mutlak URL yoluna
   düşüyor — kodda öyle, cihazda görülmedi.
 - Hız sınırının canlıda çağıran başına ayrıştığı tek IP'den yoklanamadı; kanıt
   `api.test.ts`'teki kırmızı→yeşil regresyon testi.
@@ -96,6 +118,9 @@ katalogdakiyle birebir: `7f52f209e3a6c419aad40014f951ad0c7d7782eb4e0fa13b072391a
 
 ## Don't repeat
 
+- **Tag atmak OTA'ya koymaz.** Katalog ayrı depoda; `ops/publish_ota.mjs`
+  çalıştırılmazsa telefonda eski sürüm görünmeye devam eder. Bu bir kez on iki sürüm
+  boyunca kaçtı.
 - **Dockerfile'ın web aşaması `apps/api`'yi de kopyalamak zorunda.** `localLlm.ts`
   `../../../api/src/persona`'dan import ediyor; yalnız `apps/web` kopyalanınca
   `TS2307: Cannot find module` ile patlıyor. Bu bir kez yaşandı, çözümü commit'te.
