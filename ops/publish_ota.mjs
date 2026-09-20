@@ -11,7 +11,7 @@
 // `gh` ile kimlik dogrulanmis olmali. Idempotent: katalog zaten guncelse dokunmaz.
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { mkdtempSync, readFileSync, statSync } from 'node:fs'
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -38,7 +38,10 @@ if (!version) throw new Error('surum bulunamadi: variables.gradle icinde wellnes
 const [major, minor, patch] = version.split('.').map(Number)
 const versionCode = major * 10000 + minor * 100 + patch
 const tag = `wellness-v${version}`
-const base = `https://github.com/${CATALOG}/releases/download/${tag}`
+// Indirme adresi kendi sunucumuz: GitHub release CDN'i bu agdan ~120 KB/s (24 MB = 3.5 dk),
+// fit.evaitec.com (Cloudflare tuneli) 5x+ hizli. Release yine de yuklenir - arsiv ve yedek.
+const base = 'https://fit.evaitec.com/ota'
+const otaDir = join(root, 'ota')
 
 const dir = mkdtempSync(join(tmpdir(), 'wellness-ota-'))
 gh('release', 'download', `v${version}`, '-R', SOURCE, '-p', '*.apk', '-D', dir, '--clobber')
@@ -54,6 +57,8 @@ const describe = (file) => {
 const phoneApk = `wellness-${version}.apk`
 const wearApk = `wellness-wear-${version}.apk`
 const today = new Date().toISOString().slice(0, 10)
+mkdirSync(otaDir, { recursive: true })
+for (const f of [phoneApk, wearApk]) copyFileSync(join(dir, f), join(otaDir, f))
 
 const entries = {
   'wellness-phone': {

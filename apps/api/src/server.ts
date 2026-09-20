@@ -32,6 +32,8 @@ export interface BuildOptions {
   logger?: boolean
   /** Optional: built PWA to serve from the same origin. Absent -> API only. */
   webDist?: string | null
+  /** APK'larin durdugu dizin; /ota/ altinda herkese acik servis edilir (OTA indirme, token yok). */
+  otaDir?: string | null
 }
 
 /**
@@ -96,12 +98,16 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
   // Single-user app: one static bearer token, no auth system. /health stays open.
   const webDist = opts.webDist ?? null
   const servesWeb = webDist !== null && existsSync(webDist)
+  const otaDir = opts.otaDir ?? null
+  const servesOta = otaDir !== null && existsSync(otaDir)
 
   app.addHook('onRequest', async (req, reply) => {
     if (req.url === '/health') return
     // The PWA itself is public: it is a static shell and carries no data. The token
     // gates /api/*, which is where every byte about Dean actually lives.
     if (servesWeb && !req.url.startsWith('/api/')) return
+    // APK indirme de acik: evaitecOTA katalogu buradan ceker, GitHub CDN bu agdan 120 KB/s.
+    if (servesOta && req.url.startsWith('/ota/')) return
 
     const now = Date.now()
     const key = clientKey(req)
@@ -137,6 +143,9 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
     // that never travels cross-site. @fastify/static rather than hand-rolled file
     // reading -- path traversal and cache headers are not worth re-implementing.
     app.register(fastifyStatic, { root: webDist })
+  }
+  if (servesOta) {
+    app.register(fastifyStatic, { root: otaDir, prefix: '/ota/', decorateReply: !servesWeb })
   }
 
   registerRoutes(app, pool)
