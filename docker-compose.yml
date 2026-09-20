@@ -48,6 +48,10 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-proxy}
       LLM_CHAT_MODEL: wellness-chat
       LLM_VISION_MODEL: wellness-vision
+      OTA_DIR: /app/ota
+    volumes:
+      # APK'lar (ops/publish_ota.mjs kopyalar). fit.evaitec.com/ota/ altindan servis edilir.
+      - ./ota:/app/ota:ro
     ports:
       - "3011:3011"
     depends_on:
@@ -58,7 +62,7 @@ services:
 
   # Ev disindan erisim: fit.evaitec.com hem PWA'yi hem API'yi bu konteynerden servis
   # eder. Kendi tuneli var, netmovies'inkine binmiyor: origin `http://localhost:3011`
-  # cunku api'nin ag namespace'ini paylasiyor, ve netmovies dustugunde Eva'nin
+  # (compose aginda `api` servisi), ve netmovies dustugunde Eva'nin
   # telefonla konusmasi etkilenmiyor.
   # Acmak icin: CF_TUNNEL_CREDENTIALS ver + `docker compose --profile tunnel up -d`
   cloudflared:
@@ -73,7 +77,9 @@ services:
       - ${CF_TUNNEL_CREDENTIALS:-/dev/null}:/etc/cloudflared/creds.json:ro
     depends_on:
       - api
-    network_mode: "service:api"
+    # Kendi ag alani, origin compose DNS'iyle `api`. Eskiden api'nin namespace'ini
+    # paylasiyordu: api her yeniden kuruldugunda tunel olu namespace'e bagli kalip
+    # 530 veriyordu (20 Eyl, iki kez).
     profiles:
       - tunnel
 

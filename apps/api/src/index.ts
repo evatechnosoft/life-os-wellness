@@ -8,6 +8,7 @@ const { app } = buildServer({
   logger: true,
   // Set in the image; unset when running the API alone next to `vite dev`.
   webDist: process.env.WEB_DIST ?? null,
+  otaDir: process.env.OTA_DIR ?? null,
 })
 
 const port = Number(process.env.API_PORT ?? 3001)

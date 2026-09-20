@@ -29,3 +29,6 @@ coverage/
 # kisisel veri git gecmisine girmesin. Kural: docs/assets/README.md
 docs/assets/*
 !docs/assets/README.md
+
+# OTA APK'lari: sunucu ./ota'dan servis eder, git'e girmez
+ota/*.apk
