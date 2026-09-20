@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
@@ -485,4 +488,73 @@ describe('rate limit', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, (
     assert.equal(res.statusCode, 200)
   })
 
+})
+
+describe('rate limit per caller', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
+  let app: ReturnType<typeof buildServer>['app']
+  let pool: ReturnType<typeof buildServer>['pool']
+
+  before(async () => {
+    const built = buildServer({ databaseUrl: databaseUrl as string, apiToken: TOKEN })
+    app = built.app
+    pool = built.pool
+    await app.ready()
+  })
+
+  after(async () => { await app.close() })
+
+  // The tunnel hands every remote request to the API from 127.0.0.1, so counting `req.ip`
+  // puts everyone in one bucket: a stranger spends the guess window and the phone is
+  // locked out behind them. `cf-connecting-ip` is what separates them again.
+  test('one caller burning the guess window does not lock another one out', async () => {
+    for (let i = 0; i < 20; i++) {
+      await app.inject({
+        method: 'GET',
+        url: '/api/daily',
+        headers: { authorization: 'Bearer wrong', 'cf-connecting-ip': '203.0.113.7' },
+      })
+    }
+    const stranger = await app.inject({
+      method: 'GET',
+      url: '/api/daily',
+      headers: { authorization: `Bearer ${TOKEN}`, 'cf-connecting-ip': '203.0.113.7' },
+    })
+    assert.equal(stranger.statusCode, 429)
+
+    const phone = await app.inject({
+      method: 'GET',
+      url: '/api/daily?start=2099-01-01&end=2099-01-02',
+      headers: { authorization: `Bearer ${TOKEN}`, 'cf-connecting-ip': '198.51.100.4' },
+    })
+    assert.equal(phone.statusCode, 200)
+  })
+})
+
+describe('serving the pwa', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
+  let app: ReturnType<typeof buildServer>['app']
+  let pool: ReturnType<typeof buildServer>['pool']
+
+  before(async () => {
+    const dist = mkdtempSync(join(tmpdir(), 'wellness-dist-'))
+    writeFileSync(join(dist, 'index.html'), '<!doctype html><title>Wellness</title>')
+    const built = buildServer({ databaseUrl: databaseUrl as string, apiToken: TOKEN, webDist: dist })
+    app = built.app
+    pool = built.pool
+    await app.ready()
+  })
+
+  after(async () => { await app.close() })
+
+  // The shell carries no data, so it loads without a token -- otherwise there is no page
+  // to type the token into.
+  test('the app itself loads without a token', async () => {
+    const res = await app.inject({ method: 'GET', url: '/' })
+    assert.equal(res.statusCode, 200)
+    assert.match(res.body, /Wellness/)
+  })
+
+  test('serving the app does not open /api', async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/daily' })
+    assert.equal(res.statusCode, 401)
+  })
 })
