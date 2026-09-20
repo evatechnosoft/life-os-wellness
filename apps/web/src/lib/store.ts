@@ -111,9 +111,34 @@ export async function saveRetro(date: string, patch: Partial<Retro>): Promise<vo
 
 let syncing = false
 
+/** Entries the server refused for good. Kept so the rejection can be shown, not guessed at. */
+export const REJECTED_KEY = 'outbox_rejected'
+
+/** What a failed outbox entry means for the queue. */
+export type Verdict = 'done' | 'retry' | 'rejected'
+
 /**
- * Drains the outbox in order. A failed entry stays queued and stops the drain, so
- * later writes never overtake earlier ones. 404 on DELETE counts as done.
+ * The drain stops at the first failure so that later writes never overtake earlier
+ * ones -- which means an entry that can never succeed freezes everything behind it.
+ * So the question each failure has to answer is whether waiting could ever help.
+ *
+ * - `done`: DELETE met a row that is already gone. That is the outcome we asked for.
+ * - `retry`: offline, 5xx, 408/429, or the token is wrong (401/403). Dean fixing the
+ *   token must not cost him the writes queued before he noticed.
+ * - `rejected`: any other 4xx. The server judged the body itself; the same bytes will
+ *   be refused tomorrow. Holding it only buries the writes behind it.
+ */
+export function verdictFor(err: unknown, method: OutboxEntry['method']): Verdict {
+  if (!(err instanceof ApiError)) return 'retry'
+  const { status } = err
+  if (status === 404 && method === 'DELETE') return 'done'
+  if (status === 401 || status === 403 || status === 408 || status === 429) return 'retry'
+  return status >= 400 && status < 500 ? 'rejected' : 'retry'
+}
+
+/**
+ * Drains the outbox in order. A rejected entry leaves the queue and is recorded; one
+ * worth retrying stays and stops the drain, so order holds.
  */
 export async function syncOutbox(): Promise<number> {
   if (syncing || !navigator.onLine || !hasServer()) return 0
@@ -128,8 +153,9 @@ export async function syncOutbox(): Promise<number> {
           body: entry.body === undefined ? undefined : JSON.stringify(entry.body),
         })
       } catch (err) {
-        const gone = err instanceof ApiError && err.status === 404 && entry.method === 'DELETE'
-        if (!gone) return sent
+        const verdict = verdictFor(err, entry.method)
+        if (verdict === 'retry') return sent
+        if (verdict === 'rejected') await recordRejection(entry, err)
       }
       if (entry.id !== undefined) await db.outbox.delete(entry.id)
       sent += 1
@@ -138,6 +164,20 @@ export async function syncOutbox(): Promise<number> {
     syncing = false
   }
   return sent
+}
+
+/**
+ * A rejected write is gone from the server's point of view but still in IndexedDB, so
+ * nothing is lost locally -- what would be lost is knowing it never landed.
+ */
+async function recordRejection(entry: OutboxEntry, err: unknown): Promise<void> {
+  const reason = err instanceof Error ? err.message : String(err)
+  console.warn('outbox: sunucu reddetti, kuyruktan dusuruldu', entry.method, entry.path, reason)
+  const stored = await db.settings.get(REJECTED_KEY)
+  const previous = (stored?.value as unknown[] | undefined) ?? []
+  const record = { method: entry.method, path: entry.path, queued_at: entry.queued_at, reason }
+  // Son 20 yeter: amac hata ayiklamak, arsiv tutmak degil.
+  await db.settings.put({ key: REJECTED_KEY, value: [...previous, record].slice(-20) })
 }
 
 /** Pulls the server's copy into IndexedDB. Used on load so a second device sees existing data. */
@@ -180,18 +220,14 @@ export async function recordMetrics(
   if (records.length === 0) return []
 
   await db.wearable.bulkPut(records)
-  if (hasServer()) {
-    try {
-      await api('/api/wearable', {
-        method: 'POST',
-        body: JSON.stringify({
-          records: records.map(({ date: d, source: s, metric, value }) => ({ date: d, source: s, metric, value })),
-        }),
-      })
-    } catch {
-      // Offline: the local copy stands until the next sync.
-    }
-  }
+  // Through the outbox, not a direct call: the one-shot sources (a meal photo's
+  // calories, a sleep reading) get no second chance, so a write made offline has to
+  // survive until the network comes back. Re-sending is safe, the key is date+metric.
+  await queue({
+    method: 'POST',
+    path: '/api/wearable',
+    body: { records: records.map(({ date: d, source: s, metric, value }) => ({ date: d, source: s, metric, value })) },
+  })
   return records
 }
 

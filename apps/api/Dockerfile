@@ -7,6 +7,7 @@ COPY apps/web/package.json apps/web/package.json
 COPY apps/api/package.json apps/api/package.json
 RUN npm ci
 COPY ops ./ops
+COPY apps/api ./apps/api
 COPY apps/web ./apps/web
 # Icons are generated, not committed; the manifest points at them.
 RUN node ops/gen_icons.mjs && npm run build -w @wellness/web
@@ -25,5 +26,7 @@ COPY --from=web /app/apps/web/dist ./apps/web/dist
 
 ENV NODE_ENV=production
 ENV WEB_DIST=/app/apps/web/dist
+# EXPOSE ile ayni kalsin; compose zaten uzerine yaziyor.
+ENV API_PORT=3011
 EXPOSE 3011
 CMD ["node", "apps/api/src/index.ts"]
