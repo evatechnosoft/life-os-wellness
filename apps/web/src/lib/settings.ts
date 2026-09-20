@@ -1,6 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 
+import { api } from './api'
 import { db } from './db'
+import { hasServer, queueGoals } from './store'
 
 export interface Goals {
   protein_g: number
@@ -49,4 +51,13 @@ export async function saveGoals(goals: Goals): Promise<void> {
   const next: Goals = { ...goals }
   delete next.weekly_weight_loss_kg
   await db.settings.put({ key: 'goals', value: next })
+  await queueGoals(next)
+}
+
+/** Sunucudaki hedefleri yerele alir; ajanin admin kanalindan yazdigi burada gorunur (pullProfile gibi). */
+export async function pullGoals(): Promise<void> {
+  if (!hasServer()) return
+  const row = await api<Partial<Goals> | null>('/api/goals')
+  if (!row) return
+  await db.settings.put({ key: 'goals', value: { ...DEFAULT_GOALS, ...row } })
 }

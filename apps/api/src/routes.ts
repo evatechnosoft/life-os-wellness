@@ -158,6 +158,20 @@ const PROFILE_FIELDS = [
 
 const RETRO_FIELDS = ['went_well', 'resistance', 'experiment'] as const
 
+// Sekil apps/web/src/lib/settings.ts > Goals ile ayni; bilinmeyen alan reddedilir.
+const GOALS_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    protein_g: { type: 'integer', minimum: 0, maximum: 1000 },
+    weekly_loss_pct: { type: 'number', minimum: 0, maximum: 2 },
+    sets_per_group: { type: 'integer', minimum: 0, maximum: 60 },
+    weekly_weight_loss_kg: { type: 'number', minimum: 0, maximum: 5 },
+    nudge: { type: 'string', enum: ['soft', 'push'] },
+    free_meal_day: { type: 'integer', minimum: 0, maximum: 6 },
+  },
+} as const
+
 /** Builds an upsert that only overwrites the columns actually sent. */
 function upsert(table: string, fields: readonly string[], date: string, body: Record<string, unknown>) {
   const sent = fields.filter((f) => f in body)
@@ -259,6 +273,23 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
 
   // Haftalik antrenman ajandasi. En fazla yedi satir, tumu birden okunur/yazilir:
   // gun bazli uc acmak tek kullanicili bir tablo icin gereksiz.
+  // Hedefler tek satir jsonb (db/007). PUT birlestirir: ajan tek alan yazabilsin,
+  // telefon tum nesneyi gondersin, ikisi de ayni uca gitsin.
+  app.get('/api/goals', async () => {
+    const { rows } = await pool.query('select value from goals where id = 1')
+    return rows[0]?.value ?? null
+  })
+
+  app.put('/api/goals', { schema: { body: GOALS_BODY } }, async (req) => {
+    const { rows } = await pool.query(
+      `insert into goals (id, value) values (1, $1)
+       on conflict (id) do update set value = goals.value || excluded.value, updated_at = now()
+       returning value`,
+      [JSON.stringify(req.body)],
+    )
+    return rows[0].value
+  })
+
   app.get('/api/split', async () => {
     const { rows } = await pool.query('select weekday, muscle_groups, note from training_split order by weekday')
     return rows
