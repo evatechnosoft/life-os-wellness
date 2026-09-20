@@ -1,6 +1,6 @@
 # Handoff: program onaylandı, admin kanalı kuruldu, APK 0.21.0 OTA bekliyor
 
-> 2026-09-20 20:23 · `dev` @ `138c47b` (origin ile aynı) · çalışma ağacı temiz
+> 2026-09-20 21:05 · `dev` @ ad40b13 · ağaç temiz · APK 0.22.0 OTA'da (afiş dahil)
 
 ## Goal
 Dean için 12 haftalık beslenme+antrenman programı (diyetisyen+PT personası, 3 değerlendirici)
