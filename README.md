@@ -8,13 +8,18 @@ Saat verisini genislet + dogrudan BLE band plani: [`docs/PLAN-BAND.md`](docs/PLA
 
 ## Canlı
 
-**https://evatechnosoft.github.io/life-os-wellness/** — telefonda aç, menüden
-"Ana ekrana ekle". Tam ekran açılır, uçak modunda da çalışır.
+**https://fit.evaitec.com** — giriş adresi. Telefonda aç, menüden "Ana ekrana ekle".
+Tam ekran açılır, uçak modunda da çalışır.
 
-Pages sürümü **sunucusuz** çalışır: veriler telefonun IndexedDB'sinde durur, Ayar
-ekranından JSON olarak dışa aktarılır. Ayar ekranına bir API token girersen uygulama
-kendi sunucuna senkronlamaya başlar (token girilmeden önce yazılan kayıtlar geride kalır).
-`dev` dalına her push Pages'e yeniden dağıtır.
+Uygulamayı da API'yi de aynı konteyner servis eder, yani aynı origin: tarayıcı için
+CORS yok, token siteler arası gitmiyor. Kabuk açıktan yüklenir (token'ı yazacak sayfa
+o), veri taşıyan her uç `/api/*` altında ve token'la kapalı. Yayın: `docker compose
+build api && docker compose up -d api`.
+
+**https://evatechnosoft.github.io/life-os-wellness/** — aynı uygulamanın Pages aynası,
+`dev`'e her push ile tazelenir. **Sunucusuz** çalışır: veriler telefonun IndexedDB'sinde
+durur, Ayar ekranından JSON olarak dışa aktarılır. Ayar ekranına bir API token girersen
+`fit.evaitec.com`'a senkronlamaya başlar (token girilmeden önce yazılanlar geride kalır).
 
 ## Android (saat verisi)
 
