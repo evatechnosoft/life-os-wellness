@@ -57,9 +57,19 @@ Servis edilen bundle yeni kodu taşıyor: `/assets/index-D4wxUmFj.js` içinde
 `docker tag life-os-wellness-api:rollback-20260920 life-os-wellness-api:latest` sonra
 `docker compose --profile tunnel up -d api cloudflared`. Şema değişmedi.
 
+### OTA — v0.20.0 evaitecOTA kataloğunda
+
+`wellnessVersion` 0.19.0 → 0.20.0, tag `v0.20.0` push'landı, `Build APK` koşusu
+`35505884477` **success**. Release varlıkları: `wellness-0.20.0.apk` (24.1 MB),
+`wellness-wear-0.20.0.apk` (13.1 MB), `latest.json` (1355 bayt).
+
+`releases/latest/download/latest.json` → versionName 0.20.0, versionCode 2000,
+`apps: [wellness-phone, wellness-wear]`. İndirilen telefon APK'sinin sha256'sı
+katalogdakiyle birebir: `7f52f209e3a6c419aad40014f951ad0c7d7782eb4e0fa13b072391a782965b80`.
+
 ### Doğrulanmadı (açıkça)
 
-- Telefonda/APK'da denenmedi. APK ve Pages aynası `DEFAULT_BASE` mutlak URL yoluna
+- APK cihaza kurulmadı, OTA güncellemesi telefonda denenmedi. APK ve Pages aynası `DEFAULT_BASE` mutlak URL yoluna
   düşüyor — kodda öyle, cihazda görülmedi.
 - Hız sınırının canlıda çağıran başına ayrıştığı tek IP'den yoklanamadı; kanıt
   `api.test.ts`'teki kırmızı→yeşil regresyon testi.
