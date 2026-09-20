@@ -38,6 +38,12 @@ ve "admin kanalı": ajanın telefona dokunmadan hedef/profil/kilo yazabilmesi.
 - Tünel `network_mode: service:api` idi; api'yi yeniden kurunca ölü namespace'e bağlı kalıp
   530 veriyordu (bugün iki kez). Şimdi compose ağında, origin `http://api:3011`.
 
+## Depo kararı (22:10)
+- **APK deposu = bu makine** (fit.evaitec.com/ota, `./ota` bind mount). Dean: "sen bilgisayarı ayarla,
+  R2/bulut sonra". `fit.evaitec.com/ota/` JSON liste veriyor (PR #20). Ölçüm: 24 MB APK 8 MB/s.
+- R2 için gereken tek şey: `EVAITEC_CF_API_TOKEN_R2` (Workers R2 Edit + DNS Edit) → `~/.ai/vg.env`.
+  Mevcut iki token salt okuma, R2 uçları 10000 Authentication error veriyor.
+
 ## Don't repeat
 - **api'yi yeniden kurunca tüneli kontrol et:** `curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health`
   200 değilse `docker compose --profile tunnel up -d --force-recreate cloudflared`.
