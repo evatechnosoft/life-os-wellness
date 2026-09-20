@@ -31,7 +31,16 @@ ve "admin kanalı": ajanın telefona dokunmadan hedef/profil/kilo yazabilmesi.
 - Protein 180 g (1.67 g/kg), haftalık kayıp 0.6; kalori hedefi yok (kilit).
 - Serbest gün Cumartesi; tatlı kotası oraya bağlı.
 
+## OTA indirme + tünel (21:45)
+- APK indirme adresi artık `https://fit.evaitec.com/ota/wellness-<v>.apk` (PR #19): sunucu `./ota`
+  dizinini token'sız servis eder, `publish_ota.mjs` kopyalar. Ölçüm: GitHub CDN 118 KB/s
+  (24 MB = 205 s) → fit.evaitec.com 2.3 MB/s (10.5 s). Katalog 0.22.0 yeni adresle güncel.
+- Tünel `network_mode: service:api` idi; api'yi yeniden kurunca ölü namespace'e bağlı kalıp
+  530 veriyordu (bugün iki kez). Şimdi compose ağında, origin `http://api:3011`.
+
 ## Don't repeat
+- **api'yi yeniden kurunca tüneli kontrol et:** `curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health`
+  200 değilse `docker compose --profile tunnel up -d --force-recreate cloudflared`.
 - Profil PUT'unu curl inline JSON ile gönderme (Content-Length hatası, UTF-8); dosyadan
   `--data-binary @file` ya da `ops/admin.mjs` kullan.
 - `proteinTarget` kesimde 2.2×gerçek kilo (238 g) öneriyor — bilinen bulgu, ayrı PR
