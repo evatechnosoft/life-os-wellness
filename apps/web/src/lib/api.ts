@@ -1,12 +1,17 @@
 const TOKEN_KEY = 'wellness.api_token'
 const BASE_KEY = 'wellness.api_base'
 
+/** Giris alan adi: PWA'yi da API'yi de ayni konteyner servis eder. */
+const SERVER = 'https://fit.evaitec.com'
+
 /**
- * Where the API lives. Dev serves the app from Vite, which proxies /api to :3011, so an
- * empty base is right there. A built app (Pages or the APK) is served from somewhere the
- * API is not, so it needs the full origin. Overridable for a phone on the home network.
+ * Where the API lives. Served from fit.evaitec.com the app is already on the API's
+ * origin, so the base is empty and no request leaves the origin. Dev is the same shape:
+ * Vite proxies /api to :3011. Only the callers that cannot be same-origin -- the APK's
+ * webview, the Pages mirror -- need the full URL. Overridable for the home network.
  */
-const DEFAULT_BASE = import.meta.env.PROD ? 'https://fit.evaitec.com' : ''
+const DEFAULT_BASE =
+  !import.meta.env.PROD || window.location.origin === SERVER ? '' : SERVER
 
 export function getApiBase(): string {
   return localStorage.getItem(BASE_KEY) ?? DEFAULT_BASE

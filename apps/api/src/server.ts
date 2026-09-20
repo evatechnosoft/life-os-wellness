@@ -1,4 +1,7 @@
-import Fastify, { type FastifyInstance } from 'fastify'
+import { existsSync } from 'node:fs'
+
+import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify'
+import fastifyStatic from '@fastify/static'
 
 import { createPool, type Pool } from './db.ts'
 import { registerEstimate } from './estimate.ts'
@@ -7,9 +10,10 @@ import { registerChat } from './chat.ts'
 import { registerRoutes } from './routes.ts'
 
 /**
- * The app is served from somewhere else than the API (Pages, or the APK's webview), so
- * every call is cross-origin. An allowlist rather than `*`: the token travels in a header
- * and a stolen one should not be usable from any page a browser happens to load.
+ * fit.evaitec.com serves the PWA and the API together, so the browser's own copy needs
+ * no CORS at all. These are the callers that stay cross-origin: the APK's webview, the
+ * Pages mirror, the Vite dev server. An allowlist rather than `*` -- the token travels
+ * in a header and a stolen one should not be usable from any page a browser loads.
  */
 const ALLOWED_ORIGINS = new Set([
   'https://evatechnosoft.github.io',
@@ -26,6 +30,22 @@ export interface BuildOptions {
   /** Optional: LiteLLM proxy. Without it the model-backed routes answer 503. */
   llm?: Llm | null
   logger?: boolean
+  /** Optional: built PWA to serve from the same origin. Absent -> API only. */
+  webDist?: string | null
+}
+
+/**
+ * Who to count for rate limiting. The tunnel shares the API's network namespace and
+ * forwards to localhost, so `req.ip` is 127.0.0.1 for every remote caller -- one shared
+ * bucket, and a stranger could spend Dean's guess window. Cloudflare overwrites
+ * `cf-connecting-ip` on every request, so it is the only header worth trusting here;
+ * `x-forwarded-for` is not, its leftmost entry is whatever the caller wrote.
+ * ponytail: a LAN caller that skips the tunnel can still forge this and burn someone
+ * else's bucket. The tunnel is the only remote path, so that stays theoretical.
+ */
+function clientKey(req: FastifyRequest): string {
+  const forwarded = req.headers['cf-connecting-ip']
+  return (typeof forwarded === 'string' && forwarded) || req.ip
 }
 
 export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: Pool } {
@@ -74,11 +94,17 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
   }
 
   // Single-user app: one static bearer token, no auth system. /health stays open.
+  const webDist = opts.webDist ?? null
+  const servesWeb = webDist !== null && existsSync(webDist)
+
   app.addHook('onRequest', async (req, reply) => {
     if (req.url === '/health') return
+    // The PWA itself is public: it is a static shell and carries no data. The token
+    // gates /api/*, which is where every byte about Dean actually lives.
+    if (servesWeb && !req.url.startsWith('/api/')) return
 
     const now = Date.now()
-    const key = req.ip
+    const key = clientKey(req)
 
     // A spent guess window keeps answering 429 even when the token is right: whoever is
     // hammering the door does not get to walk in mid-flood.
@@ -105,6 +131,13 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
       return reply.code(401).send({ error: 'unauthorized' })
     }
   })
+
+  if (servesWeb) {
+    // Same origin as /api: no CORS for the PWA, one hostname to remember, one token
+    // that never travels cross-site. @fastify/static rather than hand-rolled file
+    // reading -- path traversal and cache headers are not worth re-implementing.
+    app.register(fastifyStatic, { root: webDist })
+  }
 
   registerRoutes(app, pool)
   const llm = opts.llm ?? null

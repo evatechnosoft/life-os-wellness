@@ -6,6 +6,8 @@ const { app } = buildServer({
   apiToken: requiredEnv('API_TOKEN'),
   llm: createLlm(),
   logger: true,
+  // Set in the image; unset when running the API alone next to `vite dev`.
+  webDist: process.env.WEB_DIST ?? null,
 })
 
 const port = Number(process.env.API_PORT ?? 3001)
