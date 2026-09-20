@@ -23,7 +23,19 @@ durur, Ayar ekranından JSON olarak dışa aktarılır. Ayar ekranına bir API t
 
 ## Android (saat verisi)
 
-APK: **https://github.com/evatechnosoft/life-os-wellness/releases/latest** — telefona kur,
+Telefonda **evaitecOTA**'yı aç, Wellness kartından kur/güncelle. Katalog kaydı ayrı bir
+depoda (`evatechnosoft/evaglass-releases` → `apps.json`) ve elle güncellenmiyor:
+sürüm tag'ini push ettikten, `Build APK` koşusu bittikten sonra
+
+```bash
+node ops/publish_ota.mjs        # variables.gradle'daki sürüm
+```
+
+APK'ları katalog deposuna yükler ve `apps.json`'daki telefon + saat kayıtlarını tazeler.
+İdempotent, iki kez çalıştırmak zarar vermez. **Bu adım atlanırsa telefonda eski sürüm
+görünür** — katalog bir kez 0.7.1'de kaldı ve arada on iki sürüm yayınlandı.
+
+Doğrudan APK: **https://github.com/evatechnosoft/life-os-wellness/releases/latest** — telefona kur,
 Health Connect izinlerini ver. Saatten okunanlar: **adım, aktif kalori, kilo ve saatin
 kendi algıladığı antrenmanlar**. Uygulama açıkken 15 dakikada bir okur.
 
