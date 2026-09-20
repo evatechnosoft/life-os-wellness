@@ -18,7 +18,7 @@ ve "admin kanalı": ajanın telefona dokunmadan hedef/profil/kilo yazabilmesi.
   `{"protein_g":180,"free_meal_day":6,"sets_per_group":10,"weekly_loss_pct":0.6}`.
 - API test 57 pass, web 345 pass, typecheck temiz.
 - `apps/web/android/variables.gradle` 0.21.0; `wellness-0.21.0.apk` derlendi
-  (`apps/web/android/app/build/outputs/apk/debug/`). **OTA'ya KONMADI.**
+  (`apps/web/android/app/build/outputs/apk/debug/`). OTA kataloğunda (versionCode 2100).
 - `build_apk.mjs` yanlış "APK üretilmedi" mesajı düzeltildi (138c47b).
 
 ## Doğrulanmadı
@@ -39,8 +39,7 @@ ve "admin kanalı": ajanın telefona dokunmadan hedef/profil/kilo yazabilmesi.
 - Tek günlük kiloya tepki verme; karar 7-gün ortalaması.
 
 ## Next (tek adım)
-Dean "ekle" derse: `gh release create v0.21.0` (SOURCE repo, APK ekli) → `node ops/publish_ota.mjs`
-(`~/.ai/guides/evaitec-ota-catalog.md`). Sonra Dean uygulamayı açar, Ayarlar'da protein 180 görünmeli.
+APK OTA'da. Dean uygulamayı açınca Ayarlar'da protein 180 görünmeli; görünmezse pullGoals'u cihazda doğrula.
 
 ## Verify
 ```bash
