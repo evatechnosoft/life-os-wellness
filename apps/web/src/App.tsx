@@ -5,7 +5,7 @@ import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
 import { syncHealth } from './lib/health'
-import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch } from './lib/watch'
+import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch, installPhoneUpdate, type PhoneUpdate } from './lib/watch'
 import { pullProfile } from './lib/profile'
 import { pullGoals } from './lib/settings'
 import { pullSplit } from './lib/split'
@@ -45,7 +45,9 @@ export function App() {
   })
   const [online, setOnline] = useState(navigator.onLine)
   const [date, setDate] = useState(toLocalDate())
-  const [updateReady, setUpdateReady] = useState(false)
+  const [update, setUpdate] = useState<PhoneUpdate | null>(null)
+  const [installing, setInstalling] = useState(false)
+  const updateReady = update?.state === 'available'
   const [quickAdd, setQuickAdd] = useState(false)
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
 
@@ -81,7 +83,7 @@ export function App() {
     // Telefon guncellemesi: acilista bir kez, sonra en fazla gunde bir (lib/watch.ts).
     // Guncelleme yoksa hicbir sey gosterilmiyor - yalnizca Ayar sekmesine bir nokta duser.
     void autoCheckPhoneUpdate()
-      .then((u) => setUpdateReady(u?.state === 'available'))
+      .then((u) => setUpdate(u ?? null))
       .catch(() => {})
     const health = window.setInterval(() => void sync(), 900_000)
     return () => {
@@ -107,8 +109,7 @@ export function App() {
       await pullProfile().catch(() => {})
       await pullGoals().catch(() => {})
     }
-    const update = await checkPhoneUpdate().catch(() => null)
-    setUpdateReady(update?.state === 'available')
+    setUpdate(await checkPhoneUpdate().catch(() => null))
     setDate(toLocalDate())
   }
 
@@ -121,6 +122,29 @@ export function App() {
         </span>
       </header>
 
+      {updateReady && (
+        <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-glass-strong px-4 py-3 text-sm">
+          <span>Yeni sürüm {update.versionName ?? ''} hazır</span>
+          <button
+            type="button"
+            disabled={installing}
+            onClick={() =>
+              void (async () => {
+                setInstalling(true)
+                try {
+                  await installPhoneUpdate()
+                  setUpdate(await checkPhoneUpdate().catch(() => null))
+                } finally {
+                  setInstalling(false)
+                }
+              })()
+            }
+            className="rounded-full bg-a1 px-4 py-1.5 font-medium text-solid disabled:opacity-50"
+          >
+            {installing ? 'İndiriliyor…' : 'Güncelle'}
+          </button>
+        </div>
+      )}
       <main className="flex-1 px-4 pb-24">
         <PullToRefresh onRefresh={refresh}>
           {tab === 'today' && <Today date={date} />}
