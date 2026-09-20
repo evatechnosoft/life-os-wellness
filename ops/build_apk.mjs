@@ -55,5 +55,8 @@ run(npm, ['run', 'build', '-w', '@wellness/web'], root)
 run(npx, ['cap', 'sync', 'android'], web)
 run(gradlew, ['assembleDebug'], android, { JAVA_HOME })
 
-const apk = join(android, 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk')
+// Gradle ciktiyi surum adiyla yazar (wellness-<versionName>.apk), app-debug.apk degil.
+const outDir = join(android, 'app', 'build', 'outputs', 'apk', 'debug')
+const apkName = readdirSync(outDir).find((f) => f.endsWith('.apk'))
+const apk = apkName ? join(outDir, apkName) : ''
 console.log(existsSync(apk) ? `\nAPK: ${apk}` : '\nAPK uretilmedi')
