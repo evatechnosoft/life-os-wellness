@@ -53,5 +53,20 @@
       "fibre_g": 0,
       "salt_g": 0.2
     }
+  },
+  {
+    "name": "tam buğday kalem makarna (pennette rigate)",
+    "brand": "Barilla",
+    "portion_g": 70,
+    "note": "değerler kuru makarna için; 70 g kuru ≈ 150 g pişmiş. Al dente pişir (paket süresinin 1-2 dk eksiği): fazla pişmiş makarnanın glisemik etkisi belirgin artar",
+    "per100g": {
+      "kcal": 342,
+      "protein_g": 13,
+      "fat_g": 2.5,
+      "carb_g": 62.8,
+      "sugar_g": 3.5,
+      "fibre_g": 8,
+      "salt_g": 0.01
+    }
   }
 ]
