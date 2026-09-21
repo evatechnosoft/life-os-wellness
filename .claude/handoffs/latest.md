@@ -79,7 +79,38 @@ Selfit bromelain isteğe bağlı / KoreaVit dolgu, **Ribera BURN ve ginseng shot
 4. 0.26.0 cihaz kanıtı + `%TEMP%/wellness-debug.keystore` kalıcı yere alınmalı (önceki devir).
 5. Çekim rehberi (`docs/CEKIM-REHBERI.md`) hazır, çekim başlamadı.
 
+
+## SIRADAKİ İŞ — seçici kendi sunucumuzda da kaydetsin (Dean, 21 Eyl 20:5x)
+
+Dean'in isteği: "üç uç açalım, DB'ye yazalım, ben değiştirebilir şekilde kullanayım."
+`fit.evaitec.com/plan/` şu an **okur-yazmaz**: `window.claude` olmadığı için Kaydet çalışmıyor.
+Artifact'teki `db` yerine kendi Postgres'imize yazılacak — tek kaynak, telefondan da düzenlenebilir.
+
+### Üç uç (hepsi token'lı, `/api/*` altında)
+
+| Uç | Gövde | Karşılığı |
+|---|---|---|
+| `GET/PUT /api/plan/week` | `{ days: {0..6: 'lift'\|'swim'\|'rest'} }` | Hafta sekmesi — gün tipleri |
+| `GET/PUT /api/plan/session` | `{ date, system, day, exercises: [{id,name,sets,slot}] }` | Zarın kurduğu seans(lar); haftalık kurulumda üç kayıt |
+| `GET/PUT /api/plan/plate` | `{ date, items: [{name,portion,qty}], totals }` | Tabak |
+
+Şema: yeni `db/00X_plan.sql` (eski migration düzenlenmez — AGENTS.md). Tek kullanıcı olduğu
+için `week` tek satır, `session`/`plate` tarihe göre.
+
+### İstemci tarafı
+
+`tools/secici/secici.html` içindeki kayıt yolu şu an `state.db` (artifact db). İki taşıyıcı olacak:
+`window.claude.use('db')` varsa o, yoksa `fetch('/api/plan/...', {authorization: Bearer})`.
+Token sayfaya nasıl gelecek: PWA'daki gibi `?token=...` bir kez verilip `localStorage`'a yazılır
+(`apps/web/src/lib/api.ts` deseni aynen kopyalanabilir, oradaki `setToken` mantığı).
+
+**Dikkat:** `plan.js` saf kalmalı (ağ yok) — taşıyıcı `secici.html` tarafında.
+
+### Bitti sayılma kanıtı
+`curl -H "Bearer" :3011/api/plan/week` PUT→GET aynı veriyi döndürür; `fit.evaitec.com/plan/`
+sayfasında Kaydet basınca uç loglarda görünür; `npm test` + `typecheck` yeşil.
+
 ## Sıradaki tek adım
 
-Dean artifact'i açıp zarı denesin; db kaydı ve görseller gerçekten çalışıyor mu görülsün.
-Ondan önce yeni özellik eklenmesin.
+Yukarıdaki üç ucu aç (şema → uç → istemci taşıyıcı), sonra `fit.evaitec.com/plan/` üzerinden
+kaydet-oku turunu Dean'e doğrulat. Artifact sürümü olduğu gibi kalır; iki taşıyıcı bir arada yaşar.
