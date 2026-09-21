@@ -3,7 +3,15 @@
 Salonda "bu makine dolu, yerine ne?" ve mutfakta "bu tabak yeter mi?" sorularını cevaplayan
 tek sayfa. Uygulamanın (PWA) parçası **değil**; claude.ai üzerinde yayınlanan bağımsız bir sayfa.
 
-**Canlı:** https://claude.ai/code/artifact/3b8b7694-4807-4ae2-8bd3-0af0447a345c
+**Canlı — iki yerde, aynı dosyalar:**
+
+| Adres | Kayıt | Not |
+|---|---|---|
+| https://fit.evaitec.com/plan/ | **yok** | Kendi sunucumuz. `docker compose` `tools/secici`'yi mount eder, dosyayı değiştir → sayfa değişti. |
+| https://claude.ai/code/artifact/3b8b7694-4807-4ae2-8bd3-0af0447a345c | var | Seçimler `db` ile burada saklanır. Yayın için aşağıdaki reçete. |
+
+Kendi sunucuda `window.claude` yok, o yüzden "Kaydet" çalışmaz — sayfa bunu bilerek yazar
+("Kayıt bu görünümde kapalı"). Zar, kural denetimi, hafta ve tabak hesabı tamamen çalışır.
 
 ## Dosyalar
 

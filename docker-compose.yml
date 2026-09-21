@@ -51,10 +51,13 @@ services:
       OTA_DIR: /app/ota
       # Egzersiz katalogu: repodaki dosya dogrudan servis edilir (APK'siz guncelleme).
       EXERCISES_FILE: /app/data/exercises.json
+      # Secici sayfasi: fit.evaitec.com/plan/
+      PLAN_DIR: /app/plan
     volumes:
       # APK'lar (ops/publish_ota.mjs kopyalar). fit.evaitec.com/ota/ altindan servis edilir.
       - ./ota:/app/ota:ro
       - ./apps/web/src/data/exercises.json:/app/data/exercises.json:ro
+      - ./tools/secici:/app/plan:ro
     ports:
       - "3011:3011"
     depends_on:

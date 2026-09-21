@@ -34,6 +34,8 @@ export interface BuildOptions {
   webDist?: string | null
   /** APK'larin durdugu dizin; /ota/ altinda herkese acik servis edilir (OTA indirme, token yok). */
   otaDir?: string | null
+  /** Secici sayfasi (tools/secici). /plan/ altindan servis edilir; bos ise cizilmez. */
+  planDir?: string | null
 }
 
 /**
@@ -100,6 +102,8 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
   const servesWeb = webDist !== null && existsSync(webDist)
   const otaDir = opts.otaDir ?? null
   const servesOta = otaDir !== null && existsSync(otaDir)
+  const planDir = opts.planDir ?? null
+  const servesPlan = planDir !== null && existsSync(planDir)
 
   app.addHook('onRequest', async (req, reply) => {
     if (req.url === '/health') return
@@ -108,6 +112,8 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
     if (servesWeb && !req.url.startsWith('/api/')) return
     // APK indirme de acik: evaitecOTA katalogu buradan ceker, GitHub CDN bu agdan 120 KB/s.
     if (servesOta && req.url.startsWith('/ota/')) return
+    // Secici sayfasi da acik: Dean'in verisini tasimaz, yalniz katalog ve kural motoru.
+    if (servesPlan && req.url.startsWith('/plan')) return
 
     const now = Date.now()
     const key = clientKey(req)
@@ -147,6 +153,16 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
   if (servesOta) {
     // list: fit.evaitec.com/ota/ acilinca eldeki APK'lar gorunsun (depo bu makine, Dean 20 Eyl).
     app.register(fastifyStatic, { root: otaDir, prefix: '/ota/', decorateReply: !servesWeb, list: { format: 'json', names: ['index', ''] } })
+  }
+
+  if (servesPlan) {
+    // index.html yerine secici.html: dosya adi tools/secici icinde oldugu gibi kaliyor,
+    // tek kaynak iki yerde (artifact + kendi sunucu) ayni dosyayla servis edilsin.
+    app.register(fastifyStatic, {
+      root: planDir, prefix: '/plan/', decorateReply: false, index: ['secici.html'],
+    })
+    // /plan -> /plan/ : sondaki eğik çizgiyi unutan adres 404 olmasin.
+    app.get('/plan', async (_req, reply) => reply.redirect('/plan/', 301))
   }
 
   registerRoutes(app, pool)
