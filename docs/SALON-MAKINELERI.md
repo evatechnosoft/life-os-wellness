@@ -31,7 +31,11 @@
 
 | Tarih | Hareket | Set/tekrar | Karar |
 |---|---|---|---|
-| 21 Eyl | Chest press (Life Fitness) | 15×20, 15×8, 20×5 | çalışma ağırlığı **15 kg**; 3 sette 12+ çıkınca 17.5 |
+| 21 Eyl | Chest press — ısınma | 15×20, 15×8, 20×5 | test setleri, hacme sayılmaz |
+| 21 Eyl | **Chest press — asıl** | 35×12, 40×12, 45×10 (12 çıkabilirdi) | çalışma ağırlığı **45 kg**; gelecek hafta 40-45-50 |
+
+**Ara süresi uyarısı:** 21 Eyl setleri arası 40 sn ölçüldü. Hipertansiyonda kısa ara kan
+basıncını setten sete biriktirir; bileşik hareketlerde **90–120 sn** hedef.
 
 ## Diesel Fitness 700R — okunan değerler
 
