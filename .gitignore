@@ -35,3 +35,4 @@ ota/*.apk
 
 # CI'da secret'tan yazilir, repoda durmaz.
 apps/web/android/debug.keystore
+.artifact-build/
