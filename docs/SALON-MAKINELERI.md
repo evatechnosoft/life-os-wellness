@@ -46,6 +46,7 @@
 | 21 Eyl | **Biceps curl (makine no 7)** | 15×12, 17.5×12, 20×12 | çalışma ağırlığı **20 kg**; 3 sette 12 tam → gelecek hafta 20-22.5-22.5 |
 | 21 Eyl | **Triceps press (no 8)** | 15×15 (hafif), 25×12, 30×12 | çalışma ağırlığı **30 kg**; gelecek hafta 30-32.5-35 |
 | 21 Eyl | **Row (makine)** — plan dışı eklendi | 20×12, 25×12, 30×12 | çalışma ağırlığı **30 kg**. Not: sırt Çarşamba günü; Pzt'ye row eklenirse Çar hacmi 9→6 sete iner |
+| 21 Eyl | **Lat pulldown — geniş tutuş** | 30×12, 35×12, 40×12 | çalışma ağırlığı **40 kg**; gelecek hafta 40-45-45. Geniş tutuş Dean'e rahat geliyor, ağrı yok → devam; nötr V bar ikinci çekiş olarak kalıyor |
 
 **Nabız (21 Eyl seansı):** setler boyunca **114 sabit** — ağırlık çalışması için güvenli band
 (43 yaş, maks ~177; 114 = %64). Setler arası düşmüyorsa ara süresini uzat, tırmanıyorsa dur.
