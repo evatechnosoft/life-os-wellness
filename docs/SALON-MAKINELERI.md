@@ -11,7 +11,8 @@
 | Oturarak leg curl | Life Fitness (Seated Leg Curl) | Cuma, arka bacak — programdaki "leg curl" bu makine | `Seated_Leg_Curl` | `seated-leg-curl.jpg` |
 | Koşu bandı, stairmill, kablo/makine hattı | — | adım günü / kablo hareketleri | — | `salon-genel.jpg`, `salon-hat-makine-sirasi.jpg` |
 | **Chest press** (oturarak göğüs presi) | Life Fitness | Pzt, göğüs — **çalışma ağırlığı 15 kg** (21 Eyl testi) | `Machine_Bench_Press` | `chest-press-lifefitness.jpg`, `chest-press-agirlik-kulesi.jpg` |
-| Kablo crossover / çapraz istasyon | Diesel Fitness | Pzt, kablo fly | `Cable_Crossover` | `kablo-crossover-diesel.jpg`, `kablo-istasyonu-genel.jpg` |
+| **Pec deck / butterfly** | Life Fitness | Pzt, **2. hareket** — göğüs fly | `Butterfly` | `pec-deck-lifefitness.jpg`, `pec-deck-agirlik-kulesi.jpg` |
+| Kablo crossover / çapraz istasyon | Diesel Fitness | Pzt, kablo fly (pec deck alternatifi) | `Cable_Crossover` | `kablo-crossover-diesel.jpg`, `kablo-istasyonu-genel.jpg` |
 | Lat pulldown (kablo) | — | Çar, sırt | `Wide-Grip_Lat_Pulldown` | `lat-pulldown-kablo.jpg` |
 | Kablo alt makara + ayak platformu | — | Çar, oturarak kablo çekiş | `Seated_Cable_Rows` | `kablo-alt-makara-platform.jpg` |
 | Plakalı (leverage) göğüs/sırt makinesi | Life Fitness | Pzt/Çar alternatifi | `Leverage_Incline_Chest_Press` | `plakali-makine-lifefitness.jpg` |
@@ -25,6 +26,7 @@
 - **Kablo kuleleri:** 5 · 10 · 15 · 20 · 25 · 30 kg… (sarı pin, etiketli) — `kablo-kulesi-kademeler.jpg`
 - **Chest press kulesi:** 5'ten 145'e 10'ar kg + üstte **2.5 kg mikro ayar** düğmesi. İlerlemede
   10'luk sıçrama sert gelirse mikro ayarla +2.5 yapılır.
+- **Pec deck kulesi:** 5'ten 100'e 5'er kg (kg + lbs etiketli, kırmızı pin) — `pec-deck-agirlik-kulesi.jpg`
 - **Dambıllar:** 5 · 7.5 · 10 · 12.5 · 15 · 20 · 25 · 30 kg — `dambil-rafi-kademeler.jpg`
 
 ## Kayıtlı ağırlıklar
