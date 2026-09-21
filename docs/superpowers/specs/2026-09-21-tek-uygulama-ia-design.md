@@ -11,7 +11,7 @@
 
 **Değişir:** `apps/web/src/App.tsx` (sekmeler), `ui/Today.tsx` (yeniden kurulur), `ui/Week.tsx` → Ölçüm, yeni `ui/Plan.tsx`, `ui/DayStrip.tsx`, `ui/SessionCard.tsx`, `ui/PlateCard.tsx`, `ui/SetRow.tsx`, `ui/Drawer.tsx`, `ui/DocPage.tsx`; `lib/plan.ts` (+test), `lib/plate.ts` (+test), `lib/sets.ts` (+test), `lib/db.ts` (v+1: `exercise_set`, `workout_plan` settings), `lib/store.ts` (üç `queue*`), `data/foods.json`; `apps/api/src/routes.ts` (iki uç + workouts genişletme), `db/008_plan.sql`; `~/.claude/skills/dean-pt/`.
 **Değişmez:** `plan.js` kuralları ve testleri (aynen taşınır), Eva/Coach, Meals fotoğraf/barkod akışı, `training_split` tablosu (okunmaya devam eder), artifact sürümü, saat uygulaması.
-**Kapatılır:** `tools/secici/secici.html` bağımsız sayfa olarak Faz 2 sonunda; `/plan/` → `/?tab=plan` yönlendirmesi. Kaynak `tools/secici/` repoda kalır (plan.js'in tarihçesi), README'ye "PWA'ya taşındı" notu.
+**Kapatılır:** `tools/secici/secici.html` bağımsız sayfa olarak Faz 2 sonunda; `/plan/` → `/?tab=plan` yönlendirmesi `secici.html` içinde `<meta http-equiv="refresh">` ile (compose `PLAN_DIR` bağlaması değişmez). Kaynak `tools/secici/` repoda kalır (plan.js'in tarihçesi), README'ye "PWA'ya taşındı" notu.
 
 ## 2. Bilgi mimarisi — 4 alt sekme
 
@@ -32,7 +32,8 @@ Drawer sayfalarının markdown içeriği build'de `docs/*.md`'den `apps/web/src/
 - Gün tipi `rest` → "Yürüyüş 6.000+ adım" satırı, kart kapalı. `swim` → süre alanı + kaydet. `lift` → rutin.
 - Rutin = `workout_plan[weekday].exercises` (Plan sekmesinde zarla ya da elle kurulmuş). Boşsa "Zar at" düğmesi (Plan'a gitmeden, `plan.ts` çağrısı).
 - Her hareket satırı: ad, hedef set sayısı, **"yerine"** (aynı kas × aynı/başka alet, `plan.ts alternatives()`), ve set satırları.
-- **SetRow:** `kg` · `tekrar` · tik. Soluk gri "geçen sefer 45×12" (aynı `exercise_id`'nin son `exercise_set` kaydı); dokununca kopyalanır. Tik → set `done_at` alır, **dinlenme sayacı** 90 sn altta bar (ayar `rest_sec`, varsayılan 90). Tansiyon kuralı: tekrar >15 girilirse uyarı çipi ("PROGRAM: 8–15"), engel değil.
+- Gün tipi → `workout.type` eşlemesi: lift→`resistance`, swim→`cardio`, rest günü yürüyüş kaydı→`walk`; "Bitir" ve skill'in `POST workouts` gövdesi bu tabloyu kullanır.
+- **SetRow:** `kg` · `tekrar` · tik. Soluk gri "geçen sefer 45×12" (aynı `exercise_id`'nin son `exercise_set` kaydı); dokununca kopyalanır. Tik → set `done_at` alır, **dinlenme sayacı** 90 sn altta bar (yalnız yerel `settings.rest_sec`, varsayılan 90; sunucuya gitmez). Tansiyon kuralı: tekrar >15 girilirse uyarı çipi ("PROGRAM: 8–15"), engel değil.
 - Başlık: geçen süre · biten/toplam set. "Bitir" → `workout` satırı (`sets_total`, `reps_total`, `weight_kg` toplamları setlerden türetilir, `muscle_groups` hareketlerden) + `exercise_set` satırları outbox'a.
 - Kütüphane kartları (`KULLANIM-KARTLARI.md` beş başlık) hareket adına dokununca sheet olarak açılır; Faz 3 sonunda `exercises.json`'a `card` alanı.
 
@@ -40,7 +41,7 @@ Drawer sayfalarının markdown içeriği build'de `docs/*.md`'den `apps/web/src/
 - Slotlar PROGRAM §4'ten: Sabah · Öğle · Ara · Akşam · Antrenman sonrası (son slot yalnız lift/swim günü görünür).
 - Her slot: "+" → **sık yenenler** ızgarası: `foods.json` (seçicideki 30 kalem, grup çipleri) + son 14 günün `meal.note` kalemleri önde. Dokun = ekle, adet ± . Altta "sadece gram" Quick Add (protein g, isteğe kcal).
 - Kaydet → tek `meal` satırı: `note` = "Kuru fasulye ×1 · Bulgur ×1 · Salata", `protein_g`/`kcal` toplam, `source: 'manual'`, `time` slot saatinden. Mevcut `queueMeal` kullanılır, yeni tablo yok.
-- Protein çubuğu: gün toplamı / 180 g (ayar `protein_target`). Kalori yalnız bilgi, hedef çubuğu yok (kilit).
+- Protein çubuğu: gün toplamı / `goals.protein_g` (mevcut ayar, PROGRAM 180). Slot saatleri sabit tablo, planda belirlenir (ör. 08:00/13:00/16:30/19:30/21:00). Kalori yalnız bilgi, hedef çubuğu yok (kilit).
 - Fotoğraf/barkod girişi `Meals.tsx`'te kalır, slot "+" menüsünden ulaşılır.
 
 ### 3.3 DayStrip
@@ -56,6 +57,7 @@ Drawer sayfalarının markdown içeriği build'de `docs/*.md`'den `apps/web/src/
 
 ### 5.1 Şema — `db/008_plan.sql`
 ```sql
+-- weekday = JS getDay: 0 = Pazar (training_split ve plan.js rollWeek ile aynı). DayStrip yalnız görüntüde Pzt'den başlar.
 create table if not exists workout_plan (
   weekday smallint primary key check (weekday between 0 and 6),
   day_type text not null check (day_type in ('lift','swim','rest')),
@@ -84,9 +86,9 @@ create index if not exists exercise_set_exercise_idx on exercise_set (exercise_i
 - `GET /api/workouts?start&end` yanıtına `sets` dizisi eklenir.
 
 ### 5.3 İstemci
-- Dexie v+1: `exercise_set` tablosu (`id, workout_id, exercise_id, done_at`), `settings.workout_plan`. Pull: `pullWorkoutPlan()` `pullSplit` deseninde.
+- Dexie v+1: `exercise_set` tablosu (`id, workout_id, exercise_id, done_at`), `settings.workout_plan` = `Record<weekday, PlanDay>` (`split` deseni). Pull: `pullWorkoutPlan()` `pullSplit` deseninde; `pullRange` `GET /api/workouts` yanıtındaki `sets` dizisini `exercise_set` tablosuna ayırıp yazar (ikinci cihazda "geçen sefer" böyle çıkar).
 - `store.ts`: `queueWorkoutPlan(days)`, `addWorkout` genişler (`sets`), hepsi outbox. Ağ yokken kayıt kaybı yok (kilit).
-- `lib/plan.ts`: `plan.js`'in TS'i, `roll`, `rollWeek`, `alternatives`, `SISTEMLER`; testler `plan.test.ts` (8000 tur, 1000 hafta, dağılım deepEqual).
+- `lib/plan.ts`: `plan.js`'in TS'i, `roll`, `rollWeek`, `SISTEMLER` aynen; `alternatives(exerciseId)` **yeni** (aynı primary, YASAK dışı, farklı id), testi yazılır; testler `plan.test.ts` (8000 tur, 1000 hafta, dağılım deepEqual).
 - `lib/sets.ts`: `previousSet(exerciseId)`, `sessionTotals(sets)`, `restTimer` saf yardımcılar; `lib/plate.ts`: `plateTotals(items)`, `plateNote(items)`, `frequentFoods(meals, foods)`.
 
 ## 6. Sohbet ↔ uygulama — `dean-pt` skill'i
@@ -106,13 +108,13 @@ create index if not exists exercise_set_exercise_idx on exercise_set (exercise_i
 
 ## 8. Test
 
-- TDD: `plan.test.ts`, `sets.test.ts`, `plate.test.ts`, `date` yardımcıları (`DayStrip` hafta başlangıcı). API: `routes.test` (node test runner) — plan PUT→GET, workouts+sets idempotent, exercise-sets sıralama.
+- TDD: `plan.test.ts`, `sets.test.ts`, `plate.test.ts`, `date` yardımcıları (`DayStrip` hafta başlangıcı). API: `apps/api/test/api.test.ts`'e eklenir (node test runner) — plan PUT→GET, workouts+sets idempotent, exercise-sets sıralama.
 - Kabul: `npm test` + `npm run typecheck --workspaces` yeşil; `curl` ile PUT→GET aynı veri; telefonda Bugün'de bir set tik + tabak kaydı 60 sn altında (Dean onayı); skill'den "Çarşamba yüzme" → uygulamada DayStrip değişir.
 
 ## 9. Fazlar
 
 1. **Şema + uçlar + skill** — `008_plan.sql`, `workout-plan`/`exercise-sets` uçları, `workouts` sets desteği, `dean-pt` skill. Kanıt: curl tur + skill'den hafta okuma.
-2. **IA + Plan + Tabak** — 4 sekme, DayStrip, Plan sekmesi (şablon + zar + kas haritası), PlateCard, `foods.json`, `/plan/` yönlendirme. Kanıt: telefon ekran görüntüsü + 60 sn ölçümü.
+2. **IA + Drawer + Plan + Tabak** — 4 sekme, `Drawer.tsx` + `DocPage.tsx` (Hareket kütüphanesi ve Ayarlar drawer'dan erişilir; sekme kalkınca kör nokta kalmaz), DayStrip, Plan sekmesi (şablon + zar + kas haritası), PlateCard, `foods.json`, `/plan/` yönlendirme. Kanıt: telefon ekran görüntüsü + 60 sn ölçümü + drawer'dan Ayar/Hareket açılışı.
 3. **Set kaydı** — SetRow, geçen sefer, dinlenme sayacı, Bitir → workout+sets, kütüphane kartı sheet'i. Kanıt: bir seans uçtan uca, `exercise-sets` GET'te görünür.
 
 Sıra bağımlılık: 1 → 2 → 3. Her faz ayrı `feature/` dalı ve PR (squash-merge).
