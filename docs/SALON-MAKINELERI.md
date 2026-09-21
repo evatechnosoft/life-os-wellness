@@ -13,7 +13,7 @@
 | **Chest press** (oturarak göğüs presi) | Life Fitness | Pzt, göğüs — **çalışma ağırlığı 45 kg** (21 Eyl) | `Machine_Bench_Press` | `chest-press-lifefitness.jpg`, `chest-press-agirlik-kulesi.jpg` |
 | **Pec deck / butterfly** | Life Fitness | Pzt, **2. hareket** — göğüs fly | `Butterfly` | `pec-deck-lifefitness.jpg`, `pec-deck-agirlik-kulesi.jpg` |
 | **Biceps curl (makine)** | Life Fitness — salon no 7 | Pzt, biseps | `Machine_Bicep_Curl` | `biceps-curl-lifefitness.jpg`, `biceps-curl-kule-mikro.jpg` |
-| Triceps (makine) | Life Fitness | Pzt, triseps | `Machine_Triceps_Extension` | `biceps-triceps-makinesi.jpg` |
+| **Triceps press (makine)** | Life Fitness — salon no 8 | Pzt, triseps. Tutamak iç/dış çevrilebilir: dış = omuz/bilek rahat, iç = daha izole. Menzil: üstte dirsek 90°, altta kilitleme yok | `Machine_Triceps_Extension` | `triceps-press-lifefitness.jpg`, `triceps-press-kule.jpg`, `triceps-press-oturma.jpg`, `triceps-press-tutamak-ic.jpg`, `triceps-press-tutamak-dis.jpg` |
 | Omuz presi (makine) | Life Fitness | Çar, omuz | `Leverage_Shoulder_Press` | `omuz-press-makinesi.jpg`, `omuz-press-kule-ayar.jpg` |
 | Prone (yatarak) leg curl | Belt Selection | Cuma alternatifi, arka bacak | `Lying_Leg_Curls` | `prone-leg-curl.jpg` |
 | Hip abduction / adduction | Life Fitness | kalça dış/iç — programda yok, istenirse eklenir | `Thigh_Abductor` | `hip-abduction-lifefitness.jpg`, `hip-adduction-lifefitness.jpg` |
