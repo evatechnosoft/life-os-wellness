@@ -101,3 +101,30 @@ Tansiyon ölçümü sabah aç karnına, 2 ölçüm ortalaması; antrenman sonras
 3. Bu dosya. `training_split` Çarşamba → sırt, omuz, bacak (leg press + hip thrust).
 4. Eva sistem istemi (`persona.ts`): profilde tansiyon/glukoz/trigliserid izlemi varsa tuz-potasyum-lif önceliği satırı.
 5. **Kod bulgusu (ayrı PR, `fix/protein-target-obese`):** `proteinTarget` kesimde 2.2 g/kg × gerçek kilo = 238 g öneriyor; obezde referans hedef/yağsız kütle olmalı. Öneri: `min(avgWeight, target_weight_kg)` üzerinden hesap → 220 tavan. Bu PR onay sonrası.
+
+## Sistem kararı — tüm vücut mu, itiş/çekiş mi (21 Eyl, kanıtla)
+
+Haftada **3 direnç günü** için tüm vücut kalır. Gerekçe, tercih değil kanıt:
+
+- Hacim eşitlendiğinde bölünme şekli hipertrofi ve güç farkı yaratmıyor — 14 çalışmalık
+  meta-analiz, split ile full-body arasında anlamlı fark bulmuyor.
+- Frekans da hacim eşitken 1–6 gün arasında fark yaratmıyor. Fark **hacimden** geliyor.
+- Tek istisna: **seans başı 15+ set** olunca hacmi daha çok güne bölmek lehte. Bizim seans
+  15–16 set — tam bu sınırda, yani bölmek isteniyorsa gerekçesi burası, "daha çok kas" değil.
+- Pratikte full-body aynı takvimde daha çok toplam hacim getiriyor.
+
+Sonuç: 3 gün → tüm vücut (her kas haftada 3 kez uyarılır). İtiş/çekiş/bacak bölünmesi ancak
+haftada 5–6 güne çıkılırsa eşitlenir; 3 günde her kas haftada **1 kez** uyarıldığı için
+aynı hacim daha az sıklıkla dağılır. Bölünmüş sistem uygulamada **değişiklik seçeneği** olarak
+duruyor, varsayılan değil.
+
+PT'lerin farklı fazlandırması bu tabloyu değiştirmiyor: değişen hacmin dağılımı, toplamı değil.
+
+Kaynaklar: Schoenfeld ve ark. frekans meta-analizi (PMID 30558493); dose-response
+meta-regresyon (PMID 41343037); split vs full-body meta-analizi (2024).
+
+## Karın hareketi — makine crunch değil (21 Eyl)
+
+Ab crunch makinesi havuzda kalır ama **son sırada**: omurga fleksiyonu + göğüs önünde yük,
+tansiyonda ıkınmaya davet. Dead bug, Pallof press ve kablo crunch aynı işi omurgayı bükmeden
+yapar; zar bu üçünü tüketmeden makineye gitmez (`plan.js` → `IKINCIL`).
