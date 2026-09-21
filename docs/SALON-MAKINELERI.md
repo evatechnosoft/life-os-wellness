@@ -12,6 +12,12 @@
 | Koşu bandı, stairmill, kablo/makine hattı | — | adım günü / kablo hareketleri | — | `salon-genel.jpg`, `salon-hat-makine-sirasi.jpg` |
 | **Chest press** (oturarak göğüs presi) | Life Fitness | Pzt, göğüs — **çalışma ağırlığı 45 kg** (21 Eyl) | `Machine_Bench_Press` | `chest-press-lifefitness.jpg`, `chest-press-agirlik-kulesi.jpg` |
 | **Pec deck / butterfly** | Life Fitness | Pzt, **2. hareket** — göğüs fly | `Butterfly` | `pec-deck-lifefitness.jpg`, `pec-deck-agirlik-kulesi.jpg` |
+| **Biceps curl (makine)** | Life Fitness — salon no 7 | Pzt, biseps | `Machine_Bicep_Curl` | `biceps-curl-lifefitness.jpg`, `biceps-curl-kule-mikro.jpg` |
+| Triceps (makine) | Life Fitness | Pzt, triseps | `Machine_Triceps_Extension` | `biceps-triceps-makinesi.jpg` |
+| Omuz presi (makine) | Life Fitness | Çar, omuz | `Leverage_Shoulder_Press` | `omuz-press-makinesi.jpg`, `omuz-press-kule-ayar.jpg` |
+| Prone (yatarak) leg curl | Belt Selection | Cuma alternatifi, arka bacak | `Lying_Leg_Curls` | `prone-leg-curl.jpg` |
+| Hip abduction / adduction | Life Fitness | kalça dış/iç — programda yok, istenirse eklenir | `Thigh_Abductor` | `hip-abduction-lifefitness.jpg`, `hip-adduction-lifefitness.jpg` |
+| Abdominal crunch makinesi | Life Fitness — salon no 15 | karın (dead bug önceliklidir, bu ikincil) | `Ab_Crunch_Machine` | `abdominal-crunch-makinesi.jpg`, `abdominal-crunch-yakin.jpg` |
 | Kablo crossover / çapraz istasyon | Diesel Fitness | Pzt, kablo fly (pec deck alternatifi) | `Cable_Crossover` | `kablo-crossover-diesel.jpg`, `kablo-istasyonu-genel.jpg` |
 | Lat pulldown (kablo) | — | Çar, sırt | `Wide-Grip_Lat_Pulldown` | `lat-pulldown-kablo.jpg` |
 | Kablo alt makara + ayak platformu | — | Çar, oturarak kablo çekiş | `Seated_Cable_Rows` | `kablo-alt-makara-platform.jpg` |
@@ -35,6 +41,8 @@
 |---|---|---|---|
 | 21 Eyl | Chest press — ısınma | 15×20, 15×8, 20×5 | test setleri, hacme sayılmaz |
 | 21 Eyl | **Chest press — asıl** | 35×12, 40×12, 45×10 (12 çıkabilirdi) | çalışma ağırlığı **45 kg**; gelecek hafta 40-45-50 |
+
+| 21 Eyl | **Pec deck (fly)** | 25×15, 30×12, 35×12 | çalışma ağırlığı **35 kg**; gelecek hafta 35-40-40 |
 
 **Ara süresi uyarısı:** 21 Eyl setleri arası 40 sn ölçüldü. Hipertansiyonda kısa ara kan
 basıncını setten sete biriktirir; bileşik hareketlerde **90–120 sn** hedef.

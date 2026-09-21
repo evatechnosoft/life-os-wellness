@@ -427,6 +427,20 @@
         "forearms"
       ],
       "cue": "Kol yastığa tam yaslı; aşağıda dirseği tam açma, gerginliği koru."
+    },
+    "Ab_Crunch_Machine": {
+      "name": "Abdominal crunch (makine)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Boynu çekme, hareket karından gelsin. Tansiyonda nefes tutma — kıvrılırken ver."
+    },
+    "Thigh_Abductor": {
+      "name": "Hip abduction (kalça dış, makine)",
+      "load": [
+        "glutes"
+      ],
+      "cue": "Gövde dik ve sabit; dizleri dışa iterken beli yaslı tut, sallanma yok."
     }
   }
 }

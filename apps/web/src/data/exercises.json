@@ -4,6 +4,44 @@
   "generated": "2026-09-21",
   "exercises": [
     {
+      "id": "Ab_Crunch_Machine",
+      "name": "Abdominal crunch (makine)",
+      "name_en": "Ab Crunch Machine",
+      "equipment": "machine",
+      "equipment_tr": "makine",
+      "level": "intermediate",
+      "mechanic": "isolation",
+      "primary": [
+        "abdominals"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "karın"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Select a light resistance and sit down on the ab machine placing your feet under the pads provided and grabbing the top handles. Your arms should be bent at a 90 degree angle as you rest the triceps on the pads provided. This will be your starting position.",
+        "At the same time, begin to lift the legs up as you crunch your upper torso. Breathe out as you perform this movement. Tip: Be sure to use a slow and controlled motion. Concentrate on using your abs to move the weight while relaxing your legs and feet.",
+        "After a second pause, slowly return to the starting position as you breathe in.",
+        "Repeat the movement for the prescribed amount of repetitions."
+      ],
+      "focus": [],
+      "load": [
+        "lower back"
+      ],
+      "cue": "Boynu çekme, hareket karından gelsin. Tansiyonda nefes tutma — kıvrılırken ver.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ab_Crunch_Machine/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ab_Crunch_Machine/1.jpg"
+        }
+      ]
+    },
+    {
       "id": "Ankle_Circles",
       "name": "Ayak bileği çemberi",
       "name_en": "Ankle Circles",
@@ -1719,6 +1757,48 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Thigh_Abductor",
+      "name": "Hip abduction (kalça dış, makine)",
+      "name_en": "Thigh Abductor",
+      "equipment": "machine",
+      "equipment_tr": "makine",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "primary": [
+        "abductors"
+      ],
+      "secondary": [
+        "glutes"
+      ],
+      "primary_tr": [
+        "kalça dış"
+      ],
+      "secondary_tr": [
+        "kalça"
+      ],
+      "instructions": [
+        "To begin, sit down on the abductor machine and select a weight you are comfortable with. When your legs are positioned properly, grip the handles on each side. Your entire upper body (from the waist up) should be stationary. This is the starting position.",
+        "Slowly press against the machine with your legs to move them away from each other while exhaling.",
+        "Feel the contraction for a second and begin to move your legs back to the starting position while breathing in. Note: Remember to keep your upper body stationary to prevent any injuries from occurring.",
+        "Repeat for the recommended amount of repetitions."
+      ],
+      "focus": [],
+      "load": [
+        "glutes"
+      ],
+      "cue": "Gövde dik ve sabit; dizleri dışa iterken beli yaslı tut, sallanma yok.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/1.jpg"
         }
       ]
     },
