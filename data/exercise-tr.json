@@ -336,6 +336,41 @@
       ],
       "cue": "Kalçadan değil karından bük; sırt yuvarlanarak inecek.",
       "focus": []
+    },
+    "Cat_Stretch": {
+      "name": "Kedi-deve (omurga yuvarlama)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Nefesle eşle: sırtı yuvarlarken ver, çukurlaştırırken al. Bel ağrıyorsa menzili kısalt, zorlamadan salın."
+    },
+    "Kneeling_Hip_Flexor": {
+      "name": "Diz çökerek kalça öne itme (hip flexor)",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Beli çukurlaştırma; kalçayı hafif içeri kıvır ve gövdeyi dik tutarak öne it, gerginliği arkadaki bacağın kasığında hisset."
+    },
+    "Standing_Hip_Circles": {
+      "name": "Ayakta kalça çemberi",
+      "load": [
+        "lower back"
+      ],
+      "cue": "Bir yere tutun; çemberi büyütmek için beli bükme, hareket kalça ekleminden gelsin."
+    },
+    "Dynamic_Chest_Stretch": {
+      "name": "Dinamik göğüs açma (kol savurma)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Yavaş başla, ısındıkça hızlan. Omuz hassassa kolları omuz hizasının üstüne çıkarma."
+    },
+    "Ankle_Circles": {
+      "name": "Ayak bileği çemberi",
+      "load": [
+        "calves"
+      ],
+      "cue": "Topuk sabit, çember yalnız ayak bileğinden çizilsin; diz hareketi eşlik etmemeli."
     }
   }
 }

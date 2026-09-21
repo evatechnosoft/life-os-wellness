@@ -14,10 +14,12 @@ export function shape(raw, tr) {
     id: raw.id,
     name: meta.name,
     name_en: raw.name,
-    equipment: raw.equipment,
-    equipment_tr: tr.equipment[raw.equipment] ?? raw.equipment,
+    // Esneme/mobilite kayitlarinda upstream equipment ve mechanic null birakiyor;
+    // ekran equipment_tr'yi dogrudan yaziyor - null gecerse kartta "null" gorunur.
+    equipment: raw.equipment ?? 'body only',
+    equipment_tr: tr.equipment[raw.equipment ?? 'body only'] ?? raw.equipment,
     level: raw.level,
-    mechanic: raw.mechanic,
+    mechanic: raw.mechanic ?? 'other',
     primary: raw.primaryMuscles,
     secondary: raw.secondaryMuscles,
     primary_tr: raw.primaryMuscles.map((m) => tr.muscles[m] ?? m),

@@ -68,13 +68,16 @@ Rampa: 1–2. hafta 2 set / RIR 3, yüzme 30–45 dk; 3. haftadan 3 set / RIR 2.
 | Gün | İş (set/hafta) | RIR |
 |---|---|---|
 | Pzt | Göğüs: eğik dumbbell press, makine press, kablo fly (9) · biceps 2 hareket (6) · triceps 2 (6) · dead bug 2 | 2 |
-| Sal | Yüzme 45 dk zone 2 (konuşabilir tempo) veya 7.000+ adım | — |
+| Sal | **Yüzme 45 dk** zone 2 (konuşabilir tempo) | — |
 | Çar | Sırt: lat pulldown, göğüs destekli kürek, kablo çekiş (9) · omuz 2 (6) · **leg press 3 + hip thrust 3** · Pallof 2 | 2 |
-| Per | Adım günü + 10 dk mobilite | — |
+| Per | **Yüzme 45 dk** (havuz varsa) + 10 dk mobilite; havuz yoksa yürüyüş 6.000+ adım | — |
 | Cum | Bacak: leg press 3, hip thrust/göğüs destekli hinge 3, destekli split squat 3, leg curl 3, calf 3 · dead bug 2 | 2 |
-| Cmt | Adım günü (serbest öğün günü) | — |
-| Paz | Yüzme 60 dk | — |
+| Cmt | **Yürüyüş 6.000+ adım** (serbest öğün günü) | — |
+| Paz | **Yürüyüş 6.000+ adım**, tempolu 30–40 dk | — |
+Hafta sonu havuz kapalı (Dean, 21 Eyl) — yüzme Salı/Perşembe'ye alındı, hafta sonu yürüyüşle karşılanıyor.
 Haftalık: quad 9, hamstring-kalça 9, göğüs 9, sırt 9, omuz 6, kol 12. Kardiyo 150–200 dk zone 2.
+Mobilite (Per, 10 dk, uygulamadaki kartlarıyla): kedi-deve · diz çökerek kalça öne itme ·
+ayakta kalça çemberi · dinamik göğüs açma · ayak bileği çemberi.
 İlerleme: 3 sette 12+ tekrar → ağırlık +%5. Deload: **7. hafta** hacim −%40, ağırlık sabit; reaktif tetik: 2 hafta ilerleme yok / eklem ağrısı / uyku bozuk / sabah tansiyonu yükseldi.
 Tansiyon ölçümü sabah aç karnına, 2 ölçüm ortalaması; antrenman sonrası ölçüm yok.
 

@@ -1,8 +1,45 @@
 {
   "source": "yuhonas/free-exercise-db",
   "license": "Unlicense (public domain)",
-  "generated": "2026-09-18",
+  "generated": "2026-09-21",
   "exercises": [
+    {
+      "id": "Ankle_Circles",
+      "name": "Ayak bileği çemberi",
+      "name_en": "Ankle Circles",
+      "equipment": "body only",
+      "equipment_tr": "vücut ağırlığı",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "baldır"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Use a sturdy object like a squat rack to hold yourself.",
+        "Lift the right leg in the air (just around 2 inches from the floor) and perform a circular motion with the big toe. Pretend that you are drawing a big circle with it. Tip: One circle equals 1 repetition. Breathe normally as you perform the movement.",
+        "When you are done with the right foot, then repeat with the left leg."
+      ],
+      "focus": [],
+      "load": [
+        "calves"
+      ],
+      "cue": "Topuk sabit, çember yalnız ayak bileğinden çizilsin; diz hareketi eşlik etmemeli.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/1.jpg"
+        }
+      ]
+    },
     {
       "id": "Arnold_Dumbbell_Press",
       "name": "Arnold press (dambıl)",
@@ -169,6 +206,49 @@
       ]
     },
     {
+      "id": "Cat_Stretch",
+      "name": "Kedi-deve (omurga yuvarlama)",
+      "name_en": "Cat Stretch",
+      "equipment": "body only",
+      "equipment_tr": "vücut ağırlığı",
+      "level": "beginner",
+      "mechanic": "other",
+      "primary": [
+        "lower back"
+      ],
+      "secondary": [
+        "middle back",
+        "traps"
+      ],
+      "primary_tr": [
+        "bel"
+      ],
+      "secondary_tr": [
+        "orta sırt",
+        "trapez"
+      ],
+      "instructions": [
+        "Position yourself on the floor on your hands and knees.",
+        "Pull your belly in and round your spine, lower back, shoulders, and neck, letting your head drop.",
+        "Hold for 15 seconds."
+      ],
+      "focus": [],
+      "load": [
+        "lower back"
+      ],
+      "cue": "Nefesle eşle: sırtı yuvarlarken ver, çukurlaştırırken al. Bel ağrıyorsa menzili kısalt, zorlamadan salın.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/1.jpg"
+        }
+      ]
+    },
+    {
       "id": "Close-Grip_Front_Lat_Pulldown",
       "name": "Lat pulldown (dar/nötr tutuş)",
       "name_en": "Close-Grip Front Lat Pulldown",
@@ -331,6 +411,46 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shrug/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Dynamic_Chest_Stretch",
+      "name": "Dinamik göğüs açma (kol savurma)",
+      "name_en": "Dynamic Chest Stretch",
+      "equipment": "body only",
+      "equipment_tr": "vücut ağırlığı",
+      "level": "beginner",
+      "mechanic": "other",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "middle back"
+      ],
+      "primary_tr": [
+        "göğüs"
+      ],
+      "secondary_tr": [
+        "orta sırt"
+      ],
+      "instructions": [
+        "Stand with your hands together, arms extended directly in front of you. This will be your starting position.",
+        "Keeping your arms straight, quickly move your arms back as far as possible and back in again, similar to an exaggerated clapping motion. Repeat 5-10 times, increasing speed as you do so."
+      ],
+      "focus": [],
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Yavaş başla, ısındıkça hızlan. Omuz hassassa kolları omuz hizasının üstüne çıkarma.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dynamic_Chest_Stretch/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dynamic_Chest_Stretch/1.jpg"
         }
       ]
     },
@@ -511,6 +631,46 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Press/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Kneeling_Hip_Flexor",
+      "name": "Diz çökerek kalça öne itme (hip flexor)",
+      "name_en": "Kneeling Hip Flexor",
+      "equipment": "body only",
+      "equipment_tr": "vücut ağırlığı",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "quadriceps"
+      ],
+      "primary_tr": [
+        "ön bacak"
+      ],
+      "secondary_tr": [
+        "ön bacak"
+      ],
+      "instructions": [
+        "Kneel on a mat and bring your right knee up so the bottom of your foot is on the floor and extend your left leg out behind you so the top of your foot is on the floor.",
+        "Shift your weight forward until you feel a stretch in your hip. Hold for 15 seconds, then repeat for your other side."
+      ],
+      "focus": [],
+      "load": [
+        "lower back"
+      ],
+      "cue": "Beli çukurlaştırma; kalçayı hafif içeri kıvır ve gövdeyi dik tutarak öne it, gerginliği arkadaki bacağın kasığında hisset.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/1.jpg"
         }
       ]
     },
@@ -1184,6 +1344,48 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Standing_Hip_Circles",
+      "name": "Ayakta kalça çemberi",
+      "name_en": "Standing Hip Circles",
+      "equipment": "body only",
+      "equipment_tr": "vücut ağırlığı",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "primary": [
+        "abductors"
+      ],
+      "secondary": [
+        "adductors"
+      ],
+      "primary_tr": [
+        "kalça dış"
+      ],
+      "secondary_tr": [
+        "kalça iç"
+      ],
+      "instructions": [
+        "Begin standing on one leg, holding to a vertical support.",
+        "Raise the unsupported knee to 90 degrees. This will be your starting position.",
+        "Open the hip as far as possible, attempting to make a big circle with your knee.",
+        "Perform this movement slowly for a number of repetitions, and repeat on the other side."
+      ],
+      "focus": [],
+      "load": [
+        "lower back"
+      ],
+      "cue": "Bir yere tutun; çemberi büyütmek için beli bükme, hareket kalça ekleminden gelsin.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/1.jpg"
         }
       ]
     },
