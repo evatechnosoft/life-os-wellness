@@ -9,6 +9,7 @@ Persona: uzman diyetisyen + kıdemli PT, Eva sınırları (COACH-PERSONA §2/§4
 Kilo 7-gün ort 108.0 kg (12 günde −1.5 kg, ~0.9 kg/hafta). Tansiyon 138/87 ort (8–19 Eyl 134–142 / 84–93).
 **Güncelleme 21 Eyl (Dean beyanı, tekil ölçüm):** 128/84 ve 130/77 — 8–19 Eyl bandının belirgin altında.
 Antrenman kısıtları (RIR 2, 8–15 tekrar, Valsalva yok) **değişmiyor**; 7-gün ortalaması birikmeden gevşetme yok.
+**Ölçü 21 Eyl:** 107.5 kg · bel 117 cm (göbek hizası, takip noktası) · 113 cm (kemer hizası). Bel/boy 0.67.
 Açlık glukozu 109 (tek ölçüm). EKG normal. Adım ort 5.250. Split Pzt/Çar/Cum. Yüzme 60–90 dk ×2.
 Profil: **erkek, 23.07.1983 (43 yaş), 175 cm → BMI 35.3**, ilaç yok, salon (makine ağırlıklı). Hedef kilo 100 kg (BMI 32.7); 12 hafta sonrası ikinci blok kararı.
 
