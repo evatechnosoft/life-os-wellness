@@ -1,4 +1,6 @@
 import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
 import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify'
 import fastifyStatic from '@fastify/static'
@@ -156,12 +158,32 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
   }
 
   if (servesPlan) {
-    // index.html yerine secici.html: dosya adi tools/secici icinde oldugu gibi kaliyor,
-    // tek kaynak iki yerde (artifact + kendi sunucu) ayni dosyayla servis edilsin.
-    app.register(fastifyStatic, {
-      root: planDir, prefix: '/plan/', decorateReply: false, index: ['secici.html'],
+    // Yardimci dosyalar (plan.js, img/*) oldugu gibi; sayfanin KENDISI asagida sarmalanir.
+    app.register(fastifyStatic, { root: planDir, prefix: '/plan/', decorateReply: false })
+
+    // `secici.html` claude.ai artifact'i icin yazildi: orada doctype/html/head iskeletini
+    // platform ekliyor, dosyanin kendisi <title> ile basliyor. Kendi sunucumuzda o iskelet
+    // yok - charset'siz ve doctype'siz sayfa quirks mode'a dusuyordu. Tek kaynak bozulmasin
+    // diye dosya degil, SERVIS sarmaliyor.
+    const shell = (body: string): string =>
+      '<!doctype html>\n<html lang="tr">\n<head>\n' +
+      '<meta charset="utf-8">\n' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+      '<style>:root{color-scheme:light dark}body{margin:0;font:14px system-ui,sans-serif}' +
+      'img{max-width:100%}[hidden]{display:none!important}</style>\n' +
+      // Beyaz ekran yerine sebebi gorunsun: bir daha "acilmiyor" demek zorunda kalinmasin.
+      '<script>window.onerror=function(m,f,l){var d=document.createElement("pre");' +
+      'd.style.cssText="white-space:pre-wrap;padding:12px;margin:0;background:#3b0d0d;color:#ffd7d7;font:12px monospace";' +
+      'd.textContent="Sayfa hatasi: "+m+"\\n"+(f||"")+":"+(l||"");' +
+      '(document.body||document.documentElement).prepend(d);};</script>\n' +
+      '</head>\n<body>\n' + body + '\n</body>\n</html>\n'
+
+    const pageFile = join(planDir, 'secici.html')
+    app.get('/plan/', async (_req, reply) => {
+      const body = await readFile(pageFile, 'utf8')
+      return reply.type('text/html; charset=utf-8').send(shell(body))
     })
-    // /plan -> /plan/ : sondaki eğik çizgiyi unutan adres 404 olmasin.
+    // Sondaki egik cizgiyi unutan adres 404 olmasin.
     app.get('/plan', async (_req, reply) => reply.redirect('/plan/', 301))
   }
 
