@@ -67,15 +67,17 @@ Hipertansiyon kuralları: tekrar 8–15, yetmezlik yok, itiş fazında nefes ver
 plank yerine dead bug / Pallof press. Seans öncesi tansiyon ≥160/100 → o gün yürüyüş. Isınma 5–8 dk bisiklet + 2 rampa seti; soğuma **10–15 dk hafif yüzme** (Dean önerisi, 21 Eyl — yatay pozisyon venöz dönüşü kolaylaştırır) ya da 3–5 dk yürüyüş/bisiklet 50–60 W. Soğuma yüzmesi hafif tempodadır ve haftalık kardiyo hacmine sayılmaz.
 Rampa: 1–2. hafta 2 set / RIR 3, yüzme 30–45 dk; 3. haftadan 3 set / RIR 2.
 
-| Gün | İş (set/hafta) | RIR |
+| Gün | İş — **tüm vücut A/B** (Dean kararı 21 Eyl: her kas grubu her seansta, hacim 3 güne yayılır) | RIR |
 |---|---|---|
-| Pzt | Göğüs: eğik dumbbell press, makine press, kablo fly (9) · biceps 2 hareket (6) · triceps 2 (6) · dead bug 2 | 2 |
-| Sal | **Yüzme 45 dk** zone 2 (konuşabilir tempo) | — |
-| Çar | Sırt: lat pulldown, göğüs destekli kürek, kablo çekiş (9) · omuz 2 (6) · **leg press 3 + hip thrust 3** · Pallof 2 | 2 |
-| Per | **Yüzme 45 dk** (havuz varsa) + 10 dk mobilite; havuz yoksa yürüyüş 6.000+ adım | — |
-| Cum | Bacak: leg press 3, hip thrust/göğüs destekli hinge 3, destekli split squat 3, leg curl 3, calf 3 · dead bug 2 | 2 |
+| Pzt (A) | Chest press 3 · Lat pulldown geniş 3 · **Leg press 3** · Omuz presi 2 · Biceps curl 2 · Dead bug 2 | 2 |
+| Sal | **Yüzme 45 dk** zone 2 | — |
+| Çar (B) | Pec deck 3 · Row 3 · **Hip thrust 3 + seated leg curl 2** · Triceps press 2 · Pallof 2 | 2 |
+| Per | **Yüzme 45 dk** (havuz varsa) + 10 dk mobilite; yoksa yürüyüş 6.000+ | — |
+| Cum (A′) | Chest press/eğik dambıl 3 · Kablo çekiş/pulldown nötr 3 · **Leg press 3 + calf 2** · Omuz yan 2 · Biceps/triceps 1+1 · Dead bug 2 | 2 |
 | Cmt | **Yürüyüş 6.000+ adım** (serbest öğün günü) | — |
 | Paz | **Yürüyüş 6.000+ adım**, tempolu 30–40 dk | — |
+Seans başı ~15–16 set, 50–60 dk. Haftalık: göğüs 9, sırt 9, quad 6+, hamstring-kalça 5, omuz 6, kol 6 — bacak **her seansta**, ihmal edilmez.
+Bölünmüş (göğüs/sırt/bacak günleri) şablon iptal değil, Dean isterse geri dönülür; tüm vücut ilk 4 hafta denenir.
 Hafta sonu havuz kapalı (Dean, 21 Eyl) — yüzme Salı/Perşembe'ye alındı, hafta sonu yürüyüşle karşılanıyor.
 Haftalık: quad 9, hamstring-kalça 9, göğüs 9, sırt 9, omuz 6, kol 12. Kardiyo 150–200 dk zone 2.
 Mobilite (Per, 10 dk, uygulamadaki kartlarıyla): kedi-deve · diz çökerek kalça öne itme ·
