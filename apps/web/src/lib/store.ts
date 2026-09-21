@@ -21,6 +21,11 @@ export async function queueSplit(split: Record<number, string[]>): Promise<void>
   await queue({ method: 'PUT', path: '/api/split', body: { days } })
 }
 
+/** Tek gunun notu. Ajanda alani gonderilmez ki sunucudaki gruplar korunsun. */
+export async function queueSplitNote(weekday: number, note: string): Promise<void> {
+  await queue({ method: 'PUT', path: '/api/split', body: { days: [{ weekday, note: note || null }] } })
+}
+
 /** Hedefler tek satir jsonb (db/007); sunucu birlestirir. */
 export async function queueGoals(goals: object): Promise<void> {
   await queue({ method: 'PUT', path: '/api/goals', body: goals })

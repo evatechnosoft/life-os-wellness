@@ -6,7 +6,7 @@ import { db } from '../lib/db'
 import { downloadLocalModel, localModelStatus, onModelDownload, removeLocalModel } from '../lib/localLlm'
 import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
-import { saveSplit, useSplit, WEEKDAYS } from '../lib/split'
+import { saveSplit, saveSplitNote, useSplit, useSplitNotes, WEEKDAYS } from '../lib/split'
 import { syncOutbox } from '../lib/store'
 import {
   appVersion,
@@ -304,6 +304,50 @@ function SplitEditor() {
   )
 }
 
+/**
+ * Gun notu: "isinma 700R 7 dk", "havuz kapali" gibi ajandaya sigmayan satir.
+ * Sunucudaki `training_split.note` ile ayni alan - ajan da buraya yazar.
+ */
+function SplitNoteEditor() {
+  const notes = useSplitNotes()
+  const [weekday, setWeekday] = useState(new Date().getDay())
+  const [draft, setDraft] = useState<string | null>(null)
+  const value = draft ?? notes[weekday] ?? ''
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5, 6, 0].map((d) => (
+          <button
+            key={d}
+            type="button"
+            aria-pressed={d === weekday}
+            onClick={() => {
+              setWeekday(d)
+              setDraft(null)
+            }}
+            className={`flex-1 rounded-[8px] py-1 text-[11px] ${d === weekday ? 'bg-a1/90' : 'bg-glass-inset'}`}
+          >
+            {DAY_ABBR[d]}
+          </button>
+        ))}
+      </div>
+      <textarea
+        aria-label={`${WEEKDAYS[weekday]} notu`}
+        value={value}
+        rows={2}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          if (draft !== null) void saveSplitNote(weekday, draft)
+          setDraft(null)
+        }}
+        className="w-full rounded-[8px] bg-glass-inset px-3 py-2 text-[13px]"
+        placeholder="Bu güne özel not"
+      />
+    </div>
+  )
+}
+
 /** Bos nudge = adaptif; segmented'de ucuncu bir deger olarak temsil edilir. */
 const NUDGE_OPTIONS = [
   { value: 'adaptive', label: 'Uyarlanır' },
@@ -477,6 +521,8 @@ export function Settings() {
             Hangi gün hangi bölge. Eva bugünün bölgesini bilir, o güne ait kaydı takip eder.
           </p>
           <SplitEditor />
+          <p className="mb-2 mt-4 text-xs text-ink-faint">Gün notu</p>
+          <SplitNoteEditor />
         </Card>
       </Card>
 

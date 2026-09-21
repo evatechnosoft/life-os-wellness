@@ -300,10 +300,14 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
   app.put('/api/split', { schema: { body: SPLIT_BODY } }, async (req) => {
     const { days } = req.body as { days: { weekday: number; muscle_groups?: string[]; note?: string | null }[] }
     for (const day of days) {
+      // Gonderilmeyen alana dokunulmaz. Eskiden ikisi de kosulsuz yazilirdi:
+      // programa bir cip eklemek gun notunu, nota dokunmak programi siliyordu.
+      const set = ['updated_at = now()']
+      if ('muscle_groups' in day) set.push('muscle_groups = excluded.muscle_groups')
+      if ('note' in day) set.push('note = excluded.note')
       await pool.query(
         `insert into training_split (weekday, muscle_groups, note) values ($1, $2, $3)
-         on conflict (weekday) do update set
-           muscle_groups = excluded.muscle_groups, note = excluded.note, updated_at = now()`,
+         on conflict (weekday) do update set ${set.join(', ')}`,
         [day.weekday, day.muscle_groups ?? [], day.note ?? null],
       )
     }

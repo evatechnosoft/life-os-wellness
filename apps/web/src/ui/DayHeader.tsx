@@ -4,7 +4,7 @@ import { lastDates } from '../lib/date'
 import { db } from '../lib/db'
 import { dayAverage, movingAverage, weightDelta } from '../lib/metrics'
 import { useGoals } from '../lib/settings'
-import { groupsFor, useSplit } from '../lib/split'
+import { groupsFor, useSplit, useSplitNotes } from '../lib/split'
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -24,6 +24,7 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
 export function DayHeader({ date }: { date: string }) {
   const goals = useGoals()
   const split = useSplit()
+  const splitNotes = useSplitNotes()
   const log = useLiveQuery(() => db.daily_log.get(date), [date])
   const workouts = useLiveQuery(() => db.workout.where('date').equals(date).toArray(), [date]) ?? []
   const week = lastDates(7, new Date(`${date}T12:00:00`))
@@ -34,6 +35,8 @@ export function DayHeader({ date }: { date: string }) {
   const protein = log?.protein_g ?? 0
   const pct = Math.min(100, Math.round((protein / goals.protein_g) * 100))
   const planned = groupsFor(split, date)
+  const [y, m, d] = date.split('-').map(Number)
+  const note = splitNotes[new Date(y!, m! - 1, d!).getDay()]
   const logged = workouts.filter((w) => !w.needs_review && w.type !== 'rest').length
   const avg = movingAverage(weekLogs.map((l) => l.weight_kg))
   const delta = weightDelta(weekLogs)
@@ -76,6 +79,8 @@ export function DayHeader({ date }: { date: string }) {
           <div className="text-[10px] tabular-nums text-ink-faint">{logged} kayıt</div>
         </div>
       </section>
+
+      {note && <p className="glass-card px-4 py-2 text-[12px] text-ink-faint">{note}</p>}
 
       {stats && (
         <div className="flex gap-3">
