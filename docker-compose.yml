@@ -49,9 +49,12 @@ services:
       LLM_CHAT_MODEL: wellness-chat
       LLM_VISION_MODEL: wellness-vision
       OTA_DIR: /app/ota
+      # Egzersiz katalogu: repodaki dosya dogrudan servis edilir (APK'siz guncelleme).
+      EXERCISES_FILE: /app/data/exercises.json
     volumes:
       # APK'lar (ops/publish_ota.mjs kopyalar). fit.evaitec.com/ota/ altindan servis edilir.
       - ./ota:/app/ota:ro
+      - ./apps/web/src/data/exercises.json:/app/data/exercises.json:ro
     ports:
       - "3011:3011"
     depends_on:

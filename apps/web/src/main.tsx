@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 
 import { App } from './App'
 import { setApiBase, setToken } from './lib/api'
+import { loadCatalog } from './lib/catalog'
 import './index.css'
 
 // The launcher hands the phone a ?token=... link so the token never has to be typed in.
@@ -18,8 +19,12 @@ if (tokenFromUrl || apiFromUrl) history.replaceState(null, '', location.pathname
 const root = document.getElementById('root')
 if (!root) throw new Error('#root is missing from index.html')
 
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// Katalog once yerine otursun: ekran acildiktan sonra degisirse listeler eski kalir.
+// Basarisizlik acilisi durdurmaz - `loadCatalog` zaten gomulu kopyaya duser.
+void loadCatalog().finally(() => {
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+})

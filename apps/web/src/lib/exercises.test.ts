@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 
-import { alternatives, byEquipment, byMuscle, EXERCISES, find, regionsFor, roleOf, search } from './exercises'
+import { alternatives, applyCatalog, byEquipment, byMuscle, EXERCISES, find, regionsFor, roleOf, search } from './exercises'
 
 describe('kutuphane', () => {
   test('her hareketin Turkce adi ve iki karesi var', () => {
@@ -139,5 +139,27 @@ describe('focus', () => {
         }
       }
     }
+  })
+})
+
+describe('applyCatalog', () => {
+  const embedded = EXERCISES
+
+  afterEach(() => {
+    applyCatalog({ exercises: embedded })
+  })
+
+  test('sunucudan gelen katalogu yayina alir', () => {
+    const one = { ...embedded[0], id: 'yeni-hareket', name: 'Yeni Hareket' }
+    expect(applyCatalog({ exercises: [one] })).toBe(true)
+    expect(EXERCISES).toHaveLength(1)
+    expect(find('yeni-hareket')?.name).toBe('Yeni Hareket')
+  })
+
+  test('bozuk veriyi reddeder, gomulu katalog yerinde kalir', () => {
+    for (const bad of [null, {}, { exercises: [] }, { exercises: [{ id: 1 }] }, 'x']) {
+      expect(applyCatalog(bad)).toBe(false)
+    }
+    expect(EXERCISES).toBe(embedded)
   })
 })

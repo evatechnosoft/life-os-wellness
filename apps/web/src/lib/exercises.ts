@@ -45,7 +45,27 @@ export interface Exercise {
   focus: Spot[][]
 }
 
-export const EXERCISES: Exercise[] = (catalog as { exercises: Exercise[] }).exercises
+/**
+ * Yayindaki katalog. Gomulu JSON acilis degeridir; `applyCatalog` sunucudan gelen
+ * surumle degistirir (`catalog.ts`). ES modul baglantisi canli oldugu icin
+ * iceri aktaran her dosya guncel diziyi gorur.
+ */
+export let EXERCISES: Exercise[] = (catalog as { exercises: Exercise[] }).exercises
+
+/**
+ * Disaridan gelen katalogu yayina alir. Bozuk/bos veri sessizce reddedilir -
+ * yarim bir katalog, gomulu tam katalogdan kotudur.
+ */
+export function applyCatalog(data: unknown): boolean {
+  const list = (data as { exercises?: unknown } | null)?.exercises
+  if (!Array.isArray(list) || list.length === 0) return false
+  const valid = list.every(
+    (e) => typeof (e as Exercise)?.id === 'string' && typeof (e as Exercise)?.name === 'string',
+  )
+  if (!valid) return false
+  EXERCISES = list as Exercise[]
+  return true
+}
 
 /** Upstream kas adi -> vucut haritasi bolgesi. Haritada karsiligi olmayan ad aynen gecer. */
 const REGION: Record<string, string> = {

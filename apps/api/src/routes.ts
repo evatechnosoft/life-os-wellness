@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+
 import type { FastifyInstance } from 'fastify'
 import type { Pool } from './db.ts'
 
@@ -398,6 +400,19 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
   })
 
   // Whole-database dump for the JSON export acceptance criterion.
+  // Egzersiz katalogu sunucudan: yeni hareket icin APK yayini gerekmesin. Dosya
+  // compose ile mount edilir, her istekte okunur - degisiklik yeniden baslatma
+  // istemez. Dosya yoksa istemci gomulu kopyasiyla devam eder.
+  app.get('/api/exercises', async (_req, reply) => {
+    const file = process.env.EXERCISES_FILE
+    if (!file) return reply.code(404).send({ error: 'no_catalog' })
+    try {
+      return JSON.parse(await readFile(file, 'utf8')) as unknown
+    } catch {
+      return reply.code(404).send({ error: 'no_catalog' })
+    }
+  })
+
   app.get('/api/export', async () => {
     const [daily, workouts, retros, wearable, meals, profile] = await Promise.all([
       pool.query('select * from daily_log order by date'),
