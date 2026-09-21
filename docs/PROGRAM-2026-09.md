@@ -64,7 +64,7 @@ Yüzme günü: 1.5 saat önce ara öğün + meyve; sonrası 1 saat içinde 40 g 
 
 ## 5. Antrenman — split korunur, alt gövde ve nefes kuralı eklenir
 Hipertansiyon kuralları: tekrar 8–15, yetmezlik yok, itiş fazında nefes ver (Valsalva yok), baş gövde altında pozisyon yok,
-plank yerine dead bug / Pallof press. Seans öncesi tansiyon ≥160/100 → o gün yürüyüş. Isınma 5–8 dk bisiklet + 2 rampa seti; soğuma 3–5 dk yürüyüş.
+plank yerine dead bug / Pallof press. Seans öncesi tansiyon ≥160/100 → o gün yürüyüş. Isınma 5–8 dk bisiklet + 2 rampa seti; soğuma **10–15 dk hafif yüzme** (Dean önerisi, 21 Eyl — yatay pozisyon venöz dönüşü kolaylaştırır) ya da 3–5 dk yürüyüş/bisiklet 50–60 W. Soğuma yüzmesi hafif tempodadır ve haftalık kardiyo hacmine sayılmaz.
 Rampa: 1–2. hafta 2 set / RIR 3, yüzme 30–45 dk; 3. haftadan 3 set / RIR 2.
 
 | Gün | İş (set/hafta) | RIR |
