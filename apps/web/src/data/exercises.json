@@ -206,6 +206,45 @@
       ]
     },
     {
+      "id": "Calf_Press_On_The_Leg_Press_Machine",
+      "name": "Calf press (leg press makinesinde)",
+      "name_en": "Calf Press On The Leg Press Machine",
+      "equipment": "machine",
+      "equipment_tr": "makine",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "baldır"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Using a leg press machine, sit down on the machine and place your legs on the platform directly in front of you at a medium (shoulder width) foot stance.",
+        "Lower the safety bars holding the weighted platform in place and press the platform all the way up until your legs are fully extended in front of you without locking your knees. (Note: In some leg press units you can leave the safety bars on for increased safety. If your leg press unit allows for this, then this is the preferred method of performing the exercise.) Your torso and the legs should make perfect 90-degree angle. Now carefully place your toes and balls of your feet on the lower portion of the platform with the heels extending off. Toes should be facing forward, outwards or inwards as described at the beginning of the chapter. This will be your starting position.",
+        "Press on the platform by raising your heels as you breathe out by extending your ankles as high as possible and flexing your calf. Ensure that the knee is kept stationary at all times. There should be no bending at any time. Hold the contracted position by a second before you start to go back down.",
+        "Go back slowly to the starting position as you breathe in by lowering your heels as you bend the ankles until calves are stretched.",
+        "Repeat for the recommended amount of repetitions."
+      ],
+      "focus": [],
+      "load": [
+        "calves"
+      ],
+      "cue": "Dizi kilitleme; topuğu yavaş indirip tam yukarı bas, sıçrama yok.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Press_On_The_Leg_Press_Machine/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Press_On_The_Leg_Press_Machine/1.jpg"
+        }
+      ]
+    },
+    {
       "id": "Cat_Stretch",
       "name": "Kedi-deve (omurga yuvarlama)",
       "name_en": "Cat Stretch",
@@ -1176,6 +1215,51 @@
       ]
     },
     {
+      "id": "Recumbent_Bike",
+      "name": "Yatay bisiklet (recumbent)",
+      "name_en": "Recumbent Bike",
+      "equipment": "machine",
+      "equipment_tr": "makine",
+      "level": "beginner",
+      "mechanic": "other",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "primary_tr": [
+        "ön bacak"
+      ],
+      "secondary_tr": [
+        "baldır",
+        "kalça",
+        "arka bacak"
+      ],
+      "instructions": [
+        "To begin, seat yourself on the bike and adjust the seat to your height.",
+        "Select the desired option from the menu. You may have to start pedaling to turn it on. You can use the manual setting, or you can select a program to use. Typically, you can enter your age and weight to estimate the amount of calories burned during exercise. The level of resistance can be changed throughout the workout. The handles can be used to monitor your heart rate to help you stay at an appropriate intensity.",
+        "Recumbent bikes offer convenience, cardiovascular benefits, and have less impact than other activities. A 150 lb person will burn about 230 calories cycling at a moderate rate for 30 minutes, compared to 450 calories or more running."
+      ],
+      "focus": [],
+      "load": [
+        "knees"
+      ],
+      "cue": "Zone 2 ölçütü watt: 85-110 W, 60-70 rpm. Program tuşu yok, manuel sabit dirençte kal. Salonda Diesel Fitness 700R.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Recumbent_Bike/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Recumbent_Bike/1.jpg"
+        }
+      ]
+    },
+    {
       "id": "Reverse_Flyes",
       "name": "Ters fly (arka omuz)",
       "name_en": "Reverse Flyes",
@@ -1310,6 +1394,45 @@
       ]
     },
     {
+      "id": "Seated_Leg_Curl",
+      "name": "Oturarak leg curl (makine)",
+      "name_en": "Seated Leg Curl",
+      "equipment": "machine",
+      "equipment_tr": "makine",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "arka bacak"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Adjust the machine lever to fit your height and sit on the machine with your back against the back support pad.",
+        "Place the back of lower leg on top of padded lever (just a few inches under the calves) and secure the lap pad against your thighs, just above the knees. Then grasp the side handles on the machine as you point your toes straight (or you can also use any of the other two stances) and ensure that the legs are fully straight right in front of you. This will be your starting position.",
+        "As you exhale, pull the machine lever as far as possible to the back of your thighs by flexing at the knees. Keep your torso stationary at all times. Hold the contracted position for a second.",
+        "Slowly return to the starting position as you breathe in.",
+        "Repeat for the recommended amount of repetitions."
+      ],
+      "focus": [],
+      "load": [
+        "hamstrings"
+      ],
+      "cue": "Sırtı dayalı tut, kalça kalkmasın; dönüşü frenleyerek indir. Salonda Life Fitness 'Seated Leg Curl'.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/1.jpg"
+        }
+      ]
+    },
+    {
       "id": "Side_Lateral_Raise",
       "name": "Dambıl yan kaldırış",
       "name_en": "Side Lateral Raise",
@@ -1344,6 +1467,50 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Split_Squat_with_Dumbbells",
+      "name": "Split squat (dambıllı, destekli)",
+      "name_en": "Split Squat with Dumbbells",
+      "equipment": "dumbbell",
+      "equipment_tr": "dambıl",
+      "level": "beginner",
+      "mechanic": "compound",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "primary_tr": [
+        "ön bacak"
+      ],
+      "secondary_tr": [
+        "kalça",
+        "arka bacak"
+      ],
+      "instructions": [
+        "Position yourself into a staggered stance with the rear foot elevated and front foot forward.",
+        "Hold a dumbbell in each hand, letting them hang at the sides. This will be your starting position.",
+        "Begin by descending, flexing your knee and hip to lower your body down. Maintain good posture througout the movement. Keep the front knee in line with the foot as you perform the exercise.",
+        "At the bottom of the movement, drive through the heel to extend the knee and hip to return to the starting position."
+      ],
+      "focus": [],
+      "load": [
+        "knees"
+      ],
+      "cue": "Dengeyi bir yere tutunarak kur; ön diz ayak parmağını geçmesin, iniş kontrollü.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Squat_with_Dumbbells/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Squat_with_Dumbbells/1.jpg"
         }
       ]
     },

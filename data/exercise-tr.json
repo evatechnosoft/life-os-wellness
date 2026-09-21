@@ -371,6 +371,34 @@
         "calves"
       ],
       "cue": "Topuk sabit, çember yalnız ayak bileğinden çizilsin; diz hareketi eşlik etmemeli."
+    },
+    "Calf_Press_On_The_Leg_Press_Machine": {
+      "name": "Calf press (leg press makinesinde)",
+      "load": [
+        "calves"
+      ],
+      "cue": "Dizi kilitleme; topuğu yavaş indirip tam yukarı bas, sıçrama yok."
+    },
+    "Split_Squat_with_Dumbbells": {
+      "name": "Split squat (dambıllı, destekli)",
+      "load": [
+        "knees"
+      ],
+      "cue": "Dengeyi bir yere tutunarak kur; ön diz ayak parmağını geçmesin, iniş kontrollü."
+    },
+    "Seated_Leg_Curl": {
+      "name": "Oturarak leg curl (makine)",
+      "load": [
+        "hamstrings"
+      ],
+      "cue": "Sırtı dayalı tut, kalça kalkmasın; dönüşü frenleyerek indir. Salonda Life Fitness 'Seated Leg Curl'."
+    },
+    "Recumbent_Bike": {
+      "name": "Yatay bisiklet (recumbent)",
+      "load": [
+        "knees"
+      ],
+      "cue": "Zone 2 ölçütü watt: 85-110 W, 60-70 rpm. Program tuşu yok, manuel sabit dirençte kal. Salonda Diesel Fitness 700R."
     }
   }
 }
