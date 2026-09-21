@@ -399,6 +399,34 @@
         "knees"
       ],
       "cue": "Zone 2 ölçütü watt: 85-110 W, 60-70 rpm. Program tuşu yok, manuel sabit dirençte kal. Salonda Diesel Fitness 700R."
+    },
+    "Cable_Crossover": {
+      "name": "Kablo crossover (göğüs)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Dirsek hafif bükülü sabit kalsın; hareket omuzdan gelsin, menzili zorlamadan göğsün önünde birleştir."
+    },
+    "EZ-Bar_Curl": {
+      "name": "EZ bar biseps curl",
+      "load": [
+        "forearms"
+      ],
+      "cue": "Dirsek gövdeye yapışık, gövdeyi sallama. Bilek ağrırsa EZ barın kırık yerinden tut."
+    },
+    "Dumbbell_Bench_Press": {
+      "name": "Dambıl bench press (düz)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Dambılları göğüs hizasında tut, dirsek 45 derece; itişte nefes ver, kilitleme."
+    },
+    "Machine_Preacher_Curls": {
+      "name": "Preacher curl (makine/pupit)",
+      "load": [
+        "forearms"
+      ],
+      "cue": "Kol yastığa tam yaslı; aşağıda dirseği tam açma, gerginliği koru."
     }
   }
 }
