@@ -47,6 +47,21 @@ android {
             output.outputFileName = "wellness-${appVersion}.apk"
         }
     }
+    // Kalici debug imzasi: dosya varsa onunla imzalanir. Yoksa (yerel gelistirme)
+    // AGP'nin uretttigi ~/.android/debug.keystore ile devam eder. CI'da dosya
+    // DEBUG_KEYSTORE_B64 secret'indan yazilir - her kosunun yeni sertifika uretmesi
+    // cihazda yukseltmeyi INSTALL_FAILED_UPDATE_INCOMPATIBLE ile reddettiriyordu.
+    signingConfigs {
+        debug {
+            def ks = rootProject.file('debug.keystore')
+            if (ks.exists()) {
+                storeFile ks
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

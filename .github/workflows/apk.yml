@@ -34,11 +34,12 @@ jobs:
       # ve iki surum farkli sertifikayla imzalanir: cihaz yukseltmeyi
       # INSTALL_FAILED_UPDATE_INCOMPATIBLE ile reddeder, OTA hicbir zaman kurulamaz
       # (21 Eyl: 0.23 ve 0.24 wear APK'larinin sertifika SHA-256'lari farkli cikti).
-      # Yol ve parola AGP'nin debug varsayilani; bu yuzden gradle tarafinda kod yok.
+      # ~/.android'e yazmak yetmedi (0.25.0 yine farkli sertifikayla cikti): imza
+      # artik build.gradle'daki signingConfigs.debug uzerinden bu dosyaya bagli.
       - name: debug keystore
         run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > ~/.android/debug.keystore
+          echo "${{ secrets.DEBUG_KEYSTORE_B64 }}" | base64 -d > apps/web/android/debug.keystore
+          keytool -list -keystore apps/web/android/debug.keystore -storepass android | tail -1
       # Telefon ve saat **ayni kosuda** derleniyor: imzalar tutmazsa Data Layer
       # hata vermeden susar.
       - run: ./gradlew :app:assembleDebug :wear:assembleDebug

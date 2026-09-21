@@ -32,3 +32,6 @@ docs/assets/*
 
 # OTA APK'lari: sunucu ./ota'dan servis eder, git'e girmez
 ota/*.apk
+
+# CI'da secret'tan yazilir, repoda durmaz.
+apps/web/android/debug.keystore
