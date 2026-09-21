@@ -34,9 +34,13 @@ class OtaUpdater(
 
     /** Karari uygula: indir, dogrula, kurulum istemini ac. */
     fun download(app: OtaManifest.App, onProgress: (Int) -> Unit): Result<Unit> = runCatching {
-        val apk = File(File(context.cacheDir, "ota").apply { mkdirs() }, "${app.id}.apk")
+        // Surum adda: kesilen indirme ayni surumde kaldigi yerden surer, eski surumun
+        // yarim dosyasiyla birlesmez.
+        val apk = File(File(context.cacheDir, "ota").apply { mkdirs() }, "${app.id}-${app.versionCode}.apk")
         fetchTo(app.url, apk, "evaitec-ota/$appId", onProgress)
-        ApkInstaller.install(context, apk, app).getOrThrow()
+        ApkInstaller.install(context, apk, app)
+            .onFailure { apk.delete() } // bozuk/yanlis dosya kalirsa her deneme ayni yerde patlar
+            .getOrThrow()
     }
 
     /**
@@ -66,13 +70,17 @@ class OtaUpdater(
          * kullanir (LocalLlmPlugin) - iki indirme dongusu iki farkli hata davranisi olurdu.
          */
         fun fetchTo(url: String, target: File, userAgent: String, onProgress: (Int) -> Unit) {
-            val conn = open(url, userAgent)
+            // Saatte ekran kapanip baglanti dusunce indirme yarim kaliyordu; yarim dosya
+            // duruyorsa bastan degil kaldigi yerden istenir (sunucu destekmezse 200 doner).
+            val from = if (target.exists()) target.length() else 0L
+            val conn = open(url, userAgent, from)
             try {
-                val total = conn.contentLengthLong
-                target.outputStream().use { out ->
+                val resumed = conn.responseCode == 206
+                val total = totalOf(conn.responseCode, from, conn.contentLengthLong)
+                java.io.FileOutputStream(target, resumed).use { out ->
                     conn.inputStream.use { input ->
                         val buf = ByteArray(64 * 1024)
-                        var written = 0L
+                        var written = if (resumed) from else 0L
                         var lastPct = -1
                         while (true) {
                             val read = input.read(buf)
@@ -99,13 +107,18 @@ class OtaUpdater(
             }
         }
 
-        private fun open(url: String, userAgent: String): HttpURLConnection {
+        /** 206 = sunucu kaldigi yerden veriyor (govde kalan kisim); 200 = bastan. */
+        internal fun totalOf(code: Int, from: Long, contentLength: Long): Long =
+            if (code == 206) from + contentLength else contentLength
+
+        private fun open(url: String, userAgent: String, from: Long = 0L): HttpURLConnection {
             require(url.startsWith("https://")) { "https degil: $url" }
             val conn = URL(url).openConnection() as HttpURLConnection
             conn.connectTimeout = 15_000
             conn.readTimeout = 60_000
             conn.instanceFollowRedirects = true
             conn.setRequestProperty("User-Agent", userAgent)
+            if (from > 0) conn.setRequestProperty("Range", "bytes=$from-")
             val code = conn.responseCode
             if (code !in 200..299) {
                 conn.disconnect()

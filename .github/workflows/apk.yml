@@ -48,7 +48,11 @@ jobs:
           wear=$(ls wear/build/outputs/apk/debug/*.apk)
           phone_apk=$(basename "$phone")
           wear_apk=$(basename "$wear")
-          base="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
+          # Indirme adresi GitHub degil kendi sunucumuz: GitHub CDN 120 KB/s ile 13 MB'lik
+          # saat APK'sini 2 dakikada veriyordu, saatin ekrani sonunce indirme kesiliyordu
+          # (fit.evaitec.com olculen: 1.2 MB/s). APK'lar release'e de eklenir ama manifest
+          # buraya bakar; dosyalar ota/ dizinine konur (depo bu makine, Dean 20 Eyl).
+          base="https://fit.evaitec.com/ota"
           pkg=com.evaitec.wellness
           phone_sha=$(sha256sum "$phone" | cut -d' ' -f1)
           wear_sha=$(sha256sum "$wear" | cut -d' ' -f1)

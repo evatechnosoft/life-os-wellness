@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.WindowManager
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.Button
@@ -46,6 +47,7 @@ class MainActivity : Activity() {
     private lateinit var capsView: TextView
     private lateinit var otaView: TextView
 
+    private var updating = false
     private var lastBpm: Double? = null
     private var sampleTimes: List<Long> = emptyList()
 
@@ -112,24 +114,34 @@ class MainActivity : Activity() {
      * burada tekrarlanmiyor, ekran yalnizca sonucu yaziyor.
      */
     private fun checkUpdate() {
+        if (updating) return // ikinci dokunus ayni indirmeyi bastan baslatmasin
+        updating = true
         otaView.text = "Guncelleme araniyor…"
         scope.launch {
-            when (val decision = withContext(Dispatchers.IO) { updater.check() }) {
-                is OtaManifest.Decision.UpToDate -> otaView.text = "Guncel"
-                is OtaManifest.Decision.Blocked -> otaView.text = "Guncelleme yok: ${decision.reason}"
-                is OtaManifest.Decision.Available -> {
-                    val app = decision.app
-                    otaView.text = "${app.versionName} indiriliyor…"
-                    val result = withContext(Dispatchers.IO) {
-                        updater.download(app) { pct ->
-                            runOnUiThread { otaView.text = "${app.versionName} indiriliyor %$pct" }
+            // Saatte ekran sonunce CPU/Wi-Fi uykuya gidip baglanti dusuyordu; indirme
+            // boyunca ekran acik kalir, bitince bayrak kalkar.
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            try {
+                when (val decision = withContext(Dispatchers.IO) { updater.check() }) {
+                    is OtaManifest.Decision.UpToDate -> otaView.text = "Guncel"
+                    is OtaManifest.Decision.Blocked -> otaView.text = "Guncelleme yok: ${decision.reason}"
+                    is OtaManifest.Decision.Available -> {
+                        val app = decision.app
+                        otaView.text = "${app.versionName} indiriliyor…"
+                        val result = withContext(Dispatchers.IO) {
+                            updater.download(app) { pct ->
+                                runOnUiThread { otaView.text = "${app.versionName} indiriliyor %$pct" }
+                            }
                         }
+                        otaView.text = result.fold(
+                            { "Kurulum istemi acildi - onayla" },
+                            { "Guncellenemedi: ${it.message} - tekrar dokun, kaldigi yerden surer" },
+                        )
                     }
-                    otaView.text = result.fold(
-                        { "Kurulum istemi acildi - onayla" },
-                        { "Guncellenemedi: ${it.message}" },
-                    )
                 }
+            } finally {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                updating = false
             }
         }
     }
