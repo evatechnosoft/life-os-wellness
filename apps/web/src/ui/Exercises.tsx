@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { EXERCISES, find, search } from '../lib/exercises'
+import { alternatives, EXERCISES, type Exercise as ExerciseData, find, search } from '../lib/exercises'
 import { Chip } from './Chip'
 import { Exercise } from './Exercise'
 
@@ -26,6 +26,19 @@ const MUSCLE = [
   { id: 'biceps', label: 'Biseps' },
   { id: 'triceps', label: 'Triseps' },
 ] as const
+
+/** Ayni kasi baska aletle calistiran ilk iki hareket. Bos ise hic cizilmez. */
+function Swaps({ ex }: { ex: ExerciseData }) {
+  const swaps = alternatives(ex.id)
+    .filter((a) => a.equipment !== ex.equipment)
+    .slice(0, 2)
+  if (swaps.length === 0) return null
+  return (
+    <span className="block truncate text-[10px] text-ink-faint/70">
+      yerine: {swaps.map((a) => a.name).join(' · ')}
+    </span>
+  )
+}
 
 /**
  * Hareket kutuphanesi (PLAN-COACH S2). Katalog derlemeye gomulu, gorseller
@@ -124,6 +137,9 @@ export function Exercises() {
                   <span className="block truncate text-[11px] text-ink-faint">
                     {e.equipment_tr} · {e.primary_tr.join(' · ')}
                   </span>
+                  {/* Salonda sorulan soru karta girmeden cevaplansin: makine doluysa
+                      ayni kasi baska aletle calistiran iki hareket burada yaziyor. */}
+                  <Swaps ex={e} />
                 </span>
                 <svg viewBox="0 0 24 24" aria-hidden className="size-4 shrink-0 text-ink-faint" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                   <path d="m9 6 6 6-6 6" />

@@ -34,7 +34,9 @@ export function shape(raw, tr) {
     cue: meta.cue,
     // Iki kare: baslangic ve bitis. Kart ikisini capraz gecisle oynatir; video yok.
     // Dizi kasten acik - yarin GIF/video eklenirse kart degil kaynak degisir.
-    media: raw.images.map((p) => ({ type: 'image', url: IMAGE_BASE + p })),
+    // Kendi cekimimiz varsa upstream kareleri yerine o gecer (tek GIF de olabilir).
+    // Kaynak degisir, kart degismez - `media` dizisi bunun icin acik birakildi.
+    media: meta.media ?? raw.images.map((p) => ({ type: 'image', url: IMAGE_BASE + p })),
   }
 }
 
