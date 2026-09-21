@@ -12,13 +12,12 @@ full-body vs split kanıtı, ve 16 fotoğraflık takviye değerlendirmesi. Hepsi
 
 **https://claude.ai/code/artifact/3b8b7694-4807-4ae2-8bd3-0af0447a345c** (`db` capability, contract 0.2.52)
 
-Kaynak repoda **değil**: `.artifact-build/` (gitignore'lu). İçinde `secici.html`, `plan.js`,
-`plan.test.mjs`, `rows.json`, `img/` (43 jpg, 2.7 MB), `patch*.py`. **Bu dizin silinirse
-artifact güncellenemez** — yeniden üretmek için `apps/web/src/data/exercises.json`'dan
-rows.json + görselleri CDN'den indirmek gerekir.
+Kaynak artık repoda: **`tools/secici/`** — `secici.html`, `plan.js`, `plan.test.mjs`,
+`rows.json`, `build.mjs`, `README.md`. Görseller repoda değil (2.8 MB), `node tools/secici/build.mjs`
+upstream CDN'den indirir. Eski `.artifact-build/` silindi.
 
-Güncelleme: bu oturumda `file_path: secici.html` ile yeniden yayınla (cwd `.artifact-build`).
-Başka oturumdan: `url` parametresiyle.
+**Yayın artık `url` ZORUNLU:** dosya yolu değiştiği için `url` geçilmezse yeni bir artifact açılır
+ve Dean'in db kaydı eski adreste kalır. Reçete `tools/secici/README.md`'de.
 
 Üç sekme: Seans kur (kas grubu × alet, resimli kartlar, "yerine: X · Y"), Tabak kur
 (30 kalem Türk mutfağı + makro çubukları), Hafta (7 gün × Ağırlık/Yüzme/Dinlenme → makro hedefi).

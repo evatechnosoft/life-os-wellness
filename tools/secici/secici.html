@@ -1,0 +1,999 @@
+<title>Seans ve Tabak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --ground: #E9EEEA;
+  --surface: #FFFFFF;
+  --surface-2: #F2F5F1;
+  --line: #CDD7D0;
+  --ink: #16201D;
+  --ink-dim: #55655F;
+  --ink-faint: #7E8D87;
+  --lift: #1F5F6B;
+  --lift-soft: #DCEAEC;
+  --fuel: #A65E18;
+  --fuel-soft: #F3E4D3;
+  --ok: #3F7D52;
+  --warn: #B4832A;
+  --over: #A8432C;
+  --shadow: 0 1px 2px rgba(22,32,29,.06), 0 8px 24px -16px rgba(22,32,29,.35);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #101614;
+    --surface: #19221F;
+    --surface-2: #1F2A26;
+    --line: #2E3C37;
+    --ink: #E6ECE8;
+    --ink-dim: #9DACA6;
+    --ink-faint: #7A8983;
+    --lift: #6FC0CC;
+    --lift-soft: #1B3A3F;
+    --fuel: #E0A059;
+    --fuel-soft: #3A2A18;
+    --ok: #74B98A;
+    --warn: #D8AC5C;
+    --over: #E07F67;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #101614;
+  --surface: #19221F;
+  --surface-2: #1F2A26;
+  --line: #2E3C37;
+  --ink: #E6ECE8;
+  --ink-dim: #9DACA6;
+  --ink-faint: #7A8983;
+  --lift: #6FC0CC;
+  --lift-soft: #1B3A3F;
+  --fuel: #E0A059;
+  --fuel-soft: #3A2A18;
+  --ok: #74B98A;
+  --warn: #D8AC5C;
+  --over: #E07F67;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 15px/1.55 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif; margin: 0; text-wrap: balance; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 140px; }
+
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; margin-bottom: 4px; }
+h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em; }
+.sub { color: var(--ink-dim); font-size: 13.5px; max-width: 62ch; }
+
+.tabs { display: flex; gap: 6px; margin: 18px 0 20px; border-bottom: 1px solid var(--line); }
+.tab {
+  appearance: none; background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 9px 14px; margin-bottom: -1px; cursor: pointer;
+  font: 600 14px/1 "IBM Plex Sans", sans-serif; color: var(--ink-faint);
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent, var(--lift)); }
+.tab:focus-visible { outline: 2px solid var(--lift); outline-offset: 2px; border-radius: 4px; }
+#panel-lift { --accent: var(--lift); --accent-soft: var(--lift-soft); }
+#panel-fuel { --accent: var(--fuel); --accent-soft: var(--fuel-soft); }
+
+.strip { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.strip::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; appearance: none; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-dim);
+  border-radius: 999px; padding: 7px 14px;
+  font: 500 13.5px/1 "IBM Plex Sans", sans-serif;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 18px 0 10px; }
+.meta h2 { font-size: 17px; font-weight: 700; }
+.count { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; }
+.card {
+  position: relative; display: flex; flex-direction: column; text-align: left;
+  appearance: none; cursor: pointer; padding: 0; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  color: inherit; font: inherit; transition: border-color .12s, transform .12s;
+}
+.card:hover { border-color: var(--accent); }
+.card:active { transform: scale(.995); }
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.card img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--surface-2); }
+.card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.card-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.badge {
+  font: 500 10.5px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .06em;
+  padding: 4px 7px; border-radius: 5px; background: var(--surface-2); color: var(--ink-dim);
+}
+.badge.eq { background: var(--accent-soft); color: var(--accent); }
+.badge.last { background: transparent; border: 1px dashed var(--line); color: var(--ink-faint); }
+.cue { font-size: 12px; color: var(--ink-faint); line-height: 1.45; }
+.tick {
+  position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: var(--surface); display: none; place-items: center;
+  font: 600 13px/1 "IBM Plex Sans", sans-serif;
+}
+.card[aria-pressed="true"] .tick { display: grid; }
+
+.note { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 13.5px; color: var(--ink-dim); }
+.note b { color: var(--ink); font-weight: 600; }
+
+/* --- yemek --- */
+.foodwrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .foodwrap { grid-template-columns: 1fr; } }
+.foods { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.food {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px;
+  padding: 9px 12px; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit;
+  font: inherit; text-align: left; cursor: pointer; width: 100%;
+}
+.food:last-child { border-bottom: 0; }
+.food:hover { background: var(--surface-2); }
+.food:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.food-name { font-size: 14px; }
+.food-portion { font: 400 11.5px/1.3 "IBM Plex Mono", monospace; color: var(--ink-faint); }
+.food-macros { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.plus { width: 24px; height: 24px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 600; }
+
+.plate { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+.bars { display: flex; flex-direction: column; gap: 12px; }
+.bar-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.bar-head b { font: 600 13px/1 "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.track { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 5px; }
+.fill { height: 100%; border-radius: 4px; background: var(--accent); transition: width .2s; }
+.fill.ok { background: var(--ok); }
+.fill.over { background: var(--over); }
+.hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 4px; }
+
+.picked { display: flex; flex-direction: column; gap: 6px; }
+.picked-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.picked-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.picked-row .qty { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-faint); }
+.x { appearance: none; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px; }
+.x:hover { color: var(--over); }
+.empty { color: var(--ink-faint); font-size: 13px; }
+
+/* --- alt bar --- */
+.dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  background: var(--surface); border-top: 1px solid var(--line);
+  box-shadow: 0 -8px 24px -18px rgba(0,0,0,.5);
+}
+.dock-in { max-width: 1120px; margin: 0 auto; padding: 11px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dock-list { flex: 1; min-width: 200px; font-size: 13px; color: var(--ink-dim); }
+.dock-list b { color: var(--ink); font-weight: 600; }
+.btn {
+  appearance: none; cursor: pointer; border: 1px solid var(--lift); background: var(--lift); color: #fff;
+  border-radius: 8px; padding: 9px 16px; font: 600 14px/1 "IBM Plex Sans", sans-serif;
+}
+:root[data-theme="dark"] .btn { color: #0E1614; }
+.btn.ghost { background: none; color: var(--ink-dim); border-color: var(--line); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--lift); outline-offset: 2px; }
+.status { font: 400 12px/1.4 "IBM Plex Mono", monospace; color: var(--ink-faint); }
+
+
+#panel-week { --accent: var(--lift); --accent-soft: var(--lift-soft); }
+.sysrow { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; margin-bottom: 8px; }
+.sysnote { font-size: 12.5px; color: var(--ink-faint); margin: 0 0 14px; }
+.roll-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; }
+.roll-row .status { flex: 1; min-width: 220px; }
+.proof { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 14px 16px; margin-bottom: 16px; }
+.proof h3 { font-size: 14px; margin-bottom: 10px; }
+.proof ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.proof li { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: baseline; font-size: 13px; }
+.proof .mark { font-weight: 700; }
+.proof .pass .mark { color: var(--ok); }
+.proof .fail .mark { color: var(--over); }
+.proof .val { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.daytitle { font: 600 12px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin: 14px 0 6px; }
+.rolled { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.rolled-row { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; align-items: baseline; font-size: 13.5px; }
+.rolled-row .slot { font: 500 11px/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); }
+.rolled-row .sets { font: 600 12px/1 "IBM Plex Mono", monospace; color: var(--accent); }
+
+.week { display: grid; grid-template-columns: repeat(auto-fit, minmax(146px, 1fr)); gap: 10px; }
+.day { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.day.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.day-name { font: 600 13px/1 "IBM Plex Sans", sans-serif; display: flex; justify-content: space-between; align-items: baseline; }
+.day-name em { font: 400 10px/1 "IBM Plex Mono", monospace; font-style: normal; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.kinds { display: flex; gap: 4px; }
+.kind { flex: 1; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink-faint); border-radius: 6px; padding: 5px 0; font: 500 11px/1 "IBM Plex Sans", sans-serif; }
+.kind[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.kind:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.macros { display: flex; flex-direction: column; gap: 3px; font: 400 11.5px/1.4 "IBM Plex Mono", monospace; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+.macros span b { color: var(--ink); font-weight: 600; }
+.weeksum { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.sum-item { display: flex; flex-direction: column; gap: 2px; }
+.sum-item .k { font: 400 11px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); }
+.sum-item .v { font: 600 19px/1.1 "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+
+.hidden { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Seans ve Tabak</h1>
+    <p class="sub">Salonda "bu makine dolu, yerine ne?" ve mutfakta "bu tabak yeter mi?" — ikisi de burada. Seç, kaydet; kayıt tarayıcıda değil, hesapta durur.</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-lift" aria-controls="panel-lift" aria-selected="true">Seans kur</button>
+    <button class="tab" role="tab" id="tab-fuel" aria-controls="panel-fuel" aria-selected="false">Tabak kur</button>
+    <button class="tab" role="tab" id="tab-week" aria-controls="panel-week" aria-selected="false">Hafta</button>
+  </div>
+
+  <section id="panel-lift" role="tabpanel" aria-labelledby="tab-lift">
+    <div class="strip" id="muscles" aria-label="Kas grubu"></div>
+    <div class="strip" id="equips" aria-label="Alet" style="margin-top:8px"></div>
+    <div class="meta">
+      <h2 id="lift-title">Göğüs</h2>
+      <span class="count" id="lift-count"></span>
+    </div>
+    <div class="sysrow">
+      <div class="strip" id="systems" aria-label="Antrenman sistemi"></div>
+      <div class="strip" id="sysdays" aria-label="Gün"></div>
+    </div>
+    <p class="sysnote" id="sysnote"></p>
+    <div class="roll-row">
+      <button class="btn" id="roll" type="button">🎲 Zar at — tek seans</button>
+      <button class="btn ghost" id="rollweek" type="button">🎲🎲 Haftayı kur — 3 seans</button>
+      <span class="status" id="roll-status">Zar yalnız hangi hareket olacağını seçer; set sayısını ve kas dağılımını program sabitler.</span>
+    </div>
+    <div id="proof" class="proof hidden"></div>
+    <div class="grid" id="cards"></div>
+    <p class="note" id="rotate-note" style="margin-top:16px"></p>
+  </section>
+
+  <section id="panel-fuel" role="tabpanel" aria-labelledby="tab-fuel" class="hidden">
+    <div class="foodwrap">
+      <div>
+        <div class="strip" id="food-groups" aria-label="Yemek grubu"></div>
+        <div class="meta">
+          <h2 id="fuel-title">Ana yemek</h2>
+          <span class="count">100 g pişmiş · yaklaşık değer</span>
+        </div>
+        <div class="foods" id="foods"></div>
+      </div>
+      <aside class="plate">
+        <div>
+          <h2 style="font-size:16px">Tabak</h2>
+          <p class="hint" id="day-kind"></p>
+        </div>
+        <div class="bars" id="bars"></div>
+        <div class="picked" id="picked"><p class="empty">Soldan yemek ekle.</p></div>
+      </aside>
+    </div>
+    <p class="note" style="margin-top:18px">
+      <b>Ne kadar gerek?</b> Protein günde <b>150–180 g</b> (107,5 kg'da 1,6–2,2 g/kg hedef kilo; kas korunsun diye
+      aşağısı değil). Karbonhidrat <b>antrenman günü 160–200 g</b>, <b>dinlenme günü 100–130 g</b> — kalorinin değil,
+      seansın peşinden gider. Yağ 70–80 g, altına inme (hormon). Kalan-kalori sayacı yok: karar birimi
+      <b>7 günlük ortalama</b>, tek gün değil.
+    </p>
+  </section>
+</div>
+
+  <section id="panel-week" role="tabpanel" aria-labelledby="tab-week" class="hidden">
+    <div class="meta">
+      <h2>Haftalık düzen</h2>
+      <span class="count">gün tipi → makro hedefi</span>
+    </div>
+    <div class="week" id="week"></div>
+    <div class="weeksum" id="weeksum"></div>
+    <p class="note" style="margin-top:16px">
+      <b>Neye göre:</b> protein gün tipinden bağımsız yüksek kalır (kas korunsun); değişen karbonhidrattır —
+      seansın olduğu gün yüksek, yüzme günü orta, dinlenme günü düşük. Yağ her gün aynı bantta.
+      Haftalık toplam, tek güne bakmaktan daha doğru okunur.
+    </p>
+  </section>
+
+<div class="dock">
+  <div class="dock-in">
+    <div class="dock-list" id="dock-list">Henüz seçim yok.</div>
+    <span class="status" id="status"></span>
+    <button class="btn ghost" id="clear">Temizle</button>
+    <button class="btn" id="save" disabled>Kaydet</button>
+  </div>
+</div>
+
+<script src="plan.js"></script>
+<script>
+const EX = [{"id":"Ab_Crunch_Machine","n":"Abdominal crunch (makine)","eq":"makine","m":["karın"],"c":"Boynu çekme, hareket karından gelsin. Tansiyonda nefes tutma — kıvrılırken ver."},{"id":"Ankle_Circles","n":"Ayak bileği çemberi","eq":"vücut ağırlığı","m":["baldır"],"c":"Topuk sabit, çember yalnız ayak bileğinden çizilsin; diz hareketi eşlik etmemeli."},{"id":"Arnold_Dumbbell_Press","n":"Arnold press (dambıl)","eq":"dambıl","m":["omuz"],"c":"Dönüş kontrollü olsun; omuz hassassa düz dambıl presi daha güvenli."},{"id":"Barbell_Hip_Thrust","n":"Hip thrust","eq":"barbell","m":["kalça"],"c":"Tepede kaburgayı yukarı açma; beli değil kalçayı sık."},{"id":"Butterfly","n":"Butterfly / pec deck","eq":"makine","m":["göğüs"],"c":"Üst kollar yere paralel olacak şekilde koltuğu ayarla; arkada fazla açılma."},{"id":"Cable_Crossover","n":"Kablo crossover (göğüs)","eq":"kablo","m":["göğüs"],"c":"Dirsek hafif bükülü sabit kalsın; hareket omuzdan gelsin, menzili zorlamadan göğsün önünde birleştir."},{"id":"Cable_Crunch","n":"Kablo crunch (diz üstü)","eq":"kablo","m":["karın"],"c":"Kalçadan değil karından bük; sırt yuvarlanarak inecek."},{"id":"Calf_Press_On_The_Leg_Press_Machine","n":"Calf press (leg press makinesinde)","eq":"makine","m":["baldır"],"c":"Dizi kilitleme; topuğu yavaş indirip tam yukarı bas, sıçrama yok."},{"id":"Cat_Stretch","n":"Kedi-deve (omurga yuvarlama)","eq":"vücut ağırlığı","m":["bel"],"c":"Nefesle eşle: sırtı yuvarlarken ver, çukurlaştırırken al. Bel ağrıyorsa menzili kısalt, zorlamadan salın."},{"id":"Close-Grip_Front_Lat_Pulldown","n":"Lat pulldown (dar/nötr tutuş)","eq":"kablo","m":["kanat (latissimus)"],"c":"Dirsekleri gövdeye yakın tut; çekiş kanattan gelsin."},{"id":"Dead_Bug","n":"Dead bug (yerde, anti-ekstansiyon)","eq":"vücut ağırlığı","m":["karın"],"c":"Belin yerden kalkıyorsa menzili kısalt. Elini belinin altına koy; hareket boyunca elini sıkıştırmaya devam etmelisin."},{"id":"Dumbbell_Bench_Press","n":"Dambıl bench press (düz)","eq":"dambıl","m":["göğüs"],"c":"Dambılları göğüs hizasında tut, dirsek 45 derece; itişte nefes ver, kilitleme."},{"id":"Dumbbell_Shrug","n":"Dambıl shrug (trapez)","eq":"dambıl","m":["trapez"],"c":"Omuzu yukarı kaldır, döndürme."},{"id":"Dynamic_Chest_Stretch","n":"Dinamik göğüs açma (kol savurma)","eq":"vücut ağırlığı","m":["göğüs"],"c":"Yavaş başla, ısındıkça hızlan. Omuz hassassa kolları omuz hizasının üstüne çıkarma."},{"id":"EZ-Bar_Curl","n":"EZ bar biseps curl","eq":"EZ bar","m":["biseps"],"c":"Dirsek gövdeye yapışık, gövdeyi sallama. Bilek ağrırsa EZ barın kırık yerinden tut."},{"id":"Face_Pull","n":"Face pull (kablo)","eq":"kablo","m":["omuz"],"c":"Kabloyu alına doğru çek, dirsekler omuz hizasında ve yukarıda."},{"id":"Goblet_Squat","n":"Goblet squat","eq":"kettlebell","m":["ön bacak"],"c":"Dambılı göğüste dik tut; topuk yerden kalkmasın."},{"id":"Hack_Squat","n":"Hack squat (makine)","eq":"makine","m":["ön bacak"],"c":"Bel minderde kalsın, topuk platformdan kalkmasın."},{"id":"Incline_Dumbbell_Press","n":"Dambıl eğimli bench press","eq":"dambıl","m":["göğüs"],"c":"Sehpa 30 derece yeter; 45 derece işi omuza kaydırır."},{"id":"Kneeling_Hip_Flexor","n":"Diz çökerek kalça öne itme (hip flexor)","eq":"vücut ağırlığı","m":["ön bacak"],"c":"Beli çukurlaştırma; kalçayı hafif içeri kıvır ve gövdeyi dik tutarak öne it, gerginliği arkadaki bacağın kasığında hisset."},{"id":"Leg_Extensions","n":"Leg extension","eq":"makine","m":["ön bacak"],"c":"Minderi ayak bileğinin hemen üstüne ayarla."},{"id":"Leg_Press","n":"Leg press","eq":"makine","m":["ön bacak"],"c":"Dizleri göğse fazla çekme; kalçan minderden kalkıyorsa menzil bitmiştir, orada dur."},{"id":"Leverage_Incline_Chest_Press","n":"Eğimli göğüs presi (makine)","eq":"makine","m":["göğüs"],"c":""},{"id":"Leverage_Iso_Row","n":"Makine row","eq":"makine","m":["kanat (latissimus)"],"c":"Göğsün minderde kalsın; kopuyorsa ağırlık fazla."},{"id":"Leverage_Shoulder_Press","n":"Omuz presi (makine)","eq":"makine","m":["omuz"],"c":"Kulplar omuz hizasında başlasın. Tansiyon için: iterken nefes ver, tutma."},{"id":"Lying_Leg_Curls","n":"Yatarak leg curl","eq":"makine","m":["arka bacak"],"c":"Kalçan minderden kalkmasın; kalkıyorsa ağırlık fazla."},{"id":"Machine_Bench_Press","n":"Oturarak göğüs presi (makine)","eq":"makine","m":["göğüs"],"c":"Kulplar göğüs hizasında olacak şekilde koltuğu ayarla. Omuz kürekleri mindere yapışık."},{"id":"Machine_Bicep_Curl","n":"Biseps curl (makine)","eq":"makine","m":["biseps"],"c":"Koltuğu dirsek mindere denk gelecek şekilde ayarla."},{"id":"Machine_Preacher_Curls","n":"Preacher curl (makine/pupit)","eq":"makine","m":["biseps"],"c":"Kol yastığa tam yaslı; aşağıda dirseği tam açma, gerginliği koru."},{"id":"Machine_Triceps_Extension","n":"Triceps (makine)","eq":"makine","m":["triseps"],"c":"Dirsek minderde sabit kalsın."},{"id":"Pallof_Press","n":"Pallof press (kablo, anti-rotasyon)","eq":"kablo","m":["karın"],"c":"Kaldırdığın ağırlık değil, direndiğin dönme. Gövden kıpırdıyorsa ya da omzun kabloya kaçıyorsa bir kademe düşür."},{"id":"Plank","n":"Plank","eq":"vücut ağırlığı","m":["karın"],"c":"Kalça ne düşsün ne kalksın. Nefesini tutma."},{"id":"Recumbent_Bike","n":"Yatay bisiklet (recumbent)","eq":"makine","m":["ön bacak"],"c":"Zone 2 ölçütü watt: 85-110 W, 60-70 rpm. Program tuşu yok, manuel sabit dirençte kal. Salonda Diesel Fitness 700R."},{"id":"Reverse_Flyes","n":"Ters fly (arka omuz)","eq":"dambıl","m":["omuz"],"c":"Sırt düz, gövde sabit; kollar hafif bükülü."},{"id":"Romanian_Deadlift","n":"Romanian deadlift","eq":"barbell","m":["arka bacak"],"c":"Bel düz kalacak. Hareket dizden değil kalçadan; sırt yuvarlanırsa ağırlık fazla."},{"id":"Seated_Cable_Rows","n":"Oturarak kablo çekiş (row)","eq":"kablo","m":["orta sırt"],"c":"Gövdeyi sallamadan çek; bel sabit kalsın."},{"id":"Seated_Leg_Curl","n":"Oturarak leg curl (makine)","eq":"makine","m":["arka bacak"],"c":"Sırtı dayalı tut, kalça kalkmasın; dönüşü frenleyerek indir. Salonda Life Fitness 'Seated Leg Curl'."},{"id":"Side_Lateral_Raise","n":"Dambıl yan kaldırış","eq":"dambıl","m":["omuz"],"c":"Omuz hizasını geçme, dirsek hafif bükülü. Sallayarak kaldırıyorsan ağırlık fazla."},{"id":"Split_Squat_with_Dumbbells","n":"Split squat (dambıllı, destekli)","eq":"dambıl","m":["ön bacak"],"c":"Dengeyi bir yere tutunarak kur; ön diz ayak parmağını geçmesin, iniş kontrollü."},{"id":"Standing_Hip_Circles","n":"Ayakta kalça çemberi","eq":"vücut ağırlığı","m":["kalça dış"],"c":"Bir yere tutun; çemberi büyütmek için beli bükme, hareket kalça ekleminden gelsin."},{"id":"Thigh_Abductor","n":"Hip abduction (kalça dış, makine)","eq":"makine","m":["kalça dış"],"c":"Gövde dik ve sabit; dizleri dışa iterken beli yaslı tut, sallanma yok."},{"id":"Triceps_Pushdown","n":"Triceps pushdown (kablo)","eq":"kablo","m":["triseps"],"c":"Dirsekler gövdeye yapışık; öne eğilerek ağırlığı bastırma."},{"id":"Wide-Grip_Lat_Pulldown","n":"Lat pulldown (geniş tutuş)","eq":"kablo","m":["kanat (latissimus)"],"c":"Barı ensene değil göğsüne çek; geriye yatma."}];
+
+const MUSCLES = [
+  { id: 'göğüs',  label: 'Göğüs',  keys: ['göğüs'] },
+  { id: 'sırt',   label: 'Sırt',   keys: ['kanat (latissimus)', 'orta sırt', 'trapez'] },
+  { id: 'omuz',   label: 'Omuz',   keys: ['omuz'] },
+  { id: 'bacak',  label: 'Bacak',  keys: ['ön bacak', 'arka bacak', 'baldır'] },
+  { id: 'kalça',  label: 'Kalça',  keys: ['kalça', 'kalça dış'] },
+  { id: 'kol',    label: 'Kol',    keys: ['biseps', 'triseps'] },
+  { id: 'karın',  label: 'Karın',  keys: ['karın', 'bel'] },
+];
+const EQUIPS = [
+  { id: 'all', label: 'Hepsi' },
+  { id: 'makine', label: 'Makine' },
+  { id: 'dambıl', label: 'Dambıl' },
+  { id: 'kablo', label: 'Kablo' },
+  { id: 'barbell', label: 'Bar' },
+  { id: 'vücut ağırlığı', label: 'Vücut' },
+];
+
+const FOOD_GROUPS = [
+  { id: 'ana', label: 'Ana yemek' },
+  { id: 'tahil', label: 'Tahıl / ekmek' },
+  { id: 'protein', label: 'Protein' },
+  { id: 'sut', label: 'Süt ürünü' },
+  { id: 'yan', label: 'Salata / meyve' },
+  { id: 'ara', label: 'Atıştırma' },
+];
+
+/* 100 g pişmiş ya da belirtilen porsiyon. TürKomp/USDA mertebesinde yaklaşık değerler — tartılmış ölçüm değil. */
+const FOODS = [
+  { g: 'ana', n: 'Kuru fasulye (yemek)', p: '1 kepçe · 200 g', kcal: 240, pr: 14, c: 34, f: 6 },
+  { g: 'ana', n: 'Nohut yemeği', p: '1 kepçe · 200 g', kcal: 260, pr: 14, c: 36, f: 7 },
+  { g: 'ana', n: 'Mercimek çorbası', p: '1 kase · 250 g', kcal: 180, pr: 9, c: 27, f: 4 },
+  { g: 'ana', n: 'Etli türlü / sebze yemeği', p: '1 porsiyon · 250 g', kcal: 230, pr: 15, c: 18, f: 11 },
+  { g: 'ana', n: 'Karnıyarık / dolma', p: '2 adet · 250 g', kcal: 340, pr: 12, c: 26, f: 21 },
+  { g: 'tahil', n: 'Pirinç pilavı', p: '100 g pişmiş', kcal: 160, pr: 3, c: 30, f: 3.5 },
+  { g: 'tahil', n: 'Bulgur pilavı', p: '100 g pişmiş', kcal: 130, pr: 4, c: 25, f: 2 },
+  { g: 'tahil', n: 'Makarna / erişte', p: '100 g pişmiş', kcal: 150, pr: 5, c: 30, f: 1 },
+  { g: 'tahil', n: 'Patates (haşlama/fırın)', p: '100 g', kcal: 90, pr: 2, c: 20, f: 0.5 },
+  { g: 'tahil', n: 'Tam buğday ekmek', p: '1 dilim · 30 g', kcal: 75, pr: 3, c: 13, f: 1 },
+  { g: 'tahil', n: 'Kıymalı pide', p: '1 adet · 250 g', kcal: 620, pr: 27, c: 75, f: 22 },
+  { g: 'protein', n: 'Tavuk göğüs (ızgara)', p: '100 g', kcal: 165, pr: 31, c: 0, f: 3.6 },
+  { g: 'protein', n: 'Hindi göğüs konserve', p: '100 g süzme', kcal: 118, pr: 30, c: 0, f: 1 },
+  { g: 'protein', n: 'Izgara köfte', p: '100 g', kcal: 240, pr: 20, c: 4, f: 16 },
+  { g: 'protein', n: 'Beyaz et balık (ızgara)', p: '100 g', kcal: 130, pr: 22, c: 0, f: 4 },
+  { g: 'protein', n: 'Somon (ızgara)', p: '100 g', kcal: 200, pr: 22, c: 0, f: 12 },
+  { g: 'protein', n: 'Yumurta', p: '1 adet · 50 g', kcal: 72, pr: 6.3, c: 0.4, f: 5 },
+  { g: 'sut', n: 'Süzme yoğurt', p: '200 g', kcal: 120, pr: 20, c: 8, f: 1 },
+  { g: 'sut', n: 'Lor peyniri', p: '100 g', kcal: 100, pr: 14, c: 3, f: 3 },
+  { g: 'sut', n: 'Beyaz peynir', p: '30 g', kcal: 80, pr: 5, c: 0.5, f: 6 },
+  { g: 'sut', n: 'Kaşar peyniri', p: '30 g', kcal: 110, pr: 7, c: 0.5, f: 9 },
+  { g: 'sut', n: 'Ayran', p: '300 ml', kcal: 60, pr: 6, c: 6, f: 1.5 },
+  { g: 'sut', n: 'Süt', p: '200 ml', kcal: 120, pr: 6.6, c: 9.6, f: 6 },
+  { g: 'yan', n: 'Karışık salata (zeytinyağlı)', p: '1 porsiyon · 150 g', kcal: 70, pr: 2, c: 6, f: 5 },
+  { g: 'yan', n: 'Marul / yeşillik (sade)', p: '100 g', kcal: 17, pr: 1.4, c: 3, f: 0.2 },
+  { g: 'yan', n: 'Muz', p: '1 adet · 120 g', kcal: 105, pr: 1.3, c: 27, f: 0.4 },
+  { g: 'yan', n: 'Elma', p: '1 adet · 180 g', kcal: 95, pr: 0.5, c: 25, f: 0.3 },
+  { g: 'ara', n: 'Ceviz', p: '30 g', kcal: 195, pr: 4.5, c: 4, f: 19 },
+  { g: 'ara', n: 'Zeytin', p: '5 adet', kcal: 35, pr: 0.3, c: 1, f: 3.5 },
+  { g: 'ara', n: 'Tahin helvası', p: '30 g', kcal: 180, pr: 4, c: 10, f: 14 },
+];
+
+
+const $ = (id) => document.getElementById(id);
+const state = {
+  muscle: 'göğüs',
+  equip: 'all',
+  picks: new Set(),
+  lastWeek: new Set(),
+  foodGroup: 'ana',
+  plate: [],
+  tab: 'lift',
+  db: null,
+};
+
+/* --- sekmeler --- */
+function setTab(name) {
+  state.tab = name;
+  for (const t of ['lift', 'fuel', 'week']) {
+    $('tab-' + t).setAttribute('aria-selected', String(t === name));
+    $('panel-' + t).classList.toggle('hidden', t !== name);
+  }
+  renderDock();
+}
+$('tab-lift').onclick = () => setTab('lift');
+$('tab-fuel').onclick = () => setTab('fuel');
+$('tab-week').onclick = () => setTab('week');
+
+/* --- seans --- */
+function chipRow(el, items, current, onPick) {
+  el.textContent = '';
+  for (const it of items) {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.textContent = it.label;
+    b.setAttribute('aria-pressed', String(it.id === current));
+    b.onclick = () => onPick(it.id);
+    el.append(b);
+  }
+}
+
+function listFor(muscleId, equip) {
+  const group = MUSCLES.find((m) => m.id === muscleId);
+  return EX.filter((e) => e.m.some((k) => group.keys.includes(k)))
+    .filter((e) => equip === 'all' || e.eq === equip);
+}
+
+function renderLift() {
+  chipRow($('muscles'), MUSCLES, state.muscle, (id) => { state.muscle = id; renderLift(); });
+  chipRow($('equips'), EQUIPS, state.equip, (id) => { state.equip = id; renderLift(); });
+  const group = MUSCLES.find((m) => m.id === state.muscle);
+  const list = listFor(state.muscle, state.equip);
+  $('lift-title').textContent = group.label;
+  $('lift-count').textContent = list.length + ' seçenek';
+
+  const grid = $('cards');
+  grid.textContent = '';
+  for (const e of list) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'card';
+    card.setAttribute('aria-pressed', String(state.picks.has(e.id)));
+
+    const img = document.createElement('img');
+    img.src = 'img/' + e.id + '.jpg';
+    img.alt = e.n;
+    img.loading = 'lazy';
+    card.append(img);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = e.n;
+    const badges = document.createElement('div');
+    badges.className = 'badges';
+    const eq = document.createElement('span');
+    eq.className = 'badge eq';
+    eq.textContent = e.eq;
+    badges.append(eq);
+    if (state.lastWeek.has(e.id)) {
+      const last = document.createElement('span');
+      last.className = 'badge last';
+      last.textContent = 'geçen hafta';
+      badges.append(last);
+    }
+    const cue = document.createElement('p');
+    cue.className = 'cue';
+    cue.textContent = e.c || '';
+    body.append(name, badges, cue);
+
+    const tick = document.createElement('span');
+    tick.className = 'tick';
+    tick.textContent = '✓';
+
+    card.append(body, tick);
+    card.onclick = () => {
+      if (state.picks.has(e.id)) state.picks.delete(e.id);
+      else state.picks.add(e.id);
+      card.setAttribute('aria-pressed', String(state.picks.has(e.id)));
+      renderDock();
+      renderRotate();
+    };
+    grid.append(card);
+  }
+  renderRotate();
+}
+
+function renderRotate() {
+  const n = $('rotate-note');
+  if (state.lastWeek.size === 0) {
+    n.innerHTML = '<b>Kas şaşırtma:</b> ilk kaydından sonra geçen haftanın seçimleri karta işaretlenir; ' +
+      'aynı kas için farklı alet seçmek en ucuz değişkendir — makine yerine dambıl, geniş tutuş yerine nötr.';
+    return;
+  }
+  const repeat = [...state.picks].filter((id) => state.lastWeek.has(id)).length;
+  const fresh = state.picks.size - repeat;
+  n.innerHTML = '<b>Kas şaşırtma:</b> ' + repeat + ' hareket geçen haftayla aynı, ' + fresh + ' tanesi yeni. ' +
+    'Kas grubu başına bir hareketi değiştirmek yeter — hepsini değiştirmek ilerlemeyi ölçülemez yapar.';
+}
+
+/* --- tabak --- */
+function renderFoods() {
+  chipRow($('food-groups'), FOOD_GROUPS, state.foodGroup, (id) => { state.foodGroup = id; renderFoods(); });
+  $('fuel-title').textContent = FOOD_GROUPS.find((g) => g.id === state.foodGroup).label;
+  const box = $('foods');
+  box.textContent = '';
+  for (const f of FOODS.filter((f) => f.g === state.foodGroup)) {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'food';
+    const left = document.createElement('span');
+    const nm = document.createElement('span');
+    nm.className = 'food-name';
+    nm.textContent = f.n;
+    const po = document.createElement('span');
+    po.className = 'food-portion';
+    po.textContent = f.p;
+    left.append(nm, document.createElement('br'), po);
+    const mac = document.createElement('span');
+    mac.className = 'food-macros';
+    mac.textContent = f.pr + 'P · ' + f.c + 'K · ' + f.kcal + ' kcal';
+    const plus = document.createElement('span');
+    plus.className = 'plus';
+    plus.textContent = '+';
+    row.append(left, mac, plus);
+    row.onclick = () => {
+      const hit = state.plate.find((x) => x.n === f.n);
+      if (hit) hit.q += 1;
+      else state.plate.push({ ...f, q: 1 });
+      renderPlate();
+      renderDock();
+    };
+    box.append(row);
+  }
+  renderPlate();
+}
+
+function totals() {
+  return state.plate.reduce((a, x) => ({
+    kcal: a.kcal + x.kcal * x.q, pr: a.pr + x.pr * x.q, c: a.c + x.c * x.q, f: a.f + x.f * x.q,
+  }), { kcal: 0, pr: 0, c: 0, f: 0 });
+}
+
+function bar(label, value, range, unit) {
+  const [lo, hi] = range;
+  const pct = Math.min(100, Math.round((value / hi) * 100));
+  const cls = value > hi * 1.1 ? 'over' : value >= lo ? 'ok' : '';
+  const wrap = document.createElement('div');
+  const head = document.createElement('div');
+  head.className = 'bar-head';
+  const l = document.createElement('span');
+  l.textContent = label;
+  const v = document.createElement('b');
+  v.textContent = Math.round(value) + ' / ' + lo + '–' + hi + ' ' + unit;
+  head.append(l, v);
+  const track = document.createElement('div');
+  track.className = 'track';
+  const fill = document.createElement('div');
+  fill.className = 'fill ' + cls;
+  fill.style.width = pct + '%';
+  track.append(fill);
+  wrap.append(head, track);
+  return wrap;
+}
+
+function renderPlate() {
+  $('day-kind').textContent = 'Bugün ' + todayKind().label.toLowerCase() + ' günü — hedef Hafta sekmesinden geliyor.';
+  const t = totals();
+  const bars = $('bars');
+  bars.textContent = '';
+  bars.append(bar('Protein', t.pr, todayKind().pr, 'g'));
+  bars.append(bar('Karbonhidrat', t.c, todayKind().c, 'g'));
+  bars.append(bar('Yağ', t.f, todayKind().f, 'g'));
+  const kcal = document.createElement('p');
+  kcal.className = 'hint';
+  kcal.textContent = 'Toplam ' + Math.round(t.kcal) + ' kcal — bilgi olsun diye; hedef değil.';
+  bars.append(kcal);
+
+  const box = $('picked');
+  box.textContent = '';
+  if (state.plate.length === 0) {
+    const e = document.createElement('p');
+    e.className = 'empty';
+    e.textContent = 'Soldan yemek ekle.';
+    box.append(e);
+    return;
+  }
+  for (const item of state.plate) {
+    const row = document.createElement('div');
+    row.className = 'picked-row';
+    const n = document.createElement('span');
+    n.textContent = item.n;
+    const q = document.createElement('span');
+    q.className = 'qty';
+    q.textContent = '×' + item.q;
+    const x = document.createElement('button');
+    x.className = 'x';
+    x.type = 'button';
+    x.setAttribute('aria-label', item.n + ' çıkar');
+    x.textContent = '×';
+    x.onclick = () => {
+      item.q -= 1;
+      if (item.q <= 0) state.plate = state.plate.filter((p) => p !== item);
+      renderPlate();
+      renderDock();
+    };
+    row.append(n, q, x);
+    box.append(row);
+  }
+}
+
+/* --- alt bar + kayıt --- */
+function renderDock() {
+  const list = $('dock-list');
+  const save = $('save');
+  if (state.tab === 'lift' && state.week3) {
+    list.innerHTML = '<b>3 seanslık hafta</b> · ' + state.week3.map((g) => DAYS[g.weekday]).join(' · ');
+    save.textContent = 'Haftanın seanslarını kaydet';
+    save.disabled = false;
+  } else if (state.tab === 'lift') {
+    const names = [...state.picks].map((id) => (EX.find((e) => e.id === id) || {}).n).filter(Boolean);
+    list.innerHTML = names.length === 0
+      ? 'Henüz hareket seçilmedi.'
+      : '<b>' + names.length + ' hareket</b> · ' + names.join(' · ');
+    save.textContent = 'Seansı kaydet';
+    save.disabled = names.length === 0;
+  } else {
+    const t = totals();
+    list.innerHTML = state.plate.length === 0
+      ? 'Tabak boş.'
+      : '<b>' + state.plate.length + ' kalem</b> · ' + Math.round(t.pr) + ' g protein · ' + Math.round(t.c) + ' g karbonhidrat';
+    save.textContent = 'Tabağı kaydet';
+    save.disabled = state.plate.length === 0;
+  }
+  if (state.tab === 'week') {
+    const lift = Object.values(state.week).filter((k) => k === 'lift').length;
+    list.innerHTML = '<b>' + lift + ' ağırlık günü</b> · gün tipi makro hedefini belirler';
+    save.textContent = 'Haftayı kaydet';
+    save.disabled = false;
+  }
+}
+
+function today() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+$('clear').onclick = () => {
+  if (state.tab === 'lift') { state.picks.clear(); renderLift(); }
+  else { state.plate = []; renderPlate(); }
+  renderDock();
+};
+
+$('save').onclick = async () => {
+  if (!state.db) { $('status').textContent = 'Kayıt açık değil — seçim ekranda kalır.'; return; }
+  $('status').textContent = 'Kaydediliyor…';
+  try {
+    if (state.tab === 'lift' && state.week3) {
+      await state.db.doc('weeks/plan').set({
+        system: state.sistem,
+        days: state.week3.map((g) => ({
+          weekday: g.weekday,
+          name: g.ad,
+          exercises: g.session.map((x) => ({ id: x.id, name: x.name, sets: x.sets, slot: x.label })),
+        })),
+        saved_at: new Date().toISOString(),
+      });
+      state.lastWeek = new Set(state.week3.flatMap((g) => g.session.map((x) => x.id)));
+    } else if (state.tab === 'lift') {
+      await state.db.doc('sessions/' + today()).set({
+        date: today(),
+        exercises: [...state.picks],
+        system: state.sistem,
+        day: Plan.gunOf(state.sistem, state.gun).ad,
+        saved_at: new Date().toISOString(),
+      });
+      state.lastWeek = new Set(state.picks);
+      renderLift();
+    } else if (state.tab === 'week') {
+      await state.db.doc('weeks/current').set({
+        week: state.week,
+        saved_at: new Date().toISOString(),
+      });
+    } else {
+      await state.db.doc('plates/' + today()).set({
+        date: today(),
+        items: state.plate.map((x) => ({ name: x.n, portion: x.p, qty: x.q })),
+        totals: totals(),
+        saved_at: new Date().toISOString(),
+      });
+    }
+    $('status').textContent = 'Kaydedildi · ' + today();
+  } catch (err) {
+    $('status').textContent = 'Kaydedilemedi: ' + (err && err.code ? err.code : 'bilinmeyen hata');
+  }
+};
+
+
+/* --- zar + kural kanıtı --- */
+const DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+const KINDS = {
+  lift: { label: 'Ağırlık', pr: [160, 180], c: [160, 200], f: [70, 80] },
+  swim: { label: 'Yüzme', pr: [150, 175], c: [130, 160], f: [70, 80] },
+  rest: { label: 'Dinlenme', pr: [150, 170], c: [100, 130], f: [70, 80] },
+};
+/* Program varsayılanı (PROGRAM-2026-09): Pzt/Çar/Cum ağırlık, Sal/Per yüzme, hafta sonu yürüyüş. */
+const WEEK_DEFAULT = { 1: 'lift', 2: 'swim', 3: 'lift', 4: 'swim', 5: 'lift', 6: 'rest', 0: 'rest' };
+state.week = Object.assign({}, WEEK_DEFAULT);
+state.rolled = null;
+
+const todayKind = () => KINDS[state.week[new Date().getDay()]];
+
+state.sistem = 'tumVucut';
+state.gun = 0;
+
+function renderSystems() {
+  const sistemler = Object.keys(Plan.SISTEMLER).map((id) => ({ id, label: Plan.SISTEMLER[id].ad }));
+  chipRow($('systems'), sistemler, state.sistem, (id) => {
+    state.sistem = id;
+    state.gun = 0;
+    state.rolled = null;
+    state.week3 = null;
+    renderSystems();
+    renderProof();
+  });
+  const gunler = Plan.SISTEMLER[state.sistem].gunler.map((g, i) => ({ id: i, label: g.ad }));
+  const days = $('sysdays');
+  days.classList.toggle('hidden', gunler.length < 2);
+  chipRow(days, gunler, state.gun, (i) => {
+    state.gun = i;
+    state.rolled = null;
+    renderSystems();
+    renderProof();
+  });
+  const gun = Plan.gunOf(state.sistem, state.gun);
+  $('sysnote').textContent = Plan.SISTEMLER[state.sistem].aciklama +
+    ' — ' + gun.ad + ': ' + Plan.agirlikHedefi(gun) + ' ağırlık seti + 2 karın.';
+}
+
+$('roll').onclick = () => {
+  const session = Plan.roll(EX, { avoid: [...state.lastWeek], sistem: state.sistem, gun: state.gun });
+  state.week3 = null;
+  state.rolled = session;
+  state.picks = new Set(session.map((x) => x.id));
+  renderLift();
+  renderProof();
+  renderDock();
+  $('roll-status').textContent = 'Zar atıldı — denetim her kuralı tek tek gösteriyor.';
+};
+
+state.week3 = null;
+
+$('rollweek').onclick = () => {
+  const gunler = [1, 2, 3, 4, 5, 6, 0].filter((d) => state.week[d] === 'lift');
+  if (gunler.length !== 3) {
+    $('roll-status').textContent = 'Hafta sekmesinde tam 3 ağırlık günü seçili olmalı (şu an ' + gunler.length + ').';
+    return;
+  }
+  const onceki = [...state.lastWeek];
+  state.week3 = Plan.rollWeek(EX, { sistem: state.sistem, gunler, avoid: onceki });
+  state.rolled = null;
+  state.picks = new Set(state.week3[0].session.map((x) => x.id));
+  renderLift();
+  renderProof();
+  renderDock();
+  $('roll-status').textContent = 'Hafta kuruldu — üç seans, aralarında dinlenme denetlendi.';
+};
+
+function renderWeekProof(box) {
+  const h = document.createElement('h3');
+  h.textContent = 'Haftanın üç seansı — ' + Plan.SISTEMLER[state.sistem].ad;
+  box.append(h);
+
+  for (const gun of state.week3) {
+    const title = document.createElement('p');
+    title.className = 'daytitle';
+    title.textContent = DAYS[gun.weekday] + ' · ' + gun.ad;
+    box.append(title);
+
+    const list = document.createElement('div');
+    list.className = 'rolled';
+    for (const x of gun.session) {
+      const row = document.createElement('div');
+      row.className = 'rolled-row';
+      const slot = document.createElement('span');
+      slot.className = 'slot';
+      slot.textContent = x.label;
+      const name = document.createElement('span');
+      name.textContent = x.name + ' · ' + x.eq;
+      const sets = document.createElement('span');
+      sets.className = 'sets';
+      sets.textContent = x.sets + '×8–15';
+      row.append(slot, name, sets);
+      list.append(row);
+    }
+    box.append(list);
+  }
+
+  const h2 = document.createElement('h3');
+  h2.textContent = 'Hafta denetimi';
+  box.append(h2);
+  box.append(proofList(Plan.checkWeek(state.week3)));
+
+  const h3 = document.createElement('h3');
+  h3.textContent = 'Seans denetimi (üçü birden)';
+  box.append(h3);
+  const hepsi = [];
+  for (const gun of state.week3) {
+    for (const r of Plan.check(EX, gun.session, { sistem: state.sistem, gun: gun.gunIndex })) {
+      const varOlan = hepsi.find((x) => x.kural === r.kural);
+      if (varOlan) { varOlan.ok = varOlan.ok && r.ok; varOlan.deger += ' · ' + r.deger; }
+      else hepsi.push({ ...r });
+    }
+  }
+  box.append(proofList(hepsi));
+}
+
+function proofList(rows) {
+  const ul = document.createElement('ul');
+  for (const r of rows) {
+    const li = document.createElement('li');
+    li.className = r.ok ? 'pass' : 'fail';
+    const m = document.createElement('span');
+    m.className = 'mark';
+    m.textContent = r.ok ? '✓' : '✗';
+    const k = document.createElement('span');
+    k.textContent = r.kural;
+    const v = document.createElement('span');
+    v.className = 'val';
+    v.textContent = r.deger;
+    li.append(m, k, v);
+    ul.append(li);
+  }
+  return ul;
+}
+
+function renderProof() {
+  const box = $('proof');
+  if (state.week3) {
+    box.classList.remove('hidden');
+    box.textContent = '';
+    renderWeekProof(box);
+    return;
+  }
+  if (!state.rolled) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  box.textContent = '';
+
+  const h = document.createElement('h3');
+  h.textContent = 'Zarın kurduğu seans — ' + Plan.SISTEMLER[state.sistem].ad + ' · ' + Plan.gunOf(state.sistem, state.gun).ad;
+  box.append(h);
+
+  const list = document.createElement('div');
+  list.className = 'rolled';
+  for (const x of state.rolled) {
+    const row = document.createElement('div');
+    row.className = 'rolled-row';
+    const slot = document.createElement('span');
+    slot.className = 'slot';
+    slot.textContent = x.label;
+    const name = document.createElement('span');
+    name.textContent = x.name + ' · ' + x.eq;
+    const sets = document.createElement('span');
+    sets.className = 'sets';
+    sets.textContent = x.sets + '×8–15';
+    row.append(slot, name, sets);
+    list.append(row);
+  }
+  box.append(list);
+
+  const h2 = document.createElement('h3');
+  h2.textContent = 'Kural denetimi';
+  box.append(h2);
+
+  box.append(proofList(Plan.check(EX, state.rolled, { sistem: state.sistem, gun: state.gun })));
+}
+
+/* --- hafta --- */
+function macroLine(label, range) {
+  const s = document.createElement('span');
+  s.textContent = label + ' ';
+  const b = document.createElement('b');
+  b.textContent = range[0] + '–' + range[1] + ' g';
+  s.append(b);
+  return s;
+}
+
+function renderWeek() {
+  const box = $('week');
+  box.textContent = '';
+  const now = new Date().getDay();
+  for (const d of [1, 2, 3, 4, 5, 6, 0]) {
+    const kind = state.week[d];
+    const card = document.createElement('div');
+    card.className = 'day' + (d === now ? ' today' : '');
+
+    const name = document.createElement('div');
+    name.className = 'day-name';
+    const n = document.createElement('span');
+    n.textContent = DAYS[d];
+    name.append(n);
+    if (d === now) {
+      const t = document.createElement('em');
+      t.textContent = 'bugün';
+      name.append(t);
+    }
+    card.append(name);
+
+    const kinds = document.createElement('div');
+    kinds.className = 'kinds';
+    for (const id of Object.keys(KINDS)) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'kind';
+      b.textContent = KINDS[id].label;
+      b.setAttribute('aria-pressed', String(id === kind));
+      b.setAttribute('aria-label', DAYS[d] + ' ' + KINDS[id].label);
+      b.onclick = () => {
+        state.week[d] = id;
+        renderWeek();
+        renderPlate();
+        renderDock();
+      };
+      kinds.append(b);
+    }
+    card.append(kinds);
+
+    const k = KINDS[kind];
+    const macros = document.createElement('div');
+    macros.className = 'macros';
+    macros.append(macroLine('Protein', k.pr), macroLine('Karb.', k.c), macroLine('Yağ', k.f));
+    card.append(macros);
+    box.append(card);
+  }
+  renderWeekSum();
+}
+
+function renderWeekSum() {
+  const days = Object.values(state.week);
+  const mid = (r) => (r[0] + r[1]) / 2;
+  const pr = days.reduce((a, k) => a + mid(KINDS[k].pr), 0);
+  const c = days.reduce((a, k) => a + mid(KINDS[k].c), 0);
+  const f = days.reduce((a, k) => a + mid(KINDS[k].f), 0);
+  const kcal = pr * 4 + c * 4 + f * 9;
+  const lift = days.filter((k) => k === 'lift').length;
+  const swim = days.filter((k) => k === 'swim').length;
+
+  const box = $('weeksum');
+  box.textContent = '';
+  const items = [
+    ['Haftalık protein', Math.round(pr) + ' g'],
+    ['Haftalık karbonhidrat', Math.round(c) + ' g'],
+    ['Haftalık yağ', Math.round(f) + ' g'],
+    ['Haftalık enerji', Math.round(kcal).toLocaleString('tr-TR') + ' kcal'],
+    ['Ağırlık / yüzme', lift + ' + ' + swim + ' gün'],
+  ];
+  for (const pair of items) {
+    const it = document.createElement('div');
+    it.className = 'sum-item';
+    const kk = document.createElement('span');
+    kk.className = 'k';
+    kk.textContent = pair[0];
+    const vv = document.createElement('span');
+    vv.className = 'v';
+    vv.textContent = pair[1];
+    it.append(kk, vv);
+    box.append(it);
+  }
+}
+
+/* --- açılış --- */
+renderSystems();
+renderLift();
+renderWeek();
+renderFoods();
+renderDock();
+
+(async () => {
+  const db = await window.claude?.use?.('db');
+  if (!db) { $('status').textContent = 'Kayıt bu görünümde kapalı.'; return; }
+  state.db = db;
+  try {
+    const rows = await db.collection('sessions').orderBy('date', 'desc').limit(2).get();
+    const prev = rows.find((r) => r.date !== today());
+    if (prev && Array.isArray(prev.exercises)) {
+      state.lastWeek = new Set(prev.exercises);
+      renderLift();
+    }
+    const wk = await db.doc('weeks/current').get();
+    if (wk && wk.week) {
+      state.week = Object.assign({}, WEEK_DEFAULT, wk.week);
+      renderWeek();
+      renderPlate();
+    }
+    const cur = rows.find((r) => r.date === today());
+    if (cur && Array.isArray(cur.exercises)) {
+      state.picks = new Set(cur.exercises);
+      renderLift();
+      renderDock();
+    }
+  } catch { /* okunamadıysa boş başlar */ }
+})();
+</script>

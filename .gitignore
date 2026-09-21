@@ -35,4 +35,6 @@ ota/*.apk
 
 # CI'da secret'tan yazilir, repoda durmaz.
 apps/web/android/debug.keystore
-.artifact-build/
+
+# Secici gorselleri: upstream CDN de duruyor, build.mjs indirir.
+tools/secici/img/
