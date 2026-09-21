@@ -19,7 +19,7 @@
 | Hip abduction / adduction | Life Fitness | kalça dış/iç — programda yok, istenirse eklenir | `Thigh_Abductor` | `hip-abduction-lifefitness.jpg`, `hip-adduction-lifefitness.jpg` |
 | Abdominal crunch makinesi | Life Fitness — salon no 15 | karın (dead bug önceliklidir, bu ikincil) | `Ab_Crunch_Machine` | `abdominal-crunch-makinesi.jpg`, `abdominal-crunch-yakin.jpg` |
 | Kablo crossover / çapraz istasyon | Diesel Fitness | Pzt, kablo fly (pec deck alternatifi) | `Cable_Crossover` | `kablo-crossover-diesel.jpg`, `kablo-istasyonu-genel.jpg` |
-| Lat pulldown (kablo) | — | Çar, sırt | `Wide-Grip_Lat_Pulldown` | `lat-pulldown-kablo.jpg` |
+| Lat pulldown (kablo, geniş bar + V/nötr bar) | — | Çar, sırt. **Nötr/dar V bar öncelikli** (omuz dostu), geniş bar ikinci hareket | `Wide-Grip_Lat_Pulldown`, `Close-Grip_Front_Lat_Pulldown` | `lat-pulldown-kablo.jpg`, `lat-pulldown-istasyon-barlar.jpg` |
 | Kablo alt makara + ayak platformu | — | Çar, oturarak kablo çekiş | `Seated_Cable_Rows` | `kablo-alt-makara-platform.jpg` |
 | Plakalı (leverage) göğüs/sırt makinesi | Life Fitness | Pzt/Çar alternatifi | `Leverage_Incline_Chest_Press` | `plakali-makine-lifefitness.jpg` |
 | Dambıl rafı | Diesel Fitness + Life Fitness | eğik dambıl press, dambıl curl | `Incline_Dumbbell_Press`, `Dumbbell_Bench_Press` | `dambil-rafi-diesel.jpg`, `dambil-rafi-lifefitness.jpg`, `dambil-rafi-kademeler.jpg` |
@@ -44,6 +44,8 @@
 
 | 21 Eyl | **Pec deck (fly)** | 25×15, 30×12, 35×12 | çalışma ağırlığı **35 kg**; gelecek hafta 35-40-40 |
 | 21 Eyl | **Biceps curl (makine no 7)** | 15×12, 17.5×12, 20×12 | çalışma ağırlığı **20 kg**; 3 sette 12 tam → gelecek hafta 20-22.5-22.5 |
+| 21 Eyl | **Triceps press (no 8)** | 15×15 (hafif), 25×12, 30×12 | çalışma ağırlığı **30 kg**; gelecek hafta 30-32.5-35 |
+| 21 Eyl | **Row (makine)** — plan dışı eklendi | 20×12, 25×12, 30×12 | çalışma ağırlığı **30 kg**. Not: sırt Çarşamba günü; Pzt'ye row eklenirse Çar hacmi 9→6 sete iner |
 
 **Nabız (21 Eyl seansı):** setler boyunca **114 sabit** — ağırlık çalışması için güvenli band
 (43 yaş, maks ~177; 114 = %64). Setler arası düşmüyorsa ara süresini uzat, tırmanıyorsa dur.
