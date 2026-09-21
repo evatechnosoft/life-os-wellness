@@ -43,6 +43,10 @@
 | 21 Eyl | **Chest press — asıl** | 35×12, 40×12, 45×10 (12 çıkabilirdi) | çalışma ağırlığı **45 kg**; gelecek hafta 40-45-50 |
 
 | 21 Eyl | **Pec deck (fly)** | 25×15, 30×12, 35×12 | çalışma ağırlığı **35 kg**; gelecek hafta 35-40-40 |
+| 21 Eyl | **Biceps curl (makine no 7)** | 15×12, 17.5×12, 20×12 | çalışma ağırlığı **20 kg**; 3 sette 12 tam → gelecek hafta 20-22.5-22.5 |
+
+**Nabız (21 Eyl seansı):** setler boyunca **114 sabit** — ağırlık çalışması için güvenli band
+(43 yaş, maks ~177; 114 = %64). Setler arası düşmüyorsa ara süresini uzat, tırmanıyorsa dur.
 
 **Ara süresi uyarısı:** 21 Eyl setleri arası 40 sn ölçüldü. Hipertansiyonda kısa ara kan
 basıncını setten sete biriktirir; bileşik hareketlerde **90–120 sn** hedef.
