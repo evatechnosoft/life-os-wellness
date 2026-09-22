@@ -40,6 +40,12 @@ function fixture() {
   return dir
 }
 
+test('collect: --from oncesi atlanir', () => {
+  const { wearable, daily } = collect(fixture(), '2026-09-21')
+  assert.deepEqual(daily.map(([d]) => d), ['2026-09-21'])
+  assert.equal(wearable.every((r) => r.date >= '2026-09-21'), true)
+})
+
 test('collect: gunluk adim uce katlanmaz, kilo yuvarlanir, bozuk tansiyon elenir', () => {
   const { wearable, daily } = collect(fixture())
 

@@ -4,6 +4,7 @@
 //   npm run import:samsung -- <yol>            -> API'ye yazar
 //   npm run import:samsung -- <yol> --dry-run  -> sadece ozet basar
 //   npm run import:samsung -- <yol> --api http://192.168.1.185:3311
+//   npm run import:samsung -- <yol> --from 2026-09-12   -> o tarihten oncesini atar
 //
 // Ne alinir: gunluk adim, kilo, tansiyon. Egzersiz seanslari ALINMAZ - Samsung'un
 // exercise_type kodlari bizim tiplere birebir oturmuyor, 584 satir "bu neydi?"
@@ -88,12 +89,17 @@ export function localDay(timestamp, offset) {
   return new Date(utc + shift).toISOString().slice(0, 10)
 }
 
-/** Arsivi okur, yazilacak kayitlari uretir. Saf: API'ye dokunmaz. */
-export function collect(dir) {
+/**
+ * Arsivi okur, yazilacak kayitlari uretir. Saf: API'ye dokunmaz.
+ * `from` verilirse o tarihten oncesi atlanir - Dean gunlugun baslangicini
+ * 2026-09-12 olarak temizledi, arsiv yeniden calistirilinca 2024 geri gelmesin.
+ */
+export function collect(dir, from = null) {
   const wearable = []
   const daily = new Map()
-  const put = (date, field, value) => daily.set(date, { ...daily.get(date), [field]: value })
-  const push = (date, metric, value) => wearable.push({ date, source: SOURCE, metric, value })
+  const skip = (date) => from !== null && date < from
+  const put = (date, field, value) => { if (!skip(date)) daily.set(date, { ...daily.get(date), [field]: value }) }
+  const push = (date, metric, value) => { if (!skip(date)) wearable.push({ date, source: SOURCE, metric, value }) }
 
   // Adim: telefon, saat ve birlesik kayit ayni gunu uc kez yazar. Yalniz birlesik
   // satir (source_type = -2) alinir, yoksa gunluk adim uce katlanir.
@@ -158,13 +164,15 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     process.exit(1)
   }
   const dryRun = args.includes('--dry-run')
+  const fromIndex = args.indexOf('--from')
+  const from = fromIndex >= 0 ? args[fromIndex + 1] : null
   const apiIndex = args.indexOf('--api')
   const api = apiIndex >= 0 ? args[apiIndex + 1] : 'http://127.0.0.1:3011'
 
   const { dir, cleanup } = openExport(path)
   let result
   try {
-    result = collect(dir)
+    result = collect(dir, from)
   } finally {
     cleanup()
   }
