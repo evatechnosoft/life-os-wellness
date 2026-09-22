@@ -104,7 +104,13 @@ Hafta sonu havuz kapalı (Dean, 21 Eyl) — yüzme Salı/Perşembe'ye alındı, 
 Haftalık: quad 9, hamstring-kalça 9, göğüs 9, sırt 9, omuz 6, kol 12. Kardiyo 150–200 dk zone 2.
 Mobilite (Per, 10 dk, uygulamadaki kartlarıyla): kedi-deve · diz çökerek kalça öne itme ·
 ayakta kalça çemberi · dinamik göğüs açma · ayak bileği çemberi.
-İlerleme: 3 sette 12+ tekrar → ağırlık +%5. Deload: **7. hafta** hacim −%40, ağırlık sabit; reaktif tetik: 2 hafta ilerleme yok / eklem ağrısı / uyku bozuk / sabah tansiyonu yükseldi.
+İlerleme (çift ilerleme, 22 Eyl): 3 sette de 12 çıkıyorsa ağırlık artmaz, **tekrar tırmanır**
+(12→13→14→15); üç sette de 15'e ulaşınca ağırlık +%5 ve 8–10 tekrara dönülür. Kalori açığında
+kuvvet artışı yavaşlar, tekrar artışı da ilerlemedir. **İki hafta üst üste hiçbir yönde ilerleme
+yoksa** o hareketin ağırlığı −%10, 8 tekrardan yeniden tırmanılır. Yaş 43: kas yapma kapasitesi
+değil toparlanma ve eklem toleransı sınırlayıcı — makine ağırlıklı seçim, 48 saat aralık ve RIR 2
+bunu zaten karşılıyor. Eksik kaldıraç **uyku**: 2026'da tek kayıt yok (son veri Mayıs 2025).
+Eski kural: 3 sette 12+ tekrar → ağırlık +%5. Deload: **7. hafta** hacim −%40, ağırlık sabit; reaktif tetik: 2 hafta ilerleme yok / eklem ağrısı / uyku bozuk / sabah tansiyonu yükseldi.
 Tansiyon ölçümü sabah aç karnına, 2 ölçüm ortalaması; antrenman sonrası ölçüm yok.
 
 ## 6. Karar kuralları
