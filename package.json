@@ -11,10 +11,11 @@
     "db:migrate": "node --env-file-if-exists=.env db/migrate.js",
     "dev:api": "npm run dev -w @wellness/api",
     "dev:web": "npm run dev -w @wellness/web",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present && node --test ops/*.test.mjs",
     "start": "node ops/up.mjs",
     "link": "node ops/phone_link.mjs",
     "apk": "node ops/build_apk.mjs",
-    "import:health": "node ops/import_health.mjs"
+    "import:health": "node ops/import_health.mjs",
+    "import:samsung": "node ops/import_samsung.mjs"
   }
 }

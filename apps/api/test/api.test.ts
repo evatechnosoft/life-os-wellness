@@ -108,9 +108,11 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
 
     const list = await app.inject({ method: 'GET', url: '/api/exercise-sets?exercise_id=test-ex&limit=5', headers: auth })
     const sets = list.json() as { id: string; weight_kg: number; reps: number }[]
-    assert.equal(sets[0].id, setId)  // done_at dolu olan once: "gecen sefer 45x12"
-    assert.equal(sets[0].weight_kg, 45)
-    assert.equal(sets[0].reps, 12)
+    const last = sets[0]  // done_at dolu olan once: "gecen sefer 45x12"
+    assert.ok(last)
+    assert.equal(last.id, setId)
+    assert.equal(last.weight_kg, 45)
+    assert.equal(last.reps, 12)
 
     const range = await app.inject({ method: 'GET', url: '/api/workouts?start=2099-03-01&end=2099-03-01', headers: auth })
     const workout = (range.json() as { id: string; sets: unknown[] }[]).find((w) => w.id === workoutId)
@@ -120,6 +122,23 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     await app.inject({ method: 'DELETE', url: `/api/workouts/${workoutId}`, headers: auth })
     const left = await pool.query('select count(*)::int as n from exercise_set where workout_id = $1', [workoutId])
     assert.equal(left.rows[0].n, 0)
+  })
+
+  test('wearable: ayni gun iki olcum tek satira duser, son deger kazanir', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/wearable', headers: auth,
+      payload: { records: [
+        { date: '2099-04-01', source: 'test_src', metric: 'bp_systolic', value: 132 },
+        { date: '2099-04-01', source: 'test_src', metric: 'bp_systolic', value: 128 },
+      ] },
+    })
+    assert.equal(res.statusCode, 200)
+    assert.equal(res.json().written, 1)
+    const { rows } = await pool.query(
+      "select value from wearable_sync where date = '2099-04-01' and source = 'test_src'",
+    )
+    assert.equal(rows.length, 1)
+    assert.equal(Number(rows[0].value), 128)
   })
 
   after(async () => {

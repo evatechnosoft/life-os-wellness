@@ -501,8 +501,12 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
   app.post('/api/wearable', { schema: { body: WEARABLE_BODY } }, async (req) => {
     const { records } = req.body as { records: { date: string; source: string; metric: string; value: number }[] }
     if (records.length === 0) return { written: 0 }
+    // Ayni (date, source, metric) bir istekte iki kez gelebilir: gunde iki tarti,
+    // iki tansiyon olcumu. Postgres tek komutta ayni satiri iki kez guncelleyemez
+    // (21000), bu yuzden burada tekillestirilir - son olcum gecerli.
+    const unique = new Map(records.map((r) => [`${r.date}|${r.source}|${r.metric}`, r]))
     const values: unknown[] = []
-    const tuples = records.map((r, i) => {
+    const tuples = [...unique.values()].map((r, i) => {
       values.push(r.date, r.source, r.metric, r.value)
       const at = i * 4
       return `($${at + 1}, $${at + 2}, $${at + 3}, $${at + 4})`
@@ -512,7 +516,7 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
        on conflict (date, source, metric) do update set value = excluded.value, synced_at = now()`,
       values,
     )
-    return { written: records.length }
+    return { written: unique.size }
   })
 
   app.get('/api/meals', { schema: { querystring: RANGE } }, async (req) => {
