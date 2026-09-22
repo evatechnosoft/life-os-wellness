@@ -6,9 +6,9 @@
 //   npm run import:samsung -- <yol> --api http://192.168.1.185:3311
 //   npm run import:samsung -- <yol> --from 2026-09-12   -> o tarihten oncesini atar
 //
-// Ne alinir: gunluk adim, kilo, tansiyon. Egzersiz seanslari ALINMAZ - Samsung'un
-// exercise_type kodlari bizim tiplere birebir oturmuyor, 584 satir "bu neydi?"
-// kartina dusup gunluk akisi bogardi. Gerekirse ayri bir adimda eklenir.
+// Ne alinir: gunluk adim, kilo, tansiyon ve anlamli egzersiz seanslari.
+// Saat hareket adini (omuz/kol) arsive yazmiyor - yalniz seans tipi var; hareket
+// listesi Samsung'dan gelmez, seans "bu neydi?" karti olarak onaya duser.
 //
 // Tekrar calistirmaya dayanikli: wearable (date,source,metric) uzerine yazar,
 // daily_log'a ise YALNIZ bos alanlar doldurulur - Health Connect'in ya da elle
@@ -68,7 +68,9 @@ export function parseCsv(text) {
 
 /** Samsung CSV'si: 1. satir meta, 2. satir baslik. Nesne dizisi dondurur. */
 function readTable(dir, name) {
-  const file = readdirSync(dir).find((f) => f.startsWith(name) && f.endsWith('.csv'))
+  // Tam eslesme: "…exercise" prefixi "…exercise.custom_exercise" dosyasini da yakalar.
+  const wanted = new RegExp(`^${name.replace(/\./g, '\\.')}\\.\\d+\\.csv$`)
+  const file = readdirSync(dir).find((f) => wanted.test(f))
   if (!file) throw new Error(`${name}*.csv arsivde yok`)
   const text = readFileSync(join(dir, file), 'utf8').replace(/^﻿/, '')
   const rows = parseCsv(text)
@@ -94,6 +96,18 @@ export function localDay(timestamp, offset) {
  * `from` verilirse o tarihten oncesi atlanir - Dean gunlugun baslangicini
  * 2026-09-12 olarak temizledi, arsiv yeniden calistirilinca 2024 geri gelmesin.
  */
+// Samsung exercise_type -> bizim tip. Arsivde gozlenen kodlar:
+//   1001  yuruyus (count = adim) - ALINMAZ: adim zaten gunluk sayacta, ayri
+//         antrenman satiri gunde 2-4 kez gurultu yapardi
+//   14001 yuzme (count = tur)
+//   15002 salon/devre - tip tahmini, needs_review ile onaya duser
+//   0     tanimsiz - yalniz 30 dk ustu alinir (kisasi gunluk hareket)
+const EXERCISE_TYPES = {
+  14001: { type: 'cardio', note: 'Yüzme (Samsung)' },
+  15002: { type: 'resistance', note: 'Salon (Samsung, tip 15002)' },
+}
+const UNKNOWN_MIN_MINUTES = 30
+
 export function collect(dir, from = null) {
   const wearable = []
   const daily = new Map()
@@ -134,7 +148,35 @@ export function collect(dir, from = null) {
     put(date, 'bp_diastolic', dia)
   }
 
-  return { wearable, daily: [...daily.entries()].sort(([a], [b]) => a.localeCompare(b)) }
+  // Egzersiz seanslari. id = Samsung'un datauuid'si: tekrar calistirma cogaltmaz.
+  const E = 'com.samsung.health.exercise.'
+  const workouts = []
+  for (const r of readTable(dir, 'com.samsung.shealth.exercise')) {
+    const start = r[`${E}start_time`]
+    if (!start) continue
+    const date = localDay(start, r[`${E}time_offset`])
+    if (skip(date)) continue
+    const minutes = Math.round(Number(r[`${E}duration`] || 0) / 60000)
+    const code = Number(r[`${E}exercise_type`])
+    const known = EXERCISE_TYPES[code]
+    if (!known && !(code === 0 && minutes >= UNKNOWN_MIN_MINUTES)) continue
+    workouts.push({
+      id: r[`${E}datauuid`],
+      date,
+      type: known?.type ?? 'cardio',
+      duration_min: minutes,
+      muscle_groups: [],
+      // Ne yapildigini yalniz Dean bilir: onaylanana kadar "bu neydi?" karti.
+      needs_review: true,
+      notes: known?.note ?? `Samsung (tanımsız, ${minutes} dk)`,
+    })
+  }
+
+  return {
+    wearable,
+    daily: [...daily.entries()].sort(([a], [b]) => a.localeCompare(b)),
+    workouts: workouts.sort((a, b) => a.date.localeCompare(b.date)),
+  }
 }
 
 // Sunucu dakikada 300 istek kabul ediyor (server.ts MAX_PER_WINDOW) ve bu limit
@@ -177,10 +219,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     cleanup()
   }
 
-  const { wearable, daily } = result
+  const { wearable, daily, workouts } = result
   const days = daily.map(([date]) => date)
   console.log(`${days.length} gun  ${days[0]} -> ${days[days.length - 1]}`)
   console.log(`  olcum kaydi : ${wearable.length}`)
+  console.log(`  antrenman   : ${workouts.length}`)
   for (const [date, v] of daily.slice(-5)) {
     console.log(`  ${date}  adim ${v.steps ?? '-'}  kilo ${v.weight_kg ?? '-'}  ta ${v.bp_systolic ?? '-'}/${v.bp_diastolic ?? '-'}`)
   }
@@ -212,5 +255,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     await send(api, token, 'PUT', `/api/daily/${date}`, patch)
     written++
   }
-  console.log(`\nyazildi. gunluk: ${written} gun dolduruldu, ${skipped} gun zaten doluydu.`)
+  // Seanslar: id = Samsung datauuid, tekrar calistirma uzerine yazar.
+  for (const w of workouts) await send(api, token, 'POST', '/api/workouts', w)
+  console.log(`\nyazildi. gunluk: ${written} gun dolduruldu, ${skipped} gun zaten doluydu. antrenman: ${workouts.length}`)
 }
