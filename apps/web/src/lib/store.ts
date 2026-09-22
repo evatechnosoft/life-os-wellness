@@ -26,6 +26,11 @@ export async function queueSplitNote(weekday: number, note: string): Promise<voi
   await queue({ method: 'PUT', path: '/api/split', body: { days: [{ weekday, note: note || null }] } })
 }
 
+/** Haftalik seans plani (db/008). Gonderilmeyen alana sunucu dokunmaz. */
+export async function queueWorkoutPlan(days: object[]): Promise<void> {
+  await queue({ method: 'PUT', path: '/api/workout-plan', body: { days } })
+}
+
 /** Hedefler tek satir jsonb (db/007); sunucu birlestirir. */
 export async function queueGoals(goals: object): Promise<void> {
   await queue({ method: 'PUT', path: '/api/goals', body: goals })

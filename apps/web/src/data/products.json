@@ -68,5 +68,140 @@
       "fibre_g": 8,
       "salt_g": 0.01
     }
+  },
+  {
+    "name": "protein bar duble kakao",
+    "brand": "Fellas",
+    "portion_g": 32,
+    "note": "kutu: 8 g protein, 3.9 g lif / bar",
+    "per100g": {
+      "kcal": 352,
+      "protein_g": 20.0,
+      "fat_g": 16.5,
+      "sat_fat_g": 5.1,
+      "carb_g": 45.6,
+      "sugar_g": 3.4,
+      "fibre_g": 4.5,
+      "salt_g": 0.2
+    }
+  },
+  {
+    "name": "protein bar %20 kurabiye",
+    "brand": "Waspco",
+    "portion_g": 40,
+    "note": "tatlandirici maltitol; 1 bar 140 kcal, 8 g protein",
+    "per100g": {
+      "kcal": 352,
+      "protein_g": 20.0,
+      "fat_g": 16.5,
+      "sat_fat_g": 5.1,
+      "carb_g": 45.6,
+      "sugar_g": 3.4,
+      "fibre_g": 4.5,
+      "salt_g": 0.2
+    }
+  },
+  {
+    "name": "protein bar %25 cikolatali kek",
+    "brand": "Waspco",
+    "portion_g": 36,
+    "note": "tatlandirici maltitol; 1 bar 131 kcal, 9 g protein",
+    "per100g": {
+      "kcal": 365,
+      "protein_g": 24.94,
+      "fat_g": 14.0,
+      "sat_fat_g": 4.6,
+      "carb_g": 48.7,
+      "sugar_g": 1.5,
+      "fibre_g": 6.0,
+      "salt_g": 0.02
+    }
+  },
+  {
+    "name": "tam yagli homojenize yogurt",
+    "brand": "Gonuk",
+    "barcode": "8684898501131",
+    "note": "en az %4 sut yagi",
+    "per100g": {
+      "kcal": 74,
+      "protein_g": 4.0,
+      "fat_g": 4.0,
+      "sat_fat_g": 2.6,
+      "carb_g": 5.5,
+      "sugar_g": 5.5,
+      "salt_g": 0.1
+    }
+  },
+  {
+    "name": "laktozsuz UHT sut %1 yagli",
+    "brand": "Danone",
+    "note": "300 ml = 123 kcal, 9 g protein",
+    "per100g": {
+      "kcal": 41,
+      "protein_g": 3.0,
+      "fat_g": 1.0,
+      "sat_fat_g": 0.7,
+      "carb_g": 4.8,
+      "sugar_g": 4.8,
+      "salt_g": 0.09
+    }
+  },
+  {
+    "name": "ton baligi (yagda, konserve)",
+    "brand": "Dardanel",
+    "portion_g": 50,
+    "note": "75 g brut / 50 g suzme; 100 g'da 200 mg omega-3, tuz 1.7 g - suzme 50 g = 0.85 g tuz",
+    "per100g": {
+      "kcal": 212,
+      "protein_g": 23.5,
+      "fat_g": 12.4,
+      "sat_fat_g": 1.9,
+      "carb_g": 0,
+      "sugar_g": 0,
+      "salt_g": 1.7
+    }
+  },
+  {
+    "name": "RED DE7OX 7in1 bitkisel takviye",
+    "brand": "Ismail Aras",
+    "portion_g": 100,
+    "note": "gojiberry, ahududu, hibiskus, kiraz sapi, elma nektari, aserola, guava; besin degeri ~sifir",
+    "per100g": {
+      "kcal": 6.3,
+      "protein_g": 0.15,
+      "fat_g": 0.01,
+      "sat_fat_g": 0.02,
+      "carb_g": 1.02,
+      "sugar_g": 0.16,
+      "salt_g": 0.01
+    }
+  },
+  {
+    "name": "GREEN DE7OX 7in1 bitkisel takviye",
+    "brand": "Ismail Aras",
+    "portion_g": 100,
+    "note": "mate, bromelain, yesil kahve, spirulina, elma, aloe vera; kafein icerir, miktari yazmiyor",
+    "per100g": {
+      "kcal": 7.52,
+      "protein_g": 0.12,
+      "fat_g": 0.01,
+      "sat_fat_g": 0.02,
+      "carb_g": 1.0,
+      "sugar_g": 0.19,
+      "salt_g": 0.06
+    }
+  },
+  {
+    "name": "maden suyu (1 L)",
+    "brand": "Mina",
+    "note": "L basina: sodyum 164 mg, magnezyum 57 mg, kalsiyum 154 mg, potasyum 35 mg, bikarbonat 1062 mg",
+    "per100g": {
+      "kcal": 0,
+      "protein_g": 0,
+      "fat_g": 0,
+      "carb_g": 0,
+      "sugar_g": 0,
+      "salt_g": 0.041
+    }
   }
 ]

@@ -12,6 +12,7 @@
   --color-glass: rgba(255, 255, 255, 0.06);
   --color-glass-strong: rgba(255, 255, 255, 0.1);
   --color-glass-inset: rgba(255, 255, 255, 0.05);
+  --color-surface: #11141b;
   --color-ink: #f4f6fb;
   --color-ink-dim: rgba(244, 246, 251, 0.62);
   --color-ink-faint: rgba(244, 246, 251, 0.38);
@@ -46,31 +47,41 @@ body {
   background: var(--color-bg);
 }
 
-/* Aurora glow: two soft brand-coloured lights behind the content, no animation cost. */
+/*
+ * Aurora glow kaldirildi (Dean, 22 Eyl: "bot tasarimi genellemesini gec").
+ * Duz koyu zemin + tek aksan: veriyi one cikaran yon (Whoop/Oura hatti).
+ * Tek isik kaynagi kaldi, cok hafif - ekranin ustu tamamen olu gorunmesin diye.
+ */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(60% 40% at 15% 0%, rgba(45, 212, 191, 0.16), transparent 70%),
-    radial-gradient(50% 35% at 90% 12%, rgba(99, 102, 241, 0.14), transparent 70%);
+  background: radial-gradient(70% 30% at 50% 0%, rgba(45, 212, 191, 0.05), transparent 70%);
 }
 
+/* Kart artik cam degil yuzey: blur ve golge yerine ince kenar. Ust uste yigilan
+   yari saydam kartlar ekrani bulaniklastiriyordu. */
 .glass-card {
-  background: var(--color-glass);
+  background: var(--color-surface);
   border: 1px solid var(--color-edge-soft);
   border-radius: var(--radius-card);
-  box-shadow: var(--elev-card);
-  backdrop-filter: blur(22px);
 }
 
 .glass-nav {
-  background: rgba(13, 16, 23, 0.72);
-  border: 1px solid var(--color-edge);
+  background: rgba(13, 16, 23, 0.92);
+  border: 1px solid var(--color-edge-soft);
   border-radius: var(--radius-pill);
-  box-shadow: var(--elev-nav);
-  backdrop-filter: blur(26px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+}
+
+/* Olcum ekranlarindaki buyuk rakam: tabular oldugu icin gunden gune zipla-maz. */
+.stat-number {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .accent-text {

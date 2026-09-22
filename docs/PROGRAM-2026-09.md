@@ -58,6 +58,22 @@ Karbonhidrat kesilmez; kalitesi değişir ve büyük kısmı antrenman gününe 
 | Antrenman sonrası | süt 300 ml + muz **veya** 200 g süzme yoğurt (ayran yalnız tuzsuzsa) | ~10–20 g |
 Toplam ~165–180 g; hedef tutmuyorsa akşama 100 g lor.
 
+**Deniz ürünü, bar ve takviye kuralları (22 Eyl, etiketlerden doğrulandı):**
+- **Kabuklular** (karides, midye, kalamar): haftada ≤2 porsiyon (150–200 g). Ürik asit 6.0 üst
+  yarıda olduğu için kabuklu yenen gün kırmızı et/sakatat yok, su 3 L. Omega-3'ü düşük →
+  **"balık haftada 2" kotasından sayılmaz**, o kota yağlı balığa (somon, sardalya, uskumru, hamsi) ait.
+- **Konserve ton (yağda):** 50 g süzmede ~340 mg sodyum, omega-3 ~100 mg. Yağlı balık yerine
+  geçmez; suda olanı tercih, süz-yıka, haftada 1.
+- **Protein barı:** günde ≤1, ara öğünün yerine geçmez (200 g süzme yoğurt 20 g protein / 120 kcal
+  verirken bar 8–9 g / 131–140 kcal). Tatlandırıcısı **maltitol** — "şeker ilavesiz" kan şekerine
+  etkisiz demek değil (HbA1c 5.9). Serbest günde tatlı yerine iyi takas.
+- **Detoks/bitkisel karışım programa dahil değil.** Besin değeri ~sıfır (100 g'da 6–8 kcal) ve
+  ticari detoks ürünlerinin toksin attığına dair klinik kanıt yok; 4 Eyl tahlilinde kreatinin 0.91,
+  ALT/AST/GGT normal. **Miktarı etikette yazmayan kafein içeren ürün (mate, yeşil kahve) tansiyon
+  nedeniyle kullanılmaz.**
+- **Tam yağlı yoğurt protein kaynağı sayılmaz** (100 g'da 4 g). Ara öğünde süzme yoğurt kullanılır.
+  Laktozsuz %1 süt 300 ml = 9 g protein, antrenman sonrası slotuna uygun.
+
 Rotasyon (3 set, PLAN-DIET S2): **Alışık** — haşlanmış tavuk + salata, etli sebze + yoğurt, tavuk çorbası+tavuk, menemen.
 **Değişiklik** — fırın somon/levrek 200 g, mercimek köftesi + cacık, kuru fasulye + bulgur, hindi güveç.
 **Hızlı** — 3 yumurta + peynir, ton 160 g + salata, süzme yoğurt 250 g + yulaf.

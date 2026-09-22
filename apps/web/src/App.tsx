@@ -11,8 +11,11 @@ import { pullGoals } from './lib/settings'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
 import { hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
+import { pullWorkoutPlan } from './lib/workoutPlan'
+import { Drawer, type DrawerPage } from './ui/Drawer'
 import { Eva } from './ui/Eva'
 import { Exercises } from './ui/Exercises'
+import { Plan } from './ui/Plan'
 import { QuickAdd } from './ui/QuickAdd'
 import { Settings } from './ui/Settings'
 import { PullToRefresh } from './ui/PullToRefresh'
@@ -22,20 +25,19 @@ import { Week } from './ui/Week'
 /* Ikonlar 24 kare stroke; label erisilebilirlik icin kalir, gozle kucuk. */
 const TABS = [
   { id: 'today', label: 'Bugün', d: 'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z' },
-  { id: 'chat', label: 'Eva', d: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z' },
-  { id: 'moves', label: 'Hareket', d: 'M3 10v4M6 8v8M9 11h6M18 8v8M21 10v4M6 12h3M15 12h3' },
-  { id: 'week', label: 'Hafta', d: 'M4 20V12M8 20V8M12 20v-4M16 20V6M20 20v-9' },
-  { id: 'settings', label: 'Ayar', d: 'M4 7h10M18 7h2M4 12h2M10 12h10M4 17h10M18 17h2M14 5v4M6 10v4M14 15v4' },
+  { id: 'plan', label: 'Plan', d: 'M4 5h16M4 5v14h16V5M9 5v14M4 10h16' },
+  { id: 'week', label: 'Ölçüm', d: 'M4 20V12M8 20V8M12 20v-4M16 20V6M20 20v-9' },
+  { id: 'chat', label: 'Koç', d: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z' },
 ] as const
 
-/** Kenardan ortaya: 0 = uc, 2 = orta. */
-const SCALE = [
-  { box: 'size-10', icon: 'size-4' },
-  { box: 'size-11', icon: 'size-[18px]' },
-  { box: 'size-12', icon: 'size-5' },
-] as const
+// Ikincil sayfalar alt cubukta degil drawer'da (spec S2: gunluk is dort sekme).
+const PAGES: DrawerPage[] = [
+  { id: 'moves', label: 'Hareket kütüphanesi', hint: 'Kas haritası ve arama' },
+  { id: 'settings', label: 'Ayarlar', hint: 'Hedefler, saat, veri' },
+]
 
 type TabId = (typeof TABS)[number]['id']
+type PageId = (typeof PAGES)[number]['id']
 
 export function App() {
   // ?tab=moves ile dogrudan bir bolume acilir: kisayol ve ekran dogrulamasi icin.
@@ -49,6 +51,12 @@ export function App() {
   const [installing, setInstalling] = useState(false)
   const updateReady = update?.state === 'available'
   const [quickAdd, setQuickAdd] = useState(false)
+  const [menu, setMenu] = useState(false)
+  // ?page=moves ile dogrudan bir drawer sayfasi acilir (kisayol, ekran dogrulamasi).
+  const [page, setPage] = useState<PageId | null>(() => {
+    const wanted = new URLSearchParams(window.location.search).get('page')
+    return PAGES.some((p) => p.id === wanted) ? (wanted as PageId) : null
+  })
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
 
   useEffect(() => {
@@ -64,6 +72,7 @@ export function App() {
     if (hasServer()) {
       void pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
       void pullSplit().catch(() => {})
+      void pullWorkoutPlan().catch(() => {})
       void pullProfile().catch(() => {})
       void pullGoals().catch(() => {})
     }
@@ -106,6 +115,7 @@ export function App() {
       await syncOutbox()
       await pullRange(window30[0]!, window30[window30.length - 1]!).catch(() => {})
       await pullSplit().catch(() => {})
+      await pullWorkoutPlan().catch(() => {})
       await pullProfile().catch(() => {})
       await pullGoals().catch(() => {})
     }
@@ -115,8 +125,16 @@ export function App() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
-      <header className="flex items-baseline justify-between px-4 pt-6 pb-1">
-        <h1 className="accent-text text-2xl font-semibold tracking-tight">{date}</h1>
+      <header className="flex items-center justify-between px-4 pt-6 pb-1">
+        <div className="flex items-center gap-3">
+          <button type="button" aria-label="Menü" onClick={() => setMenu(true)}
+            className="-ml-1 flex size-9 items-center justify-center rounded-field text-ink-dim active:bg-glass">
+            <svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-semibold tracking-tight">{date}</h1>
+        </div>
         <span className={online ? 'text-xs text-ink-faint' : 'text-xs text-a3'}>
           {online ? (pending > 0 ? `${pending} kayıt senkronda` : 'çevrimiçi') : `çevrimdışı — ${pending} kayıt kuyrukta`}
         </span>
@@ -147,21 +165,20 @@ export function App() {
       )}
       <main className="flex-1 px-4 pb-24">
         <PullToRefresh onRefresh={refresh}>
-          {tab === 'today' && <Today date={date} />}
-          {tab === 'chat' && <Eva />}
-          {tab === 'moves' && <Exercises />}
-          {tab === 'week' && <Week />}
-          {tab === 'settings' && <Settings />}
+          {page === null && tab === 'today' && <Today date={date} />}
+          {page === null && tab === 'plan' && <Plan />}
+          {page === null && tab === 'week' && <Week />}
+          {page === null && tab === 'chat' && <Eva />}
+          {page === 'moves' && <Exercises />}
+          {page === 'settings' && <Settings />}
         </PullToRefresh>
       </main>
 
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
       <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex items-end gap-1 p-1.5">
-          {TABS.map((t, i) => {
-            const active = tab === t.id
-            // Kenardan ortaya buyuyen ritim (Dean, 19 Eylul): kucuk - orta - buyuk - orta - kucuk.
-            const step = SCALE[Math.min(i, TABS.length - 1 - i)] ?? SCALE[2]
+          {TABS.map((t) => {
+            const active = tab === t.id && page === null
             return (
               <button
                 key={t.id}
@@ -169,18 +186,15 @@ export function App() {
                 role="tab"
                 aria-selected={active}
                 aria-label={t.label}
-                onClick={() => setTab(t.id)}
-                className={`relative flex ${step.box} flex-col items-center justify-center rounded-full transition-[background-color,transform,color] duration-300 ease-out ${
-                  active ? 'scale-110 bg-glass-strong text-a1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]' : 'text-ink-faint active:scale-95'
+                onClick={() => { setTab(t.id); setPage(null) }}
+                className={`relative flex size-12 flex-col items-center justify-center rounded-full transition-colors duration-200 ${
+                  active ? 'bg-a1 text-solid' : 'text-ink-faint active:bg-glass'
                 }`}
               >
-                <svg viewBox="0 0 24 24" aria-hidden className={step.icon} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" aria-hidden className="size-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                   <path d={t.d} />
                 </svg>
                 <span className={`mt-0.5 text-[9px] leading-none ${active ? 'text-ink' : ''}`}>{t.label}</span>
-                {t.id === 'settings' && updateReady && (
-                  <span aria-label="güncelleme var" className="absolute top-2 right-2 size-1.5 rounded-full bg-a1" />
-                )}
               </button>
             )
           })}
@@ -195,6 +209,7 @@ export function App() {
         </button>
       </nav>
 
+      <Drawer open={menu} pages={PAGES} onPick={(id) => setPage(id as PageId)} onClose={() => setMenu(false)} />
       <QuickAdd date={date} open={quickAdd} onClose={() => setQuickAdd(false)} />
     </div>
   )
