@@ -35,6 +35,22 @@ Dean'in son mesajı bu konuda net değil ("sonra 0sn" — muhtemelen 60 sn'yi so
 - Önceki devirlerden: ölçüm Health Connect'ten, seans/hareket Samsung'dan · `pdftoppm` yok,
   `.xls` için `xlrd` var · Docker dist hash'i yerelden farklı · `curl -d` Türkçe karakteri bozuyor.
 
+## 23:40 eklemesi — uyku girdi, kompozisyon yarım
+
+- **Uyku artık içe alınıyor** (`import_health.mjs`, HC `sleep_session_record_table`).
+  İlk kayıt: **22 Eyl · 339 dk uyku (5 sa 39 dk) · derin 7 dk · REM 54 dk · verim %84**.
+  Samsung arşivinde 2026 uykusu yok (son gece 2025-05-17), Health Connect'te var — yani
+  uyku için doğru kaynak **HC**.
+- **Derin uyku 7 dk çok düşük** (beklenen 45–75 dk). Tek gece, eğilim değil; birkaç gece daha
+  biriksin, sonra yorumlanmalı. Toparlanma ve tansiyon için en zayıf halka burası görünüyor.
+- **Yarım kalan iş:** Samsung `weight` tablosunda vücut kompozisyonu var (`body_fat`,
+  `body_fat_mass`, `skeletal_muscle_mass`, `fat_free_mass`, `basal_metabolic_rate`) ama
+  `import_samsung.mjs` yalnız `weight` alanını alıyor. Eklenmeli.
+- **BIA çelişkisi (Dean'e söylenmedi, söylenecek):** aynı iki gün için Samsung Watch ve OKOK
+  farklı okuyor. 15→21 Eyl: OKOK yağ −0.6 / iskelet kası 0; Samsung yağ −0.26 / iskelet kası
+  −0.38. İki cihazın mutlak değerleri karşılaştırılamaz; **tek cihazın trendine** bakılmalı.
+  Dean "saatte yağ kaybı / kas kazanımı 2'ye 1'di" dedi — Samsung'un kendi özeti, doğrulanmadı.
+
 ## Sıradaki tek adım
 
 **Faz 2** — `feature/bugun-kartlari` dalında `ui/DayStrip.tsx` + `ui/SessionCard.tsx`
