@@ -4,6 +4,13 @@
 //   npm run import:health -- <yol>              -> API'ye yazar
 //   npm run import:health -- <yol> --dry-run    -> sadece ozet basar
 //   npm run import:health -- <yol> --api http://192.168.1.185:3311
+//   npm run import:health -- <yol> --from 2026-09-12   -> o tarihten oncesini atar
+//   npm run import:health -- <yol> --workouts            -> seanslari da yazar (varsayilan: yazmaz)
+//
+// Seanslar VARSAYILAN OLARAK YAZILMAZ: Samsung arsivi (ops/import_samsung.mjs) ayni
+// seanslari hareket ve tekrar bilgisiyle getiriyor, Health Connect ise yalniz sayisal
+// tip veriyor. Ikisi birden yazilinca 22 Eyl'de her seans iki satir oldu (17 Eyl salon
+// 60 dk iki kez, yuzmeler cift). Tip 53 = yuruyus, adim sayacinda zaten var.
 //
 // Health Connect her araligi ayri satir tutar ve ayni gunu birden fazla uygulama
 // yazar (Fitbit + Samsung Health + Health Connect'in kendisi). Gunluk toplami
@@ -153,6 +160,12 @@ if (!path) {
   process.exit(1)
 }
 const dryRun = args.includes('--dry-run')
+// Gunlugun baslangici 2026-09-12'ye cekildi (Dean, 22 Eyl); 30 gunluk pencere
+// kesimin oncesini geri getirmesin diye ayni bayrak burada da var.
+const fromIndex = args.indexOf('--from')
+const from = fromIndex >= 0 ? args[fromIndex + 1] : null
+const after = (date) => from === null || date >= from
+const withWorkouts = args.includes('--workouts')
 const apiIndex = args.indexOf('--api')
 const api = apiIndex >= 0 ? args[apiIndex + 1] : 'http://127.0.0.1:3011'
 
@@ -166,7 +179,10 @@ try {
   cleanup()
 }
 
-const { wearable, daily, workouts } = result
+const { wearable: allWearable, daily: allDaily, workouts: allWorkouts } = result
+const wearable = allWearable.filter((r) => after(r.date))
+const daily = allDaily.filter(([date]) => after(date))
+const workouts = withWorkouts ? allWorkouts.filter((w) => after(w.date)) : []
 const days = daily.map(([date]) => date).sort()
 console.log(`${days.length} gun  ${days[0]} -> ${days[days.length - 1]}`)
 console.log(`  olcum kaydi : ${wearable.length}`)
