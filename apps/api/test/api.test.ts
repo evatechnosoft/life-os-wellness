@@ -48,6 +48,80 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     if (prev) await app.inject({ method: 'PUT', url: '/api/goals', headers: auth, payload: prev })
   })
 
+  test('plan: PUT gonderilmeyen alana dokunmaz, GET ayni satiri doner', async () => {
+    // Plan tablosu haftanin gercek verisi (tarih fixture'i yok): okunan satir geri yazilir.
+    const before = await app.inject({ method: 'GET', url: '/api/workout-plan', headers: auth })
+    const prev = (before.json() as { weekday: number }[]).find((d) => d.weekday === 3) ?? null
+
+    const put = await app.inject({
+      method: 'PUT', url: '/api/workout-plan', headers: auth,
+      payload: { days: [{ weekday: 3, day_type: 'lift', system: 'tumVucut', exercises: [{ id: 'lat-pulldown', sets: 3 }] }] },
+    })
+    assert.equal(put.statusCode, 200)
+    const wed = (put.json() as Record<string, unknown>[]).find((d) => d.weekday === 3) as Record<string, unknown>
+    assert.equal(wed.day_type, 'lift')
+    assert.deepEqual(wed.exercises, [{ id: 'lat-pulldown', sets: 3 }])
+
+    // Gun tipini yuzmeye cevirmek hareket listesini silmemeli (spec S5.2).
+    const swim = await app.inject({
+      method: 'PUT', url: '/api/workout-plan', headers: auth,
+      payload: { days: [{ weekday: 3, day_type: 'swim' }] },
+    })
+    const after3 = (swim.json() as Record<string, unknown>[]).find((d) => d.weekday === 3) as Record<string, unknown>
+    assert.equal(after3.day_type, 'swim')
+    assert.deepEqual(after3.exercises, [{ id: 'lat-pulldown', sets: 3 }])
+    assert.equal(after3.system, 'tumVucut')
+
+    if (prev) {
+      await app.inject({ method: 'PUT', url: '/api/workout-plan', headers: auth, payload: { days: [prev] } })
+    } else {
+      await pool.query('delete from workout_plan where weekday = 3')
+    }
+  })
+
+  test('plan: gecersiz gun tipi reddedilir', async () => {
+    const res = await app.inject({
+      method: 'PUT', url: '/api/workout-plan', headers: auth,
+      payload: { days: [{ weekday: 3, day_type: 'kosu' }] },
+    })
+    assert.equal(res.statusCode, 400)
+  })
+
+  test('setler: seansla yazilir, tekrar oynatma cogaltmaz, exercise-sets gorur', async () => {
+    const workoutId = '00000000-0000-4000-8000-00000000f001'
+    const setId = '00000000-0000-4000-8000-00000000f002'
+    const body = {
+      id: workoutId, date: '2099-03-01', type: 'resistance',
+      sets: [
+        { id: setId, exercise_id: 'test-ex', set_no: 1, weight_kg: 45, reps: 12, done_at: '2099-03-01T10:00:00.000Z' },
+        { id: '00000000-0000-4000-8000-00000000f003', exercise_id: 'test-ex', set_no: 2, weight_kg: 45, reps: 10, done_at: null },
+      ],
+    }
+    const first = await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload: body })
+    assert.equal(first.statusCode, 201)
+
+    // Ayni kuyruk ikinci kez oynatilinca satir sayisi artmamali.
+    const again = await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload: body })
+    assert.equal(again.statusCode, 200)
+    const { rows } = await pool.query('select count(*)::int as n from exercise_set where workout_id = $1', [workoutId])
+    assert.equal(rows[0].n, 2)
+
+    const list = await app.inject({ method: 'GET', url: '/api/exercise-sets?exercise_id=test-ex&limit=5', headers: auth })
+    const sets = list.json() as { id: string; weight_kg: number; reps: number }[]
+    assert.equal(sets[0].id, setId)  // done_at dolu olan once: "gecen sefer 45x12"
+    assert.equal(sets[0].weight_kg, 45)
+    assert.equal(sets[0].reps, 12)
+
+    const range = await app.inject({ method: 'GET', url: '/api/workouts?start=2099-03-01&end=2099-03-01', headers: auth })
+    const workout = (range.json() as { id: string; sets: unknown[] }[]).find((w) => w.id === workoutId)
+    assert.equal(workout?.sets.length, 2)
+
+    // Seans silinince setleri de gider (cascade).
+    await app.inject({ method: 'DELETE', url: `/api/workouts/${workoutId}`, headers: auth })
+    const left = await pool.query('select count(*)::int as n from exercise_set where workout_id = $1', [workoutId])
+    assert.equal(left.rows[0].n, 0)
+  })
+
   after(async () => {
     await wipeFixtures()
     await app.close()

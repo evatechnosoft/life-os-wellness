@@ -51,6 +51,61 @@ const WORKOUT_BODY = {
     needs_review: { type: 'boolean' },
     weight_kg: { type: ['number', 'null'], minimum: 0, maximum: 500 },
     reps_total: { type: ['integer', 'null'], minimum: 0, maximum: 1000 },
+    sets: {
+      type: 'array',
+      maxItems: 200,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['id', 'exercise_id', 'set_no'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          exercise_id: { type: 'string', maxLength: 80 },
+          set_no: { type: 'integer', minimum: 1, maximum: 20 },
+          weight_kg: { type: ['number', 'null'], minimum: 0, maximum: 500 },
+          reps: { type: ['integer', 'null'], minimum: 0, maximum: 100 },
+          done_at: { type: ['string', 'null'], format: 'date-time' },
+        },
+      },
+    },
+  },
+} as const
+
+// Haftalik seans plani (db/008). /api/split ile ayni desen: gonderilmeyen alana dokunulmaz.
+const PLAN_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['days'],
+  properties: {
+    days: {
+      type: 'array',
+      maxItems: 7,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['weekday', 'day_type'],
+        properties: {
+          weekday: { type: 'integer', minimum: 0, maximum: 6 },
+          day_type: { type: 'string', enum: ['lift', 'swim', 'rest'] },
+          system: { type: ['string', 'null'], maxLength: 40 },
+          label: { type: ['string', 'null'], maxLength: 40 },
+          exercises: {
+            type: 'array',
+            maxItems: 30,
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              required: ['id'],
+              properties: {
+                id: { type: 'string', maxLength: 80 },
+                sets: { type: 'integer', minimum: 1, maximum: 20 },
+                slot: { type: ['string', 'null'], maxLength: 40 },
+              },
+            },
+          },
+        },
+      },
+    },
   },
 } as const
 
@@ -229,41 +284,136 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     return rows
   })
 
+  // Setler seansin icinde doner: ikinci cihaz "gecen sefer 45x12" degerini
+  // ayri bir tur atmadan gorsun (spec S5.3).
   app.get('/api/workouts', { schema: { querystring: RANGE } }, async (req) => {
     const { start, end } = req.query as { start: string; end: string }
     const { rows } = await pool.query(
-      'select * from workout where date between $1 and $2 order by date, created_at',
+      `select w.*, coalesce(s.sets, '[]'::json) as sets
+         from workout w
+         left join lateral (
+           select json_agg(json_build_object(
+                    'id', es.id, 'exercise_id', es.exercise_id, 'set_no', es.set_no,
+                    'weight_kg', es.weight_kg, 'reps', es.reps, 'done_at', es.done_at)
+                  order by es.exercise_id, es.set_no) as sets
+             from exercise_set es where es.workout_id = w.id
+         ) s on true
+        where w.date between $1 and $2
+        order by w.date, w.created_at`,
       [start, end],
+    )
+    return rows
+  })
+
+  // "Gecen sefer" degeri: ayni hareketin son setleri, yenisi once.
+  app.get('/api/exercise-sets', {
+    schema: {
+      querystring: {
+        type: 'object',
+        required: ['exercise_id'],
+        properties: {
+          exercise_id: { type: 'string', maxLength: 80 },
+          limit: { type: 'integer', minimum: 1, maximum: 200, default: 20 },
+        },
+      },
+    },
+  }, async (req) => {
+    const { exercise_id, limit } = req.query as { exercise_id: string; limit?: number }
+    const { rows } = await pool.query(
+      `select es.*, w.date from exercise_set es
+         join workout w on w.id = es.workout_id
+        where es.exercise_id = $1
+        order by es.done_at desc nulls last, w.date desc, es.set_no
+        limit $2`,
+      [exercise_id, limit ?? 20],
+    )
+    return rows
+  })
+
+  // Haftalik seans plani (db/008). /api/split gibi: yedi satir birden okunur,
+  // gonderilmeyen alana dokunulmaz.
+  app.get('/api/workout-plan', async () => {
+    const { rows } = await pool.query(
+      'select weekday, day_type, system, label, exercises from workout_plan order by weekday',
+    )
+    return rows
+  })
+
+  app.put('/api/workout-plan', { schema: { body: PLAN_BODY } }, async (req) => {
+    const { days } = req.body as {
+      days: { weekday: number; day_type: string; system?: string | null; label?: string | null; exercises?: unknown[] }[]
+    }
+    for (const day of days) {
+      const set = ['day_type = excluded.day_type', 'updated_at = now()']
+      if ('system' in day) set.push('system = excluded.system')
+      if ('label' in day) set.push('label = excluded.label')
+      if ('exercises' in day) set.push('exercises = excluded.exercises')
+      await pool.query(
+        `insert into workout_plan (weekday, day_type, system, label, exercises)
+         values ($1, $2, $3, $4, $5::jsonb)
+         on conflict (weekday) do update set ${set.join(', ')}`,
+        [day.weekday, day.day_type, day.system ?? null, day.label ?? null, JSON.stringify(day.exercises ?? [])],
+      )
+    }
+    const { rows } = await pool.query(
+      'select weekday, day_type, system, label, exercises from workout_plan order by weekday',
     )
     return rows
   })
 
   app.post('/api/workouts', { schema: { body: WORKOUT_BODY } }, async (req, reply) => {
     const b = req.body as Record<string, unknown>
-    // The client supplies the id so a replayed offline queue cannot create duplicates.
-    // Ayni id ikinci kez gelirse uzerine yazilir: saatin bulduğu seansi kullanici
-    // "bu neydi?" karti uzerinden tamamlayinca ayni satir guncellenmeli.
-    const { rows } = await pool.query(
-      `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes, needs_review, weight_kg, reps_total)
-       values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       on conflict (id) do update set
-         type = excluded.type, duration_min = excluded.duration_min, sets_total = excluded.sets_total,
-         muscle_groups = excluded.muscle_groups, notes = excluded.notes,
-         -- Bir kez onaylandiysa onayli kalir: disa aktarimi ikinci kez almak
-         -- kullanicinin tamamladigi seansi yeniden "bu neydi?" yapmasin.
-         needs_review = workout.needs_review and excluded.needs_review,
-         weight_kg = excluded.weight_kg, reps_total = excluded.reps_total
-       -- xmax = 0 yalniz yeni eklenen satirda dogru; guncelleme 200 donsun diye.
-       returning *, (xmax = 0) as inserted`,
-      [
-        b.id ?? null, b.date, b.type, b.duration_min ?? null, b.sets_total ?? null,
-        b.muscle_groups ?? [], b.notes ?? null, b.needs_review ?? false, b.weight_kg ?? null,
-        b.reps_total ?? null,
-      ],
-    )
-    const { inserted, ...workout } = rows[0]
-    reply.code(inserted ? 201 : 200)
-    return workout
+    const sets = (b.sets ?? []) as {
+      id: string; exercise_id: string; set_no: number
+      weight_kg?: number | null; reps?: number | null; done_at?: string | null
+    }[]
+    // Seans ve setleri tek transaction: yarim yazilmis bir seans "gecen sefer"
+    // degerini bozar. The client supplies the id so a replayed offline queue
+    // cannot create duplicates. Ayni id ikinci kez gelirse uzerine yazilir:
+    // saatin buldugu seansi kullanici "bu neydi?" karti uzerinden tamamlayinca
+    // ayni satir guncellenmeli.
+    const client = await pool.connect()
+    try {
+      await client.query('begin')
+      const { rows } = await client.query(
+        `insert into workout (id, date, type, duration_min, sets_total, muscle_groups, notes, needs_review, weight_kg, reps_total)
+         values (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         on conflict (id) do update set
+           type = excluded.type, duration_min = excluded.duration_min, sets_total = excluded.sets_total,
+           muscle_groups = excluded.muscle_groups, notes = excluded.notes,
+           -- Bir kez onaylandiysa onayli kalir: disa aktarimi ikinci kez almak
+           -- kullanicinin tamamladigi seansi yeniden "bu neydi?" yapmasin.
+           needs_review = workout.needs_review and excluded.needs_review,
+           weight_kg = excluded.weight_kg, reps_total = excluded.reps_total
+         -- xmax = 0 yalniz yeni eklenen satirda dogru; guncelleme 200 donsun diye.
+         returning *, (xmax = 0) as inserted`,
+        [
+          b.id ?? null, b.date, b.type, b.duration_min ?? null, b.sets_total ?? null,
+          b.muscle_groups ?? [], b.notes ?? null, b.needs_review ?? false, b.weight_kg ?? null,
+          b.reps_total ?? null,
+        ],
+      )
+      const { inserted, ...workout } = rows[0]
+      for (const set of sets) {
+        await client.query(
+          `insert into exercise_set (id, workout_id, exercise_id, set_no, weight_kg, reps, done_at)
+           values ($1::uuid, $2::uuid, $3, $4, $5, $6, $7)
+           on conflict (id) do update set
+             workout_id = excluded.workout_id, exercise_id = excluded.exercise_id,
+             set_no = excluded.set_no, weight_kg = excluded.weight_kg,
+             reps = excluded.reps, done_at = excluded.done_at`,
+          [set.id, workout.id, set.exercise_id, set.set_no, set.weight_kg ?? null, set.reps ?? null, set.done_at ?? null],
+        )
+      }
+      await client.query('commit')
+      reply.code(inserted ? 201 : 200)
+      return { ...workout, sets }
+    } catch (err) {
+      await client.query('rollback')
+      throw err
+    } finally {
+      client.release()
+    }
   })
 
   app.delete('/api/workouts/:id', async (req, reply) => {
@@ -418,13 +568,15 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
   })
 
   app.get('/api/export', async () => {
-    const [daily, workouts, retros, wearable, meals, profile] = await Promise.all([
+    const [daily, workouts, retros, wearable, meals, profile, plan, sets] = await Promise.all([
       pool.query('select * from daily_log order by date'),
       pool.query('select * from workout order by date, created_at'),
       pool.query('select * from retro order by date'),
       pool.query('select * from wearable_sync order by date'),
       pool.query('select * from meal order by date, time'),
       pool.query('select * from profile where id = 1'),
+      pool.query('select * from workout_plan order by weekday'),
+      pool.query('select * from exercise_set order by done_at'),
     ])
     return {
       exported_at: new Date().toISOString(),
@@ -434,6 +586,8 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
       wearable_sync: wearable.rows,
       meal: meals.rows,
       profile: profile.rows[0] ?? null,
+      workout_plan: plan.rows,
+      exercise_set: sets.rows,
     }
   })
 }
