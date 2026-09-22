@@ -108,6 +108,24 @@ const EXERCISE_TYPES = {
 }
 const UNKNOWN_MIN_MINUTES = 30
 
+// Rutinden gelen hareket kodu -> apps/web/src/data/exercises.json id'si.
+// Tam liste ve gerekcesi docs/SAAT-RUTIN.md. Burada olmayan kod set uretmez.
+const EXERCISE_IDS = {
+  10011: 'Machine_Bench_Press',
+  10012: 'Hack_Squat',
+  10014: 'Leg_Press',
+  10015: 'Leg_Extensions',
+  10016: 'Seated_Leg_Curl',
+  10018: 'Close-Grip_Front_Lat_Pulldown',
+  10019: 'Romanian_Deadlift',
+  10020: 'Leverage_Shoulder_Press',
+  10022: 'Side_Lateral_Raise',
+  10023: 'Ab_Crunch_Machine',
+  10025: 'Plank',
+  10026: 'Machine_Bicep_Curl',
+  10027: 'Machine_Triceps_Extension',
+}
+
 export function collect(dir, from = null) {
   const wearable = []
   const daily = new Map()
@@ -151,7 +169,61 @@ export function collect(dir, from = null) {
   // Egzersiz seanslari. id = Samsung'un datauuid'si: tekrar calistirma cogaltmaz.
   const E = 'com.samsung.health.exercise.'
   const workouts = []
-  for (const r of readTable(dir, 'com.samsung.shealth.exercise')) {
+  const rows = readTable(dir, 'com.samsung.shealth.exercise')
+
+  // Rutinden baslatilan seans: her hareket ayri satir, routine_datauuid ile bagli
+  // (docs/SAAT-RUTIN.md). Bunlar tek antrenman + set kayitlarina donusur.
+  const byRoutine = new Map()
+  for (const r of rows) {
+    const routine = r.routine_datauuid
+    if (!routine) continue
+    if (!byRoutine.has(routine)) byRoutine.set(routine, [])
+    byRoutine.get(routine).push(r)
+  }
+
+  for (const [routine, parts] of byRoutine) {
+    parts.sort((a, b) => (a[`${E}start_time`] ?? '').localeCompare(b[`${E}start_time`] ?? ''))
+    const first = parts[0]
+    const date = localDay(first[`${E}start_time`], first[`${E}time_offset`])
+    if (skip(date)) continue
+    const sets = []
+    const setNo = new Map()
+    let minutes = 0
+    for (const p of parts) {
+      minutes += Math.round(Number(p[`${E}duration`] || 0) / 60000)
+      const exerciseId = EXERCISE_IDS[Number(p[`${E}exercise_type`])]
+      const reps = Number(p[`${E}count`])
+      // exercise_type 0 = dinlenme araligi; katalogda karsiligi olmayan kod da atlanir.
+      if (!exerciseId || !Number.isFinite(reps) || reps <= 0) continue
+      const no = (setNo.get(exerciseId) ?? 0) + 1
+      setNo.set(exerciseId, no)
+      sets.push({
+        id: p[`${E}datauuid`],
+        exercise_id: exerciseId,
+        set_no: Math.min(no, 20),
+        // Agirlik Samsung'da yok; Dean uygulamada girer. count = toplam tekrar,
+        // set kirilimi gelmedigi icin tek satir.
+        weight_kg: null,
+        reps: Math.min(reps, 100),
+        done_at: new Date(Date.parse(`${p[`${E}end_time`].replace(' ', 'T')}Z`)).toISOString(),
+      })
+    }
+    if (sets.length === 0) continue
+    workouts.push({
+      id: routine,
+      date,
+      type: 'resistance',
+      duration_min: minutes,
+      muscle_groups: [],
+      needs_review: true,
+      notes: `Saat rutini (${sets.length} set, ${new Set(sets.map((s) => s.exercise_id)).size} hareket)`,
+      sets,
+    })
+  }
+
+  // Rutinsiz seanslar: yalniz sure ve tip var.
+  for (const r of rows) {
+    if (r.routine_datauuid) continue
     const start = r[`${E}start_time`]
     if (!start) continue
     const date = localDay(start, r[`${E}time_offset`])
