@@ -113,10 +113,11 @@ const UNKNOWN_MIN_MINUTES = 30
 const EXERCISE_IDS = {
   10011: 'Machine_Bench_Press',
   10012: 'Hack_Squat',
+  10013: 'Split_Squat_with_Dumbbells',
   10014: 'Leg_Press',
   10015: 'Leg_Extensions',
   10016: 'Seated_Leg_Curl',
-  10018: 'Close-Grip_Front_Lat_Pulldown',
+  10018: 'Wide-Grip_Lat_Pulldown',
   10019: 'Romanian_Deadlift',
   10020: 'Leverage_Shoulder_Press',
   10022: 'Side_Lateral_Raise',
@@ -124,6 +125,7 @@ const EXERCISE_IDS = {
   10025: 'Plank',
   10026: 'Machine_Bicep_Curl',
   10027: 'Machine_Triceps_Extension',
+  15003: 'Recumbent_Bike',
 }
 
 export function collect(dir, from = null) {

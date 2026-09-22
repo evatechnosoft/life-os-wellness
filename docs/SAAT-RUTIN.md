@@ -71,16 +71,22 @@ yeniden oluşturmaya gerek yok.
 
 ## Samsung kodu → uygulama hareketi
 
-`ops/import_samsung.mjs` bu eşlemeyi kullanır; yeni bir kod çıkarsa oraya eklenir.
+Tam kod listesi: [Samsung ExerciseType](https://developer.samsung.com/health/android/data/api-reference/EXERCISE_TYPE.html).
+Salonu ilgilendiren aralık 10001–10027 (serbest/makine hareketleri) ve 15001–15006 (aletler).
+`ops/import_samsung.mjs > EXERCISE_IDS` bu tabloyu kullanır; **liste sabit değil**, saatte
+başka hareket seçilirse buraya bir satır eklenir.
 
-| Kod | Samsung | Uygulama |
+### Karşılığı olan kodlar
+
+| Kod | Samsung | Uygulama (`exercises.json`) |
 |---|---|---|
 | 10011 | Bench press | `Machine_Bench_Press` |
 | 10012 | Squats | `Hack_Squat` |
+| 10013 | Lunges | `Split_Squat_with_Dumbbells` |
 | 10014 | Leg presses | `Leg_Press` |
 | 10015 | Leg extensions | `Leg_Extensions` |
 | 10016 | Leg curls | `Seated_Leg_Curl` |
-| 10018 | Lat pull-downs | `Close-Grip_Front_Lat_Pulldown` |
+| 10018 | Lat pull-downs | `Wide-Grip_Lat_Pulldown` |
 | 10019 | Deadlifts | `Romanian_Deadlift` |
 | 10020 | Shoulder presses | `Leverage_Shoulder_Press` |
 | 10022 | Lateral raises | `Side_Lateral_Raise` |
@@ -88,9 +94,32 @@ yeniden oluşturmaya gerek yok.
 | 10025 | Plank | `Plank` |
 | 10026 | Arm curls | `Machine_Bicep_Curl` |
 | 10027 | Arm extensions | `Machine_Triceps_Extension` |
-| 15002 | Weight machine | (hareketsiz salon seansı) |
 | 15003 | Exercise bike | `Recumbent_Bike` |
-| 14001 | Swimming | (kardiyo seansı) |
+
+Seans tipi olarak okunanlar (hareket üretmez): **15002** Weight machine → salon seansı ·
+**14001** Swimming → kardiyo · **1001** Walking → alınmaz (adım sayacında zaten var).
+
+### Samsung'da kodu olan ama katalogda karşılığı olmayanlar
+
+10004 Push-ups · 10005 Pull-ups · 10006 Sit-ups · 10007 Circuit training · 10017 Back extensions ·
+10021 Front raises · 10024 Leg raises · 15001 Step machine · 15004 Rowing machine ·
+15005 Treadmill · 15006 Elliptical.
+
+Bunlar seçilirse kayıt gelir ama **set üretmez** — ya katalog kalemi açılır ya da kod
+yukarıdaki tabloya en yakın kalemle eşlenir. Karar Dean'in.
+
+### Katalogda olup Samsung kodu olmayanlar → saatte *özel egzersiz*
+
+`Butterfly` · `Cable_Crossover` · `Cable_Crunch` · `Calf_Press_On_The_Leg_Press_Machine` ·
+`Barbell_Hip_Thrust` · `Leverage_Iso_Row` · `Seated_Cable_Rows` · `Close-Grip_Front_Lat_Pulldown`
+(nötr tutuş) · `Lying_Leg_Curls` · `Machine_Preacher_Curls` · `Triceps_Pushdown` · `Face_Pull` ·
+`Reverse_Flyes` · `Pallof_Press` · `Dead_Bug` · `Thigh_Abductor` · `Leverage_Incline_Chest_Press` ·
+`Incline_Dumbbell_Press` · `Dumbbell_Bench_Press` · `Arnold_Dumbbell_Press` · `EZ-Bar_Curl` ·
+`Dumbbell_Shrug` · `Goblet_Squat` · mobilite kalemleri.
+
+Özel egzersiz saatte `exercise_type 0` ile kaydedilir; rutine bağlı olduğu için seansa girer
+ama **hangi hareket olduğu arşivde ada değil `custom_id`'ye bağlıdır**. Eşleşme için özel
+egzersizin adı katalogdaki adla birebir yazılmalı (`Butterfly`, `Row-Pull` zaten öyle).
 
 ## Sınır
 
