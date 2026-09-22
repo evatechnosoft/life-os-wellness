@@ -59,9 +59,27 @@ patlardı. Uçta `Map` ile tekilleştirildi (son ölçüm kazanır), testi yazı
 - `package.json`'a satır eklerken önceki satıra virgül: `npm error EJSONPARSE` aldım.
 - Samsung adımı üç kez yazılı; `source_type=-2` dışını alma (script'te zaten filtreli, testi var).
 
+## 22 Eylül eklemeleri (Faz 1 sonrası, dev @ 2d64b3f)
+
+- **Günlük 2026-09-12'den başlıyor.** Dean kararı. Öncesi silindi: `daily_log` 649,
+  `wearable_sync` 1082 satır, 8 onaylanmamış Health Connect antrenmanı. Elle girilmiş veri
+  yoktu. Yedek: scratchpad `backup-before-cutoff.sql`. Script'e `--from` bayrağı eklendi.
+- **Samsung egzersiz seansları da alınıyor** (yüzme 14001, salon 15002, 30 dk üstü tanımsız);
+  yürüyüş 1001 alınmıyor (adım sayacında zaten var).
+- **Saat rutini çözüldü.** `routine_datauuid` ile bağlı hareket satırları tek antrenman +
+  `exercise_set` kayıtlarına dönüyor; `count` = tekrar, ağırlık Samsung'da yok. Gerçek arşivde
+  11 rutin seansı çözüldü (2024, kesimin dışında). Kod→`exercises.json` eşlemesi
+  `docs/SAAT-RUTIN.md` ve `ops/import_samsung.mjs`'de.
+- **Sensör SDK / TFLite yolu reddedildi:** Samsung rutin üzerinden hareket+tekrar zaten
+  veriyor, Wear OS uygulaması F0 PWA kilidini kırardı.
+- **Süre kuralı:** kayıt saatin süresidir; nabız penceresi ek bilgi (pencere − yüzme − ~10 dk
+  geçiş = direnç). Yokluk kanıt değil: saatte kaydı olmayan yüzme silinmez.
+- Dean'in saatinde `Full body` rutini var (23 Şub 2026); dinlenmesi 20 sn → 90 sn olmalı ve
+  program A/B/A′ için üç rutin kurulmalı. **Dean'in elle yapacağı iş, henüz yapılmadı.**
+
 ## Açık işler
 
-1. **Faz 2** — 4 sekme + drawer + Plan sekmesi + Tabak kartı. `App.tsx` şu an 5 sekme
+1. **Faz 2** (sıradaki) — 4 sekme + drawer + Plan sekmesi + Tabak kartı. `App.tsx` şu an 5 sekme
    (`today/chat/moves/week/settings`), `TABS` dizisi ve `SCALE` ritmi orada; Hareket ve Ayar
    drawer'a taşınacak, `Week.tsx` → Ölçüm olacak, yeni `Plan.tsx`/`Drawer.tsx`/`DocPage.tsx`/
    `DayStrip.tsx`/`SessionCard.tsx`/`PlateCard.tsx`. Dal: `feature/ia-4-sekme`.
