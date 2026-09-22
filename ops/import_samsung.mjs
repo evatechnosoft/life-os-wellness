@@ -108,6 +108,22 @@ const EXERCISE_TYPES = {
 }
 const UNKNOWN_MIN_MINUTES = 30
 
+// Saatte elle acilan ozel egzersiz: exercise_type 0 gelir, hareketi custom_id soyler
+// (custom_exercise tablosunda adi var). Ad -> katalog id. Anahtarlar kucuk harf ve
+// noktalama atilmis haliyle karsilastirilir, "Row-Pull" ile "row pull" ayni sayilir.
+const CUSTOM_NAMES = {
+  butterfly: 'Butterfly',
+  rowpull: 'Leverage_Iso_Row',
+  lateralrow: 'Leverage_Iso_Row',
+  hipthrust: 'Barbell_Hip_Thrust',
+  pallofpress: 'Pallof_Press',
+  deadbug: 'Dead_Bug',
+  calfpress: 'Calf_Press_On_The_Leg_Press_Machine',
+  facepull: 'Face_Pull',
+  tricepspushdown: 'Triceps_Pushdown',
+}
+const normalize = (name) => (name ?? '').toLowerCase().replace(/[^a-z]/g, '')
+
 // Rutinden gelen hareket kodu -> apps/web/src/data/exercises.json id'si.
 // Tam liste ve gerekcesi docs/SAAT-RUTIN.md. Burada olmayan kod set uretmez.
 const EXERCISE_IDS = {
@@ -173,6 +189,18 @@ export function collect(dir, from = null) {
   const workouts = []
   const rows = readTable(dir, 'com.samsung.shealth.exercise')
 
+  // Ozel egzersiz adlari: custom_id -> katalog id.
+  let customIds = new Map()
+  try {
+    customIds = new Map(
+      readTable(dir, 'com.samsung.shealth.exercise.custom_exercise')
+        .filter((r) => r.custom_id && CUSTOM_NAMES[normalize(r.custom_name)])
+        .map((r) => [r.custom_id, CUSTOM_NAMES[normalize(r.custom_name)]]),
+    )
+  } catch {
+    // Arsivde ozel egzersiz tablosu yoksa sorun degil.
+  }
+
   // Rutinden baslatilan seans: her hareket ayri satir, routine_datauuid ile bagli
   // (docs/SAAT-RUTIN.md). Bunlar tek antrenman + set kayitlarina donusur.
   const byRoutine = new Map()
@@ -193,7 +221,8 @@ export function collect(dir, from = null) {
     let minutes = 0
     for (const p of parts) {
       minutes += Math.round(Number(p[`${E}duration`] || 0) / 60000)
-      const exerciseId = EXERCISE_IDS[Number(p[`${E}exercise_type`])]
+      // Ozel egzersiz once: type 0 ile gelir, custom_id olmadan dinlenme sayilir.
+      const exerciseId = customIds.get(p.custom_id) ?? EXERCISE_IDS[Number(p[`${E}exercise_type`])]
       const reps = Number(p[`${E}count`])
       // exercise_type 0 = dinlenme araligi; katalogda karsiligi olmayan kod da atlanir.
       if (!exerciseId || !Number.isFinite(reps) || reps <= 0) continue

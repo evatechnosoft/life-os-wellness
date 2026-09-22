@@ -117,9 +117,11 @@ yukarıdaki tabloya en yakın kalemle eşlenir. Karar Dean'in.
 `Incline_Dumbbell_Press` · `Dumbbell_Bench_Press` · `Arnold_Dumbbell_Press` · `EZ-Bar_Curl` ·
 `Dumbbell_Shrug` · `Goblet_Squat` · mobilite kalemleri.
 
-Özel egzersiz saatte `exercise_type 0` ile kaydedilir; rutine bağlı olduğu için seansa girer
-ama **hangi hareket olduğu arşivde ada değil `custom_id`'ye bağlıdır**. Eşleşme için özel
-egzersizin adı katalogdaki adla birebir yazılmalı (`Butterfly`, `Row-Pull` zaten öyle).
+Özel egzersiz saatte `exercise_type 0` + **`custom_id`** ile kaydedilir; adı ayrı
+`custom_exercise` tablosunda durur (örnek: `m3ngs23m_i1` → `Butterfly`, `count: 36`).
+`ops/import_samsung.mjs > CUSTOM_NAMES` bu adı katalog id'sine çevirir — **ad eşleşmesi
+küçük harfe indirilip noktalama atılarak** yapılır, yani `Row-Pull` = `row pull`.
+Listede olmayan bir ad set üretmez; yeni özel egzersiz açarsan oraya bir satır eklenir.
 
 ## Sınır
 
