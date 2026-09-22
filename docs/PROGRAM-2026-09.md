@@ -90,10 +90,15 @@ Rampa: 1–2. hafta 2 set / RIR 3, yüzme 30–45 dk; 3. haftadan 3 set / RIR 2.
 | Sal | **Yüzme 45 dk** zone 2 | — |
 | Çar (B) | Pec deck 3 · Row 3 · **Hip thrust 3 + seated leg curl 2** · Triceps press 2 · Pallof 2 | 2 |
 | Per | **Yüzme 45 dk** (havuz varsa) + 10 dk mobilite; yoksa yürüyüş 6.000+ | — |
-| Cum (A′) | Chest press/eğik dambıl 3 · Kablo çekiş/pulldown nötr 3 · **Leg press 3 + calf 2** · Omuz yan 2 · Biceps/triceps 1+1 · Dead bug 2 | 2 |
+| Cum (A′) | Chest press/eğik dambıl 3 · Kablo çekiş/pulldown nötr 3 · **Leg press 3 + calf 2** · Omuz yan 1 · **Biceps 2 + triceps 2** · Dead bug 1 | 2 |
 | Cmt | **Yürüyüş 6.000+ adım** (serbest öğün günü) | — |
 | Paz | **Yürüyüş 6.000+ adım**, tempolu 30–40 dk | — |
-Seans başı ~15–16 set, 50–60 dk. Haftalık: göğüs 9, sırt 9, quad 6+, hamstring-kalça 5, omuz 6, kol 6 — bacak **her seansta**, ihmal edilmez.
+Seans başı 15–17 set, 50–60 dk.
+**Kol hacmi düzeltmesi (22 Eyl):** A′'de biceps ve triceps 1'er setti; haftalık doğrudan kol
+hacmi 3 sete düşüyordu. Doz-yanıt meta-regresyonu (Sports Medicine 2024) hipertrofi için
+10–20 set/kas/hafta veriyor, dolaylı setler yarım sayılıyor — eski hâl ~7 sete denk geliyordu.
+Kol 2+2'ye çıkarıldı, denge için omuz yan ve dead bug 1'e indirildi; seans süresi değişmedi.
+Kalori açığında hedef kas **korumak**, büyütmek değil — 3 set de koruyabilirdi, 4 daha güvenli. Haftalık: göğüs 9, sırt 9, quad 6+, hamstring-kalça 5, omuz 6, kol 6 — bacak **her seansta**, ihmal edilmez.
 Bölünmüş (göğüs/sırt/bacak günleri) şablon iptal değil, Dean isterse geri dönülür; tüm vücut ilk 4 hafta denenir.
 Hafta sonu havuz kapalı (Dean, 21 Eyl) — yüzme Salı/Perşembe'ye alındı, hafta sonu yürüyüşle karşılanıyor.
 Haftalık: quad 9, hamstring-kalça 9, göğüs 9, sırt 9, omuz 6, kol 12. Kardiyo 150–200 dk zone 2.
