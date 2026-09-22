@@ -98,3 +98,22 @@ yeniden oluşturmaya gerek yok.
   ağırlık uygulamada girilir (`exercise_set.weight_kg`).
 - Set kırılımı da yok: `count` toplam tekrar. İçe aktarımda tek satır (`set_no = 1`) yazılır.
 - Rutin JSON'ı dışarıdan yazılamaz; rutin Samsung Health uygulamasında elle kurulur.
+
+## Süre nasıl okunur (Dean kuralı, 22 Eyl)
+
+**Kaydedilen süre saatin süresidir** — seans kaydı doğru kabul edilir. Nabız penceresi
+(≥100 bpm kesintisiz aralık) toplam eforu gösterir ve seans süresinden uzundur: soyunma,
+giyinme, salondan havuza geçiş sırasında nabız zaten yüksek kalır.
+
+Bir günü çözerken sıra şu:
+
+1. Nabız penceresini çıkar (`com.samsung.shealth.tracker.heart_rate`, 10 dk aralıklı örnekler).
+2. O günün **yüzme kaydını** pencereden düş — yüzme süresi saatte doğru ölçülüyor.
+3. Kalanın ~10 dakikası geçiş/hazırlıktır; gerisi direnç seansıdır.
+
+17 Eyl 2026 örneği: pencere 06:30–07:50 (80 dk) · saat 06:29–07:29 salon (60 dk) +
+07:37–07:52 yüzme (16 dk) · arada 8 dk geçiş. Kayıtlı süreler değiştirilmez, nabız penceresi
+antrenman notuna yazılır.
+
+**Yokluk kanıt değil:** yüzerken saat çıkarılmış olabilir. Saatte yüzme kaydı olmayan bir gün,
+yüzülmedi demek değildir — elle girilen kayıt silinmez, "saat doğrulamadı" notuyla kalır.
