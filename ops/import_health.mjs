@@ -122,6 +122,30 @@ export function collect(db) {
     daily.set(date, { ...daily.get(date), weight_kg: kg })
   }
 
+  // Uyku: seans basina evre toplami. HC stage_type 1 = uyanik, 4 = hafif, 5 = derin,
+  // 6 = REM. Uyanik disi evreler uyku sayilir; yatakta gecen sure seansin kendisi.
+  const sleepRows = db
+    .prepare(`select s.local_date as day,
+                     (s.end_time - s.start_time) / 60000 as in_bed,
+                     sum(case when st.stage_type = 1 then 0
+                              else (st.stage_end_time - st.stage_start_time) end) / 60000 as asleep,
+                     sum(case when st.stage_type = 5
+                              then (st.stage_end_time - st.stage_start_time) else 0 end) / 60000 as deep,
+                     sum(case when st.stage_type = 6
+                              then (st.stage_end_time - st.stage_start_time) else 0 end) / 60000 as rem
+              from sleep_session_record_table s
+              join sleep_stages_table st on st.parent_key = s.row_id
+              group by s.row_id`)
+    .all()
+  for (const r of sleepRows) {
+    const date = isoDate(r.day)
+    push(date, 'sleep_min', Math.round(r.asleep))
+    push(date, 'sleep_deep_min', Math.round(r.deep))
+    push(date, 'sleep_rem_min', Math.round(r.rem))
+    // Verim: uyanik gecen sureyi disarida birakan oran, yuzde.
+    if (r.in_bed > 0) push(date, 'sleep_efficiency', Math.round((r.asleep / r.in_bed) * 100))
+  }
+
   // Egzersiz seanslari: Health Connect tipi sayisal, karsiligi bizim semada yok.
   // Ne yapildigini yalniz kullanici bilir; needs_review ile "bu neydi?" kartina
   // dusuyor, onaylanana kadar gunun antrenman listesine girmiyor.
