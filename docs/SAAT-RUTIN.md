@@ -146,3 +146,47 @@ antrenman notuna yazılır.
 
 **Yokluk kanıt değil:** yüzerken saat çıkarılmış olabilir. Saatte yüzme kaydı olmayan bir gün,
 yüzülmedi demek değildir — elle girilen kayıt silinmez, "saat doğrulamadı" notuyla kalır.
+
+## Rutin nasıl kurulur (ekran kanıtı, 22 Eyl 20:14–20:20)
+
+Samsung Health → Egzersiz → Rutin oluştur. Yapı:
+
+- **Warm up** ve **Cool down** ayrı anahtar (kapalı gelir). Isınma açılırsa süresi ayrı verilir.
+- Hareket eklenince satırda **hedef tipi** seçilir: `No target` · **`Set target`** (set × tekrar
+  — bizim kullanacağımız) · `Duration target` (süre) · `Calorie target` (kalori).
+  Dinlenme süresi `Set target` içinde ayarlanır (2024 rutininde 20 sn yazıyordu → **90 sn** olacak).
+- **Circuits** ayarı: tur sayısı. Tüm vücut A/B'de tur yok, `None` kalır.
+- Sıralama: satırı **basılı tutup** taşı ya da sil.
+- Bir rutine **20 harekeye kadar** eklenebiliyor — A/B/A′ için fazlasıyla yeterli.
+
+### Saatin hareket listesi (ekrandan, 22 Eyl)
+
+`Weight machine` sekmesi: Arm curls · Arm extensions · Back extensions · Lat pull-downs ·
+Pull-ups · Bench press · Butterfly · Leg raises · Leg curls · Leg extensions · Leg presses ·
+Squats · Front raises · Lateral raises · Shoulder presses · Bike indoor · Elliptical trainer ·
+Rowing machine · Stair climber · Step machine · Treadmill · Weight machines.
+
+`Free weights`: yukarıdakilere ek Deadlifts · Push-ups · Crunches · Sit-ups · Plank · Lunges ·
+Skaters, ve `Other` altında Aerobics · Burpees · Circuit training · High knees · Hula-hooping ·
+Jump rope · Jumping jacks · Mountain climbers · Pilates · Stretching · Yoga.
+
+`Aerobic`: Aerobics · Bike · Floor climb · Jump rope · **Row-Pull** · Stair climber ·
+Step machine · Track run · Walking.
+
+Dean'in özel egzersizleri listede `None` grubunda görünüyor: **Lateral Row**, **Row-Pull**, `Test`.
+
+**Düzeltme:** `Butterfly` saatin kendi `Weight machine > Chest` listesinde çıkıyor —
+özel egzersiz olarak yeniden oluşturmaya gerek yok. (Resmi ExerciseType kod listesinde
+karşılığı görünmediği için **kodu doğrulanmadı**; içe aktarımda `exercise_type` ne gelirse
+`EXERCISE_IDS`'e o eklenecek.)
+
+## Nabız bölgeleri (22 Eyl kararı)
+
+Saatte `Max HR: 177` (ölçüm değil, `220 − 43` formülü) ve `Resting HR: 70` yazıyor; taban
+**Max HR** seçili. Bantlar: Z1 88–106 · Z2 107–123 · Z3 124–141 · Z4 142–159 · Z5 160–177.
+
+Heart rate reserve (Karvonen) tabanına geçilirse Zone 2 **134–145 bpm** olurdu. Dean'in kayıtlı
+antrenman nabzı 110–128 aralığında; Karvonen bandı aynı eforu "Zone 1" gösterip daha sert
+çalışmaya iter. **Tansiyon tablosu nedeniyle Max HR tabanı korunuyor.** Dinlenme nabzı düştükten
+sonra (≈4 hafta) yeniden değerlendirilir. `Update automatically` açık kalır: saat gerçek veriyle
+177'yi düzeltir. Sayıdan güvenilir ölçüt konuşma testidir.
