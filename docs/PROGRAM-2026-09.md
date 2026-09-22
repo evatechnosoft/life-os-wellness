@@ -7,7 +7,7 @@ Persona: uzman diyetisyen + kıdemli PT, Eva sınırları (COACH-PERSONA §2/§4
 
 ## 1. Veri (canlı DB) ve varsayımlar
 Kilo 7-gün ort 108.0 kg (12 günde −1.5 kg, ~0.9 kg/hafta). Tansiyon 138/87 ort (8–19 Eyl 134–142 / 84–93).
-**Güncelleme 21 Eyl (Dean beyanı, tekil ölçüm):** 128/84 ve 130/77 — 8–19 Eyl bandının belirgin altında.
+**Güncelleme 21 Eyl (Samsung Health arşivi, 65 CSV):** Eylül 2026'da 18 ölçüm, bant **128–147 / 84–96**. Dean'in bildirdiği 128/84 ve 130/77 bandın alt ucu; **ortalama hâlâ 130/80 üstünde**, tekil iyi ölçüm kuralı gevşetmez.
 Antrenman kısıtları (RIR 2, 8–15 tekrar, Valsalva yok) **değişmiyor**; 7-gün ortalaması birikmeden gevşetme yok.
 **Ölçü 21 Eyl:** 107.5 kg · bel 117 cm (göbek hizası, takip noktası) · 113 cm (kemer hizası). Bel/boy 0.67.
 Açlık glukozu 109 (tek ölçüm). EKG normal. Adım ort 5.250. Split Pzt/Çar/Cum. Yüzme 60–90 dk ×2.
