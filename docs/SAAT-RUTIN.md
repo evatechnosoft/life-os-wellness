@@ -123,6 +123,17 @@ yukarıdaki tabloya en yakın kalemle eşlenir. Karar Dean'in.
 küçük harfe indirilip noktalama atılarak** yapılır, yani `Row-Pull` = `row pull`.
 Listede olmayan bir ad set üretmez; yeni özel egzersiz açarsan oraya bir satır eklenir.
 
+## Tekrar sayımı gerçek (22 Eyl, Dean teyidi + arşiv kanıtı)
+
+Samsung'un genel belgeleri "makine hareketlerinde tekrar sayılmaz, süre tutulur" diyor ama
+Dean'in cihazında sayım çalışıyor. Kanıt: rutin hedefi 3×12 = 36 iken arşivde `Leg_Press: 15`
+(20 Kas 2024) ve `48`, `Leg_Extensions: 45` (22 Kas) görünüyor — hedef yazılsaydı hepsi 36
+olurdu. Karın 3×20 = 60 değeri de Dean'in gerçekten yaptığı sayı.
+
+**Faz 3'e etkisi:** SetRow'da tekrar alanı saatten gelen `count` ile önden dolar, Dean yalnız
+**kg** girer. 60 saniyelik giriş hedefi bununla tutar. Sayım doğruluğu %100 değil (dış kaynaklar
+~%70 veriyor), bu yüzden alan düzenlenebilir kalır.
+
 ## Sınır
 
 - Samsung **ağırlık (kg) tutmuyor.** Rutinden gelen kayıt `reps` verir, `weight_kg` boş gelir;
