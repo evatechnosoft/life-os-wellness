@@ -6,6 +6,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // GitHub Pages serves the app from /<repo>/; locally it stays at the root.
 const base = process.env.PAGES_BASE ?? '/'
+// The APK ships its assets on the device, so a service worker only serves a stale UI
+// after an update. The native build ships a self-destroying SW that clears the old one.
+const native = process.env.WELLNESS_NATIVE === '1'
 
 export default defineConfig({
   base,
@@ -17,6 +20,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      selfDestroying: native,
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'Wellness Tracker',

@@ -51,7 +51,7 @@ const gradlew = process.platform === 'win32' ? join(android, 'gradlew.bat') : jo
 const JAVA_HOME = javaHome()
 console.log(`JDK: ${JAVA_HOME}`)
 
-run(npm, ['run', 'build', '-w', '@wellness/web'], root)
+run(npm, ['run', 'build', '-w', '@wellness/web'], root, { WELLNESS_NATIVE: '1' })
 run(npx, ['cap', 'sync', 'android'], web)
 run(gradlew, ['assembleDebug'], android, { JAVA_HOME })
 

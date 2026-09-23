@@ -24,6 +24,8 @@ jobs:
       - run: npm ci
       - run: node ops/gen_icons.mjs
       - run: npm run build -w @wellness/web
+        env:
+          WELLNESS_NATIVE: '1'
       - run: npx cap sync android
         working-directory: apps/web
       - run: ./gradlew testDebugUnitTest
