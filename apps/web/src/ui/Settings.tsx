@@ -25,7 +25,7 @@ import {
   pushWatchApp,
   type PhoneUpdate,
 } from '../lib/watch'
-import { isNative } from '../lib/health'
+import { isNative, scheduleBackgroundSync, syncHealth } from '../lib/health'
 import { Card, NumberField } from './Field'
 import { ProfileCard } from './Profile'
 
@@ -565,7 +565,7 @@ export function Settings() {
             inputMode="url"
             value={base}
             onChange={(e) => setLocalBase(e.target.value)}
-            onBlur={() => setApiBase(base)}
+            onBlur={() => { setApiBase(base); void scheduleBackgroundSync() }}
             placeholder="https://fit.evaitec.com"
             className="mt-2 min-h-11 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
           />
@@ -577,7 +577,7 @@ export function Settings() {
             type="password"
             value={token}
             onChange={(e) => setLocalToken(e.target.value)}
-            onBlur={() => setToken(token)}
+            onBlur={() => { setToken(token); void scheduleBackgroundSync() }}
             placeholder=".env icindeki API_TOKEN"
             className="mt-2 min-h-11 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
           />
@@ -592,6 +592,19 @@ export function Settings() {
               className="min-h-11 rounded-field bg-glass-strong px-3 py-2 text-ink-dim"
             >
               Şimdi senkronla
+            </button>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-xs text-ink-faint">
+            <span>Ölçümler arka planda 8 saatte bir çekilir</span>
+            <button
+              type="button"
+              onClick={async () => {
+                const n = await syncHealth().catch(() => 0)
+                setStatus(n > 0 ? `${n} ölçüm çekildi` : 'yeni ölçüm yok')
+              }}
+              className="min-h-11 rounded-field bg-glass-strong px-3 py-2 text-ink-dim"
+            >
+              Ölçümleri çek
             </button>
           </div>
           {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}

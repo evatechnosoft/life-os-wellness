@@ -42,6 +42,13 @@ object HealthMath {
 
     data class NutritionEntry(val date: String, val source: String, val grams: Double)
 
+    /** Adim: telefon, saat ve Health Connect ayni gunu ayri yazar - en yuksek TEK kaynak. */
+    fun dailySteps(entries: List<StepEntry>): Map<String, Long> =
+        highestSourceTotal(entries.map { Triple(it.date, it.source, it.count.toDouble()) })
+            .mapValues { (_, v) -> v.toLong() }
+
+    data class StepEntry(val date: String, val source: String, val count: Long)
+
     data class SleepEntry(val wakeDate: String, val source: String, val minutes: Long)
 
     /**

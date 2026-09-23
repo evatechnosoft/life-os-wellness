@@ -1,7 +1,7 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Health, type HealthPermission } from 'capacitor-health'
 
-import { api } from './api'
+import { api, getApiBase, getToken } from './api'
 import { lastDates, toLocalDate } from './date'
 import { db, type Workout } from './db'
 import type { WearableRecord } from './db'
@@ -80,7 +80,28 @@ const HealthExtra = registerPlugin<{
     /** En taze nabiz ornegi kac dakika geriden geliyor - gercek gecikmenin olcusu. */
     hr_lag_min?: number
   }>
+  configureBackgroundSync(opts: { base: string; token: string; everyHours: number }): Promise<{
+    scheduled: boolean
+  }>
 }>('HealthExtra')
+
+/**
+ * Uygulama kapaliyken de olcum aksin: 8 saatte bir arka plan isi Health Connect'i
+ * okuyup sunucuya yazar. Adres ve token JS tarafinda durdugu icin her acilista
+ * tazeleniyor - kullanici sunucuyu degistirince is de yeni adrese yazar.
+ */
+export async function scheduleBackgroundSync(everyHours = 8): Promise<boolean> {
+  if (!isNative()) return false
+  const token = getToken()
+  const base = getApiBase() || window.location.origin
+  if (!token) return false
+  try {
+    const { scheduled } = await HealthExtra.configureBackgroundSync({ base, token, everyHours })
+    return scheduled
+  } catch {
+    return false
+  }
+}
 
 /** Kan oksijeni ve HRV izni ayri sorulur: capacitor-health bu ikisini isteyemiyor. */
 export async function requestExtraPermissions(): Promise<boolean> {

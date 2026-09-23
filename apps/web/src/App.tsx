@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
-import { syncHealth } from './lib/health'
+import { scheduleBackgroundSync, syncHealth } from './lib/health'
 import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch, installPhoneUpdate, type PhoneUpdate } from './lib/watch'
 import { pullProfile } from './lib/profile'
 import { pullGoals } from './lib/settings'
@@ -89,6 +89,8 @@ export function App() {
       await drainWatch().catch(() => {})
     }
     void sync()
+    // Arka plan senkronu: uygulama kapaliyken de 8 saatte bir olcum aksin.
+    void scheduleBackgroundSync().catch(() => {})
     // Telefon guncellemesi: acilista bir kez, sonra en fazla gunde bir (lib/watch.ts).
     // Guncelleme yoksa hicbir sey gosterilmiyor - yalnizca Ayar sekmesine bir nokta duser.
     void autoCheckPhoneUpdate()

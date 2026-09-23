@@ -90,6 +90,8 @@ dependencies {
     // HealthExtraPlugin: capacitor-health de ayni surumu getiriyor, burada acikca
     // bildiriliyor cunku kod bu modulde.
     implementation 'androidx.health.connect:connect-client:1.2.0-alpha01'
+    // Arka plan olcum senkronu (HealthSyncWorker): uygulama kapaliyken de aksin.
+    implementation 'androidx.work:work-runtime-ktx:2.10.0'
     // ActivityPlugin: Activity Recognition Transition API burada yasiyor. Alternatifi
     // ham ivmeolcerden kendi siniflandiricimizi yazmak - cok daha buyuk bakim yuzeyi
     // ve surekli sensor dinleme maliyeti (AGENTS.md, Sinirlar: yeni bagimlilik gerekcesi).
