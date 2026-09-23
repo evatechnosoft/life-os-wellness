@@ -9,10 +9,14 @@ import type { NoteDraft } from './voice'
  * kural tabanli offline.ts tek yedek.
  */
 
+/** `persistent`: model /sdcard/evaitec/llm altinda, uygulama kaldirilinca silinmiyor. */
+export type ModelStatus = { ready: boolean; sizeMb: number; persistent: boolean; canPersist: boolean }
+
 /** Implemented in android/app/src/main/java/com/evaitec/wellness/LocalLlmPlugin.kt. */
 const LocalLlm = registerPlugin<{
-  status(): Promise<{ ready: boolean; sizeMb: number }>
+  status(): Promise<ModelStatus>
   download(): Promise<{ ok: boolean; status: string }>
+  persist(): Promise<{ ok: boolean; status: string }>
   remove(): Promise<void>
   generate(opts: { prompt: string }): Promise<{ text: string }>
   addListener(event: 'modelDownload', fn: (e: { status: string }) => void): Promise<PluginListenerHandle>
@@ -56,7 +60,7 @@ export async function localModelReady(): Promise<boolean> {
   }
 }
 
-export async function localModelStatus(): Promise<{ ready: boolean; sizeMb: number } | null> {
+export async function localModelStatus(): Promise<ModelStatus | null> {
   if (!isNative()) return null
   return LocalLlm.status()
 }
@@ -64,6 +68,12 @@ export async function localModelStatus(): Promise<{ ready: boolean; sizeMb: numb
 export async function downloadLocalModel(): Promise<{ ok: boolean; status: string }> {
   if (!isNative()) return { ok: false, status: 'Yalnız Android uygulamasında çalışır' }
   return LocalLlm.download()
+}
+
+/** Modeli kaldir-kur'dan kurtaran kalici klasore tasir; izin yoksa ayar ekranini acar. */
+export async function persistLocalModel(): Promise<{ ok: boolean; status: string }> {
+  if (!isNative()) return { ok: false, status: 'Yalnız Android uygulamasında çalışır' }
+  return LocalLlm.persist()
 }
 
 export async function removeLocalModel(): Promise<void> {

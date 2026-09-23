@@ -90,6 +90,13 @@
          izin verdigi kok res/xml/file_paths.xml icindeki cache-path. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <!-- Cihaz-ici model (~530 MB) uygulama klasorunde durursa her kaldir-kur'da yeniden
+         inmesi gerekiyor. Kullanici izin verirse dosya /sdcard/evaitec/llm altina tasinir
+         ve kurulumdan bagimsiz kalir. MediaPipe gercek dosya yolu istiyor (content:// Uri
+         kabul etmiyor), o yuzden MediaStore degil tam erisim. Izin istege bagli: yoksa
+         uygulama eski davranisla, kendi klasorunde calisir. -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
     <!-- Night snore monitor: microphone in a foreground service, audio never stored. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />

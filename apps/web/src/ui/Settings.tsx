@@ -3,7 +3,14 @@ import { Fragment, useEffect, useState } from 'react'
 
 import { getApiBase, getToken, setApiBase, setToken } from '../lib/api'
 import { db } from '../lib/db'
-import { downloadLocalModel, localModelStatus, onModelDownload, removeLocalModel } from '../lib/localLlm'
+import {
+  downloadLocalModel,
+  localModelStatus,
+  type ModelStatus,
+  onModelDownload,
+  persistLocalModel,
+  removeLocalModel,
+} from '../lib/localLlm'
 import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
 import { saveSplit, saveSplitNote, useSplit, useSplitNotes, WEEKDAYS } from '../lib/split'
@@ -193,7 +200,7 @@ function PhoneAppUpdate() {
  * ~1 GB RAM - o yuzden yalniz kullanici isterse. Web'de kart hic gorunmez (model yok).
  */
 function LocalEva() {
-  const [model, setModel] = useState<{ ready: boolean; sizeMb: number } | null>(null)
+  const [model, setModel] = useState<ModelStatus | null>(null)
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -241,6 +248,21 @@ function LocalEva() {
       >
         {busy ? 'Çalışıyor…' : model.ready ? 'Modeli sil' : 'Modeli indir'}
       </button>
+      {model.canPersist && !model.persistent && (
+        <button
+          type="button"
+          onClick={() => void run(async () => setStatus((await persistLocalModel()).status))}
+          disabled={busy}
+          className="mt-2 w-full rounded-field bg-glass py-3 text-sm disabled:opacity-50"
+        >
+          Kalıcı klasöre taşı
+        </button>
+      )}
+      {model.persistent && (
+        <p className="mt-2 text-xs text-ink-faint">
+          Kalıcı klasörde (/sdcard/evaitec/llm) — uygulamayı kaldırsan da kalır.
+        </p>
+      )}
       {status && <p className="mt-2 text-xs text-ink-faint">{status}</p>}
     </Card>
   )
