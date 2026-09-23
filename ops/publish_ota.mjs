@@ -11,7 +11,7 @@
 // `gh` ile kimlik dogrulanmis olmali. Idempotent: katalog zaten guncelse dokunmaz.
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, statSync } from 'node:fs'
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -44,7 +44,16 @@ const base = 'https://fit.evaitec.com/ota'
 const otaDir = join(root, 'ota')
 
 const dir = mkdtempSync(join(tmpdir(), 'wellness-ota-'))
-gh('release', 'download', `v${version}`, '-R', SOURCE, '-p', '*.apk', '-D', dir, '--clobber')
+// `gh release download` tag ucunu okuyor; GitHub o ucu bir sure bos varlik listesiyle
+// onbellekte tutabiliyor ("no assets to download", 23 Eyl / 0.28.0) - release id ile
+// sorulunca ayni an dogru liste geliyor. O yuzden id uzerinden indiriliyor.
+const releaseId = JSON.parse(gh('api', `repos/${SOURCE}/releases/tags/v${version}`)).id
+for (const asset of JSON.parse(gh('api', `repos/${SOURCE}/releases/${releaseId}/assets`))) {
+  if (!asset.name.endsWith('.apk')) continue
+  const bytes = execFileSync('gh', ['api', `repos/${SOURCE}/releases/assets/${asset.id}`,
+    '-H', 'Accept: application/octet-stream'], { maxBuffer: 256 * 1024 * 1024 })
+  writeFileSync(join(dir, asset.name), bytes)
+}
 
 const describe = (file) => {
   const path = join(dir, file)
