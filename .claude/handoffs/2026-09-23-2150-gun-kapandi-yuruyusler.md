@@ -1,7 +1,6 @@
 # Handoff: 0.31.0 yayında (SW kendini siler) · 23 Eyl günü kapandı · Pazartesi karar günü
 
 > 2026-09-23 21:50 · `dev` @ `3cf982f` (tag `v0.31.0`) · kod değişikliği yok, yalnız API verisi yazıldı
-> Tam metin: `.claude/handoffs/2026-09-23-2150-gun-kapandi-yuruyusler.md` (aynı içerik)
 
 ## Goal
 APK'de "güncelledim ama eski ekran" sorununu kökten bitirmek (bitti), sonra Dean'in günlük
