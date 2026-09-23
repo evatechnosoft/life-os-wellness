@@ -8,14 +8,14 @@ P = [("Machine_Bench_Press", "3 × 12", "+2 rampa seti", "Bench press"),
      ("Leg_Press", "3 × 12", "+1 hafif set", "Leg presses"),
      ("Leverage_Shoulder_Press", "3 × 12", "", "Shoulder presses"),
      ("Machine_Bicep_Curl", "3 × 12", "", "Arm curls"),
-     ("Dead_Bug", "3 × 12", "", "Dead bug — özel aç")]
+     ("Dead_Bug", "3 × 12", "", "Dead bug")]
 
 B = [("Butterfly", "3 × 12", "+2 rampa seti", "Butterfly (hazır listede)"),
      ("Leverage_Iso_Row", "3 × 12", "+1 hafif set", "Row-Pull (özel)"),
      ("Barbell_Hip_Thrust", "3 × 12", "+1 hafif set", "Hip thrust — özel aç"),
      ("Seated_Leg_Curl", "3 × 12", "", "Leg curls"),
      ("Machine_Triceps_Extension", "3 × 12", "", "Arm extensions"),
-     ("Pallof_Press", "3 × 12", "her yön", "Pallof press — özel aç")]
+     ("Pallof_Press", "3 × 12", "her yön", "Pallof press")]
 
 A = [("Leverage_Incline_Chest_Press", "3 × 12", "+2 rampa seti", "Bench press"),
      ("Close-Grip_Front_Lat_Pulldown", "3 × 12", "+1 hafif set", "Lat pull-downs"),
@@ -24,7 +24,7 @@ A = [("Leverage_Incline_Chest_Press", "3 × 12", "+2 rampa seti", "Bench press")
      ("Side_Lateral_Raise", "3 × 12", "", "Lateral raises"),
      ("Machine_Bicep_Curl", "3 × 12", "", "Arm curls"),
      ("Machine_Triceps_Extension", "3 × 12", "", "Arm extensions"),
-     ("Dead_Bug", "3 × 12", "", "Dead bug — özel aç")]
+     ("Dead_Bug", "3 × 12", "", "Dead bug")]
 
 
 def cards(rows, gun):
