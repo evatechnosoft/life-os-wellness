@@ -1,7 +1,6 @@
-# Handoff: 0.31.0 yayında (SW kendini siler) · 23 Eyl günü kapandı · Pazartesi karar günü
+# Handoff: 0.31.0 yayında · yüzme planı kalktı (Sal/Per yürüyüş) · Pazartesi karar günü
 
-> 2026-09-23 21:50 · `dev` @ `3cf982f` (tag `v0.31.0`) · kod değişikliği yok, yalnız API verisi yazıldı
-> Tam metin: `.claude/handoffs/2026-09-23-2150-gun-kapandi-yuruyusler.md` (aynı içerik)
+> 2026-09-23 22:10 · `dev` @ `9eecdb3` (kod: `3cf982f`, tag `v0.31.0`) · 21:50 devrinin üstüne: yüzme planı kalktı
 
 ## Goal
 APK'de "güncelledim ama eski ekran" sorununu kökten bitirmek (bitti), sonra Dean'in günlük
@@ -21,7 +20,11 @@ koçluk akışı: öğün/yürüyüş kaydı, kalori açığı, PT+diyetisyen de
   - 22 Eyl adım 9089'a düzeltildi. 7-gün adım ort **7376**.
   - Antrenman 4: salon 52 dk · yüzme 11 dk · yürüyüş 15:41 20 dk 1653 adım 220 kcal HR 103 ·
     **akşam yürüyüşü 18:30–20:00 90 dk, 2235 adım, 1.69 km, 137 kcal** (19:00–19:30 durup konuşma, adım yok — Dean teyit).
-- Plan: Perşembe (weekday 4) swim → rest (yürüyüş günü). Salı (2) hâlâ swim — Dean'e soruldu, cevap yok.
+- Plan (GET ile doğrulandı): **yüzme yok** — Salı (2) ve Perşembe (4) swim → rest (yürüyüş günü). Hafta:
+  Pzt A · Sal yürüyüş · Çar B · Per yürüyüş · Cum A′ · Cmt/Paz yürüyüş.
+  `docs/PROGRAM-2026-09.md` §5 buna göre güncellendi (`9eecdb3`, dev'e push). Zone 2 hacmi tempolu yürüyüşten.
+- A/B/A′ Dean'e açıklandı (tüm vücut; A′ = A'nın varyantı; 15–17 set, 6–8 hareket; çift ilerleme kuralı).
+- Token Dean'e 22:00 civarı tekrar verildi.
 
 ## Believed / doğrulanmadı
 - Telefonda 0.31.0 kurulumu, token girişi, Health Connect izni, Hafta sekmesinde kilo/nabız görünmesi — cihazda görülmedi.
@@ -49,7 +52,8 @@ koçluk akışı: öğün/yürüyüş kaydı, kalori açığı, PT+diyetisyen de
 - `.claude/` altında `rm`/`cp` hook'a takılıyor — dosyaları Write ile yaz.
 
 ## Next (tek adım)
-24 Eyl sabah: iki tansiyon ölçümü + tartıyı al/kaydet; Dean'e telefonda token/Health Connect durumu ve Salı yüzme sorusunu sor.
+24 Eyl sabah: iki tansiyon ölçümü + tartıyı al/kaydet; Dean'e telefonda token/Health Connect durumu sor (sunucuya telefondan veri geliyor mu: `GET /api/wearable` 24 Eyl satırı).
+Salon günü (Cum A′) setleri Dean'den al ve `POST /api/workouts` `sets` ile yaz — ilerleme kuralı buna bağlı.
 Pazartesi 28 Eyl: tansiyon kararı + bel + 7-gün kilo ortalaması değerlendirmesi.
 
 Bekleyenler: değişim listesini uygulamaya ekleme · salon set kaydı alışkanlığı · Faz 2 UI (`ui/DayStrip.tsx`,
