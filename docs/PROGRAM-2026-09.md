@@ -87,9 +87,9 @@ Rampa: 1–2. hafta 2 set / RIR 3, yüzme 30–45 dk; 3. haftadan 3 set / RIR 2.
 | Gün | İş — **tüm vücut A/B** (Dean kararı 21 Eyl: her kas grubu her seansta, hacim 3 güne yayılır) | RIR |
 |---|---|---|
 | Pzt (A) | Chest press 3 · Lat pulldown geniş 3 · **Leg press 3** · Omuz presi 2 · Biceps curl 2 · Dead bug 2 | 2 |
-| Sal | **Yüzme 45 dk** zone 2 | — |
+| Sal | **Yürüyüş** — yemek sonrası 3 yürüyüş, ~9.000 adım, biri tempolu (zone 2) | — |
 | Çar (B) | Pec deck 3 · Row 3 · **Hip thrust 3 + seated leg curl 2** · Triceps press 2 · Pallof 2 | 2 |
-| Per | **Yüzme 45 dk** (havuz varsa) + 10 dk mobilite; yoksa yürüyüş 6.000+ | — |
+| Per | **Yürüyüş** (Sal ile aynı) + 10 dk mobilite | — |
 | Cum (A′) | Chest press/eğik dambıl 3 · Kablo çekiş/pulldown nötr 3 · **Leg press 3 + calf 2** · Omuz yan 1 · **Biceps 2 + triceps 2** · Dead bug 1 | 2 |
 | Cmt | **Yürüyüş 6.000+ adım** (serbest öğün günü) | — |
 | Paz | **Yürüyüş 6.000+ adım**, tempolu 30–40 dk | — |
@@ -100,7 +100,7 @@ hacmi 3 sete düşüyordu. Doz-yanıt meta-regresyonu (Sports Medicine 2024) hip
 Kol 2+2'ye çıkarıldı, denge için omuz yan ve dead bug 1'e indirildi; seans süresi değişmedi.
 Kalori açığında hedef kas **korumak**, büyütmek değil — 3 set de koruyabilirdi, 4 daha güvenli. Haftalık: göğüs 9, sırt 9, quad 6+, hamstring-kalça 5, omuz 6, kol 6 — bacak **her seansta**, ihmal edilmez.
 Bölünmüş (göğüs/sırt/bacak günleri) şablon iptal değil, Dean isterse geri dönülür; tüm vücut ilk 4 hafta denenir.
-Hafta sonu havuz kapalı (Dean, 21 Eyl) — yüzme Salı/Perşembe'ye alındı, hafta sonu yürüyüşle karşılanıyor.
+Yüzme günleri kaldırıldı (Dean, 23 Eyl): Salı/Perşembe yürüyüş günü. Yüzme hep 10–16 dk, ort. nabız ~112 kalıyordu (kardiyo uyaranı değil); salon sonrası soğuma olarak isteğe bağlı. Zone 2 hacmi tempolu yürüyüşten gelir.
 Haftalık: quad 9, hamstring-kalça 9, göğüs 9, sırt 9, omuz 6, kol 12. Kardiyo 150–200 dk zone 2.
 Mobilite (Per, 10 dk, uygulamadaki kartlarıyla): kedi-deve · diz çökerek kalça öne itme ·
 ayakta kalça çemberi · dinamik göğüs açma · ayak bileği çemberi.
