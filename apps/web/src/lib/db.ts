@@ -63,6 +63,22 @@ export interface WearableRecord {
   synced_at: string
 }
 
+/**
+ * Gun ici tek olcum (db/009). daily_log gunde tek deger tutuyor; burasi her
+ * olcumu saatiyle sakliyor, gunun degeri lib/measurements.ts'te hesaplaniyor.
+ */
+export interface Measurement {
+  id: string
+  date: string
+  /** Yerel saat HH:MM - sabah/gun ici ayrimi buna bakiyor. */
+  time: string
+  bp_systolic: number | null
+  bp_diastolic: number | null
+  pulse: number | null
+  weight_kg: number | null
+  note: string | null
+}
+
 /** One logged meal. The photo stays on the device; only the numbers ever sync. */
 export interface Meal {
   id: string
@@ -135,6 +151,7 @@ export const db = new Dexie('wellness') as Dexie & {
   settings: EntityTable<Settings, 'key'>
   wearable: EntityTable<WearableRecord, 'id'>
   meal: EntityTable<Meal, 'id'>
+  measurement: EntityTable<Measurement, 'id'>
   note_log: EntityTable<NoteEntry, 'id'>
   chat: EntityTable<ChatMessage, 'id'>
   exercise_media: EntityTable<ExerciseMedia, 'url'>
@@ -176,4 +193,10 @@ db.version(6).stores({
 // Katalogun kendisi derlemeye gomulu, yalniz kareler agdan geliyor.
 db.version(7).stores({
   exercise_media: 'url',
+})
+
+// Gun ici coklu olcum (db/009): tansiyon gunde bir kez degil, sabah iki kez
+// olculuyor ve ikisi de saklaniyor.
+db.version(8).stores({
+  measurement: 'id, date',
 })

@@ -154,6 +154,22 @@ const WEARABLE_BODY = {
   },
 } as const
 
+const MEASUREMENT_BODY = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['id', 'date', 'time'],
+  properties: {
+    id: { type: 'string', format: 'uuid' },
+    date: DATE,
+    time: { type: 'string', pattern: '^[0-2][0-9]:[0-5][0-9]$' },
+    bp_systolic: { type: ['integer', 'null'], minimum: 50, maximum: 260 },
+    bp_diastolic: { type: ['integer', 'null'], minimum: 30, maximum: 160 },
+    pulse: { type: ['integer', 'null'], minimum: 30, maximum: 220 },
+    weight_kg: { type: ['number', 'null'], minimum: 20, maximum: 400 },
+    note: { type: ['string', 'null'], maxLength: 500 },
+  },
+} as const
+
 const MEAL_BODY = {
   type: 'object',
   additionalProperties: false,
@@ -517,6 +533,42 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
       values,
     )
     return { written: unique.size }
+  })
+
+  // Gun ici coklu olcum (db/009). daily_log'daki gunluk deger burada durmuyor:
+  // istemci sabah ortalamasini oraya ayrica yaziyor, trend kodu degismesin diye.
+  app.get('/api/measurements', { schema: { querystring: RANGE } }, async (req) => {
+    const { start, end } = req.query as { start: string; end: string }
+    const { rows } = await pool.query(
+      'select * from measurement where date between $1 and $2 order by date, time',
+      [start, end],
+    )
+    return rows
+  })
+
+  app.post('/api/measurements', { schema: { body: MEASUREMENT_BODY } }, async (req, reply) => {
+    const b = req.body as Record<string, unknown>
+    const { rows } = await pool.query(
+      `insert into measurement (id, date, time, bp_systolic, bp_diastolic, pulse, weight_kg, note)
+       values ($1::uuid, $2, $3, $4, $5, $6, $7, $8)
+       on conflict (id) do update set
+         date = excluded.date, time = excluded.time, bp_systolic = excluded.bp_systolic,
+         bp_diastolic = excluded.bp_diastolic, pulse = excluded.pulse,
+         weight_kg = excluded.weight_kg, note = excluded.note
+       returning *, (xmax = 0) as inserted`,
+      [b.id, b.date, b.time, b.bp_systolic ?? null, b.bp_diastolic ?? null,
+       b.pulse ?? null, b.weight_kg ?? null, b.note ?? null],
+    )
+    const { inserted, ...measurement } = rows[0]
+    reply.code(inserted ? 201 : 200)
+    return measurement
+  })
+
+  app.delete('/api/measurements/:id', async (req, reply) => {
+    const { id } = req.params as { id: string }
+    const { rowCount } = await pool.query('delete from measurement where id = $1', [id])
+    if (rowCount === 0) return reply.code(404).send({ error: 'not found' })
+    return reply.code(204).send()
   })
 
   app.get('/api/meals', { schema: { querystring: RANGE } }, async (req) => {

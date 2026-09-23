@@ -1,5 +1,15 @@
 import { api, ApiError, getToken } from './api'
-import { db, type DailyLog, type Meal, type OutboxEntry, type Retro, type WearableRecord, type Workout } from './db'
+import {
+  db,
+  type DailyLog,
+  type Meal,
+  type Measurement,
+  type OutboxEntry,
+  type Retro,
+  type WearableRecord,
+  type Workout,
+} from './db'
+import { dayValue } from './measurements'
 
 const now = () => new Date().toISOString()
 
@@ -117,6 +127,28 @@ export async function queueMealDelete(id: string): Promise<void> {
   await queue({ method: 'DELETE', path: `/api/meals/${id}` })
 }
 
+/**
+ * Tek olcumu yazar. Gunun ozeti (daily_log) burada da tazeleniyor: trend, 7-gun
+ * ortalamasi ve koc metinleri daily_log'u okuyor - iki yere yazmak, o kodun
+ * degismesinden ucuz.
+ */
+export async function saveMeasurement(row: Measurement): Promise<void> {
+  await db.measurement.put(row)
+  await queue({ method: 'POST', path: '/api/measurements', body: row })
+  const value = dayValue(await db.measurement.where('date').equals(row.date).toArray())
+  if (value === null) return
+  const patch: Partial<DailyLog> = {}
+  if (value.bp_systolic != null) patch.bp_systolic = Math.round(value.bp_systolic)
+  if (value.bp_diastolic != null) patch.bp_diastolic = Math.round(value.bp_diastolic)
+  if (value.weight_kg != null) patch.weight_kg = value.weight_kg
+  if (Object.keys(patch).length > 0) await saveDaily(row.date, patch)
+}
+
+export async function deleteMeasurement(id: string): Promise<void> {
+  await db.measurement.delete(id)
+  await queue({ method: 'DELETE', path: `/api/measurements/${id}` })
+}
+
 export async function saveRetro(date: string, patch: Partial<Retro>): Promise<void> {
   const existing = await db.retro.get(date)
   await db.retro.put({ ...existing, ...patch, date, updated_at: now() })
@@ -198,14 +230,16 @@ async function recordRejection(entry: OutboxEntry, err: unknown): Promise<void> 
 /** Pulls the server's copy into IndexedDB. Used on load so a second device sees existing data. */
 export async function pullRange(start: string, end: string): Promise<void> {
   const query = `?start=${start}&end=${end}`
-  const [daily, workouts, retros, wearable, meals] = await Promise.all([
+  const [daily, workouts, retros, wearable, meals, measurements] = await Promise.all([
     api<DailyLog[]>(`/api/daily${query}`),
     api<Workout[]>(`/api/workouts${query}`),
     api<Retro[]>(`/api/retro${query}`),
     api<WearableRecord[]>(`/api/wearable${query}`),
     api<Meal[]>(`/api/meals${query}`),
+    api<Measurement[]>(`/api/measurements${query}`),
   ])
-  await db.transaction('rw', db.daily_log, db.workout, db.retro, db.wearable, db.meal, async () => {
+  // Dizi bicimi: Dexie'nin tek tek tablo alan imzasi bes tabloda bitiyor.
+  await db.transaction('rw', [db.daily_log, db.workout, db.retro, db.wearable, db.meal, db.measurement], async () => {
     await db.daily_log.bulkPut(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? now() })))
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
@@ -215,6 +249,7 @@ export async function pullRange(start: string, end: string): Promise<void> {
     // Fotograf sunucuda yok; cekilen kopya yerel fotografi silmesin.
     const local = await db.meal.bulkGet(meals.map((m) => m.id))
     await db.meal.bulkPut(meals.map((m, i) => (local[i]?.photo ? { ...m, photo: local[i]!.photo } : m)))
+    await db.measurement.bulkPut(measurements)
   })
 }
 

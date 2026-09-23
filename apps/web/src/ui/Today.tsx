@@ -13,6 +13,7 @@ import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
 import { DayHeader } from './DayHeader'
 import { Meals } from './Meals'
+import { Measurements } from './Measurements'
 import { ReviewWorkout } from './ReviewWorkout'
 import { Sleep } from './Sleep'
 import { Watch } from './Watch'
@@ -204,10 +205,9 @@ export function Today({ date }: { date: string }) {
           value={log?.waist_cm}
           onCommit={(v) => void saveDaily(date, { waist_cm: v })}
         />
-        <div className="flex gap-3">
-          <NumberField label="Tansiyon büyük" value={log?.bp_systolic} onCommit={(v) => void saveDaily(date, { bp_systolic: v })} />
-          <NumberField label="küçük" value={log?.bp_diastolic} onCommit={(v) => void saveDaily(date, { bp_diastolic: v })} />
-        </div>
+        {/* Tansiyon artik gun ici coklu: her olcum kendi satirinda, gunun degeri
+            sabah olcumlerinin ortalamasi (lib/measurements.ts). */}
+        <Measurements date={date} />
       </Card>
 
       <ReviewWorkout date={date} bodyKg={log?.weight_kg ?? null} />
