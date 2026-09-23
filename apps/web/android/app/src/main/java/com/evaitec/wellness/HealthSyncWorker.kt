@@ -45,7 +45,8 @@ class HealthSyncWorker(context: Context, params: WorkerParameters) :
             val days = result.optJSONArray("days") ?: JSONArray()
             for (i in 0 until days.length()) {
                 val day = days.getJSONObject(i)
-                val date = day.optString("date").ifEmpty { continue }
+                val date = day.optString("date")
+                if (date.isEmpty()) continue
                 for (metric in METRICS) {
                     if (!day.has(metric)) continue
                     records.put(
