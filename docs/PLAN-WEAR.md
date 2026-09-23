@@ -427,3 +427,27 @@ kart eklenmez (60 sn kuralı).
 - Samsung'un skorunu birebir taklit etmek. Onların katsayıları açık değil; kendi
   yükümüzü kendi eşiğimize göre raporlarız, "Samsung'unkiyle aynı sayı" iddia etmeyiz.
 - Fitness Index benzeri akran kıyaslaması. Referans veri kümemiz yok, uydurma olur.
+
+## 9. Saatten doğrudan okuma — Samsung zincirini atlamak (23 Eylül 2026, Dean onayladı)
+
+**Sorun (kanıtlı):** veri akşamı buluyor. Samsung'un kendi geliştirici dokümanı, verinin
+**telefonda** oluştuğu anda Health Connect'e yazıldığını ama **saat → telefon** senkronunun
+"pil ömrü nedeniyle kendi politikasını izlediğini" söylüyor. Tıkanan halka bu ve üçüncü
+parti köprü (FitToFit — Google Fit 2024'te emekli, Health Sync — aynı zincirin ucuna
+takılıyor) bunu hızlandıramaz: hiçbiri saatin ne zaman göndereceğini değiştiremiyor.
+Kaynak: https://developer.samsung.com/health/blog/en/accessing-samsung-health-data-through-health-connect
+
+**Karar:** `wellness-wear` bugün yalnız seans kuyruğunu taşıyor (`WearBridgeService`).
+Nabız, adım ve uykuyu da saatte **Health Services** üzerinden okuyup aynı Data Layer
+kanalından telefona itecek. Telefon bunları `/api/wearable`'a yazar — Samsung Health ve
+Health Connect zinciri devreden çıkar, gecikme saatin kendi ölçüm sıklığına iner.
+
+**Sınırlar:**
+- Health Connect okuması **silinmiyor**: tansiyon (Samsung Health Monitor) ve vücut
+  kompozisyonu yalnız oradan geliyor. İki yol yan yana çalışacak; yazma anahtarı zaten
+  `date+metric`, aynı günü iki kaynak yazarsa satır tazelenir, çoğalmaz.
+- Yüzmede nabız yine gelmez (§8.2b).
+- Saat pili: sürekli değil, aralıklı okuma. Periyot telefon tarafındaki 8 saatlik işle
+  aynı mantıkta tutulacak, ölçüm sıklığı ayrı ayarlanmayacak.
+
+**Sıra:** Faz 2 UI'dan sonra. Dean 23 Eylül'de "olur" dedi, acelesi yok.
