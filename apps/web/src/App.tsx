@@ -11,6 +11,7 @@ import { pullGoals } from './lib/settings'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
 import { REJECTED_KEY, hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
+import { getApiBase } from './lib/api'
 import { syncBadge } from './lib/syncStatus'
 import { pullWorkoutPlan } from './lib/workoutPlan'
 import { Drawer, type DrawerPage } from './ui/Drawer'
@@ -35,6 +36,12 @@ const TABS = [
 const PAGES: DrawerPage[] = [
   { id: 'moves', label: 'Hareket kütüphanesi', hint: 'Kas haritası ve arama' },
   { id: 'settings', label: 'Ayarlar', hint: 'Hedefler, saat, veri' },
+]
+
+// Sunucudaki bagimsiz araclar (tools/secici); uygulama icinde degil tarayicida acilir.
+const TOOLS: DrawerPage[] = [
+  { id: 'tabak', label: 'Seans ve Tabak', hint: 'Makine dolu, yerine ne? Tabak yeter mi?', href: `${getApiBase()}/plan/tabak` },
+  { id: 'tatli', label: 'Shake ve Dondurma', hint: 'Tatlı tarifleri, elimdekilerle', href: `${getApiBase()}/plan/tatli` },
 ]
 
 type TabId = (typeof TABS)[number]['id']
@@ -238,7 +245,7 @@ export function App() {
         </button>
       </nav>
 
-      <Drawer open={menu} pages={PAGES} onPick={(id) => setPage(id as PageId)} onClose={() => setMenu(false)} />
+      <Drawer open={menu} pages={[...PAGES, ...TOOLS]} onPick={(id) => setPage(id as PageId)} onClose={() => setMenu(false)} />
       <QuickAdd date={date} open={quickAdd} onClose={() => setQuickAdd(false)} />
     </div>
   )

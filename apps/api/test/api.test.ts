@@ -701,3 +701,29 @@ describe('serving the pwa', { skip: databaseUrl ? false : 'DATABASE_URL not set'
     assert.equal(res.statusCode, 401)
   })
 })
+
+describe('plan araclari', () => {
+  let app: ReturnType<typeof buildServer>['app']
+
+  before(async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'plan-'))
+    writeFileSync(join(dir, 'secici.html'), '<title>Seans ve Tabak</title>')
+    writeFileSync(join(dir, 'tatli.html'), '<!doctype html><title>Shake ve Dondurma</title>')
+    // Pool baglanmaz; /plan veritabanina dokunmaz.
+    app = buildServer({ databaseUrl: 'postgres://x@127.0.0.1:1/x', apiToken: TOKEN, planDir: dir }).app
+    await app.ready()
+  })
+
+  after(async () => { await app.close() })
+
+  test('menudeki kisa adresler tokensiz acilir, secici iskeletle sarilir', async () => {
+    for (const url of ['/plan/', '/plan/tabak', '/plan/secici.html']) {
+      const res = await app.inject({ method: 'GET', url })
+      assert.equal(res.statusCode, 200, url)
+      assert.match(res.body, /^<!doctype html>[\s\S]*<meta charset="utf-8">[\s\S]*Seans ve Tabak/, url)
+    }
+    const tatli = await app.inject({ method: 'GET', url: '/plan/tatli' })
+    assert.equal(tatli.statusCode, 200)
+    assert.match(tatli.body, /Shake ve Dondurma/)
+  })
+})

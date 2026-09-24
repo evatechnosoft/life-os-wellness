@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify'
+import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify'
 import fastifyStatic from '@fastify/static'
 
 import { createPool, type Pool } from './db.ts'
@@ -179,10 +179,17 @@ export function buildServer(opts: BuildOptions): { app: FastifyInstance; pool: P
       '</head>\n<body>\n' + body + '\n</body>\n</html>\n'
 
     const pageFile = join(planDir, 'secici.html')
-    app.get('/plan/', async (_req, reply) => {
+    const secici = async (_req: FastifyRequest, reply: FastifyReply) => {
       const body = await readFile(pageFile, 'utf8')
       return reply.type('text/html; charset=utf-8').send(shell(body))
-    })
+    }
+    // Menudeki kisa adresler; secici.html dogrudan acilinca da iskeletsiz kalmasin.
+    app.get('/plan/', secici)
+    app.get('/plan/tabak', secici)
+    app.get('/plan/secici.html', secici)
+    // tatli.html kendi iskeletini tasir, oldugu gibi gider.
+    app.get('/plan/tatli', async (_req, reply) =>
+      reply.type('text/html; charset=utf-8').send(await readFile(join(planDir, 'tatli.html'), 'utf8')))
     // Sondaki egik cizgiyi unutan adres 404 olmasin.
     app.get('/plan', async (_req, reply) => reply.redirect('/plan/', 301))
   }
