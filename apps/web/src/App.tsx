@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 
@@ -10,7 +11,8 @@ import { pullProfile } from './lib/profile'
 import { pullGoals } from './lib/settings'
 import { pullSplit } from './lib/split'
 import { refreshNotifications } from './lib/reminders'
-import { hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
+import { REJECTED_KEY, hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
+import { syncBadge } from './lib/syncStatus'
 import { pullWorkoutPlan } from './lib/workoutPlan'
 import { Drawer, type DrawerPage } from './ui/Drawer'
 import { Eva } from './ui/Eva'
@@ -58,6 +60,25 @@ export function App() {
     return PAGES.some((p) => p.id === wanted) ? (wanted as PageId) : null
   })
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
+  const lastWatchSync = useLiveQuery(async () => {
+    const rows = await db.wearable.filter((r) => r.source === 'health_connect').toArray()
+    return rows.reduce<string | null>((max, r) => (max === null || r.synced_at > max ? r.synced_at : max), null)
+  }, [])
+  const rejected = useLiveQuery(() => db.settings.get(REJECTED_KEY), [])
+  const rejectedList = (rejected?.value as { path: string; reason: string }[] | undefined) ?? []
+  const badge = syncBadge({
+    native: Capacitor.isNativePlatform(),
+    lastWatchSync: lastWatchSync ?? null,
+    rejected: rejectedList.length,
+    now: Date.now(),
+  })
+  // Reddedilen kayit sunucuya hic ulasmadi; nedenini gostermeden silmek bilgiyi de siler.
+  const showRejected = async (): Promise<void> => {
+    const lines = rejectedList.map((r) => `${r.path}: ${r.reason}`).join('\n')
+    if (window.confirm(`Sunucu bu kayıtları reddetti:\n${lines}\n\nListeyi temizle?`)) {
+      await db.settings.delete(REJECTED_KEY)
+    }
+  }
 
   useEffect(() => {
     const update = () => setOnline(navigator.onLine)
@@ -137,9 +158,16 @@ export function App() {
           </button>
           <h1 className="text-2xl font-semibold tracking-tight">{date}</h1>
         </div>
-        <span className={online ? 'text-xs text-ink-faint' : 'text-xs text-a3'}>
-          {online ? (pending > 0 ? `${pending} kayıt senkronda` : 'çevrimiçi') : `çevrimdışı — ${pending} kayıt kuyrukta`}
-        </span>
+        {badge ? (
+          <button type="button" onClick={() => badge.tone === 'error' && void showRejected()}
+            className={badge.tone === 'error' ? 'text-xs text-load' : 'text-xs text-a3'}>
+            {badge.text}
+          </button>
+        ) : (
+          <span className={online ? 'text-xs text-ink-faint' : 'text-xs text-a3'}>
+            {online ? (pending > 0 ? `${pending} kayıt senkronda` : 'çevrimiçi') : `çevrimdışı — ${pending} kayıt kuyrukta`}
+          </span>
+        )}
       </header>
 
       {updateReady && (
