@@ -1,4 +1,4 @@
-import type { WorkoutType } from './db'
+import type { Workout, WorkoutType } from './db'
 
 /**
  * Health Connect egzersiz tipi -> bizim dort kovamiz + Turkce ad.
@@ -119,4 +119,13 @@ export function segmentMusclesOf(types: number[]): string[] {
     }
   }
   return groups
+}
+
+/**
+ * Kullanici bu kaydi onayladi mi? Onaylandiysa saat senkronu ona **dokunmaz**:
+ * her 15 dk ayni stableId ile yeniden yazmak girilen set/agirlik/tipi siliyordu.
+ * needs_review alani olmayan eski kayit da kullanicinin sayilir.
+ */
+export function isAnswered(existing: Pick<Workout, 'needs_review'> | undefined): boolean {
+  return existing !== undefined && existing.needs_review !== true
 }

@@ -6,7 +6,7 @@ import { lastDates, toLocalDate } from './date'
 import { db, type Workout } from './db'
 import type { WearableRecord } from './db'
 import { activityIntervals, planHrWindows } from './activity'
-import { detectedExercise, segmentMusclesOf } from './watchExercise'
+import { detectedExercise, isAnswered, segmentMusclesOf } from './watchExercise'
 import { dismissedWorkouts, hasServer, saveDaily, upsertWorkout } from './store'
 
 export const SOURCE = 'health_connect'
@@ -278,6 +278,7 @@ export async function syncHealth(days = 7): Promise<number> {
       const id = await stableId(`${SOURCE}:${w.startDate}:${w.workoutType}`)
       if (dismissed.has(id)) continue
       const existing = await db.workout.get(id)
+      if (isAnswered(existing)) continue // onaylanmis: set/agirlik/tip kullanicinin
       const known = detectedExercise(w.workoutType ?? '')
       // Saat seansi segmentlediyse tekrar sayisi ve kas grubu bedava gelir. Ikisi de
       // kullanicinin girdigini **ezmez**: dolu olan kalir (AGENTS "manuel giris kalici").
@@ -323,7 +324,7 @@ export async function syncHealth(days = 7): Promise<number> {
     const id = await stableId(`hr:${win.start}`)
     if (dismissed.has(id)) continue
     const existing = await db.workout.get(id)
-    if (existing && existing.needs_review !== true) continue // cevaplanmis
+    if (isAnswered(existing)) continue // cevaplanmis
     // Pencere mutlak zaman; gune yazma karari burada verilir - basladigi gun.
     candidates.push({ startMs: from, endMs: to, date: toLocalDate(new Date(win.start)), id, win })
   }

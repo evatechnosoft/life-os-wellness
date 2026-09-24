@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { detectedExercise, segmentMuscles, segmentMusclesOf } from './watchExercise'
+import { detectedExercise, isAnswered, segmentMuscles, segmentMusclesOf } from './watchExercise'
 
 describe('detectedExercise', () => {
   it('kuvvet antrenmanini direnc kovasina koyar', () => {
@@ -68,5 +68,21 @@ describe('segmentMuscles', () => {
   it('hicbiri eslesmezse bos dizi doner - kayit kas grubusuz kalir', () => {
     expect(segmentMusclesOf([44, 39, 999])).toEqual([])
     expect(segmentMusclesOf([])).toEqual([])
+  })
+})
+
+describe('isAnswered', () => {
+  it('kaydi yoksa saat yazabilir', () => {
+    expect(isAnswered(undefined)).toBe(false)
+  })
+
+  it('onay bekleyen kaydi saat guncelleyebilir', () => {
+    expect(isAnswered({ needs_review: true })).toBe(false)
+  })
+
+  it('onaylanmis kayda saat dokunmaz - girilen setler korunur', () => {
+    expect(isAnswered({ needs_review: false })).toBe(true)
+    // needs_review alani olmayan eski kayit da kullanicinindir
+    expect(isAnswered({})).toBe(true)
   })
 })
