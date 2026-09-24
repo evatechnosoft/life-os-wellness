@@ -50,3 +50,10 @@ Yazma yapan veya para/rezervasyon içerenler: `Workouts/Details/Set/{trackID}/{w
 ## Manager
 
 `POST /MobileManager/Login` + `CheckTenant`; ekranlar `https://manager-app.gympro.online/` web paneli (WebView). Üye verisi için gereksiz.
+
+## Resim / video erişimi (24 Eyl, Dean sorusu — doğrulanmadı)
+
+- Girişsiz: **hayır.** `imageLink`/`videoLink` yalnız `Workouts/Details/...` yanıtında; misafir token 401.
+- Mevcut şifreyle: **evet**, girişten sonra linkler gelir. Bundle'da `youtube.com/embed/` var → videolar büyük olasılıkla
+  YouTube, link alındıktan sonra girişsiz açılır. Resim host'unun herkese açık olup olmadığı S1'de ilk yanıtla kontrol edilecek.
+- Hoca program atamadıysa (`Workouts` boş) link de yok.
