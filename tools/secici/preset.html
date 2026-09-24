@@ -74,6 +74,15 @@ button.copy {
   appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer;
   background: var(--accent); color: var(--surface); font: 600 14px "IBM Plex Sans", sans-serif;
 }
+.cmp { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border-radius: 12px; overflow: hidden; }
+.cmp th, .cmp td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
+.cmp th { font-size: 12px; color: var(--ink-faint); font-weight: 600; }
+.cmp td b { display: block; font-size: 13.5px; }
+.cmp .k { display: inline-block; font: 600 11px "IBM Plex Mono", monospace; padding: 1px 5px; border-radius: 4px; margin-right: 4px; }
+.cmp .k.b { background: var(--accent-soft); color: var(--accent); }
+.cmp .k.i { background: var(--surface-2); color: var(--ink-faint); }
+.cmp .zone { color: var(--ink-dim); }
+.scroll { overflow-x: auto; }
 .foot { color: var(--ink-faint); font-size: 12.5px; margin-top: 18px; }
 </style>
 </head>
@@ -92,6 +101,7 @@ button.copy {
     Mobilite — bisikletten sonra 3 dk: kedi-deve 10 · ayakta kalça çemberi 10/taraf · dinamik göğüs açma 10–15.
     Soğumada: diz çökerek kalça öne itme 30 sn × 2 taraf · ayak bileği çemberi 10/taraf.</p>
   <ol id="moves"></ol>
+  <div id="compare" class="scroll" hidden></div>
   <div class="actions">
     <button class="copy" id="copy" type="button">Metin olarak kopyala</button>
     <span class="hint" id="copied" role="status"></span>
@@ -146,13 +156,37 @@ function rampText(m, r) {
   return 'R ' + (kg === null ? '%' + r[0] : kg) + '×' + r[1];
 }
 
+// Karsilastir sekmesi: ayni sira, uc gun yan yana. B = bilesik (cok eklem), I = izolasyon (tek eklem).
+var COMPARE = [
+  ['1 Bacak (ana)', ['Leg press', 'B', 'ön bacak + kalça'], ['Hip thrust', 'B', 'kalça + arka bacak'], ['Leg press', 'B', 'ön bacak + kalça']],
+  ['2 Bacak (ek)', null, ['Leg curl', 'İ', 'arka bacak'], ['Calf press', 'İ', 'baldır']],
+  ['3 Göğüs', ['Chest press düz', 'B', 'göğüs orta + ön omuz + triceps'], ['Pec deck', 'İ', 'yalnız göğüs'], ['Eğimli pres', 'B', 'üst göğüs + ön omuz + triceps']],
+  ['4 Sırt', ['Pulldown geniş', 'B', 'sırt genişliği + biseps'], ['Row', 'B', 'sırt ortası kalınlık + arka omuz'], ['Pulldown dar', 'B', 'kanat alt + daha çok biseps']],
+  ['5 Omuz', ['Omuz presi', 'B', 'ön-yan omuz + triceps'], null, ['Yan kaldırış', 'İ', 'yan omuz']],
+  ['6 Kol', ['Biseps', 'İ', ''], ['Triceps', 'İ', ''], ['Biseps + triceps', 'İ', '']],
+  ['7 Core', ['Dead bug', 'İ', 'karın, bel çökmesine karşı'], ['Pallof', 'İ', 'yan karın, dönmeye karşı'], ['Dead bug', 'İ', 'karın']],
+];
+var CMP_TAB = { key: 'cmp', tab: 'Karşılaştır' };
+function renderCompare(box) {
+  var cell = function (c) {
+    if (!c) return '<td class="zone">—</td>';
+    var k = c[1] === 'B' ? 'b' : 'i';
+    return '<td><b><span class="k ' + k + '">' + c[1] + '</span>' + c[0] + '</b><span class="zone">' + c[2] + '</span></td>';
+  };
+  box.innerHTML = '<table class="cmp"><thead><tr><th>Sıra</th><th>Pzt A</th><th>Çar B</th><th>Cum A′</th></tr></thead><tbody>' +
+    COMPARE.map(function (r) { return '<tr><th>' + r[0] + '</th>' + cell(r[1]) + cell(r[2]) + cell(r[3]) + '</tr>'; }).join('') +
+    '</tbody></table>' +
+    '<p class="hint"><b>B bileşik</b>: çok eklem, çok kas — ağır, başta, rampa setli. <b>İ izolasyon</b>: tek eklem, tek kas — hafif, sonda, tamamlar.</p>' +
+    '<p class="hint">A ve A′ aynı iskelet, farklı açı (düz↔eğimli, geniş↔dar, pres↔yan kaldırış). B arka zincir + sırt kalınlığı günü; göğüs hafif. Her kas haftada 3 kez.</p>';
+}
+
 var current = DAYS[0];
 var tabs = document.getElementById('tabs');
 var list = document.getElementById('moves');
 
 function render() {
   tabs.innerHTML = '';
-  DAYS.forEach(function (d) {
+  DAYS.concat([CMP_TAB]).forEach(function (d) {
     var b = document.createElement('button');
     b.className = 'tab'; b.type = 'button'; b.setAttribute('role', 'tab');
     b.setAttribute('aria-selected', d === current ? 'true' : 'false');
@@ -160,7 +194,12 @@ function render() {
     b.onclick = function () { current = d; render(); };
     tabs.appendChild(b);
   });
+  var isCmp = current === CMP_TAB;
+  var box = document.getElementById('compare');
+  box.hidden = !isCmp; list.hidden = isCmp;
+  document.querySelector('.actions').hidden = isCmp;
   list.innerHTML = '';
+  if (isCmp) { renderCompare(box); return; }
   current.moves.forEach(function (m, i) {
     var li = document.createElement('li'); li.className = 'move';
     var img = document.createElement('img');
