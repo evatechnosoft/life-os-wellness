@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seans Preset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* Tokenlar secici.html / tatli.html ile ayni. */
+:root {
+  --ground: #E9EEEA; --surface: #FFFFFF; --surface-2: #F2F5F3; --line: #CDD7D0;
+  --ink: #16201D; --ink-dim: #55655F; --ink-faint: #7E8D87;
+  --accent: #1F5F6B; --accent-soft: #DCEAEC; --warn: #B4832A;
+  --shadow: 0 1px 2px rgba(22,32,29,.06), 0 8px 24px -16px rgba(22,32,29,.35);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #101614; --surface: #19221F; --surface-2: #202B27; --line: #2E3C37;
+    --ink: #E6ECE8; --ink-dim: #9DACA6; --ink-faint: #7A8983;
+    --accent: #6FC0CC; --accent-soft: #1B3A3F; --warn: #D8AC5C;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #101614; --surface: #19221F; --surface-2: #202B27; --line: #2E3C37;
+  --ink: #E6ECE8; --ink-dim: #9DACA6; --ink-faint: #7A8983;
+  --accent: #6FC0CC; --accent-soft: #1B3A3F; --warn: #D8AC5C;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 400 15px/1.55 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2 { font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif; margin: 0; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+h1 { font-size: clamp(26px, 4vw, 34px); font-weight: 700; letter-spacing: -.02em; }
+.sub, .back { color: var(--ink-dim); font-size: 13.5px; margin: 4px 0 0; }
+.back a { color: inherit; }
+.tabs { display: flex; gap: 6px; margin: 18px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab {
+  appearance: none; background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 9px 14px; margin-bottom: -1px; cursor: pointer; white-space: nowrap;
+  font: 600 14px/1 "IBM Plex Sans", sans-serif; color: var(--ink-faint);
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bookend {
+  background: var(--accent-soft); border-radius: 10px; padding: 10px 12px;
+  font-size: 13.5px; margin: 0 0 12px;
+}
+ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.move {
+  display: grid; grid-template-columns: 84px 1fr; gap: 12px; align-items: start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px; box-shadow: var(--shadow);
+}
+.move img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; background: var(--surface-2); }
+.move h2 { font-size: 16px; font-weight: 700; }
+.no { color: var(--ink-faint); font: 600 12px "IBM Plex Mono", monospace; }
+.sets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.set {
+  font: 600 13px/1 "IBM Plex Mono", monospace; padding: 6px 8px; border-radius: 6px;
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.set.r { color: var(--ink-faint); border-style: dashed; }
+.set.find { color: var(--warn); }
+.hint { color: var(--ink-faint); font-size: 12.5px; margin: 4px 0 0; }
+.actions { display: flex; gap: 8px; margin: 14px 0 0; align-items: center; }
+button.copy {
+  appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer;
+  background: var(--accent); color: var(--surface); font: 600 14px "IBM Plex Sans", sans-serif;
+}
+.foot { color: var(--ink-faint); font-size: 12.5px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="back"><a href="./">← Seans ve Tabak</a></p>
+  <h1>Seans preset</h1>
+  <p class="sub">Başka uygulamaya aynen gir, seans sonunda iki kaydı karşılaştıralım.
+    <b>R</b> = rampa seti, sayılmaz. <b>bul</b> = kayıt yok, 12'yi RIR 2 ile bitirebildiğin ağırlık.</p>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <p class="bookend">Önce 2 tansiyon (≥160/100 → yürüyüş) · bisiklet 5–8 dk 85–110 W ·
+    3×12 RIR 2 · ara bileşik 90–120 sn, izolasyon 60–90 sn · soğuma 10–15 dk hafif yüzme.</p>
+  <ol id="moves"></ol>
+  <div class="actions">
+    <button class="copy" id="copy" type="button">Metin olarak kopyala</button>
+    <span class="hint" id="copied" role="status"></span>
+  </div>
+  <p class="foot">Kaynak: canlı seans planı (0.35.0) + 21 Eyl günlüğü §4 hedefleri (+%5 kuralı).
+    Uygulamadaki set kartı geçen seferi doldurur; hedefe + ile çık.</p>
+</div>
+
+<script>
+// ramp: [yuzde, tekrar] ciftleri; sets: kg (null = bul) ve tekrar.
+var BACAK = [[50, 8], [75, 5]], UST = [[60, 8]];
+var DAYS = [
+  { key: 'a2', tab: 'Cum 25 Eyl · A′', moves: [
+    { id: 'Leverage_Incline_Chest_Press', name: 'Eğimli göğüs presi (makine)', ramp: UST, sets: [[30, 12], [30, 12], [30, 12]], hint: '30 kg tahmin — ilk sette ayarla' },
+    { id: 'Close-Grip_Front_Lat_Pulldown', name: 'Lat pulldown (dar/nötr tutuş)', ramp: UST, sets: [[40, 12], [40, 12], [40, 12]] },
+    { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Calf_Press_On_The_Leg_Press_Machine', name: 'Calf press (leg press makinesinde)', sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Side_Lateral_Raise', name: 'Dambıl yan kaldırış', sets: [[5, 12], [5, 12], [5, 12]] },
+    { id: 'Machine_Bicep_Curl', name: 'Biseps curl (makine)', sets: [[20, 12], [22.5, 12], [22.5, 12]] },
+    { id: 'Machine_Triceps_Extension', name: 'Triceps (makine)', sets: [[30, 12], [32.5, 12], [35, 12]] },
+    { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
+  ]},
+  { key: 'a', tab: 'Pzt 28 Eyl · A', moves: [
+    { id: 'Machine_Bench_Press', name: 'Oturarak göğüs presi (makine)', ramp: UST, sets: [[40, 12], [45, 12], [50, 12]] },
+    { id: 'Wide-Grip_Lat_Pulldown', name: 'Lat pulldown (geniş tutuş)', ramp: UST, sets: [[40, 12], [45, 12], [45, 12]] },
+    { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
+    { id: 'Leverage_Shoulder_Press', name: 'Omuz presi (makine)', ramp: UST, sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Machine_Bicep_Curl', name: 'Biseps curl (makine)', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
+    { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
+  ]},
+  { key: 'b', tab: 'Çar 30 Eyl · B', moves: [
+    { id: 'Butterfly', name: 'Butterfly / pec deck', ramp: UST, sets: [[35, 12], [40, 12], [40, 12]] },
+    { id: 'Leverage_Iso_Row', name: 'Makine row', ramp: UST, sets: [[30, 12], [35, 12], [35, 12]] },
+    { id: 'Barbell_Hip_Thrust', name: 'Hip thrust', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Seated_Leg_Curl', name: 'Oturarak leg curl (makine)', sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Machine_Triceps_Extension', name: 'Triceps (makine)', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
+    { id: 'Pallof_Press', name: 'Pallof press (kablo)', sets: [[null, '12/taraf'], [null, '12/taraf'], [null, '12/taraf']] },
+  ]},
+];
+
+// Uygulamadaki set kartiyla ayni: ilk calisma setinin yuzdesi, 2.5 kg'a yuvarli.
+function rampKg(m, pct) {
+  var work = m.sets[0][0];
+  return work === null ? null : Math.round(work * pct / 100 / 2.5) * 2.5;
+}
+function setText(kg, reps, bodyweight) {
+  if (bodyweight) return String(reps);
+  return (kg === null ? 'bul' : kg) + '×' + reps;
+}
+function rampText(m, r) {
+  var kg = rampKg(m, r[0]);
+  return 'R ' + (kg === null ? '%' + r[0] : kg) + '×' + r[1];
+}
+
+var current = DAYS[0];
+var tabs = document.getElementById('tabs');
+var list = document.getElementById('moves');
+
+function render() {
+  tabs.innerHTML = '';
+  DAYS.forEach(function (d) {
+    var b = document.createElement('button');
+    b.className = 'tab'; b.type = 'button'; b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', d === current ? 'true' : 'false');
+    b.textContent = d.tab;
+    b.onclick = function () { current = d; render(); };
+    tabs.appendChild(b);
+  });
+  list.innerHTML = '';
+  current.moves.forEach(function (m, i) {
+    var li = document.createElement('li'); li.className = 'move';
+    var img = document.createElement('img');
+    img.src = 'img/' + m.id + '.jpg'; img.alt = ''; img.loading = 'lazy';
+    img.onerror = function () { img.style.visibility = 'hidden'; };
+    var body = document.createElement('div');
+    var no = document.createElement('div'); no.className = 'no'; no.textContent = String(i + 1).padStart(2, '0');
+    var h = document.createElement('h2'); h.textContent = m.name;
+    var sets = document.createElement('div'); sets.className = 'sets';
+    (m.ramp || []).forEach(function (r) {
+      var s = document.createElement('span'); s.className = 'set r'; s.textContent = rampText(m, r); sets.appendChild(s);
+    });
+    m.sets.forEach(function (x) {
+      var s = document.createElement('span');
+      s.className = 'set' + (x[0] === null && !m.bodyweight ? ' find' : '');
+      s.textContent = setText(x[0], x[1], m.bodyweight); sets.appendChild(s);
+    });
+    body.append(no, h, sets);
+    if (m.hint) { var p = document.createElement('p'); p.className = 'hint'; p.textContent = m.hint; body.appendChild(p); }
+    li.append(img, body);
+    list.appendChild(li);
+  });
+  document.getElementById('copied').textContent = '';
+}
+
+document.getElementById('copy').onclick = function () {
+  var lines = [current.tab];
+  current.moves.forEach(function (m, i) {
+    var parts = (m.ramp || []).map(function (r) { return rampText(m, r); })
+      .concat(m.sets.map(function (x) { return setText(x[0], x[1], m.bodyweight); }));
+    lines.push((i + 1) + '. ' + m.name + ': ' + parts.join(', '));
+  });
+  var text = lines.join('\n');
+  var done = function () { document.getElementById('copied').textContent = 'Kopyalandı'; };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { window.prompt('Kopyala:', text); });
+  else window.prompt('Kopyala:', text);
+};
+
+render();
+</script>
+</body>
+</html>
