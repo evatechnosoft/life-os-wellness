@@ -11,11 +11,22 @@ import type { PlanExercise } from './workoutPlan'
  * ekran ve depo UI tarafinda.
  */
 
-/** Ekrandaki bir set. done_at null = henuz yapilmadi, sunucuya gitmez. */
-export type LogRow = ExerciseSet
+/**
+ * Ekrandaki bir set. done_at null = henuz yapilmadi, sunucuya gitmez.
+ * `warmup` satirlari yalniz ekranda: calisma setine sayilmaz, "gecen sefer"i kirletmez.
+ */
+export type LogRow = ExerciseSet & { warmup?: true }
 
 const DEFAULT_SETS = 3
 const WEIGHT_STEP = 2.5
+
+/** Rampa (GUNLUK-2026-09-21 S5): calisma agirliginin yuzdesi x tekrar. Bacakta 2, ust govdede 1. */
+const RAMP: Record<number, [number, number][]> = {
+  1: [[0.6, 8]],
+  2: [[0.5, 8], [0.75, 5]],
+}
+
+const roundStep = (kg: number): number => Math.round(kg / WEIGHT_STEP) * WEIGHT_STEP
 
 /** Hareketin `before` gununden onceki en son seanstaki setleri, set_no sirasiyla. */
 function lastSets(workouts: Workout[], exerciseId: string, before: string): ExerciseSet[] {
@@ -36,7 +47,17 @@ export function prefill(
 ): LogRow[] {
   return plan.flatMap((ex) => {
     const last = lastSets(workouts, ex.id, date)
-    return Array.from({ length: ex.sets ?? DEFAULT_SETS }, (_, i) => {
+    const work = last[0]?.weight_kg ?? null
+    const ramp: LogRow[] = (RAMP[ex.warmup ?? 0] ?? []).map(([pct, reps], i) => ({
+      id: newId(),
+      exercise_id: ex.id,
+      set_no: i + 1,
+      weight_kg: work === null ? null : roundStep(work * pct),
+      reps,
+      done_at: null,
+      warmup: true,
+    }))
+    return [...ramp, ...Array.from({ length: ex.sets ?? DEFAULT_SETS }, (_, i) => {
       // Gecen sefer daha az set yapildiysa fazlasi son setin degerini alir.
       const ref = last[i] ?? last[last.length - 1]
       return {
@@ -47,7 +68,7 @@ export function prefill(
         reps: ref?.reps ?? null,
         done_at: null,
       }
-    })
+    })]
   })
 }
 
@@ -89,7 +110,9 @@ export function musclesFor(exerciseIds: string[]): string[] {
  * onun id/sure/notu korunur - ayni antrenman iki satir olmasin.
  */
 export function buildWorkout(id: string, date: string, rows: LogRow[], base: Workout | undefined): Workout {
-  const done = rows.filter((r) => r.done_at !== null)
+  const done = rows
+    .filter((r) => r.done_at !== null && !r.warmup)
+    .map(({ warmup: _warmup, ...set }) => set)
   return {
     ...base,
     id,

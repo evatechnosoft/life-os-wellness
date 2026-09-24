@@ -44,20 +44,23 @@ export function SessionLog({ date, today }: { date: string; today: Workout[] }) 
   const update = (i: number, row: LogRow, sync: boolean) =>
     void save(current.rows.map((r, j) => (j === i ? row : r)), sync)
 
-  const doneCount = current.rows.filter((r) => r.done_at !== null).length
+  const work = current.rows.filter((r) => !r.warmup)
+  const doneCount = work.filter((r) => r.done_at !== null).length
   const ids = [...new Set(current.rows.map((r) => r.exercise_id))]
 
   return (
     <Card id="seans" title={`Seans ${day.label ?? ''}`} collapsible defaultOpen
-      summary={`${doneCount}/${current.rows.length} set`}>
+      summary={`${doneCount}/${work.length} set`}>
       <div className="space-y-4">
         {ids.map((exId) => (
           <div key={exId}>
             <p className="mb-1 text-sm text-ink-dim">{find(exId)?.name ?? exId}</p>
             {current.rows.map((row, i) =>
               row.exercise_id !== exId ? null : (
-                <div key={row.id} className="flex items-center gap-1 text-sm tabular-nums">
-                  <span className="w-5 text-ink-faint">{row.set_no}</span>
+                <div key={row.id} className={`flex items-center gap-1 text-sm tabular-nums ${row.warmup ? 'opacity-60' : ''}`}>
+                  <span className="w-5 text-ink-faint" title={row.warmup ? 'Rampa seti, çalışma setine sayılmaz' : undefined}>
+                    {row.warmup ? `R${row.set_no}` : row.set_no}
+                  </span>
                   <Step label="ağırlık azalt" onClick={() => update(i, bump(row, 'weight_kg', -1), row.done_at !== null)}>−</Step>
                   <span className="w-14 text-center">{row.weight_kg ?? '–'} kg</span>
                   <Step label="ağırlık artır" onClick={() => update(i, bump(row, 'weight_kg', 1), row.done_at !== null)}>+</Step>

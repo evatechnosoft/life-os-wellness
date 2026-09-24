@@ -99,6 +99,7 @@ const PLAN_BODY = {
               properties: {
                 id: { type: 'string', maxLength: 80 },
                 sets: { type: 'integer', minimum: 1, maximum: 20 },
+                warmup: { type: 'integer', minimum: 0, maximum: 3 },
                 slot: { type: ['string', 'null'], maxLength: 40 },
               },
             },

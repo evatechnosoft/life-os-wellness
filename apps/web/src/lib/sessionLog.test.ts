@@ -95,3 +95,30 @@ describe('buildWorkout', () => {
     expect(w).toMatchObject({ id: 'watch', type: 'resistance', duration_min: 52, notes: 'saat: Kuvvet antrenmanı' })
   })
 })
+
+describe('isinma / rampa setleri', () => {
+  it('warmup kadar satir calisma setlerinden once gelir, ilk calisma agirligindan kademeli', () => {
+    const rows = prefill([{ id: 'Leg_Press', sets: 2, warmup: 2 }], past, '2026-09-25', id)
+    expect(rows.map((r) => [r.warmup ?? false, r.weight_kg, r.reps])).toEqual([
+      [true, 45, 8], // %50 x 8
+      [true, 67.5, 5], // %75 x 5, 2.5'e yuvarli
+      [false, 90, 12],
+      [false, 95, 10],
+    ])
+  })
+
+  it('tek hafif set %60 x 8; gecmis yoksa agirlik bos', () => {
+    const light = prefill([{ id: 'Leg_Press', sets: 1, warmup: 1 }], past, '2026-09-25', id)
+    expect([light[0]?.weight_kg, light[0]?.reps]).toEqual([55, 8])
+    const fresh = prefill([{ id: 'Dead_Bug', sets: 1, warmup: 1 }], past, '2026-09-25', id)
+    expect(fresh[0]?.warmup && fresh[0]?.weight_kg).toBeNull()
+  })
+
+  it('isinma seti isaretlense de seansa ve sunucuya gitmez', () => {
+    const rows = prefill([{ id: 'Leg_Press', sets: 1, warmup: 1 }], past, '2026-09-25', id)
+      .map((r) => ({ ...r, done_at: '2026-09-25T08:00:00Z' }))
+    const w = buildWorkout('w', '2026-09-25', rows, undefined)
+    expect(w.sets_total).toBe(1)
+    expect(w.sets?.every((s) => !('warmup' in s))).toBe(true)
+  })
+})

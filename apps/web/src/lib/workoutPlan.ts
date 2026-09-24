@@ -7,7 +7,8 @@ import { hasServer, queueWorkoutPlan } from './store'
 /** Gun tipi. Program (docs/PROGRAM-2026-09.md S5) uc tip taniyor. */
 export type DayType = 'lift' | 'swim' | 'rest'
 
-export type PlanExercise = { id: string; sets?: number; slot?: string | null }
+/** `warmup`: calisma setlerinden once rampa seti sayisi (bacak 2, ust govde bilesik 1, izolasyon 0). */
+export type PlanExercise = { id: string; sets?: number; warmup?: number; slot?: string | null }
 
 export type PlanDay = {
   weekday: number
