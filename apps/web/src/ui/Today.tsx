@@ -15,6 +15,7 @@ import { DayHeader } from './DayHeader'
 import { Meals } from './Meals'
 import { Measurements } from './Measurements'
 import { ReviewWorkout } from './ReviewWorkout'
+import { SessionLog } from './SessionLog'
 import { Sleep } from './Sleep'
 import { Watch } from './Watch'
 import { draftToWorkout, emptyDraft, TYPES, WorkoutFields, type WorkoutDraft } from './WorkoutForm'
@@ -209,6 +210,8 @@ export function Today({ date }: { date: string }) {
             sabah olcumlerinin ortalamasi (lib/measurements.ts). */}
         <Measurements date={date} />
       </Card>
+
+      <SessionLog date={date} today={workouts} />
 
       <ReviewWorkout date={date} bodyKg={log?.weight_kg ?? null} />
 

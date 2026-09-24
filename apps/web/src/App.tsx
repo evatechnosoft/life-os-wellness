@@ -1,11 +1,10 @@
-import { Capacitor } from '@capacitor/core'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 
 import { lastDates, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
-import { scheduleBackgroundSync, syncHealth } from './lib/health'
+import { isNative, scheduleBackgroundSync, syncHealth } from './lib/health'
 import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch, installPhoneUpdate, type PhoneUpdate } from './lib/watch'
 import { pullProfile } from './lib/profile'
 import { pullGoals } from './lib/settings'
@@ -67,7 +66,7 @@ export function App() {
   const rejected = useLiveQuery(() => db.settings.get(REJECTED_KEY), [])
   const rejectedList = (rejected?.value as { path: string; reason: string }[] | undefined) ?? []
   const badge = syncBadge({
-    native: Capacitor.isNativePlatform(),
+    native: isNative(),
     lastWatchSync: lastWatchSync ?? null,
     rejected: rejectedList.length,
     now: Date.now(),

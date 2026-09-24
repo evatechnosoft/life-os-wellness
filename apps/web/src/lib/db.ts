@@ -33,6 +33,17 @@ export interface Workout {
   weight_kg?: number | null
   /** Seansta yapilan toplam tekrar - ilerleme onerisi bunsuz tahmin uretemez. */
   reps_total?: number | null
+  /** Hareket bazli setler (db/008 exercise_set). GET /api/workouts seansla birlikte dondurur. */
+  sets?: ExerciseSet[]
+}
+
+export interface ExerciseSet {
+  id: string
+  exercise_id: string
+  set_no: number
+  weight_kg: number | null
+  reps: number | null
+  done_at: string | null
 }
 
 export interface Retro {
