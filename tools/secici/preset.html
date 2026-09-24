@@ -87,6 +87,10 @@ button.copy {
   <div class="tabs" role="tablist" id="tabs"></div>
   <p class="bookend">Önce 2 tansiyon (≥160/100 → yürüyüş) · bisiklet 5–8 dk 85–110 W ·
     3×12 RIR 2 · ara bileşik 90–120 sn, izolasyon 60–90 sn · soğuma 10–15 dk hafif yüzme.</p>
+  <p class="bookend">Sıra her gün aynı mantık: <b>bacak → göğüs → sırt → omuz → kol → core</b>.
+    Büyükten küçüğe; bacak başta çünkü en ağır ve bisikletle zaten ısınmış.<br>
+    Mobilite — bisikletten sonra 3 dk: kedi-deve 10 · ayakta kalça çemberi 10/taraf · dinamik göğüs açma 10–15.
+    Soğumada: diz çökerek kalça öne itme 30 sn × 2 taraf · ayak bileği çemberi 10/taraf.</p>
   <ol id="moves"></ol>
   <div class="actions">
     <button class="copy" id="copy" type="button">Metin olarak kopyala</button>
@@ -103,27 +107,27 @@ var DAYS = [
   { key: 'a2', tab: 'Cum 25 Eyl · A′', moves: [
     { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Başta: en büyük hareket, taze ve bisikletle ısınmış bacakla' },
     { id: 'Calf_Press_On_The_Leg_Press_Machine', name: 'Calf press (leg press makinesinde)', sets: [[null, 12], [null, 12], [null, 12]] },
-    { id: 'Leverage_Incline_Chest_Press', name: 'Eğimli göğüs presi (makine)', ramp: UST, sets: [[30, 12], [30, 12], [30, 12]], hint: '30 kg tahmin — ilk sette ayarla' },
+    { id: 'Leverage_Incline_Chest_Press', name: 'Eğimli göğüs presi — plakalı leverage makine', ramp: UST, sets: [[30, 12], [30, 12], [30, 12]], hint: '30 kg tahmin — plakalıda iki taraftaki plakaların toplamını yaz' },
     { id: 'Close-Grip_Front_Lat_Pulldown', name: 'Lat pulldown (dar/nötr tutuş)', ramp: UST, sets: [[40, 12], [40, 12], [40, 12]] },
     { id: 'Side_Lateral_Raise', name: 'Dambıl yan kaldırış', sets: [[5, 12], [5, 12], [5, 12]] },
-    { id: 'Machine_Bicep_Curl', name: 'Biseps curl (makine)', sets: [[20, 12], [22.5, 12], [22.5, 12]] },
-    { id: 'Machine_Triceps_Extension', name: 'Triceps (makine)', sets: [[30, 12], [32.5, 12], [35, 12]] },
+    { id: 'Machine_Bicep_Curl', name: 'Biseps curl — Life Fitness no 7', sets: [[20, 12], [22.5, 12], [22.5, 12]] },
+    { id: 'Machine_Triceps_Extension', name: 'Triceps press — Life Fitness no 8', sets: [[30, 12], [32.5, 12], [35, 12]] },
     { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
   ]},
   { key: 'a', tab: 'Pzt 28 Eyl · A', moves: [
-    { id: 'Machine_Bench_Press', name: 'Oturarak göğüs presi (makine)', ramp: UST, sets: [[40, 12], [45, 12], [50, 12]] },
-    { id: 'Wide-Grip_Lat_Pulldown', name: 'Lat pulldown (geniş tutuş)', ramp: UST, sets: [[40, 12], [45, 12], [45, 12]] },
     { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
-    { id: 'Leverage_Shoulder_Press', name: 'Omuz presi (makine)', ramp: UST, sets: [[null, 12], [null, 12], [null, 12]] },
-    { id: 'Machine_Bicep_Curl', name: 'Biseps curl (makine)', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
+    { id: 'Machine_Bench_Press', name: 'Chest press — Life Fitness makine (bar değil)', ramp: UST, sets: [[40, 12], [45, 12], [50, 12]] },
+    { id: 'Wide-Grip_Lat_Pulldown', name: 'Lat pulldown (geniş tutuş)', ramp: UST, sets: [[40, 12], [45, 12], [45, 12]] },
+    { id: 'Leverage_Shoulder_Press', name: 'Omuz presi — Life Fitness makine', ramp: UST, sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Machine_Bicep_Curl', name: 'Biseps curl — Life Fitness no 7', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
     { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
   ]},
   { key: 'b', tab: 'Çar 30 Eyl · B', moves: [
-    { id: 'Butterfly', name: 'Butterfly / pec deck', ramp: UST, sets: [[35, 12], [40, 12], [40, 12]] },
-    { id: 'Leverage_Iso_Row', name: 'Makine row', ramp: UST, sets: [[30, 12], [35, 12], [35, 12]] },
     { id: 'Barbell_Hip_Thrust', name: 'Hip thrust', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]] },
     { id: 'Seated_Leg_Curl', name: 'Oturarak leg curl (makine)', sets: [[null, 12], [null, 12], [null, 12]] },
-    { id: 'Machine_Triceps_Extension', name: 'Triceps (makine)', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
+    { id: 'Butterfly', name: 'Butterfly / pec deck', ramp: UST, sets: [[35, 12], [40, 12], [40, 12]] },
+    { id: 'Leverage_Iso_Row', name: 'Makine row', ramp: UST, sets: [[30, 12], [35, 12], [35, 12]] },
+    { id: 'Machine_Triceps_Extension', name: 'Triceps press — Life Fitness no 8', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
     { id: 'Pallof_Press', name: 'Pallof press (kablo)', sets: [[null, '12/taraf'], [null, '12/taraf'], [null, '12/taraf']] },
   ]},
 ];

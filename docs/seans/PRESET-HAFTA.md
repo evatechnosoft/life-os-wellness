@@ -7,6 +7,12 @@
 Her seans: önce 2 tansiyon ölçümü (≥160/100 → yürüyüş) · bisiklet 5–8 dk 85–110 W ·
 çalışma 3×12, RIR 2 · ara bileşik 90–120 sn, izolasyon 60–90 sn · soğuma 10–15 dk hafif yüzme.
 
+Sıra her gün: **bacak → göğüs → sırt → omuz → kol → core** (büyükten küçüğe, bacak ısınmışken başta).
+Makineler: chest press = Life Fitness makine (bar değil) · biseps = Life Fitness no 7 · triceps = no 8 ·
+eğimli pres plakalı → iki taraf plaka toplamı yazılır.
+Mobilite — bisikletten sonra 3 dk: kedi-deve 10 · ayakta kalça çemberi 10/taraf · dinamik göğüs açma 10–15.
+Soğumada: diz çökerek kalça öne itme 30 sn × 2 taraf · ayak bileği çemberi 10/taraf.
+
 ## Cuma 25 Eyl — A′
 
 | # | Hareket | R | Setler (kg × tekrar) |
@@ -24,9 +30,9 @@ Her seans: önce 2 tansiyon ölçümü (≥160/100 → yürüyüş) · bisiklet 
 
 | # | Hareket | R | Setler |
 |---|---|---|---|
-| 1 | Oturarak göğüs presi (makine) | 1 × 25×8 | 40×12 · 45×12 · 50×12 |
-| 2 | Lat pulldown (geniş tutuş) | 1 × 25×8 | 40×12 · 45×12 · 45×12 |
-| 3 | Leg press | 2 × %50×8, %75×5 | Cuma'nın ağırlığı ×3 |
+| 1 | Leg press | 2 × %50×8, %75×5 | Cuma'nın ağırlığı ×3 |
+| 2 | Chest press (Life Fitness makine) | 1 × 25×8 | 40×12 · 45×12 · 50×12 |
+| 3 | Lat pulldown (geniş tutuş) | 1 × 25×8 | 40×12 · 45×12 · 45×12 |
 | 4 | Omuz presi (makine) | 1 × %60×8 | bul × 12 ×3 |
 | 5 | Biseps curl (makine) | — | Cuma'nın ağırlığı ×3 |
 | 6 | Dead bug | — | 3 × 10 / taraf |
@@ -35,10 +41,10 @@ Her seans: önce 2 tansiyon ölçümü (≥160/100 → yürüyüş) · bisiklet 
 
 | # | Hareket | R | Setler |
 |---|---|---|---|
-| 1 | Butterfly / pec deck | 1 × 20×8 | 35×12 · 40×12 · 40×12 |
-| 2 | Makine row | 1 × 17.5×8 | 30×12 · 35×12 · 35×12 |
-| 3 | Hip thrust | 2 × %50×8, %75×5 | bul × 12 ×3 |
-| 4 | Oturarak leg curl (makine) | — | bul × 12 ×3 |
+| 1 | Hip thrust | 2 × %50×8, %75×5 | bul × 12 ×3 |
+| 2 | Oturarak leg curl (makine) | — | bul × 12 ×3 |
+| 3 | Butterfly / pec deck | 1 × 20×8 | 35×12 · 40×12 · 40×12 |
+| 4 | Makine row | 1 × 17.5×8 | 30×12 · 35×12 · 35×12 |
 | 5 | Triceps (makine) | — | Cuma'nın ağırlığı ×3 |
 | 6 | Pallof press (kablo) | — | 3 × 12 / taraf |
 
