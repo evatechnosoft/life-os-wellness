@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shake ve Dondurma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Tokenlar secici.html ile ayni: iki sayfa tek sistem gibi gorunsun. */
+:root {
+  --ground: #E9EEEA; --surface: #FFFFFF; --surface-2: #F2F5F3; --line: #CDD7D0;
+  --ink: #16201D; --ink-dim: #55655F; --ink-faint: #7E8D87;
+  --fuel: #A65E18; --fuel-soft: #F3E4D3; --cold: #1F5F6B; --cold-soft: #DCEAEC;
+  --ok: #3F7D52; --warn: #B4832A; --over: #A8432C;
+  --shadow: 0 1px 2px rgba(22,32,29,.06), 0 8px 24px -16px rgba(22,32,29,.35);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #101614; --surface: #19221F; --surface-2: #202B27; --line: #2E3C37;
+    --ink: #E6ECE8; --ink-dim: #9DACA6; --ink-faint: #7A8983;
+    --fuel: #E0A059; --fuel-soft: #3A2A18; --cold: #6FC0CC; --cold-soft: #1B3A3F;
+    --ok: #74B98A; --warn: #D8AC5C; --over: #E07F67;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #101614; --surface: #19221F; --surface-2: #202B27; --line: #2E3C37;
+  --ink: #E6ECE8; --ink-dim: #9DACA6; --ink-faint: #7A8983;
+  --fuel: #E0A059; --fuel-soft: #3A2A18; --cold: #6FC0CC; --cold-soft: #1B3A3F;
+  --ok: #74B98A; --warn: #D8AC5C; --over: #E07F67;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 400 15px/1.55 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif; margin: 0; text-wrap: balance; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em; }
+.sub { color: var(--ink-dim); font-size: 13.5px; max-width: 64ch; margin: 4px 0 0; }
+.back { font-size: 13px; color: var(--ink-faint); }
+.back a { color: inherit; }
+
+.tabs { display: flex; gap: 6px; margin: 18px 0 18px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab {
+  appearance: none; background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 9px 14px; margin-bottom: -1px; cursor: pointer; white-space: nowrap;
+  font: 600 14px/1 "IBM Plex Sans", sans-serif; color: var(--ink-faint);
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+body { --accent: var(--fuel); --accent-soft: var(--fuel-soft); }
+.hidden { display: none !important; }
+
+.search {
+  width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font: 400 15px/1.2 "IBM Plex Sans", sans-serif;
+}
+.search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.strip { display: flex; gap: 7px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; }
+.strip::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; appearance: none; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-dim);
+  border-radius: 999px; padding: 7px 14px; font: 500 13.5px/1 "IBM Plex Sans", sans-serif;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 16px 0 10px; }
+.meta h2 { font-size: 17px; font-weight: 700; }
+.count { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-faint); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card {
+  display: flex; flex-direction: column; gap: 8px; padding: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+}
+.card.ice { --accent: var(--cold); --accent-soft: var(--cold-soft); }
+.card-top { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
+.card h3 { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.kind { font: 600 10.5px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: var(--accent-soft); padding: 4px 7px; border-radius: 5px; white-space: nowrap; }
+.macros { display: flex; gap: 12px; font: 400 12.5px/1 "IBM Plex Mono", monospace; color: var(--ink-dim); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.macros b { color: var(--ink); font-weight: 600; }
+.badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.badge { font: 500 10.5px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; padding: 4px 7px; border-radius: 5px; background: var(--surface-2); color: var(--ink-dim); }
+.badge.ok { color: var(--ok); }
+.badge.warn { color: var(--warn); }
+.ing { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--ink-dim); }
+.ing li { margin: 1px 0; }
+details { font-size: 13.5px; color: var(--ink-dim); }
+summary { cursor: pointer; color: var(--ink); font-weight: 500; }
+ol.steps { margin: 6px 0 0; padding-left: 20px; }
+.alt { font-size: 12.5px; color: var(--ink-faint); }
+.alt b { color: var(--ink-dim); font-weight: 600; }
+.btn {
+  appearance: none; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--surface);
+  border-radius: 8px; padding: 9px 14px; font: 600 13.5px/1 "IBM Plex Sans", sans-serif; align-self: start;
+}
+.btn.ghost { background: none; color: var(--ink-dim); border-color: var(--line); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.empty { color: var(--ink-faint); font-size: 13.5px; }
+
+/* kur paneli: secici.html "Tabak kur" ile ayni duzen */
+.buildwrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .buildwrap { grid-template-columns: 1fr; } }
+.foods { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.food {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit;
+  font: inherit; text-align: left; cursor: pointer; width: 100%; min-height: 48px;
+}
+.food:last-child { border-bottom: 0; }
+.food:hover { background: var(--surface-2); }
+.food:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.food-name { font-size: 14px; }
+.food-portion { display: block; font: 400 11.5px/1.3 "IBM Plex Mono", monospace; color: var(--ink-faint); }
+.food-macros { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-dim); white-space: nowrap; }
+.plus { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 600; }
+.plate { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+.bars { display: flex; flex-direction: column; gap: 12px; }
+.bar-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.bar-head b { font: 600 13px/1 "IBM Plex Mono", monospace; }
+.track { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 5px; }
+.fill { height: 100%; border-radius: 4px; background: var(--accent); transition: width .2s; }
+.fill.ok { background: var(--ok); }
+.fill.over { background: var(--over); }
+.hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 4px; }
+.picked { display: flex; flex-direction: column; gap: 6px; }
+.picked-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.picked-row span { flex: 1; min-width: 0; }
+.qty { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-faint); }
+.x { appearance: none; border: 1px solid var(--line); background: none; color: var(--ink-dim); cursor: pointer; font-size: 15px; width: 32px; height: 32px; border-radius: 6px; }
+.x:hover { color: var(--over); }
+.checks { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.checks .bad { color: var(--over); }
+.checks .good { color: var(--ok); }
+
+.note { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 13.5px; color: var(--ink-dim); margin-top: 14px; }
+.note b { color: var(--ink); font-weight: 600; }
+.cmp { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.cmp th, .cmp td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cmp th { font-weight: 600; color: var(--ink); background: var(--surface-2); }
+.cmp td { color: var(--ink-dim); }
+.cmpwrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Shake ve Dondurma</h1>
+    <span class="back"><a href="./">← Seans ve Tabak</a></span>
+  </header>
+  <p class="sub">Protein tabanlı, şekersiz, en fazla 1 porsiyon meyve. "meyve", "kakao", "vişne", "kahve" diye ara; beğendiğini "Kur"a al, malzemeyi değiştir, sayılar anında güncellensin.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-list" aria-controls="panel-list" aria-selected="true">Tarifler</button>
+    <button class="tab" role="tab" id="tab-build" aria-controls="panel-build" aria-selected="false">Bardak / kase kur</button>
+    <button class="tab" role="tab" id="tab-sweet" aria-controls="panel-sweet" aria-selected="false">Stevia, eritritol</button>
+  </div>
+
+  <section id="panel-list" role="tabpanel" aria-labelledby="tab-list">
+    <input class="search" id="q" type="search" placeholder="Ara: meyve, kakao, çilek, fıstık, kahve…" autocomplete="off" aria-label="Tarif ara">
+    <div class="strip" id="kinds" aria-label="Tür"></div>
+    <div class="strip" id="tags" aria-label="Özellik"></div>
+    <div class="meta"><h2 id="list-title">Hepsi</h2><span class="count" id="list-count"></span></div>
+    <div class="grid" id="cards"></div>
+    <p class="note"><b>Değerler yaklaşık:</b> süzme yoğurt Mis %7 etiketinden (100 g: 105 kcal, 8 g protein), diğerleri
+      TürKomp/USDA ortalaması. Dondurmalar <b>porsiyon başına</b> (taban 4 porsiyon). Meyve porsiyonu günlük 2 hakkından düşer;
+      <b>20:00 sonrası yalnız meyvesiz</b> olanlar.</p>
+  </section>
+
+  <section id="panel-build" role="tabpanel" aria-labelledby="tab-build" class="hidden">
+    <div class="buildwrap">
+      <div>
+        <div class="strip" id="groups" aria-label="Malzeme grubu"></div>
+        <div class="meta"><h2 id="group-title">Taban</h2><span class="count">dokun = 1 porsiyon ekle</span></div>
+        <div class="foods" id="foods"></div>
+      </div>
+      <aside class="plate">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+          <h2 style="font-size:16px" id="build-title">Bardak</h2>
+          <button class="btn ghost" id="clear" type="button">Temizle</button>
+        </div>
+        <div class="strip" id="servings" aria-label="Kaç porsiyon" style="padding-top:0"></div>
+        <div class="bars" id="bars"></div>
+        <div class="checks" id="checks"></div>
+        <div class="picked" id="picked"><p class="empty">Soldan malzeme ekle ya da bir tarifi "Kur"a al.</p></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="panel-sweet" role="tabpanel" aria-labelledby="tab-sweet" class="hidden">
+    <div class="meta"><h2>Şekersiz tatlandırıcılar</h2></div>
+    <div class="cmpwrap">
+      <table class="cmp">
+        <thead><tr><th></th><th>Stevia</th><th>Eritritol</th></tr></thead>
+        <tbody>
+          <tr><td>Nedir</td><td>Stevia rebaudiana bitkisinin yaprağından çıkarılan tatlı bileşikler (steviol glikozitleri).</td><td>Şeker alkolü; meyvelerde az miktarda doğal olarak bulunur, ticari olanı mayalamayla üretilir.</td></tr>
+          <tr><td>Tatlılık</td><td>Şekerden 200–300 kat tatlı; birkaç damla ya da çay kaşığının ucu yeter.</td><td>Şekerin ~%70'i; toz şeker gibi kaşıkla kullanılır.</td></tr>
+          <tr><td>Kalori, kan şekeri</td><td>~0 kcal, kan şekerini ve insülini yükseltmez.</td><td>~0,2 kcal/g, kan şekerini ve insülini yükseltmez.</td></tr>
+          <tr><td>Tadı</td><td>Fazlası acımsı, meyanköksü bir son tat bırakır.</td><td>Şekere yakın, ağızda hafif serinlik hissi.</td></tr>
+          <tr><td>Nerede iyi</td><td>Shake, kahve, yoğurt — sıvıda kolay çözülür.</td><td>Dondurma ve tatlı — hacim verir. Soğukta kristalleşebilir; toz (pudra) hali daha iyi.</td></tr>
+          <tr><td>Dikkat</td><td>Birçok toz stevia maltodekstrin/dekstrozla karıştırılır — etikette yalnız "steviol glikozitleri" olmalı.</td><td>Fazlası (tek seferde ~30–50 g üstü) gaz/ishal yapabilir. 2023'te kan eritritol düzeyiyle kardiyovasküler olay arasında ilişki bildiren bir gözlemsel çalışma var (Witkowski, Nature Medicine) — neden-sonuç kanıtlanmadı; ölçülü kullan.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><b>Pratik öneri:</b> shake'te birkaç damla sıvı stevia; dondurmada 1–2 yemek kaşığı pudra eritritol ya da
+      eritritol-stevia karışımı. Tatlandırıcı kilo verdirmez, yalnız şekerin yerini alır — asıl tatlılığı meyve, tarçın,
+      vanilya ve kakaodan almaya alış. <b>Bal, pekmez, hurma şurubu, agave "doğal" ama şekerdir</b> (TG 302, HbA1c 5.9 → yok).</p>
+  </section>
+</div>
+
+<script>
+// Malzeme: porsiyon basina degerler. fruit = meyve porsiyonu (gunluk hak 2).
+const ING = {
+  suzme:   { n: 'Süzme yoğurt %7', p: '100 g', g: 'taban', kcal: 105, pro: 8, carb: 4, fib: 0 },
+  lor:     { n: 'Lor peyniri', p: '100 g', g: 'taban', kcal: 90, pro: 13, carb: 3, fib: 0 },
+  sut:     { n: 'Süt (yarım yağlı)', p: '200 ml', g: 'taban', kcal: 92, pro: 6.4, carb: 9.6, fib: 0 },
+  ayran:   { n: 'Ayran', p: '250 ml', g: 'taban', kcal: 90, pro: 5, carb: 6, fib: 0 },
+  kefir:   { n: 'Kefir (sade)', p: '250 ml', g: 'taban', kcal: 130, pro: 8, carb: 11, fib: 0 },
+  protein: { n: 'Protein tozu (whey)', p: '1 ölçek 30 g', g: 'taban', kcal: 120, pro: 24, carb: 3, fib: 0 },
+  cilek:   { n: 'Çilek', p: '100 g', g: 'meyve', kcal: 32, pro: 0.7, carb: 7.7, fib: 2, fruit: 1 },
+  visne:   { n: 'Vişne (çekirdeksiz)', p: '100 g', g: 'meyve', kcal: 50, pro: 1, carb: 12, fib: 1.6, fruit: 1 },
+  orman:   { n: 'Orman meyvesi (böğürtlen, ahududu, yaban mersini)', p: '100 g', g: 'meyve', kcal: 50, pro: 1, carb: 11, fib: 5, fruit: 1 },
+  muz:     { n: 'Muz', p: '½ adet 60 g', g: 'meyve', kcal: 55, pro: 0.6, carb: 14, fib: 1.5, fruit: 1 },
+  elma:    { n: 'Yeşil elma', p: '½ adet 80 g', g: 'meyve', kcal: 42, pro: 0.2, carb: 11, fib: 2, fruit: 1 },
+  seftali: { n: 'Şeftali', p: '1 küçük 120 g', g: 'meyve', kcal: 47, pro: 1.1, carb: 11, fib: 1.8, fruit: 1 },
+  dut:     { n: 'Karadut', p: '100 g', g: 'meyve', kcal: 43, pro: 1.4, carb: 10, fib: 1.7, fruit: 1 },
+  kakao:   { n: 'Kakao (şekersiz)', p: '1 yk 7 g', g: 'lezzet', kcal: 16, pro: 1.4, carb: 4, fib: 2.6 },
+  kahve:   { n: 'Espresso / 1 tk hazır kahve', p: '1 shot', g: 'lezzet', kcal: 2, pro: 0.1, carb: 0, fib: 0 },
+  tarcin:  { n: 'Tarçın', p: '1 tk', g: 'lezzet', kcal: 6, pro: 0.1, carb: 2, fib: 1.3 },
+  vanilya: { n: 'Vanilya özü / toz', p: 'birkaç damla', g: 'lezzet', kcal: 3, pro: 0, carb: 0, fib: 0 },
+  limon:   { n: 'Limon kabuğu + suyu', p: '½ limon', g: 'lezzet', kcal: 6, pro: 0.2, carb: 2, fib: 0.5 },
+  nane:    { n: 'Taze nane', p: '1 tutam', g: 'lezzet', kcal: 1, pro: 0.1, carb: 0.2, fib: 0.2 },
+  ispanak: { n: 'Ispanak (çiğ)', p: '1 avuç 30 g', g: 'lezzet', kcal: 7, pro: 0.9, carb: 1, fib: 0.7 },
+  fistik:  { n: 'Fıstık ezmesi (sade, şekersiz)', p: '1 tk 10 g', g: 'ekstra', kcal: 60, pro: 2.5, carb: 2, fib: 0.8 },
+  ceviz:   { n: 'Ceviz', p: '2 yarım 10 g', g: 'ekstra', kcal: 65, pro: 1.5, carb: 1.4, fib: 0.7 },
+  yulaf:   { n: 'Yulaf ezmesi', p: '1 yk 10 g', g: 'ekstra', kcal: 38, pro: 1.3, carb: 6.5, fib: 1 },
+  chia:    { n: 'Chia tohumu', p: '1 yk 12 g', g: 'ekstra', kcal: 58, pro: 2, carb: 5, fib: 4 },
+  tatli:   { n: 'Stevia / eritritol', p: 'tadına göre', g: 'ekstra', kcal: 0, pro: 0, carb: 0, fib: 0 },
+  buz:     { n: 'Buz', p: '1 avuç', g: 'ekstra', kcal: 0, pro: 0, carb: 0, fib: 0 },
+}
+const GROUPS = [
+  { id: 'taban', label: 'Taban' }, { id: 'meyve', label: 'Meyve' },
+  { id: 'lezzet', label: 'Lezzet' }, { id: 'ekstra', label: 'Ekstra' },
+]
+
+// Tarif: ing = [malzeme, porsiyon]. serves = kac kisilik (dondurma tabani 4).
+const RECIPES = [
+  { id: 'kakao-fistik', kind: 'shake', n: 'Kakaolu fıstıklı shake', serves: 1,
+    ing: [['suzme', 2], ['sut', 1], ['kakao', 1], ['fistik', 1], ['tatli', 1], ['buz', 1]],
+    steps: ['Hepsini blendera koy, 30 sn çek.', 'Koyu gelirse süt ekle; buzu en son ekleyip 10 sn daha çek.'],
+    alt: 'Fıstık ezmesi yerine 2 ceviz · kakaoyu artır, fıstığı kaldır: −60 kcal.' },
+  { id: 'cilek', kind: 'shake', n: 'Çilekli yoğurt shake', serves: 1,
+    ing: [['suzme', 2], ['sut', 1], ['cilek', 1], ['vanilya', 1], ['tatli', 1]],
+    steps: ['Dondurulmuş çileği kullanırsan buza gerek yok.', 'Blenderda 30–40 sn, pürüzsüz olana kadar.'],
+    alt: 'Çilek yerine orman meyvesi (lif 2 → 5 g) · süt yerine su: −90 kcal.' },
+  { id: 'yesil', kind: 'shake', n: 'Yeşil ayran', serves: 1,
+    ing: [['ayran', 1], ['suzme', 1], ['ispanak', 1], ['elma', 1], ['yulaf', 1], ['nane', 1], ['limon', 1]],
+    steps: ['Önce ıspanak ve ayranı çek, yaprak kalmasın.', 'Sonra elma, yulaf, nane, limon; 30 sn daha.'],
+    alt: 'Elma yerine salatalık: meyvesiz olur, akşam içilebilir.' },
+  { id: 'muzlu', kind: 'shake', n: 'Antrenman sonrası muzlu', serves: 1,
+    ing: [['protein', 1], ['sut', 1], ['muz', 1], ['yulaf', 2], ['tarcin', 1]],
+    steps: ['Salondan döndükten sonraki 1 saat içinde.', 'Hepsini blendera, 30 sn.'],
+    alt: 'Protein tozu yoksa 200 g süzme yoğurt (−8 g protein) · muz yalnız antrenman günü.' },
+  { id: 'mocha', kind: 'shake', n: 'Mocha protein', serves: 1,
+    ing: [['protein', 1], ['sut', 1], ['kakao', 1], ['kahve', 1], ['buz', 1], ['tatli', 1]],
+    steps: ['Espressoyu soğut ya da hazır kahveyi az soğuk suda erit.', 'Hepsini buzla blendera, 20 sn.'],
+    alt: 'Kafeine 16:00 sonrası dikkat — uyku zaten kısa. Kahvesiz = kakaolu protein.' },
+  { id: 'visne-kefir', kind: 'shake', n: 'Vişneli kefir', serves: 1,
+    ing: [['kefir', 1], ['suzme', 1], ['visne', 1], ['chia', 1]],
+    steps: ['Chia\'yı kefirde 10 dk beklet (kıvam verir).', 'Vişne ve yoğurtla blendera, 30 sn.'],
+    alt: 'Vişne yerine karadut · chia yerine 1 yk yulaf.' },
+  { id: 'elmali-turta', kind: 'shake', n: 'Tarçınlı elmalı turta', serves: 1,
+    ing: [['suzme', 1.5], ['sut', 0.75], ['elma', 1], ['yulaf', 1], ['tarcin', 1], ['ceviz', 1]],
+    steps: ['Elmayı kabuğuyla doğra (lif kabukta).', 'Hepsini blendera, cevizi en son az çek — tanecikli kalsın.'],
+    alt: 'Elma yerine şeftali · ceviz yerine chia.' },
+  { id: 'orman-protein', kind: 'shake', n: 'Orman meyveli protein', serves: 1,
+    ing: [['protein', 1], ['sut', 1], ['orman', 1], ['chia', 1]],
+    steps: ['Dondurulmuş meyveyle yap, buz gerekmez.', 'Blenderda 30–40 sn.'],
+    alt: 'Süt yerine su: 150 kcal civarına iner.' },
+  { id: 'cheesecake-shake', kind: 'shake', n: 'Lorlu çilekli cheesecake', serves: 1,
+    ing: [['lor', 1], ['suzme', 1], ['sut', 1], ['cilek', 1], ['limon', 1], ['vanilya', 1], ['tatli', 1]],
+    steps: ['Loru önce sütle pürüzsüz olana kadar çek.', 'Kalanları ekle, 30 sn.'],
+    alt: 'Çilek yerine vişne · limon yerine tarçın.' },
+  { id: 'seftali-ayran', kind: 'shake', n: 'Şeftalili naneli ayran', serves: 1,
+    ing: [['ayran', 1], ['suzme', 1], ['seftali', 1], ['nane', 1], ['buz', 1]],
+    steps: ['Şeftaliyi kabuğuyla doğra.', 'Hepsini buzla blendera, 20 sn.'],
+    alt: 'Yazın dondurulmuş şeftaliyle; protein için +1 süzme yoğurt.' },
+
+  { id: 'fro-limon', kind: 'dondurma', n: 'Limonlu frozen yoğurt', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['limon', 1], ['vanilya', 1], ['tatli', 2]],
+    steps: ['Yoğurt, süt, limon kabuğu-suyu, vanilya ve tatlandırıcıyı çırp.', 'Makineye dök, kıvam alana kadar çalıştır (genelde 20–25 dk).', 'Sert istersen 1–2 saat dondurucuda.'],
+    alt: 'Meyvesiz — akşam da yenir.' },
+  { id: 'fro-visne', kind: 'dondurma', n: 'Vişneli dondurma', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['visne', 1.5], ['vanilya', 1], ['tatli', 2]],
+    steps: ['Vişnenin yarısını tabanla blendera çek (pembe olsun).', 'Makineye dök; son 5 dk kalan vişneyi parça olarak ekle.'],
+    alt: 'Vişne yerine karadut ya da orman meyvesi.' },
+  { id: 'fro-kakao', kind: 'dondurma', n: 'Kakaolu fıstıklı dondurma', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['kakao', 2], ['fistik', 1.5], ['tatli', 2]],
+    steps: ['Kakaoyu az ılık sütte erit (topak kalmasın), soğut.', 'Yoğurt ve tatlandırıcıyla çırp, makineye dök.', 'Fıstık ezmesini son dakika şerit şerit gezdir.'],
+    alt: 'Richnut kakaolu yerine bu: aynı tat, şekersiz. Meyvesiz — akşam da yenir.' },
+  { id: 'fro-orman', kind: 'dondurma', n: 'Orman meyveli dondurma', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['orman', 1.5], ['limon', 0.5], ['tatli', 2]],
+    steps: ['Meyvenin yarısını tabanla çek.', 'Makinede kalanı son 5 dk ekle.'],
+    alt: 'Lif en yüksek meyveli seçenek.' },
+  { id: 'fro-protein', kind: 'dondurma', n: 'Proteinli vanilyalı', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['protein', 1], ['vanilya', 1], ['tatli', 1]],
+    steps: ['Protein tozunu sütte iyice çırp (topaklanmasın).', 'Yoğurtla karıştır, makineye.'],
+    alt: 'Kakaolu protein tozuyla çikolatalı olur. Meyvesiz — akşam uygun.' },
+  { id: 'fro-mocha', kind: 'dondurma', n: 'Mocha dondurma', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['kakao', 1], ['kahve', 2], ['tatli', 2]],
+    steps: ['Kahveyi ve kakaoyu az sıcak sütte erit, soğut.', 'Yoğurtla çırp, makineye.'],
+    alt: 'Kafein var: akşam değil öğleden sonra.' },
+  { id: 'fro-elma', kind: 'dondurma', n: 'Tarçınlı elmalı cevizli', serves: 4,
+    ing: [['suzme', 4], ['sut', 0.75], ['elma', 2], ['tarcin', 1], ['ceviz', 2], ['tatli', 2]],
+    steps: ['Elmayı rendeleyip tavada 3–4 dk suyunu çekene kadar tarçınla pişir, soğut.', 'Tabanı makineye dök; son 5 dk elma ve kırık cevizi ekle.'],
+    alt: 'Elma yerine şeftali.' },
+  { id: 'fro-cheesecake', kind: 'dondurma', n: 'Çilekli cheesecake dondurma', serves: 4,
+    ing: [['suzme', 3], ['lor', 1], ['sut', 0.75], ['cilek', 1.5], ['limon', 1], ['tatli', 2]],
+    steps: ['Loru sütle pürüzsüz çek, yoğurt ve limonla karıştır.', 'Makineye dök; çileği ezip son 5 dk girdap gibi ekle.'],
+    alt: 'Lor proteini yükseltir; çilek yerine vişne.' },
+]
+
+const TAGS = [
+  { id: 'meyveli', label: 'Meyveli' }, { id: 'meyvesiz', label: 'Meyvesiz · akşam uygun' },
+  { id: 'kakao', label: 'Kakao' }, { id: 'kahve', label: 'Kahve' },
+  { id: 'kuruyemis', label: 'Fıstık / ceviz' }, { id: 'proteinli', label: 'Proteinli ≥25 g' },
+  { id: 'antrenman', label: 'Antrenman sonrası' },
+]
+const KINDS = [{ id: 'all', label: 'Hepsi' }, { id: 'shake', label: 'Shake / smoothie' }, { id: 'dondurma', label: 'Dondurma' }]
+
+const r1 = (x) => Math.round(x * 10) / 10
+
+/** Porsiyon basina toplam: dondurma tabani `serves`e bolunur. */
+function totals(items, serves) {
+  const t = { kcal: 0, pro: 0, carb: 0, fib: 0, fruit: 0 }
+  for (const [id, q] of items) {
+    const i = ING[id]
+    for (const k of ['kcal', 'pro', 'carb', 'fib']) t[k] += i[k] * q
+    t.fruit += (i.fruit ?? 0) * q
+  }
+  for (const k in t) t[k] = t[k] / serves
+  return t
+}
+
+function tagsOf(r) {
+  const t = totals(r.ing, r.serves)
+  const ids = r.ing.map(([id]) => id)
+  const out = [t.fruit > 0 ? 'meyveli' : 'meyvesiz']
+  if (ids.includes('kakao')) out.push('kakao')
+  if (ids.includes('kahve')) out.push('kahve')
+  if (ids.includes('fistik') || ids.includes('ceviz')) out.push('kuruyemis')
+  if (t.pro >= 25) out.push('proteinli')
+  // Antrenman sonrasi: hizli protein (toz) ya da muz - yalniz shake.
+  if (r.kind === 'shake' && (ids.includes('muz') || ids.includes('protein'))) out.push('antrenman')
+  return out
+}
+
+// Turkce harf ve buyuk-kucuk farki aramayi bozmasin.
+const fold = (s) => s.toLocaleLowerCase('tr').replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
+  .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c')
+
+// "meyve" araninca meyvesiz tarif gelmesin: alternatif metni ve "Meyvesiz" etiketi aranmaz.
+function haystack(r) {
+  const tagLabels = tagsOf(r).filter((id) => id !== 'meyvesiz').map((id) => TAGS.find((t) => t.id === id).label)
+  return fold([r.n, r.kind, ...r.ing.map(([id]) => ING[id].n + ' ' + ING[id].g), ...tagLabels].join(' '))
+}
+
+const state = { q: '', kind: 'all', tag: null, group: 'taban', build: [], serves: 1, buildName: 'Bardak' }
+
+function chipRow(el, items, current, onPick) {
+  el.innerHTML = ''
+  for (const it of items) {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.className = 'chip'
+    b.textContent = it.label
+    b.setAttribute('aria-pressed', String(current === it.id))
+    b.onclick = () => onPick(it.id)
+    el.append(b)
+  }
+}
+
+function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])) }
+
+function renderList() {
+  chipRow(document.getElementById('kinds'), KINDS, state.kind, (id) => { state.kind = id; renderList() })
+  chipRow(document.getElementById('tags'), TAGS, state.tag, (id) => { state.tag = state.tag === id ? null : id; renderList() })
+  const words = fold(state.q).split(/\s+/).filter(Boolean)
+  const list = RECIPES.filter((r) =>
+    (state.kind === 'all' || r.kind === state.kind) &&
+    (state.tag === null || tagsOf(r).includes(state.tag)) &&
+    words.every((w) => haystack(r).includes(w)))
+  document.getElementById('list-title').textContent =
+    state.q ? `"${state.q}"` : (TAGS.find((t) => t.id === state.tag)?.label ?? KINDS.find((k) => k.id === state.kind).label)
+  document.getElementById('list-count').textContent = `${list.length} tarif`
+  const cards = document.getElementById('cards')
+  cards.innerHTML = list.length ? '' : '<p class="empty">Bu aramaya uyan tarif yok. "Kur" sekmesinden kendin yap.</p>'
+  for (const r of list) {
+    const t = totals(r.ing, r.serves)
+    const tags = tagsOf(r)
+    const card = document.createElement('article')
+    card.className = 'card' + (r.kind === 'dondurma' ? ' ice' : '')
+    card.innerHTML = `
+      <div class="card-top"><h3>${esc(r.n)}</h3><span class="kind">${r.kind === 'dondurma' ? 'dondurma · 1/4' : 'shake'}</span></div>
+      <div class="macros"><span><b>${Math.round(t.kcal)}</b> kcal</span><span><b>${r1(t.pro)}</b> g protein</span><span>${r1(t.carb)} g karb</span><span>${r1(t.fib)} g lif</span></div>
+      <div class="badges">
+        ${t.fruit > 0 ? `<span class="badge warn">${r1(t.fruit)} meyve porsiyonu · gündüz</span>` : '<span class="badge ok">meyvesiz · akşam olur</span>'}
+        ${tags.filter((x) => !['meyveli', 'meyvesiz'].includes(x)).map((x) => `<span class="badge">${esc(TAGS.find((k) => k.id === x).label)}</span>`).join('')}
+      </div>
+      <ul class="ing">${r.ing.map(([id, q]) => `<li>${esc(ING[id].n)} — ${q === 1 ? '' : q + ' × '}${esc(ING[id].p)}</li>`).join('')}</ul>
+      <details><summary>Nasıl yapılır</summary><ol class="steps">${r.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></details>
+      <p class="alt"><b>Alternatif:</b> ${esc(r.alt)}</p>`
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'btn'
+    btn.textContent = 'Kur — malzemeyi değiştir'
+    btn.onclick = () => {
+      state.build = r.ing.map(([id, q]) => [id, q])
+      state.serves = r.serves
+      state.buildName = r.n
+      select('build')
+    }
+    card.append(btn)
+    cards.append(card)
+  }
+}
+
+function renderBuild() {
+  chipRow(document.getElementById('groups'), GROUPS, state.group, (id) => { state.group = id; renderBuild() })
+  chipRow(document.getElementById('servings'),
+    [{ id: 1, label: 'Shake · 1 porsiyon' }, { id: 4, label: 'Dondurma tabanı · 4 porsiyon' }],
+    state.serves, (id) => { state.serves = id; renderBuild() })
+  document.getElementById('group-title').textContent = GROUPS.find((g) => g.id === state.group).label
+  document.getElementById('build-title').textContent = state.buildName
+  const foods = document.getElementById('foods')
+  foods.innerHTML = ''
+  for (const [id, i] of Object.entries(ING).filter(([, i]) => i.g === state.group)) {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.className = 'food'
+    b.innerHTML = `<span><span class="food-name">${esc(i.n)}</span><span class="food-portion">${esc(i.p)}</span></span>
+      <span class="food-macros">${i.kcal} kcal · ${i.pro} g P</span><span class="plus" aria-hidden="true">+</span>`
+    b.setAttribute('aria-label', `${i.n} ekle`)
+    b.onclick = () => {
+      const row = state.build.find(([x]) => x === id)
+      if (row) row[1] += 1
+      else state.build.push([id, 1])
+      renderBuild()
+    }
+    foods.append(b)
+  }
+
+  const t = totals(state.build, state.serves)
+  const per = state.serves === 1 ? 'bardak' : 'porsiyon (1/4)'
+  const bar = (label, val, unit, target, cap) => {
+    const pct = Math.min(100, (val / (cap ?? target)) * 100)
+    const cls = cap !== undefined ? (val > cap ? 'over' : '') : (val >= target ? 'ok' : '')
+    return `<div><div class="bar-head"><span>${label}</span><b>${r1(val)} ${unit}</b></div>
+      <div class="track"><div class="fill ${cls}" style="width:${pct}%"></div></div>
+      <p class="hint">${cap !== undefined ? `üst sınır ${cap} ${unit}` : `hedef ≥ ${target} ${unit}`} · ${per}</p></div>`
+  }
+  const proTarget = state.serves === 1 ? 20 : 8
+  const kcalCap = state.serves === 1 ? 400 : 180
+  document.getElementById('bars').innerHTML =
+    bar('Protein', t.pro, 'g', proTarget) + bar('Kalori', t.kcal, 'kcal', 0, kcalCap) +
+    bar('Meyve', t.fruit, 'porsiyon', 0, 1) + bar('Lif', t.fib, 'g', 3)
+
+  const checks = []
+  if (state.build.length === 0) checks.push('')
+  else {
+    checks.push(t.pro >= proTarget ? '<span class="good">✓ Protein yeterli</span>' : `<span class="bad">✗ Protein düşük — süzme yoğurt, lor ya da protein tozu ekle</span>`)
+    checks.push(t.fruit <= 1 ? '<span class="good">✓ Meyve ≤ 1 porsiyon</span>' : '<span class="bad">✗ Meyve fazla — günlük hak 2, bir bardakta 1</span>')
+    checks.push(t.fruit > 0 ? '<span>• Meyveli: gündüz, 20:00 öncesi</span>' : '<span class="good">✓ Meyvesiz: akşam da olur</span>')
+    if (state.build.some(([id]) => id === 'kahve')) checks.push('<span>• Kafein: 16:00 sonrası uykuyu bozar</span>')
+  }
+  document.getElementById('checks').innerHTML = checks.join('')
+
+  const picked = document.getElementById('picked')
+  picked.innerHTML = state.build.length ? '' : '<p class="empty">Soldan malzeme ekle ya da bir tarifi "Kur"a al.</p>'
+  state.build.forEach(([id, q], idx) => {
+    const row = document.createElement('div')
+    row.className = 'picked-row'
+    row.innerHTML = `<span>${esc(ING[id].n)} <span class="qty">${q} × ${esc(ING[id].p)}</span></span>`
+    const minus = document.createElement('button')
+    minus.type = 'button'
+    minus.className = 'x'
+    minus.textContent = '−'
+    minus.setAttribute('aria-label', `${ING[id].n} azalt`)
+    minus.onclick = () => {
+      const step = q > 1 ? 1 : q
+      state.build[idx][1] = r1(q - step)
+      if (state.build[idx][1] <= 0) state.build.splice(idx, 1)
+      renderBuild()
+    }
+    row.append(minus)
+    picked.append(row)
+  })
+}
+
+const TABS = ['list', 'build', 'sweet']
+function select(tab) {
+  for (const id of TABS) {
+    document.getElementById(`tab-${id}`).setAttribute('aria-selected', String(id === tab))
+    document.getElementById(`panel-${id}`).classList.toggle('hidden', id !== tab)
+  }
+  if (tab === 'build') renderBuild()
+  window.scrollTo({ top: 0 })
+}
+for (const id of TABS) document.getElementById(`tab-${id}`).onclick = () => select(id)
+document.getElementById('q').addEventListener('input', (e) => { state.q = e.target.value; renderList() })
+document.getElementById('clear').onclick = () => { state.build = []; state.buildName = 'Bardak'; renderBuild() }
+renderList()
+</script>
+</body>
+</html>
