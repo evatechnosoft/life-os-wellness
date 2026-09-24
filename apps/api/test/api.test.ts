@@ -6,7 +6,8 @@ import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
 import { splitReply, SYSTEM } from '../src/chat.ts'
-import { collectSources } from '../src/llm.ts'
+import { collectSources, groundingSources } from '../src/llm.ts'
+import { wantsRecipes } from '../src/chat.ts'
 import { buildServer } from '../src/server.ts'
 
 const TOKEN = 'test-token'
@@ -505,6 +506,40 @@ describe('collectSources', () => {
   test('drops citations without a url, and handles none at all', () => {
     assert.deepEqual(collectSources([{ type: 'url_citation', url_citation: {} }]), [])
     assert.deepEqual(collectSources(undefined), [])
+  })
+})
+
+describe('wantsRecipes', () => {
+  test('malzemeden tarif sorusunu tanir, besin degeri sorusunu tanimaz', () => {
+    assert.equal(wantsRecipes('Elimde yogurt ve visne var ne yapabilirim'), true)
+    assert.equal(wantsRecipes('Bu malzemelerle tarif bul'), true)
+    assert.equal(wantsRecipes('100 g lorda kac gram protein var'), false)
+  })
+})
+
+describe('groundingSources', () => {
+  // LiteLLM Gemini aramasinin kaynaklarini annotations degil bu alanda donduruyor (24 Eyl, canli).
+  test('reads gemini grounding chunks, skips duplicates and chunks without a uri', () => {
+    const sources = groundingSources([
+      {
+        webSearchQueries: ['q'],
+        groundingChunks: [
+          { web: { uri: 'https://r.example/1', title: 'loveandoliveoil.com' } },
+          { web: { uri: 'https://r.example/1', title: 'dup' } },
+          { web: { title: 'no uri' } },
+          { web: { uri: 'https://r.example/2' } },
+        ],
+      },
+    ])
+    assert.deepEqual(sources, [
+      { title: 'loveandoliveoil.com', url: 'https://r.example/1' },
+      { title: 'r.example', url: 'https://r.example/2' },
+    ])
+  })
+
+  test('search ran but grounded on nothing, or no metadata at all', () => {
+    assert.deepEqual(groundingSources([{ webSearchQueries: ['q'] }]), [])
+    assert.deepEqual(groundingSources(undefined), [])
   })
 })
 

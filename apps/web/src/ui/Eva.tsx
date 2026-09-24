@@ -99,11 +99,17 @@ export function Eva({ compact = false }: { compact?: boolean }) {
                 <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.text}</p>
 
                 {m.sources && m.sources.length > 0 && (
-                  <ul className="mt-2 space-y-0.5">
+                  <ul className="mt-2 space-y-1">
                     {m.sources.map((s) => (
-                      <li key={s.url} className="truncate text-xs">
-                        <a href={s.url} target="_blank" rel="noreferrer" className="text-a1 underline-offset-2 hover:underline">
-                          {s.title}
+                      <li key={s.url} className="text-xs">
+                        <a href={s.url} target="_blank" rel="noreferrer"
+                          className="flex items-center gap-2 text-a1 underline-offset-2 hover:underline">
+                          {/* Tarif aramasinda sunucu kaynak sayfanin kapak resmini getirir (og:image). */}
+                          {s.image && (
+                            <img src={s.image} alt="" loading="lazy" referrerPolicy="no-referrer"
+                              className="size-14 shrink-0 rounded-field object-cover" />
+                          )}
+                          <span className="truncate">{s.title}</span>
                         </a>
                       </li>
                     ))}

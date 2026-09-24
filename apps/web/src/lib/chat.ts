@@ -28,7 +28,7 @@ import { fillWorkout } from './workoutText'
 export interface ChatReply {
   text: string
   draft: NoteDraft | null
-  sources: { title: string; url: string }[]
+  sources: { title: string; url: string; image?: string }[]
 }
 
 /** Kural motorlarinin (coach + nutrition) hesapladigi her sey, tek pakette. */

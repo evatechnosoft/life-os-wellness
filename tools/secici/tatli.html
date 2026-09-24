@@ -149,6 +149,11 @@ ol.steps { margin: 6px 0 0; padding-left: 20px; }
 .cmp th { font-weight: 600; color: var(--ink); background: var(--surface-2); }
 .cmp td { color: var(--ink-dim); }
 .cmpwrap { overflow-x: auto; }
+textarea.search { resize: vertical; line-height: 1.4; }
+.answer { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 14px; white-space: pre-wrap; }
+.src { display: flex; flex-direction: column; overflow: hidden; padding: 0; text-decoration: none; color: inherit; }
+.src img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--surface-2); display: block; }
+.src span { padding: 10px 12px; font-size: 13.5px; color: var(--ink-dim); }
 </style>
 </head>
 <body>
@@ -162,6 +167,7 @@ ol.steps { margin: 6px 0 0; padding-left: 20px; }
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-list" aria-controls="panel-list" aria-selected="true">Tarifler</button>
     <button class="tab" role="tab" id="tab-build" aria-controls="panel-build" aria-selected="false">Bardak / kase kur</button>
+    <button class="tab" role="tab" id="tab-pantry" aria-controls="panel-pantry" aria-selected="false">Elimdekiler</button>
     <button class="tab" role="tab" id="tab-sweet" aria-controls="panel-sweet" aria-selected="false">Stevia, eritritol</button>
   </div>
 
@@ -194,6 +200,21 @@ ol.steps { margin: 6px 0 0; padding-left: 20px; }
         <div class="picked" id="picked"><p class="empty">Soldan malzeme ekle ya da bir tarifi "Kur"a al.</p></div>
       </aside>
     </div>
+  </section>
+
+  <section id="panel-pantry" role="tabpanel" aria-labelledby="tab-pantry" class="hidden">
+    <p class="sub" style="margin:0 0 10px">Elindekileri yaz ya da tezgâhın/buzdolabının fotoğrafını çek. Eva internette arar, 2–3 tarif ve kaynak sayfalarını getirir (15–40 sn).</p>
+    <textarea class="search" id="pantry-text" rows="3" placeholder="Örn: süzme yoğurt, dondurulmuş vişne, kakao, yulaf"></textarea>
+    <div class="strip" style="align-items:center">
+      <label class="btn ghost" for="pantry-photo" style="cursor:pointer">📷 Fotoğraf</label>
+      <input id="pantry-photo" type="file" accept="image/*" capture="environment" class="hidden">
+      <span class="count" id="pantry-photo-name"></span>
+    </div>
+    <div class="strip" id="pantry-kind" aria-label="Ne olsun"></div>
+    <div class="strip"><button class="btn" id="pantry-go" type="button">Tarif ara</button><span class="count" id="pantry-status" style="align-self:center"></span></div>
+    <div id="pantry-out" style="margin-top:14px"></div>
+    <div class="grid" id="pantry-sources" style="margin-top:12px"></div>
+    <p class="note">Tarifler web aramasından; değerler modelin tahmini. Sunucuya ilk kullanımda token sorulur ve bu tarayıcıda saklanır.</p>
   </section>
 
   <section id="panel-sweet" role="tabpanel" aria-labelledby="tab-sweet" class="hidden">
@@ -506,7 +527,7 @@ function renderBuild() {
   })
 }
 
-const TABS = ['list', 'build', 'sweet']
+const TABS = ['list', 'build', 'pantry', 'sweet']
 function select(tab) {
   for (const id of TABS) {
     document.getElementById(`tab-${id}`).setAttribute('aria-selected', String(id === tab))
@@ -519,6 +540,88 @@ for (const id of TABS) document.getElementById(`tab-${id}`).onclick = () => sele
 document.getElementById('q').addEventListener('input', (e) => { state.q = e.target.value; renderList() })
 document.getElementById('clear').onclick = () => { state.build = []; state.buildName = 'Bardak'; renderBuild() }
 renderList()
+
+// --- Elimdekiler: /api/chat (web aramasi + kaynak kapak resmi) ---
+const PANTRY_KINDS = [
+  { id: 'shake', label: 'Shake / smoothie', ask: 'Shake ya da smoothie olsun.' },
+  { id: 'dondurma', label: 'Dondurma makinesi', ask: 'Süzme yoğurtlu, dondurma makinesinde yapılacak dondurma olsun.' },
+  { id: 'yemek', label: 'Öğün / yemek', ask: 'Proteinli bir öğün olsun.' },
+]
+let pantryKind = 'shake'
+let pantryImage = null
+function renderPantryKinds() {
+  chipRow(document.getElementById('pantry-kind'), PANTRY_KINDS, pantryKind, (id) => { pantryKind = id; renderPantryKinds() })
+}
+renderPantryKinds()
+
+/** Fotografi 1280 px JPEG'e kucultur: sunucu siniri 7 MB, telefon fotografi 5-10 MB. */
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const scale = Math.min(1, 1280 / Math.max(img.width, img.height))
+      const c = document.createElement('canvas')
+      c.width = Math.round(img.width * scale)
+      c.height = Math.round(img.height * scale)
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+      URL.revokeObjectURL(img.src)
+      resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1])
+    }
+    img.onerror = reject
+    img.src = URL.createObjectURL(file)
+  })
+}
+document.getElementById('pantry-photo').addEventListener('change', async (e) => {
+  const file = e.target.files?.[0]
+  pantryImage = file ? { media_type: 'image/jpeg', data: await shrink(file) } : null
+  document.getElementById('pantry-photo-name').textContent = file ? 'fotoğraf eklendi' : ''
+})
+
+function token() {
+  let t = null
+  try { t = localStorage.getItem('wellness_token') } catch {}
+  if (!t) {
+    t = window.prompt('Sunucu tokenı (uygulamada Ayarlar > Sunucu alanındaki)')?.trim() || null
+    if (t) try { localStorage.setItem('wellness_token', t) } catch {}
+  }
+  return t
+}
+
+// Model cevabi duz metin + **kalin**; HTML'e kacirilip yalniz kalin cevrilir.
+const md = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+
+document.getElementById('pantry-go').onclick = async () => {
+  const text = document.getElementById('pantry-text').value.trim()
+  const status = document.getElementById('pantry-status')
+  if (!text && !pantryImage) { status.textContent = 'Malzeme yaz ya da fotoğraf ekle.'; return }
+  const t = token()
+  if (!t) { status.textContent = 'Token olmadan aranamaz.'; return }
+  const kind = PANTRY_KINDS.find((k) => k.id === pantryKind)
+  const content = `Elimde bunlar var: ${text || 'fotoğraftakiler'}. Bununla ne yapabilirim? İnternetten tarif bul. ${kind.ask}`
+  const btn = document.getElementById('pantry-go')
+  btn.disabled = true
+  status.textContent = 'Aranıyor…'
+  document.getElementById('pantry-out').innerHTML = ''
+  document.getElementById('pantry-sources').innerHTML = ''
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${t}` },
+      body: JSON.stringify({ messages: [{ role: 'user', content }], ...(pantryImage ? { image: pantryImage } : {}) }),
+    })
+    if (res.status === 401) { try { localStorage.removeItem('wellness_token') } catch {} ; throw new Error('Token yanlış — tekrar dene, yeniden sorulacak.') }
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? `Sunucu ${res.status}`)
+    const reply = await res.json()
+    document.getElementById('pantry-out').innerHTML = `<div class="answer">${md(reply.text)}</div>`
+    document.getElementById('pantry-sources').innerHTML = reply.sources.map((s) =>
+      `<a class="card src" href="${esc(s.url)}" target="_blank" rel="noreferrer">${s.image ? `<img src="${esc(s.image)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}<span>${esc(s.title)}</span></a>`).join('')
+    status.textContent = reply.sources.length ? `${reply.sources.length} kaynak` : 'Kaynak bağlantısı gelmedi — tarifi doğrulamadan kullanma.'
+  } catch (err) {
+    status.textContent = err.message
+  } finally {
+    btn.disabled = false
+  }
+}
 </script>
 </body>
 </html>

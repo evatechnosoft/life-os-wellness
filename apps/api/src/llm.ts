@@ -48,6 +48,8 @@ export interface ImagePart {
 }
 
 export interface Source {
+  /** Kaynak sayfanin kapak resmi (og:image) - yalniz tarif aramasinda doldurulur. */
+  image?: string
   title: string
   url: string
 }
@@ -102,10 +104,34 @@ export async function complete(
   })
 
   const message = response.choices[0]?.message
+  const annotated = collectSources((message as Annotated | undefined)?.annotations)
   return {
     text: message?.content ?? '',
-    sources: collectSources((message as Annotated | undefined)?.annotations),
+    sources: annotated.length > 0
+      ? annotated
+      : groundingSources((response as Grounded).vertex_ai_grounding_metadata),
   }
+}
+
+/**
+ * LiteLLM, Gemini aramasinin kaynaklarini OpenAI annotations'a cevirmiyor; yanitin ust
+ * seviyesinde `vertex_ai_grounding_metadata` olarak birakiyor (24 Eyl canli yanit). Bu alan
+ * okunmayinca arama yapilip kaynak listesi hep bos donuyordu.
+ */
+interface Grounded {
+  vertex_ai_grounding_metadata?: {
+    webSearchQueries?: string[]
+    groundingChunks?: { web?: { uri?: string; title?: string } }[]
+  }[]
+}
+
+export function groundingSources(meta: Grounded['vertex_ai_grounding_metadata']): Source[] {
+  return collectSources(
+    (meta ?? []).flatMap((m) => m.groundingChunks ?? []).map((c) => ({
+      type: 'url_citation',
+      url_citation: { url: c.web?.uri, title: c.web?.title },
+    })),
+  )
 }
 
 /** Keeps the first mention of each URL, drops citations without one. */

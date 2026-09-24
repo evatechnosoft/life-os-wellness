@@ -1,7 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import OpenAI from 'openai'
 
-import { complete, type ChatTurn, type Llm } from './llm.ts'
+import { complete, type ChatTurn, type Llm, type Source } from './llm.ts'
+import { withPreviews } from './preview.ts'
 import { SYSTEM, splitReply } from './persona.ts'
 
 export { SYSTEM, splitReply }
@@ -46,8 +47,23 @@ const CHAT_BODY = {
 export interface ChatReply {
   text: string
   draft: Record<string, unknown> | null
-  sources: { title: string; url: string }[]
+  sources: Source[]
 }
+
+/**
+ * "Elimde yogurt, visne var, ne yapabilirim?" - malzemeden tarif arastirmasi. Bu durumda
+ * fotograf olsa bile web aranir (tezgah fotografi = malzeme listesi) ve kaynaklarin kapak
+ * resmi getirilir. Diger sorularda arama/resim maliyeti odenmez.
+ */
+export function wantsRecipes(text: string): boolean {
+  return /tarif|nes*yap|yapabilir|elimde|elimdeki|malzeme/i.test(text)
+}
+
+export const RECIPE_HINT = `Kullanici elindeki malzemelerle ne yapabilecegini soruyor.
+- Fotograf varsa once gorulen malzemeleri tek satirda say.
+- Internetten 2-3 gercek tarif bul; her biri: ad, malzeme (gram), 3-5 adim, porsiyon basina yaklasik kcal ve protein.
+- Kendi kurallarina uydur: sekersiz (bal/pekmez yok, gerekirse stevia/eritritol), porsiyonda en fazla 1 meyve, protein ekle (suzme yogurt, lor, yumurta, et).
+- Tarifi hangi siteden aldigini adiyla yaz; kaynak uydurma.`
 
 /**
  * One endpoint for everything the assistant does: answering, reading a photo, searching
@@ -67,17 +83,24 @@ export function registerChat(app: FastifyInstance, llm: Llm | null): void {
     if (context) turns.push({ role: 'system', content: `Kullanıcının son günleri:
 ${context}` })
     turns.push(...messages)
+    const recipes = wantsRecipes(messages[messages.length - 1]?.content ?? '')
+    if (recipes) turns.splice(1, 0, { role: 'system', content: RECIPE_HINT })
 
     try {
-      const { text: raw, sources } = await complete(llm, turns, {
+      const ask = () => complete(llm, turns, {
         model: image ? llm.config.visionModel : llm.config.chatModel,
         image,
         maxTokens: 1500,
-        // A photo is read, not researched; search only costs a round trip there.
-        search: !image,
+        // A photo is read, not researched - unless it is a pantry shot asking for recipes.
+        search: !image || recipes,
       })
+      let { text: raw, sources } = await ask()
+      // Gemini bazen arar ama sayfaya dayanmadan yazar (kaynak 0, 24 Eyl canli: 2 denemede 1).
+      // Tarifte kaynaksiz cevap uydurma riskidir; bir kez daha sorulur.
+      // ponytail: tek yeniden deneme, ~10-20 sn ek bekleme; sik olursa modeli degistir.
+      if (recipes && sources.length === 0) ({ text: raw, sources } = await ask())
       const { text, draft } = splitReply(raw)
-      const body: ChatReply = { text, draft, sources }
+      const body: ChatReply = { text, draft, sources: recipes ? await withPreviews(sources) : sources }
       return body
     } catch (err) {
       if (err instanceof OpenAI.RateLimitError) {

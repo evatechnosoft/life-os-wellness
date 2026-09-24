@@ -134,7 +134,7 @@ export interface ChatMessage {
   role: 'user' | 'eva'
   text: string
   via: 'text' | 'voice' | 'photo'
-  sources?: { title: string; url: string }[]
+  sources?: { title: string; url: string; image?: string }[]
   /** A proposed entry the user can still accept. */
   draft?: unknown
   /** Set once accepted: what was written, in plain Turkish. */
