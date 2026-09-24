@@ -21,7 +21,7 @@ Hedef: yapılan her şey **telefondaki uygulamada** görünsün; sonra salon ver
    Kanıt: web'e deploy edilen etiket APK'da görünür. Uçak modunda açılış: SW önbellekten açılıyor mu (offline-first kilidi).
    Kamera / yerel bildirim eklentileri uzak sayfada çalışıyor mu — test et (doğrulanmadı).
 2. **Görünürlük turu:** preset/karşılaştır, rampa setleri, 24 Eyl kayıtları uygulamada nerede — Dean ile tek tek ekranda göster.
-3. **Salon S1:** Dean `.env`'e `GYM_USER/GYM_PASS/GYM_COMPANY` + SMS kodu → sunucu cihaz kaydı → `Measurements`, `Workouts`, `MemberSummaryInformation` ham JSON.
+3. **Salon S1** (uç/sorgu referansı: `docs/GYMPRO-API.md`; `Mobile/{branchID}/...` şube kuralına dikkat): Dean `.env`'e `GYM_USER/GYM_PASS/GYM_COMPANY` + SMS kodu → sunucu cihaz kaydı → `Measurements`, `Workouts`, `MemberSummaryInformation` ham JSON.
 4. **Salon S1b + S2:** "Giriş" QR sayfası (`GET /api/gym/qr`) + salon ölçümü `measurement` tablosuna `source='gym'`. Uygulamada görünür.
 
 ## Don't repeat
