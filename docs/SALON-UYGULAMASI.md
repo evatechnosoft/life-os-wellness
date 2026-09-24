@@ -75,6 +75,17 @@ Karar (Dean: "yalnız barkod sayfası, dönen kod"): **A'nın sunucu varyantı.*
 
 Kapsam dışı: rezervasyon, ödeme, mesaj, grup dersleri, set tiki senkronu.
 
+## 4b. GymPro Manager (yönetici uygulaması) — çözüldü
+
+APK Hermes bytecode; `pip install hermes-dec` (hbc-decompiler, HBC v96) ile çözüldü. Bulgu:
+
+- **Manager = WebView kabuğu.** Gömülü config: `screensBaseUrl: "https://manager-app.gympro.online/"`,
+  `errorLogApiUrl: ".../Mobile/ErrorLogAdd"`, OneSignal `f8459a69-...`. Native tek statik uç: `POST /MobileManager/Login` (+ `CheckTenant`).
+- Üye listesi/ciro/turnike/rapor ekranları **native değil** — giriş sonrası `manager-app.gympro.online`
+  web paneli WebView'de açılıyor. Bu yüzden bytecode'da uç/ekran adı yok; API yüzeyi web tarafında.
+- **Bize etkisi: yok.** Yönetici tarafı, kapsam dışı ("bizim uygulamamız gibi, salona çıkmayacak").
+  Kayıt: statik tersine mühendislik burada bitti; daha derini web panelini istemek olur, o da yetki ister.
+
 ## 5. Dean'den gereken
 
 1. Salon hesabı kullanıcı adı/şifre → `.env` (`GYM_USER`, `GYM_PASS`), sohbete yazılmaz.
