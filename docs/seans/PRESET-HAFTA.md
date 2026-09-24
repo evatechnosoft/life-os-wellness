@@ -11,10 +11,10 @@ Her seans: önce 2 tansiyon ölçümü (≥160/100 → yürüyüş) · bisiklet 
 
 | # | Hareket | R | Setler (kg × tekrar) |
 |---|---|---|---|
-| 1 | Eğimli göğüs presi (makine) | 1 × %60×8 | bul — öneri 30 × 12 ×3 |
-| 2 | Lat pulldown (dar/nötr tutuş) | 1 × 25×8 | 40×12 · 40×12 · 40×12 |
-| 3 | Leg press | 2 × %50×8, %75×5 | bul × 12 ×3 |
-| 4 | Calf press (leg press makinesinde) | — | bul × 12 ×3 |
+| 1 | Leg press | 2 × %50×8, %75×5 | bul × 12 ×3 |
+| 2 | Calf press (leg press makinesinde) | — | bul × 12 ×3 |
+| 3 | Eğimli göğüs presi (makine) | 1 × %60×8 | bul — öneri 30 × 12 ×3 |
+| 4 | Lat pulldown (dar/nötr tutuş) | 1 × 25×8 | 40×12 · 40×12 · 40×12 |
 | 5 | Dambıl yan kaldırış | — | 5×12 ×3 |
 | 6 | Biseps curl (makine) | — | 20×12 · 22.5×12 · 22.5×12 |
 | 7 | Triceps (makine) | — | 30×12 · 32.5×12 · 35×12 |
