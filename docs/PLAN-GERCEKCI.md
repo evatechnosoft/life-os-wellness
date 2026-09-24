@@ -162,6 +162,16 @@ kayıt günü (kilo+öğün) ≥ 6/7 · direnç seansı 3/3 set kayıtlı · pro
 
 ---
 
+## 5b. Durum (24 Eyl)
+
+- Onay: Dean 24 Eyl "seans ezme hatası ve diğer işlemlere onaylısın".
+- P0.0 `be86afe` · P0.2 `00382ce` · P0.1 `989c135` → `v0.32.0`. 372/372 test, typecheck + web build temiz.
+  Cihazda görülmedi: rozet, set kartı (ilk gerçek kullanım 25 Eyl Cum A′).
+- P0.2 kapsamı: rozet sonuca bakıyor (saatten son veri > 24 sa, reddedilen outbox kaydı);
+  `syncHealth` içindeki boş `catch`'ler kaldı — rozet nedeni değil belirtiyi gösterir.
+- P0.3 ertelendi: günlük adımda kural zaten var (saat yalnız büyükse ezer, arşiv yalnız boşu doldurur);
+  asıl sorun Health Connect'in hiç yazmaması, rozet onu görünür kılıyor.
+
 ## 6. Dean onay masası
 
 1. P0 sırası (seans ezme hatası → sync rozeti → set kaydı) uygun mu? P0.0 onaysız başlatılabilir (hata düzeltmesi).
