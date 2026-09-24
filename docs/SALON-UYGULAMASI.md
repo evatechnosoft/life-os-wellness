@@ -47,8 +47,20 @@ Seçenekler:
   yeniden giriş. Risk: kulüp ToS'u (**doğrulanmadı**), token süresi (**doğrulanmadı**).
 - **B — Telefon kalır:** turnikede telefon zaten cepte; değişiklik yok.
 
-Öneri: **önce B**, canlı token süresi görülünce A'ya karar. Günde 1 kez 5 saniyelik iş için saat uygulamasına
-kimlik taşımak şu an kazancından büyük.
+**Cihaz kilidi (24 Eyl, Dean'in notu + kod):** `Login` gövdesinde `DeviceID` gidiyor; tanınmayan cihazda
+`Devices/RegisterRequest` → SMS kodu → `Devices/RegisterComplated`. Hesap tek cihaza bağlı — amaç kodun üye
+dışında paylaşılmasını engellemek.
+
+Karar (Dean: "yalnız barkod sayfası, dönen kod"): **A'nın sunucu varyantı.**
+- `fit.evaitec.com` sunucusu kendini salonun **resmi SMS aktivasyonuyla** yeni cihaz olarak kaydeder
+  (sabit, bize ait bir `DeviceID`), token'ı `.env`/DB'de tutar.
+- Uygulamada tek sayfa "Giriş": açıkken 5 sn'de bir `GET /api/gym/qr` → sunucu `QrCodeGenerate`'i çağırır → QR çizilir.
+  Saat aynı ucu kullanır. Başka salon ucu açılmaz.
+- **Yapılmayacak:** telefonun `DeviceID`'sini kopyalayıp aynı cihaz gibi görünmek, QR içeriğini yerelde üretmek.
+  İkisi de tek-cihaz korumasını atlatmak olur.
+- Risk (**doğrulanmadı**): yeni cihaz kaydı telefondaki uygulamayı düşürebilir → o durumda giriş yalnız bizim
+  sayfadan olur. Token süresi bilinmiyor; süre dolunca sunucu kayıtlı cihazla yeniden `Login` yapar (SMS gerekmez, beklenti).
+- Turnike okuyucusunun saat ekranındaki QR'ı okuması **doğrulanmadı** — ilk gün telefon yedekte.
 
 ## 4. Plan (öncelik sırasıyla)
 
@@ -59,7 +71,7 @@ kimlik taşımak şu an kazancından büyük.
 | S3 | **OKOK ↔ salon farkı:** aynı haftadaki iki kaynağın yağ %/kas kg farkını haftalık kartta göster | Ev tartısı tek başına yanıltır; fark sabitse OKOK trendi güvenilir | Fark satırı; TDD (hesap katmanı) | S |
 | S4 | **Hoca programı kıyası:** `Workouts` doluysa hareketleri `SALON-MAKINELERI.md` id'lerine eşle, bizim plandan sapmayı listele | Hoca başka şey yazdıysa Dean iki programla kalmasın | Tek liste: ortak / yalnız hoca / yalnız biz | S — **Workouts boşsa iptal** |
 | S5 | Üyelik bitiş hatırlatması | Üyelik düşerse seri kopar | Bitişten 7 gün önce tek hatırlatma | XS — düşük öncelik |
-| — | QR saate (§3-A) | — | — | S1 sonrası karar |
+| S1b | **Giriş sayfası** (§3): sunucu cihaz kaydı + `GET /api/gym/qr` + PWA/saat QR ekranı | Turnikede telefonu çıkarmadan giriş | Turnike saat/PWA QR'ıyla açılır | S |
 
 Kapsam dışı: rezervasyon, ödeme, mesaj, grup dersleri, set tiki senkronu.
 
