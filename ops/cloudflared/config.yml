@@ -6,5 +6,9 @@ credentials-file: /etc/cloudflared/creds.json
 ingress:
   - hostname: fit.evaitec.com
     service: http://api:3011
+  # finance-radar (life-os-finance compose, host portu 8770). Azure kapaninca (15.09)
+  # finans.evaitec.com bu tunele tasindi; ayri tunel acilamadi (cert.pem yetkisiz).
+  - hostname: finans.evaitec.com
+    service: http://host.docker.internal:8770
   # Eslesmeyen her istek: tunel acik diye baska bir sey servis etmeyelim.
   - service: http_status:404
