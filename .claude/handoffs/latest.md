@@ -53,3 +53,5 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
   UNO Anadolu Tam Buğday Tava (Şok) içindekiler iyi (%60 tam buğday) ama besin tablosu doğrulanmadı.
 - Dean park + ev seansına çıktı (bacak itme + baldır aletinde, sırt uzatma; evde kısa lastikle tek kol curl, bilek-lastik yana açış, pull-apart, dead bug) — dönünce kaydedilecek.
 - **Samsung import hatası:** `ops/import_samsung.mjs` günlükte yalnız BOŞ alanı dolduruyor → gün içi ikinci importta adım güncellenmiyor (25 Eyl 2637 kaldı, elle 7449 yazıldı). Düzeltme adayı: `steps` için max al. Dean'e: Samsung Health → Health Connect paylaşımı + uygulamada Ayar → senkron + APK güncelle (cihazda doğrulanmadı).
+- **UI geri bildirimi (Dean, telefonda):** `docs/PLAN-UI.md` sonu — (1) üst bar/menü durum çubuğu altında (safe-area-inset-top yok), (2) uzun basış tüm sayfayı seçiyor (user-select), (3) satırda sağa kaydır=düzenle / sola=sil + geri al. **Yeni oturumun ilk kod işi bu 3'ü** (sonra protein-lbm, sonra ZimaOS onayı).
+- Not: bu devir notunun güncel kopyası `dev` dalında / `_wt-pt`; ana checkout başka oturumun dalında (`chore/finans-tunel-ingress`) eski kopyayı gösterir.
