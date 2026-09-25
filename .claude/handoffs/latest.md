@@ -41,3 +41,14 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - `/api/workouts` POST setleri id ile upsert eder, silmez → yanlış hareket: DELETE + aynı id ile yeniden POST.
 - Bash `tar` Windows zip'ini açamıyor → PowerShell `Expand-Archive`. Windows python `/d/...` yolunu görmez → göreli yol.
 - Doküman yazıp "yaptık" deme; kabul ölçütü telefondaki ekran.
+
+## Sonradan eklenenler (25 Eyl öğleden sonra)
+- **Kreatin** profile yazıldı (`medications`: kreatin monohidrat 3 g/gün, ~10 Eyl). Kahvaltıdaki bardak = çay.
+- **ZimaOS taşıma:** keşif bitti → `docs/PLAN-ZIMAOS-TASIMA.md` (dev `54d8f0a`). Hiçbir şey durdurulmadı/kurulmadı.
+  Dean'e önerilen varsayılanlar (ONAY BEKLİYOR): kapsam yalnız wellness (db+api+litellm+tünel), api ZimaOS'ta build,
+  compose `/DATA` altına, `publish_ota.mjs` ZimaOS'a rsync, kesinti saatini Dean seçer. En büyük risk: aynı tünel iki makinede açık = veri bölünür.
+- **Ekmek araştırması** (uno.com.tr + market sayfaları; OFF verisi eski/tutarsız): en iyi UNO Fırından Tam Buğday 450 g
+  (lif 7.9, şeker 0.6, tuz 0.9), UNO Fırından Çavdar 450 g (lif 6.3, şeker 1.7), UNO Premium Çok Tahıllı ve Siyez 400 g.
+  Kaçın: UNO Anadolu Çavdarlı (ilk madde beyaz un, şeker 5.6, lif 4.8) ve Çok Tahıllı, Süper Tost, X2, tüm Untad (tuz 1.2–1.4).
+  UNO Anadolu Tam Buğday Tava (Şok) içindekiler iyi (%60 tam buğday) ama besin tablosu doğrulanmadı.
+- Dean park + ev seansına çıktı (bacak itme + baldır aletinde, sırt uzatma; evde kısa lastikle tek kol curl, bilek-lastik yana açış, pull-apart, dead bug) — dönünce kaydedilecek.
