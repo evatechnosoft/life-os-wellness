@@ -335,3 +335,14 @@ için `Meals` içindeki giriş satırları sadeleştirilebilir — ayrı iş, bu
 
 Doğrulanmadı: alt sayfanın açık hâli, 7×6 matris dokunuşu ve katlama durumunun
 yeniden açılışta korunması gerçek cihazda denenmedi (headless tıklayamıyor).
+
+## Dean geri bildirimi — 25 Eyl 2026 (telefonda, sırayla yapılacak)
+
+1. **Ayar/hamburger menü durum çubuğunun altında kalıyor.** Uygulama web sayfası gibi davranıyor, telefonun
+   durum çubuğu (saat, pil) menüyü eziyor. `safe-area-inset` yalnız `App.tsx` + `Sheet.tsx`'te var; üst bar/menü
+   `padding-top: env(safe-area-inset-top)` almıyor olabilir (doğrulanmadı). Kabul: menü durum çubuğunun altında, tıklanabilir.
+2. **Uzun basınca "Hepsini seç" bütün sayfayı seçiyor.** Kök düzeyde `user-select: none` + `-webkit-touch-callout: none`
+   (`index.css`'te yok); metin girişi (`input`, `textarea`) ve kopyalanması gereken alanlar hariç. Kabul: uzun basış seçim menüsü açmıyor.
+3. **Kayıt satırlarında yalnız "sil" var, düzenleme yok.** Liste satırında jest: **sağa kaydır → düzenle, sola kaydır → sil**
+   (sil geri alınabilir: 5 sn "geri al" şeridi). Düzenle, kaydın ekleme formunu dolu açar. Yeni kayıt girişi de aynı formu kullanır
+   (sabit alan sırası). Yeni bağımlılık yok — pointer event'leriyle. Kabul: öğün/ölçüm/seans satırında iki yön çalışıyor, telefonda.
