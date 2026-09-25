@@ -94,3 +94,19 @@ Takviye, eksiği kapatır; programın yerini tutmaz. Şu an elinde **işe yaraya
 magnezyum**, **hekimle konuşulacak tek ürün berberin**, **geri kalanı ya nötr ya riskli**.
 
 Haftada ~0.9 kg düşüş, protein 150–180 g ve haftada 3 direnç + 2 yüzme — tabloyu değiştiren bu.
+
+## Ek — 25 Eylül 2026: BCAA / whey sepeti
+
+Dean'in baktığı 7 ürün (ürün sayfası görüntülerinden, etiket arkası yalnız Proteinocean'da okundu).
+
+| Ürün | Karar | Neden |
+|---|---|---|
+| High Nutrition Whey (24 g protein/ölçek) | **Al** (etiket arkası okunmadı) | Günlük 180 g protein hedefinin açığını kapatan tek ürün; bir ölçek ~5.5 g BCAA zaten içerir |
+| Hardline BCAA Glutamine 115 g (313 TL, 10 servis) | **Hayır** | ~31 TL/servis; protein 150+ g/gün iken BCAA ek fayda vermez, glutamin sağlıklı yetişkinde etkisiz |
+| Hardline BCAA Matrix 4:1:1 | **Hayır** | 17 g "amino asit"in çoğu taurin/glutamin/arginin; kas için tam protein yerini tutmaz |
+| Run BCAA 4:1:1 · XPRO BCAA+Glutamine · Proteinocean BCAA+ | **Gereksiz** | Zararsız (0 kcal, sukraloz), ama whey varken para israfı |
+| BigJoy BCAA Pro Ripped | **Hayır** | Kafein + yeşil çay + karnitin: Ribera BURN ile aynı gerekçe, tansiyon |
+
+Bu kategoride kanıtı güçlü tek ek: **kreatin monohidrat 3–5 g/gün** (COACH-EVIDENCE §5.3).
+Başlanırsa ilk 1–2 haftada +1–2 kg su tutar — başlangıç tarihi kayda not düşülür ki 7-gün kilo
+trendi yanlış okunmasın; tahlilde serum kreatinin hafif yükselebilir, hekime söylenir.
