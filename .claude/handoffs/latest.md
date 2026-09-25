@@ -52,3 +52,4 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
   Kaçın: UNO Anadolu Çavdarlı (ilk madde beyaz un, şeker 5.6, lif 4.8) ve Çok Tahıllı, Süper Tost, X2, tüm Untad (tuz 1.2–1.4).
   UNO Anadolu Tam Buğday Tava (Şok) içindekiler iyi (%60 tam buğday) ama besin tablosu doğrulanmadı.
 - Dean park + ev seansına çıktı (bacak itme + baldır aletinde, sırt uzatma; evde kısa lastikle tek kol curl, bilek-lastik yana açış, pull-apart, dead bug) — dönünce kaydedilecek.
+- **Samsung import hatası:** `ops/import_samsung.mjs` günlükte yalnız BOŞ alanı dolduruyor → gün içi ikinci importta adım güncellenmiyor (25 Eyl 2637 kaldı, elle 7449 yazıldı). Düzeltme adayı: `steps` için max al. Dean'e: Samsung Health → Health Connect paylaşımı + uygulamada Ayar → senkron + APK güncelle (cihazda doğrulanmadı).
