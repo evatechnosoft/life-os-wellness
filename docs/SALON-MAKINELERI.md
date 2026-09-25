@@ -70,3 +70,20 @@ RECOVERY, BODY FAT, PROGRAM, RESET, fan.
 Her makinenin kullanım kartı (oturuş/ayar, başlangıç-bitiş noktası, nefes anı, sık hata)
 fotoğraf geldikçe yazılır; ağırlık kademesi fotoğraftan tahmin edilmez — 10 tekrar testi
 ile belirlenir (`PROGRAM-2026-09.md` §5 ilerleme kuralı).
+
+## Park aletleri — İBB / Globalpark (25 Eyl fotoğrafları)
+
+Salon dışı gün ve eksik kalan hareket için. **Ağırlık ayarı yok, direnç vücut ağırlığı** —
+ilerleme kilo değil tekrar, tempo (iniş 3 sn) ve duraklama ile. Tanımlar fotoğraftan tahmin;
+etiketi okunan tek alet "Barfiks ve Vücut Geliştirme Aleti".
+
+| Alet (fotoğraf) | Programdaki karşılığı | Kullanım | Not |
+|---|---|---|---|
+| **Oturarak bacak itme** (koltuk + önde ayak diskleri, 2 çeşit) | `Leg_Press` yerine | 3 × 15–20, iniş 3 sn, dizi tam kilitleme | Salonda bacak kaçarsa buradan kapatılır |
+| **Barfiks ve vücut geliştirme** (çok istasyonlu) | chest press · lat pulldown · göğüs/omuz | Oturarak it: 3 × 12–15 · oturarak çek: 3 × 12–15 | Direnç kendi ağırlığın; hafif gelirse 2 sn duraklat |
+| **Karın/sırt sehpası** (rulolu eğik çerçeve) | `Dead_Bug` tamamlayıcısı | Sırt uzatma 2 × 10–12 yavaş · mekik yerine dead bug yerde | Mekik/crunch programda yok; baş aşağı eğim yok (tansiyon) |
+| **Hava yürüyüşü / eliptik** (sallanan pedal + kollar) | ısınma / zone 2 | 8–10 dk ısınma veya 20–30 dk zone 2 | Nabız bandı saatten |
+| **Omuz çarkı** (döner diskler) · **bel/kalça sarkacı** (sallanan ayaklık) | — | Isınma/soğuma 1–2 dk | Hacme sayılmaz, kas yüklemez |
+
+Kural: parkta her iş seti "2 tekrar daha yapabilirdim" (RIR 2) ile biter, nefes tutulmaz.
+Seans `resistance`, notta `park` yazılır; set kilosu boş, tekrar girilir.
