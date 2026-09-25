@@ -13,6 +13,7 @@ import { refreshNotifications } from './lib/reminders'
 import { REJECTED_KEY, hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
 import { getApiBase } from './lib/api'
 import { syncBadge } from './lib/syncStatus'
+import { applyWebBundle, checkWebBundle } from './lib/webBundle'
 import { pullWorkoutPlan } from './lib/workoutPlan'
 import { Drawer, type DrawerPage } from './ui/Drawer'
 import { Eva } from './ui/Eva'
@@ -58,6 +59,8 @@ export function App() {
   const [update, setUpdate] = useState<PhoneUpdate | null>(null)
   const [installing, setInstalling] = useState(false)
   const updateReady = update?.state === 'available'
+  // Downloaded web bundle waiting to be opened (lib/webBundle.ts); cold start opens it anyway.
+  const [bundlePath, setBundlePath] = useState<string | null>(null)
   const [quickAdd, setQuickAdd] = useState(false)
   const [menu, setMenu] = useState(false)
   // ?page=moves ile dogrudan bir drawer sayfasi acilir (kisayol, ekran dogrulamasi).
@@ -123,6 +126,7 @@ export function App() {
     void autoCheckPhoneUpdate()
       .then((u) => setUpdate(u ?? null))
       .catch(() => {})
+    void checkWebBundle().then(setBundlePath).catch(() => {})
     const health = window.setInterval(() => void sync(), 900_000)
     return () => {
       window.removeEventListener('online', update)
@@ -149,6 +153,7 @@ export function App() {
       await pullGoals().catch(() => {})
     }
     setUpdate(await checkPhoneUpdate().catch(() => null))
+    setBundlePath(await checkWebBundle().catch(() => null))
     setDate(toLocalDate())
   }
 
@@ -176,6 +181,15 @@ export function App() {
         )}
       </header>
 
+      {bundlePath && !updateReady && (
+        <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-glass-strong px-4 py-3 text-sm">
+          <span>Yeni ekranlar indi</span>
+          <button type="button" onClick={() => void applyWebBundle(bundlePath)}
+            className="rounded-full bg-a1 px-4 py-1.5 font-medium text-solid">
+            Yenile
+          </button>
+        </div>
+      )}
       {updateReady && (
         <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-glass-strong px-4 py-3 text-sm">
           <span>Yeni sürüm {update.versionName ?? ''} hazır</span>

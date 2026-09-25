@@ -26,6 +26,7 @@ jobs:
       - run: npm run build -w @wellness/web
         env:
           WELLNESS_NATIVE: '1'
+      - run: node ops/web_bundle.mjs apps/web/dist
       - run: npx cap sync android
         working-directory: apps/web
       - run: ./gradlew testDebugUnitTest

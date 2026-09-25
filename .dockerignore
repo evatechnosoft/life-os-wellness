@@ -1,6 +1,7 @@
 node_modules
 **/node_modules
 apps/web/dist
-apps/web/android
+apps/web/android/**
+!apps/web/android/variables.gradle
 .git
 data

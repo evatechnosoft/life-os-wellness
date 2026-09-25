@@ -11,6 +11,9 @@ COPY apps/api ./apps/api
 COPY apps/web ./apps/web
 # Icons are generated, not committed; the manifest points at them.
 RUN node ops/gen_icons.mjs && npm run build -w @wellness/web
+# The APK's live update (apps/web/src/lib/webBundle.ts): the same app built for the
+# webview, served at /bundle/. Built second so its emptyOutDir only clears dist/bundle.
+RUN cd apps/web && WELLNESS_NATIVE=1 npx vite build --outDir dist/bundle --emptyOutDir   && cd /app && node ops/web_bundle.mjs apps/web/dist/bundle
 
 # Node 24+ runs .ts directly (type stripping), so there is no build step to keep in sync.
 FROM node:24-alpine

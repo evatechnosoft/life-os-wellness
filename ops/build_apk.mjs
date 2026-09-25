@@ -52,6 +52,8 @@ const JAVA_HOME = javaHome()
 console.log(`JDK: ${JAVA_HOME}`)
 
 run(npm, ['run', 'build', '-w', '@wellness/web'], root, { WELLNESS_NATIVE: '1' })
+// The phone compares this with fit.evaitec.com/bundle/bundle.json (lib/webBundle.ts).
+run(process.execPath, ['ops/web_bundle.mjs', 'apps/web/dist'], root)
 run(npx, ['cap', 'sync', 'android'], web)
 run(gradlew, ['assembleDebug'], android, { JAVA_HOME })
 
