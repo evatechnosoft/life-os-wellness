@@ -65,3 +65,14 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - **`server.url` yapılmadı — veri kaybı:** APK origin'i `https://localhost`; fit.evaitec.com'a geçince IndexedDB+localStorage (token, öğün fotoğrafları, gönderilmemiş outbox) eski origin'de kalır.
   Dean kararı: şimdilik yalnız APK. Önerilen yol: canlı paket (zip indir + `WebView.setServerBasePath`/`persistServerBasePath`, Capacitor çekirdeğinde; origin aynı kalır).
 - Sıradaki: Dean 0.36.0'ı kurup üç maddeyi telefonda denesin → sonra `fix/protein-lbm` → ZimaOS kararları.
+
+## 25 Eyl gece — canlı paket + Plan düzenleme, 0.37.0 OTA'da (telefonda DOĞRULANMADI)
+- **Canlı paket** (`2c7bd2a`): sunucu `/bundle/` altında native derlemeyi sunar (Dockerfile), APK açılışta `bundle.json` karşılaştırır,
+  `WebBundlePlugin.kt` `files/web/<sürüm>`e indirir + Capacitor `serverBasePath` tercihine yazar; "Yeni ekranlar indi · Yenile" şeridi.
+  Origin `https://localhost` kalır. `min_native` = variables.gradle versionCode → sürüm bump'ından sonra eski APK paketi almaz.
+  **Artık web değişikliği = `docker compose up -d --build api` (+ health 200 kontrolü).** APK yalnız native değişince.
+  Paket hash'i makineye göre değişiyor (Windows/Docker/CI) → 0.37.0 kurulunca ilk açılışta bir kez iner; zararsız.
+- **Plan** (`00651ed`, `4558abe`): direnç günlerinde hareket listesi; satıra dokun → alt sayfa: set −/+, Kaldır, kütüphanede ara/yerine koy, hareket kartı; "+ Hareket ekle".
+- Sunucu d48901f ile yeniden kuruldu: health 200, `/bundle/bundle.json` min_native 3700, CORS https://localhost. 0.37.0 katalogda, APK 206.
+- **Açık: Koç "düşünürken patladı".** Sunucu loglarında telefondan hiç `/api/chat` yok. Tahmin (doğrulanmadı): Ayar'da LAN sunucu adresi → 25 sn timeout → cihaz-içi Gemma çöküyor.
+  Dean'e soruldu: Ayar sunucu adresi ne, uygulama kapandı mı, "Modeli sil" görünüyor mu.
