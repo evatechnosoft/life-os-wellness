@@ -1,4 +1,4 @@
-import type { WorkoutType } from '../lib/db'
+import type { Workout, WorkoutType } from '../lib/db'
 import { BodyPicker, type Muscle } from './BodyPicker'
 
 export const TYPES: { id: WorkoutType; label: string }[] = [
@@ -36,6 +36,19 @@ export function draftToWorkout(draft: WorkoutDraft): {
     reps_total: draft.reps === '' ? null : Number(draft.reps),
     weight_kg: draft.weight === '' ? null : Number(draft.weight),
     muscle_groups: draft.groups,
+  }
+}
+
+/** Inverse of draftToWorkout: prefills the form when a logged session is edited. */
+export function workoutToDraft(w: Workout): WorkoutDraft {
+  const text = (n: number | null | undefined) => (n == null ? '' : String(n))
+  return {
+    type: w.type,
+    sets: text(w.sets_total),
+    reps: text(w.reps_total),
+    minutes: text(w.duration_min),
+    weight: text(w.weight_kg),
+    groups: w.muscle_groups,
   }
 }
 

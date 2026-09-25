@@ -36,7 +36,7 @@ export function Sheet({ open, onClose, title, children }: SheetProps) {
       }}
       className="m-0 h-dvh max-h-none w-dvw max-w-none bg-transparent p-0 text-ink backdrop:bg-[rgba(5,6,10,0.55)]"
     >
-      <div className="absolute inset-x-0 bottom-0 mx-auto max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[24px] border-t border-edge bg-[rgba(13,16,23,0.92)] p-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] backdrop-blur-[30px]">
+      <div className="absolute inset-x-0 bottom-0 mx-auto max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[24px] border-t border-edge bg-[rgba(13,16,23,0.92)] p-3 pb-[max(1.25rem,var(--safe-bottom))] backdrop-blur-[30px]">
         <div aria-hidden className="mx-auto mb-3 h-1 w-9 rounded-full bg-edge" />
         <h2 className="mb-2 px-1 text-[11px] font-medium tracking-wide text-ink-faint uppercase">{title}</h2>
         {children}

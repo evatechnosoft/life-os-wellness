@@ -2,12 +2,12 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
 import { lastDates, toLocalDate } from '../lib/date'
-import { db } from '../lib/db'
+import { db, type Workout } from '../lib/db'
 import { isNative } from '../lib/health'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { pendingReminders, useReminderSettings } from '../lib/reminders'
 import { useGoals } from '../lib/settings'
-import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro } from '../lib/store'
+import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro, upsertWorkout } from '../lib/store'
 import { Diet } from './Diet'
 import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
@@ -18,7 +18,8 @@ import { ReviewWorkout } from './ReviewWorkout'
 import { SessionLog } from './SessionLog'
 import { Sleep } from './Sleep'
 import { Watch } from './Watch'
-import { draftToWorkout, emptyDraft, TYPES, WorkoutFields, type WorkoutDraft } from './WorkoutForm'
+import { SwipeRow } from './SwipeRow'
+import { draftToWorkout, emptyDraft, TYPES, WorkoutFields, workoutToDraft, type WorkoutDraft } from './WorkoutForm'
 
 
 /** Gunluk sebze/baklagil porsiyon hedefi (PLAN-DIET S4). */
@@ -41,6 +42,8 @@ export function Today({ date }: { date: string }) {
   // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
   const watchProtein = useLiveQuery(() => db.wearable.get(`${date}:protein_g`), [date])
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
+  // Swipe-right edit: the entry form above is reused, saved under the same id.
+  const [editing, setEditing] = useState<Workout | null>(null)
   const goals = useGoals()
   const native = isNative()
   // Bel haftada bir sorulur: bu hafta olculduyse hatirlatma cikmaz.
@@ -67,8 +70,10 @@ export function Today({ date }: { date: string }) {
     : []
 
   const submitWorkout = async () => {
-    await addWorkout({ date, ...draftToWorkout(draft) })
+    if (editing) await upsertWorkout({ ...editing, ...draftToWorkout(draft) })
+    else await addWorkout({ date, ...draftToWorkout(draft) })
     setDraft(emptyDraft)
+    setEditing(null)
   }
 
   const retroFilled = (['went_well', 'resistance', 'experiment'] as const).filter((f) => retro?.[f]).length
@@ -229,7 +234,7 @@ export function Today({ date }: { date: string }) {
           onClick={() => void submitWorkout()}
           className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm active:bg-glass-strong"
         >
-          Ekle
+          {editing ? 'Güncelle' : 'Ekle'}
         </button>
 
         {done.length > 0 && (
@@ -237,8 +242,13 @@ export function Today({ date }: { date: string }) {
             {done.map((w) => {
               const kcal = estimateKcal(w, log?.weight_kg ?? null)
               return (
-                <li key={w.id} className="flex items-center justify-between">
-                  <span>
+                <SwipeRow
+                  key={w.id}
+                  label={TYPES.find((t) => t.id === w.type)?.label ?? 'seans'}
+                  onEdit={() => { setEditing(w); setDraft(workoutToDraft(w)) }}
+                  onDelete={() => deleteWorkout(w.id)}
+                >
+                  <div className="flex min-h-11 items-center">
                     {TYPES.find((t) => t.id === w.type)?.label}
                     {w.sets_total ? ` · ${w.sets_total} set` : ''}
                     {w.reps_total ? ` · ${w.reps_total} tekrar` : ''}
@@ -246,15 +256,8 @@ export function Today({ date }: { date: string }) {
                     {w.duration_min ? ` · ${w.duration_min} dk` : ''}
                     {w.muscle_groups.length > 0 ? ` · ${w.muscle_groups.join(', ')}` : ''}
                     {kcal != null ? ` · ~${kcal} kcal` : ''}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => void deleteWorkout(w.id)}
-                    className="min-h-11 px-3 text-ink-faint"
-                  >
-                    sil
-                  </button>
-                </li>
+                  </div>
+                </SwipeRow>
               )
             })}
           </ul>

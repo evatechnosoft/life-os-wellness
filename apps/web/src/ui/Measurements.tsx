@@ -1,9 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
-import { db } from '../lib/db'
+import { db, type Measurement } from '../lib/db'
 import { dayValue, summary } from '../lib/measurements'
 import { deleteMeasurement, saveMeasurement } from '../lib/store'
+import { SwipeRow } from './SwipeRow'
 
 /**
  * Gun ici olcum defteri. daily_log gunde tek deger tutuyordu; 23 Eyl'de ayni gun
@@ -26,6 +27,8 @@ export function Measurements({ date }: { date: string }) {
   const [pulse, setPulse] = useState('')
   const [weight, setWeight] = useState('')
   const [busy, setBusy] = useState(false)
+  // Swipe-right edit: the same four fields, written back under the row's id and time.
+  const [editing, setEditing] = useState<Measurement | null>(null)
 
   const num = (text: string): number | null => {
     const n = Number(text.replace(',', '.'))
@@ -34,11 +37,11 @@ export function Measurements({ date }: { date: string }) {
 
   const add = async () => {
     const row = {
-      id: crypto.randomUUID(),
+      id: editing?.id ?? crypto.randomUUID(),
       date,
-      // Olcumun saati simdi: kullanicidan istemek 60 sn kuralini bozar, duzeltmek
-      // isteyen satiri silip yeniden ekler.
-      time: new Date().toTimeString().slice(0, 5),
+      // Olcumun saati simdi: kullanicidan istemek 60 sn kuralini bozar. Duzenlemede
+      // satirin kendi saati korunur.
+      time: editing?.time ?? new Date().toTimeString().slice(0, 5),
       bp_systolic: num(sys),
       bp_diastolic: num(dia),
       pulse: num(pulse),
@@ -53,9 +56,19 @@ export function Measurements({ date }: { date: string }) {
       setDia('')
       setPulse('')
       setWeight('')
+      setEditing(null)
     } finally {
       setBusy(false)
     }
+  }
+
+  const edit = (r: Measurement) => {
+    setEditing(r)
+    const text = (n: number | null) => (n == null ? '' : String(n))
+    setSys(text(r.bp_systolic))
+    setDia(text(r.bp_diastolic))
+    setPulse(text(r.pulse))
+    setWeight(text(r.weight_kg))
   }
 
   const field = (label: string, v: string, on: (s: string) => void, step = '1') => (
@@ -89,29 +102,23 @@ export function Measurements({ date }: { date: string }) {
         disabled={busy}
         className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
       >
-        {busy ? 'Kaydediliyor…' : 'Ölçümü ekle'}
+        {busy ? 'Kaydediliyor…' : editing ? `${editing.time} ölçümünü güncelle` : 'Ölçümü ekle'}
       </button>
 
       {sorted.length > 0 && (
         <ul className="mt-3 space-y-1 text-xs text-ink-dim">
           {sorted.map((r) => (
-            <li key={r.id} className="flex items-center justify-between rounded-field bg-glass-inset px-3 py-2">
-              <span>
-                <b className="text-ink">{r.time}</b>{' '}
-                {r.bp_systolic != null && `${r.bp_systolic}/${r.bp_diastolic ?? '—'}`}
-                {r.pulse != null && ` · ${r.pulse} bpm`}
-                {r.weight_kg != null && ` · ${r.weight_kg} kg`}
-                {r.time <= '11:00' && <span className="ml-2 text-ink-faint">sabah</span>}
-              </span>
-              <button
-                type="button"
-                onClick={() => void deleteMeasurement(r.id)}
-                aria-label="ölçümü sil"
-                className="min-h-11 px-3 text-ink-faint"
-              >
-                ×
-              </button>
-            </li>
+            <SwipeRow key={r.id} label={`${r.time} ölçümü`} onEdit={() => edit(r)} onDelete={() => deleteMeasurement(r.id)}>
+              <div className="flex min-h-11 items-center rounded-field bg-glass-inset px-3 py-2">
+                <span>
+                  <b className="text-ink">{r.time}</b>{' '}
+                  {r.bp_systolic != null && `${r.bp_systolic}/${r.bp_diastolic ?? '—'}`}
+                  {r.pulse != null && ` · ${r.pulse} bpm`}
+                  {r.weight_kg != null && ` · ${r.weight_kg} kg`}
+                  {r.time <= '11:00' && <span className="ml-2 text-ink-faint">sabah</span>}
+                </span>
+              </div>
+            </SwipeRow>
           ))}
         </ul>
       )}

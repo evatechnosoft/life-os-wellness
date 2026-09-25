@@ -154,7 +154,7 @@ export function App() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
-      <header className="flex items-center justify-between px-4 pt-6 pb-1">
+      <header className="flex items-center justify-between px-4 pt-[calc(1.5rem+var(--safe-top))] pb-1">
         <div className="flex items-center gap-3">
           <button type="button" aria-label="Menü" onClick={() => setMenu(true)}
             className="-ml-1 flex size-9 items-center justify-center rounded-field text-ink-dim active:bg-glass">
@@ -211,7 +211,7 @@ export function App() {
       </main>
 
       {/* Floating nav pill (evaglass tokens: component.navButton + blur.nav). */}
-      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 pb-[max(1rem,var(--safe-bottom))]">
         <div role="tablist" aria-label="Bölümler" className="glass-nav pointer-events-auto flex items-end gap-1 p-1.5">
           {TABS.map((t) => {
             const active = tab === t.id && page === null

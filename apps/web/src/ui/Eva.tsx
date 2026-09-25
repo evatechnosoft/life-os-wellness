@@ -96,7 +96,7 @@ export function Eva({ compact = false }: { compact?: boolean }) {
                 <Avatar size={28} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.text}</p>
+                <p className="whitespace-pre-wrap select-text text-sm leading-relaxed">{m.text}</p>
 
                 {m.sources && m.sources.length > 0 && (
                   <ul className="mt-2 space-y-1">
@@ -140,7 +140,7 @@ export function Eva({ compact = false }: { compact?: boolean }) {
             </div>
           ) : (
             <div key={m.id} className="pl-10 text-right">
-              <p className="whitespace-pre-wrap text-sm text-ink-dim">{m.text}</p>
+              <p className="whitespace-pre-wrap select-text text-sm text-ink-dim">{m.text}</p>
               <span className="text-[10px] text-ink-faint">
                 {m.at}
                 {m.via === 'voice' ? ' · sesli' : m.via === 'photo' ? ' · fotoğraf' : ''}

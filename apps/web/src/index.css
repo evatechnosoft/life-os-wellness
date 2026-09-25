@@ -37,6 +37,10 @@
 
 :root {
   color-scheme: dark;
+  /* Capacitor SystemBars injects --safe-area-inset-* because the Android WebView
+     reports env() as 0 on older versions; the PWA falls back to env(). */
+  --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   --accent-gradient: linear-gradient(92deg, #2dd4bf, #6366f1 55%, #ec4899);
   --elev-card: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 20px 40px rgba(0, 0, 0, 0.35);
   --elev-nav: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 40px rgba(0, 0, 0, 0.5);
@@ -45,6 +49,18 @@
 body {
   @apply text-ink antialiased;
   background: var(--color-bg);
+  /* App, not a web page: long-press must not open "select all". */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea,
+[contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
 }
 
 /*

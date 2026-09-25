@@ -1,15 +1,16 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { lastDates } from '../lib/date'
 import { db, type Meal } from '../lib/db'
-import { capturePhoto, deleteMeal, estimateFromPhoto, saveMeal, type Estimate } from '../lib/meals'
+import { capturePhoto, deleteMeal, estimateFromPhoto, saveMeal, updateMeal, type Estimate } from '../lib/meals'
 import { movingAverage } from '../lib/metrics'
 import { slotGaps, suggestMenus, type MenuSet } from '../lib/nutrition'
 import { useGoals } from '../lib/settings'
 import { saveDaily } from '../lib/store'
 import { Card } from './Field'
 import { ProductPicker } from './ProductPicker'
+import { SwipeRow } from './SwipeRow'
 
 const SET_LABEL: Record<MenuSet['set'], string> = {
   usual: 'Alışık olduğun',
@@ -42,6 +43,9 @@ export function Meals({ date }: { date: string }) {
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [openSet, setOpenSet] = useState<MenuSet['set'] | null>(null)
+  // Swipe-right edit reuses the entry form, prefilled.
+  const [editing, setEditing] = useState<Meal | null>(null)
+  const form = useRef<HTMLDivElement>(null)
 
   const goals = useGoals()
   const log = useLiveQuery(() => db.daily_log.get(date), [date])
@@ -66,6 +70,18 @@ export function Meals({ date }: { date: string }) {
     setNote('')
     setHunger(null)
     setError(null)
+    setEditing(null)
+  }
+
+  const edit = (m: Meal) => {
+    reset()
+    setEditing(m)
+    setProtein(m.protein_g == null ? '' : String(m.protein_g))
+    setKcal(m.kcal == null ? '' : String(m.kcal))
+    setNote(m.note ?? '')
+    setHunger(m.hunger ?? null)
+    // The form sits below the suggestions; bring it into view or the swipe looks like it did nothing.
+    requestAnimationFrame(() => form.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
   }
 
   const take = async () => {
@@ -109,6 +125,16 @@ export function Meals({ date }: { date: string }) {
   const commit = async () => {
     setBusy('kayit')
     try {
+      if (editing) {
+        await updateMeal(editing, {
+          protein_g: protein === '' ? null : Number(protein),
+          kcal: kcal === '' ? null : Number(kcal),
+          note: note || null,
+          hunger,
+        })
+        reset()
+        return
+      }
       await saveMeal({
         protein_g: protein === '' ? null : Number(protein),
         kcal: kcal === '' ? null : Number(kcal),
@@ -133,22 +159,21 @@ export function Meals({ date }: { date: string }) {
       {meals.length > 0 && (
         <ul className="mb-3 space-y-2">
           {meals.map((m: Meal) => (
-            <li key={m.id} className="flex items-center gap-3">
-              <PhotoThumb photo={m.photo} />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm">{m.note || 'öğün'}</div>
-                <div className="text-xs text-ink-faint">
-                  {m.time}
-                  {m.protein_g ? ` · ${m.protein_g} g protein` : ''}
-                  {m.kcal ? ` · ${m.kcal} kcal` : ''}
-                  {m.estimated ? ' · tahmin' : ''}
-                  {m.hunger != null ? ` · açlık ${m.hunger}` : ''}
+            <SwipeRow key={m.id} label={m.note || 'öğün'} onEdit={() => edit(m)} onDelete={() => deleteMeal(m)}>
+              <div className="flex items-center gap-3">
+                <PhotoThumb photo={m.photo} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm">{m.note || 'öğün'}</div>
+                  <div className="text-xs text-ink-faint">
+                    {m.time}
+                    {m.protein_g ? ` · ${m.protein_g} g protein` : ''}
+                    {m.kcal ? ` · ${m.kcal} kcal` : ''}
+                    {m.estimated ? ' · tahmin' : ''}
+                    {m.hunger != null ? ` · açlık ${m.hunger}` : ''}
+                  </div>
                 </div>
               </div>
-              <button type="button" onClick={() => void deleteMeal(m)} className="px-2 text-xs text-ink-faint">
-                sil
-              </button>
-            </li>
+            </SwipeRow>
           ))}
         </ul>
       )}
@@ -203,12 +228,14 @@ export function Meals({ date }: { date: string }) {
         {log?.overate ? 'Bugün abarttım · işaretli' : 'Bugün abarttım'}
       </button>
 
-      {photo ? (
-        <div>
+      {photo || editing ? (
+        <div ref={form}>
           <div className="flex items-center gap-3">
-            <PhotoThumb photo={photo} />
+            <PhotoThumb photo={photo ?? editing?.photo} />
             <p className="text-xs text-ink-dim">
-              {busy === 'tahmin'
+              {editing
+                ? `Düzenleniyor · ${editing.time}`
+                : busy === 'tahmin'
                 ? 'Tahmin ediliyor…'
                 : estimate
                   ? `Tahmin (${estimate.confidence}): ${estimate.items.join(', ') || 'tanınamadı'}`

@@ -93,6 +93,21 @@ export async function saveMeal(
   return meal
 }
 
+/** Rewrites a meal under the same id; the day's protein total moves by the difference. */
+export async function updateMeal(
+  meal: Meal,
+  patch: Pick<Meal, 'protein_g' | 'kcal' | 'note'> & { hunger?: number | null },
+): Promise<void> {
+  const next: Meal = { ...meal, ...patch }
+  await db.meal.put(next)
+  await queueMeal(next)
+  const delta = (next.protein_g ?? 0) - (meal.protein_g ?? 0)
+  if (delta !== 0) {
+    const existing = await db.daily_log.get(meal.date)
+    await saveDaily(meal.date, { protein_g: Math.max(0, (existing?.protein_g ?? 0) + delta) })
+  }
+}
+
 export async function deleteMeal(meal: Meal): Promise<void> {
   await db.meal.delete(meal.id)
   await queueMealDelete(meal.id)
