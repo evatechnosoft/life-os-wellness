@@ -56,3 +56,12 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - **UI geri bildirimi (Dean, telefonda):** `docs/PLAN-UI.md` sonu — (1) üst bar/menü durum çubuğu altında (safe-area-inset-top yok), (2) uzun basış tüm sayfayı seçiyor (user-select), (3) satırda sağa kaydır=düzenle / sola=sil + geri al. **Yeni oturumun ilk kod işi bu 3'ü** (sonra protein-lbm, sonra ZimaOS onayı).
 - Not: bu devir notunun güncel kopyası `dev` dalında / `_wt-pt`; ana checkout başka oturumun dalında (`chore/finans-tunel-ingress`) eski kopyayı gösterir.
 - **Akşam (kapandı):** öğün 4 akşam 62 g/840 kcal (ton salata ~130 g + kıymalı kabak ~250 g + süzme 100 g + tam buğday penne ~150 g). **25 Eyl toplam: 170 g protein, ~2765 kcal** (API GET). Ton bu hafta 2. kez → hafta içi tekrar yok. Günlük adım 7449 (Samsung, elle). Park/ev seansı henüz kaydedilmedi — Dean tekrar sayılarını yazınca ayrı seans.
+
+## 25 Eyl akşam — UI geri bildirimi kodlandı, 0.36.0 OTA'da (telefonda DOĞRULANMADI)
+- `d7952f1` (dev): üst bar ve menü `--safe-top` ile durum çubuğunun altında (Capacitor SystemBars `--safe-area-inset-*` enjekte ediyor, yoksa `env()`);
+  kökte `user-select: none` (input/textarea/Eva yanıtı hariç); öğün, ölçüm ve seans satırlarında `ui/SwipeRow.tsx`: sağa kaydır = aynı form dolu, sola kaydır = 5 sn "Geri al", silme şerit bitince.
+  Kanıt: typecheck temiz, 379 test; headless Chrome 390 px'te (fare ile) düzenle/güncelle/geri al/sil akışı geçti. Gerçek dokunmatik jest → telefonda doğrulanacak.
+- **0.36.0** tag + Build APK yeşil + `publish_ota.mjs` → katalog 0.36.0, `fit.evaitec.com/ota/wellness-0.36.0.apk` 206. (0.36.0 önceki notta yanlışlıkla "son APK" yazıyordu; son 0.35.0'dı.)
+- **`server.url` yapılmadı — veri kaybı:** APK origin'i `https://localhost`; fit.evaitec.com'a geçince IndexedDB+localStorage (token, öğün fotoğrafları, gönderilmemiş outbox) eski origin'de kalır.
+  Dean kararı: şimdilik yalnız APK. Önerilen yol: canlı paket (zip indir + `WebView.setServerBasePath`/`persistServerBasePath`, Capacitor çekirdeğinde; origin aynı kalır).
+- Sıradaki: Dean 0.36.0'ı kurup üç maddeyi telefonda denesin → sonra `fix/protein-lbm` → ZimaOS kararları.
