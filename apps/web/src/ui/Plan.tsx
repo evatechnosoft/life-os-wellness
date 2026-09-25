@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { toLocalDate } from '../lib/date'
+import { find } from '../lib/exercises'
 import { WEEKDAYS } from '../lib/split'
 import { DAY_TYPE_LABEL, saveDay, useWorkoutPlan, type DayType } from '../lib/workoutPlan'
 
@@ -34,31 +35,45 @@ export function Plan() {
         const day = plan[weekday]
         const isToday = weekday === today
         return (
-          <div key={weekday}
-            className={`flex items-center justify-between rounded-card px-4 py-3 ${isToday ? 'bg-glass-strong' : 'bg-glass'}`}>
-            <div className="flex flex-col">
-              <span className={isToday ? 'font-medium' : ''}>{WEEKDAYS[weekday]}</span>
-              {day?.label && <span className="text-xs text-ink-faint">{day.label}</span>}
+          <div key={weekday} className={`rounded-card px-4 py-3 ${isToday ? 'bg-glass-strong' : 'bg-glass'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className={isToday ? 'font-medium' : ''}>{WEEKDAYS[weekday]}</span>
+                {day?.label && <span className="text-xs text-ink-faint">{day.label}</span>}
+              </div>
+              <div className="flex gap-1" role="group" aria-label={`${WEEKDAYS[weekday]} tipi`}>
+                {TYPES.map((type) => {
+                  const active = day?.day_type === type
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      aria-pressed={active}
+                      disabled={saving === weekday}
+                      onClick={() => pick(weekday, type)}
+                      className={`rounded-pill px-3 py-1.5 text-xs transition-colors ${
+                        active ? 'bg-a1 text-solid' : 'text-ink-dim active:bg-glass-strong'
+                      } disabled:opacity-50`}
+                    >
+                      {DAY_TYPE_LABEL[type]}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-            <div className="flex gap-1" role="group" aria-label={`${WEEKDAYS[weekday]} tipi`}>
-              {TYPES.map((type) => {
-                const active = day?.day_type === type
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    aria-pressed={active}
-                    disabled={saving === weekday}
-                    onClick={() => pick(weekday, type)}
-                    className={`rounded-pill px-3 py-1.5 text-xs transition-colors ${
-                      active ? 'bg-a1 text-solid' : 'text-ink-dim active:bg-glass-strong'
-                    } disabled:opacity-50`}
-                  >
-                    {DAY_TYPE_LABEL[type]}
-                  </button>
-                )
-              })}
-            </div>
+            {/* The day's moves (coach-written preset). Without this the tab showed only the day type. */}
+            {day?.day_type === 'lift' && (day.exercises?.length ?? 0) > 0 && (
+              <ol className="mt-2 space-y-1 border-t border-edge-soft pt-2 text-xs text-ink-dim">
+                {day.exercises!.map((ex, i) => (
+                  <li key={`${ex.id}-${i}`} className="flex justify-between gap-2">
+                    <span className="truncate">{i + 1}. {find(ex.id)?.name ?? ex.id}</span>
+                    <span className="shrink-0 text-ink-faint">
+                      {ex.sets ?? '—'} set{ex.warmup ? ` + ${ex.warmup} rampa` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         )
       })}
