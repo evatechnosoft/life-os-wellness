@@ -1,8 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
 
-import { acceptDraft, ask } from '../lib/chat'
-import { db, type ChatMessage } from '../lib/db'
+import { acceptDraft, ask, chatLog } from '../lib/chat'
+import type { ChatMessage } from '../lib/db'
 import { isNative } from '../lib/health'
 import { capturePhoto } from '../lib/meals'
 import { draftLines, listenOnce, stopListening, voiceAvailable, type NoteDraft } from '../lib/voice'
@@ -17,7 +17,7 @@ import { Coach } from './Coach'
  */
 export function Eva({ compact = false }: { compact?: boolean }) {
   const today = toLocalDate()
-  const all = useLiveQuery(() => db.chat.orderBy('id').toArray(), []) ?? []
+  const all = useLiveQuery(chatLog, []) ?? []
   const messages = compact ? all.slice(-4) : all
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState<string | null>(null)

@@ -48,6 +48,12 @@ describe('parseDraft', () => {
 })
 
 describe('offlineReply', () => {
+  test('bilinen konu ve kayit modele gitmez, serbest soru gider', () => {
+    expect(offlineReply('bugün ne kadar protein almalıyım?', FULL).free).toBe(false)
+    expect(offlineReply('84 kg', FULL).free).toBe(false)
+    expect(offlineReply('durum', FULL).free).toBe(true)
+  })
+
   test('taslak varsa onay ister, cevrimdisi notu basta', () => {
     const r = offlineReply('84 kg', FULL)
     expect(r.text.startsWith(OFFLINE_NOTE)).toBe(true)

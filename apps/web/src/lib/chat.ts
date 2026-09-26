@@ -16,7 +16,7 @@ import {
   type WeightTrend,
 } from './nutrition'
 import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
-import { offlineReply } from './offline'
+import { OFFLINE_NOTE, offlineReply } from './offline'
 import { productLines } from './products'
 import { EMPTY_PROFILE, profileLines, type Profile } from './profile'
 import { DEFAULT_GOALS, type Goals } from './settings'
@@ -250,10 +250,34 @@ export function chatErrorMessage(err: unknown): string {
   return 'Yanıt alamadım. Bağlantıyı kontrol et.'
 }
 
+const pad = (n: number, w = 2): string => String(n).padStart(w, '0')
+
+/**
+ * Yerel saatle siralanabilir id: `2026-09-26T14:00:05.001-ab12cd34`. Eskiden
+ * rastgele UUID'ydi ve orderBy('id') sorulari cevaplardan kopariyordu.
+ */
+export function chatId(now: Date = new Date()): string {
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.${pad(now.getMilliseconds(), 3)}`
+  return `${toLocalDate(now)}T${time}-${crypto.randomUUID().slice(0, 8)}`
+}
+
+const TIMED_ID = /^\d{4}-\d{2}-\d{2}T/
+
+/** Zaman sirasi. Eski UUID'li mesajlar dakikaya kadar bilinir; ayni dakikada soru once. */
+export function sortChat(messages: ChatMessage[]): ChatMessage[] {
+  const key = (m: ChatMessage): string => (TIMED_ID.test(m.id) ? m.id : `${m.date}T${m.at}`)
+  return [...messages].sort((a, b) => key(a).localeCompare(key(b)) || (a.role === b.role ? 0 : a.role === 'user' ? -1 : 1))
+}
+
+/** Butun sohbet, zaman sirasiyla. */
+export async function chatLog(): Promise<ChatMessage[]> {
+  return sortChat(await db.chat.toArray())
+}
+
 async function remember(entry: Omit<ChatMessage, 'id' | 'date' | 'at'>): Promise<ChatMessage> {
   const now = new Date()
   const message: ChatMessage = {
-    id: crypto.randomUUID(),
+    id: chatId(now),
     date: toLocalDate(now),
     at: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
     ...entry,
@@ -270,8 +294,8 @@ export async function ask(
   await remember({ role: 'user', text, via: opts.via ?? 'text' })
 
   const { text: context, ctx, known } = await gather(new Date())
-  const history = (await db.chat.orderBy('id').reverse().limit(12).toArray())
-    .reverse()
+  const history = (await chatLog())
+    .slice(-12)
     .map((m) => ({ role: m.role === 'eva' ? ('assistant' as const) : ('user' as const), content: m.text }))
 
   // Sunucu yoksa ya da dustuyse Eva susmaz: persona ve veri telefonda. Model indirildiyse
@@ -282,16 +306,22 @@ export async function ask(
     if (opts.image) {
       return remember({ role: 'eva', text: 'Fotoğrafı ancak sunucu açıkken okuyabilirim. Ne yediğini yazarsan kaydederim.', via: 'text' })
     }
-    if (await localModelReady()) {
-      try {
-        const r = await askLocal(context, history)
-        return remember({ role: 'eva', text: `${LOCAL_NOTE} ${r.text}`, via: 'text', draft: fillWorkout(r.draft, text) ?? undefined })
-      } catch {
-        // Model yuklenemedi / bellek yetmedi: kural tabanli cevap yine de verilir.
-      }
+    // Kural motoru once: sayilar ondan gelir, model onlari uyduramaz. Kayit, kirmizi
+    // bayrak ve bilinen konular (protein/antrenman/kilo) modele hic gitmez.
+    const rule = offlineReply(text, ctx, known)
+    const ruled = { role: 'eva' as const, text: rule.text, via: 'text' as const, draft: rule.draft ?? undefined }
+    if (!rule.free || !(await localModelReady())) return remember(ruled)
+    try {
+      const facts = rule.text.replace(OFFLINE_NOTE, '').trim()
+      const r = await askLocal(`Hesaplanmış durum: ${facts}
+${context}`, history)
+      return remember({ ...ruled, text: `${rule.text}
+
+${LOCAL_NOTE} ${r.text}` })
+    } catch {
+      // Model yuklenemedi / bellek yetmedi: kural cevabi tek basina kalir.
+      return remember(ruled)
     }
-    const r = offlineReply(text, ctx, known)
-    return remember({ role: 'eva', text: r.text, via: 'text', draft: r.draft ?? undefined })
   }
   if (!hasServer()) return offline()
 
@@ -324,7 +354,7 @@ export async function acceptDraft(message: ChatMessage): Promise<void> {
   await applyDraft(draft, message.date)
   await db.chat.update(message.id, { applied })
   // Tek kayit defteri: Ayar -> Notlar hangi ekrandan kaydedildigine bakmaz.
-  const asked = (await db.chat.orderBy('id').toArray()).filter((m) => m.role === 'user').at(-1)
+  const asked = (await chatLog()).filter((m) => m.role === 'user').at(-1)
   await logNote({ via: 'text', text: asked?.text ?? '', summary: draft.summary, applied }, message.date)
 }
 

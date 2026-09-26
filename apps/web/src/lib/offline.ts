@@ -18,7 +18,13 @@ import { classifyExercise } from './workoutText'
 export interface OfflineReply {
   text: string
   draft: NoteDraft | null
+  /** Konu eslesmedi: kural motoru yalniz elindeki veriyi soyledi, soruyu cevaplamadi. */
+  free: boolean
 }
+
+const PROTEIN_Q = /protein|ne yiyeyim|yemek|ogun|ac(im|ligim)\b/
+const WORKOUT_Q = /antrenman|set|program|bugun ne|kaldir|agirlik|squat|bench|hacim/
+const WEIGHT_Q = /kilo|tarti|trend|zayifl|verdim|aldim/
 
 export const OFFLINE_NOTE = 'Sunucu kapalı, kendi kayıtlarından yanıtlıyorum.'
 
@@ -116,7 +122,7 @@ function answer(folded: string, ctx: CoachContext): string {
   const tips = ctx.tips.filter((t): t is Exclude<typeof t, TodayTip> => t.kind !== 'today')
   const today = ctx.tips.find((t): t is TodayTip => t.kind === 'today')
 
-  if (/protein|ne yiyeyim|yemek|ogun|ac(im|ligim)\b/.test(folded)) {
+  if (PROTEIN_Q.test(folded)) {
     const lines: string[] = []
     if (ctx.protein) lines.push(`Protein hedefin 7 günlük ortalama kilondan ~${num(ctx.protein.recommended_g)} g/gün (${num(ctx.protein.min_g)}-${num(ctx.protein.max_g)}).`)
     for (const gap of ctx.gaps.slice(0, 2)) lines.push(gapText(gap, ctx.foods.filter((f) => f.slot === gap.slot)))
@@ -124,7 +130,7 @@ function answer(folded: string, ctx: CoachContext): string {
     return lines.join(' ')
   }
 
-  if (/antrenman|set|program|bugun ne|kaldir|agirlik|squat|bench|hacim/.test(folded)) {
+  if (WORKOUT_Q.test(folded)) {
     const lines: string[] = []
     if (today) lines.push(`${todayText(today)}.`)
     const picked = tips.filter((t) => t.kind !== 'no_data').slice(0, 3)
@@ -133,7 +139,7 @@ function answer(folded: string, ctx: CoachContext): string {
     return lines.join(' ')
   }
 
-  if (/kilo|tarti|trend|zayifl|verdim|aldim/.test(folded)) {
+  if (WEIGHT_Q.test(folded)) {
     if (!ctx.trend) return 'Kilo trendi için iki haftalık tartı kaydı gerekiyor; henüz o kadar yok.'
     const t = ctx.trend
     const status = t.status === 'on_track' ? 'hedefte' : t.status === 'too_slow' ? 'hedefin altında' : 'hedeften hızlı — bu hızda kas kaybı riski var'
@@ -155,11 +161,13 @@ export function offlineReply(text: string, ctx: CoachContext, known: FoodMemory[
     return {
       text: `${OFFLINE_NOTE} Bunu ben değerlendiremem: yazdığın belirti bugün bir hekime görünmeyi gerektirir. Antrenman önerilerini o netleşene kadar bekletiyorum.`,
       draft: null,
+      free: false,
     }
   }
   const draft = parseDraft(text, known)
   const body = draft
     ? `Not aldım: ${draft.summary}. Onaylarsan günlüğe yazarım.`
     : answer(folded, ctx)
-  return { text: `${OFFLINE_NOTE} ${body}`, draft }
+  const free = !draft && ![PROTEIN_Q, WORKOUT_Q, WEIGHT_Q].some((q) => q.test(folded))
+  return { text: `${OFFLINE_NOTE} ${body}`, draft, free }
 }

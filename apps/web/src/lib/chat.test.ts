@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
 import { ApiError } from './api'
-import { chatErrorMessage, coachLines, type CoachContext } from './chat'
+import { chatErrorMessage, chatId, coachLines, sortChat, type CoachContext } from './chat'
+import type { ChatMessage } from './db'
 import type { CoachTip } from './coach'
 import type { FoodSuggestion, SlotGap } from './nutrition'
 
@@ -96,5 +97,27 @@ describe('chatErrorMessage', () => {
   test('baska her hata baglanti mesaji', () => {
     expect(chatErrorMessage(new ApiError(502, 'Yanıt alınamadı'))).toBe('Yanıt alamadım. Bağlantıyı kontrol et.')
     expect(chatErrorMessage(new TypeError('failed to fetch'))).toBe('Yanıt alamadım. Bağlantıyı kontrol et.')
+  })
+})
+
+describe('chat sirasi', () => {
+  const msg = (id: string, role: 'user' | 'eva', date = '2026-09-26', at = '14:00'): ChatMessage =>
+    ({ id, date, at, role, text: id, via: 'text' })
+
+  test('yeni id zamana gore siralanir: soru cevabinin ustunde kalir', () => {
+    const q = chatId(new Date(2026, 8, 26, 14, 0, 5, 1))
+    const a = chatId(new Date(2026, 8, 26, 14, 0, 9, 2))
+    const q2 = chatId(new Date(2026, 8, 26, 14, 1, 0, 0))
+    expect(sortChat([msg(q2, 'user'), msg(a, 'eva'), msg(q, 'user')]).map((m) => m.id)).toEqual([q, a, q2])
+  })
+
+  test('eski rastgele id tarih+saatle siralanir, ayni dakikada soru once', () => {
+    const out = sortChat([
+      msg('f0000000-0000-4000-8000-000000000000', 'eva', '2026-09-25', '09:00'),
+      msg('00000000-0000-4000-8000-000000000000', 'user', '2026-09-25', '09:00'),
+      msg('10000000-0000-4000-8000-000000000000', 'user', '2026-09-24', '23:00'),
+      msg(chatId(new Date(2026, 8, 26, 8, 0)), 'user'),
+    ])
+    expect(out.map((m) => m.date + m.role)).toEqual(['2026-09-24user', '2026-09-25user', '2026-09-25eva', '2026-09-26user'])
   })
 })
