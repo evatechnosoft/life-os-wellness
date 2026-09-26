@@ -109,3 +109,21 @@ describe('bel hatirlatmasi', () => {
     expect(ask({ log: undefined, retro: undefined, now: '09:30', settings })).not.toContain('waist')
   })
 })
+
+describe('aksam yemegi hatirlatmasi', () => {
+  const at = (now: string, meal_times: string[]) =>
+    pendingReminders({ log: log({ weight_kg: 100 }), retro: retro({ went_well: 'x' }), now, settings: times, meal_times }).map((r) => r.id)
+
+  test('21:00 olmus ve 17:00 sonrasi ogun yoksa hatirlatir', () => {
+    expect(at('21:00', ['09:00', '11:30', '15:15'])).toEqual(['dinner'])
+  })
+
+  test('aksam ogunu girilmisse ya da saat gelmemisse susar', () => {
+    expect(at('21:30', ['09:00', '19:30'])).toEqual([])
+    expect(at('20:59', ['09:00'])).toEqual([])
+  })
+
+  test('ogun listesi verilmezse sorulmaz', () => {
+    expect(pendingReminders({ log: log({ weight_kg: 100 }), retro: retro({ went_well: 'x' }), now: '22:00', settings: times })).toEqual([])
+  })
+})

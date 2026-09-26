@@ -121,6 +121,7 @@ export async function dismissWorkout(id: string): Promise<void> {
 export async function queueMeal(meal: Meal): Promise<void> {
   const { photo: _photo, ...body } = meal
   await queue({ method: 'POST', path: '/api/meals', body })
+  refreshReminders()
 }
 
 export async function queueMealDelete(id: string): Promise<void> {

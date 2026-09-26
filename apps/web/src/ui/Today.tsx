@@ -39,6 +39,7 @@ export function Today({ date }: { date: string }) {
   const retro = useLiveQuery(() => db.retro.get(date), [date])
   // Son iki haftanin ogunleri: hizli dugmeler gercek aliskanliktan turiyor.
   const recentMeals = useLiveQuery(() => db.meal.reverse().limit(60).toArray(), []) ?? []
+  const dayMeals = useLiveQuery(() => db.meal.where('date').equals(date).toArray(), [date]) ?? []
   // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
   const watchProtein = useLiveQuery(() => db.wearable.get(`${date}:protein_g`), [date])
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
@@ -66,6 +67,7 @@ export function Today({ date }: { date: string }) {
         settings: reminders,
         weekday: now.getDay(),
         waist_logged_this_week: weekLogs.some((l) => l.waist_cm != null),
+        meal_times: dayMeals.map((m) => m.time),
       })
     : []
 
