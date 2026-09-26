@@ -1,6 +1,6 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core'
 
-import { SYSTEM, splitReply } from '../../../api/src/persona'
+import { splitReply } from '../../../api/src/persona'
 import type { NoteDraft } from './voice'
 
 /**
@@ -24,10 +24,22 @@ const LocalLlm = registerPlugin<{
 
 const isNative = (): boolean => Capacitor.isNativePlatform()
 
-/** Modelin KV penceresi 1280 token; baglam sunucuya giden 4000 karakterin yarisiyla sinirli. */
-const MAX_LOCAL_CONTEXT = 1800
+/**
+ * Modelin KV penceresi 1280 token (istem + yanit). Sunucunun personasi tek basina
+ * ~7000 karakter - pencereyi asar ve MediaPipe hata atmadan sureci dusurur. Turkce
+ * ~3 karakter/token: 2400 karakterlik istem ~800 token, yanita ~450 token kalir.
+ */
+export const MAX_PROMPT_CHARS = 2400
+const MAX_LOCAL_CONTEXT = 1200
 const MAX_LOCAL_TURNS = 4
+const MAX_TURN_CHARS = 300
+const MAX_LAST_CHARS = 500
 export const LOCAL_NOTE = 'Sunucu kapalı, telefondaki model yanıtlıyor.'
+
+/** Sunucu personasinin ozu: uslup, saglik siniri, kayit satiri. */
+const LOCAL_SYSTEM = `Sen Eva'sın: Dean'in sağlık günlüğünde kısa, sıcak, emojisiz konuşan yardımcı. Kullanıcının kendi verisine dayan, bilmediğini söyle, uydurma.
+Teşhis koyma, ilaç/doz önerme; göğüs ağrısı, nefes darlığı, bayılma, çarpıntıda hemen hekime yönlendir. Kısıtlama ya da öğün atlama önerme.
+Kaydedilecek veri geçtiyse yanıtın sonuna tek satır ekle: <kayit>{"weight_kg":null,"protein_g":null,"kcal":null,"steps":null,"summary":"..."}</kayit>`
 
 export type Turn = { role: 'user' | 'assistant'; content: string }
 
@@ -36,19 +48,27 @@ export type Turn = { role: 'user' | 'assistant'; content: string }
  * sohbet sablonuyla akar. Saf fonksiyon - test edilir, cihaz istemez.
  */
 export function gemmaPrompt(context: string, turns: Turn[]): string {
-  const recent = turns.slice(-MAX_LOCAL_TURNS)
+  const recent = turns.slice(-MAX_LOCAL_TURNS).map((t, i, all) => ({
+    ...t,
+    content: t.content.slice(0, i === all.length - 1 ? MAX_LAST_CHARS : MAX_TURN_CHARS),
+  }))
   const last = recent.at(-1)
   if (!last || last.role !== 'user') throw new Error('son tur kullanicinin olmali')
-  const head = `${SYSTEM}\n\nKullanıcının son günleri:\n${context.slice(0, MAX_LOCAL_CONTEXT)}`
-  const body = recent
-    .map((t, i) => {
-      const role = t.role === 'user' ? 'user' : 'model'
-      const text = i === 0 && t.role === 'user' ? `${head}\n\n${t.content}` : t.content
-      return `<start_of_turn>${role}\n${text}<end_of_turn>`
-    })
-    .join('\n')
-  const prefixed = recent[0]!.role === 'user' ? body : `<start_of_turn>user\n${head}<end_of_turn>\n${body}`
-  return `${prefixed}\n<start_of_turn>model\n`
+  const build = (ctx: string): string => {
+    const head = `${LOCAL_SYSTEM}\n\nKullanıcının son günleri:\n${ctx}`
+    const body = recent
+      .map((t, i) => {
+        const role = t.role === 'user' ? 'user' : 'model'
+        const text = i === 0 && t.role === 'user' ? `${head}\n\n${t.content}` : t.content
+        return `<start_of_turn>${role}\n${text}<end_of_turn>`
+      })
+      .join('\n')
+    const prefixed = recent[0]!.role === 'user' ? body : `<start_of_turn>user\n${head}<end_of_turn>\n${body}`
+    return `${prefixed}\n<start_of_turn>model\n`
+  }
+  // Baglam kalan butceyi alir: persona ve son soru hic kirpilmaz.
+  const room = MAX_PROMPT_CHARS - build('').length
+  return build(context.slice(0, Math.max(0, Math.min(MAX_LOCAL_CONTEXT, room))))
 }
 
 export async function localModelReady(): Promise<boolean> {
