@@ -116,13 +116,24 @@ export function byMuscle(muscle: string, opts: { includeSecondary?: boolean } = 
   )
 }
 
-/** "Bu makine dolu / bende yok" sorusunun cevabi: ayni kasi calistiran baskalari. */
+/**
+ * Germe / isinma / kardiyo: kas listesi dolu ama yuk tasimaz. Kaynak DB bunlari
+ * `other` isaretliyor; hip flexor germesi yanlislikla `isolation` gelmis.
+ */
+const MOBILITY_IDS = new Set(['Kneeling_Hip_Flexor'])
+const isMobility = (e: Exercise): boolean => e.mechanic === 'other' || MOBILITY_IDS.has(e.id)
+
+/**
+ * "Bu makine dolu / bende yok" sorusunun cevabi: ayni kasi calistiran baskalari.
+ * Kuvvet hareketinin yerine germe ya da bisiklet onerilmez (leg extension -> recumbent).
+ */
 export function alternatives(id: string, opts: { equipment?: string[] } = {}): Exercise[] {
   const source = find(id)
   if (source === null) return []
   return EXERCISES.filter(
     (e) =>
       e.id !== id &&
+      isMobility(e) === isMobility(source) &&
       e.primary.some((m) => source.primary.includes(m)) &&
       (opts.equipment === undefined || opts.equipment.includes(e.equipment)),
   )

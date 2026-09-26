@@ -58,6 +58,13 @@ describe('alternatives', () => {
     expect(alts.every((e) => ['machine', 'dumbbell'].includes(e.equipment))).toBe(true)
   })
 
+  test('kuvvet hareketinin yerine germe ya da bisiklet onerilmez', () => {
+    const ids = alternatives('Leg_Extensions').map((e) => e.id)
+    expect(ids).toContain('Leg_Press')
+    expect(ids).not.toContain('Recumbent_Bike')
+    expect(ids).not.toContain('Kneeling_Hip_Flexor')
+  })
+
   test('bilinmeyen id icin bos liste, hata degil', () => {
     expect(alternatives('Yok')).toEqual([])
   })
