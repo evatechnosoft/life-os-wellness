@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { checkUpdate } = vi.hoisted(() => ({ checkUpdate: vi.fn() }))
+const { checkUpdate, version } = vi.hoisted(() => ({
+  checkUpdate: vi.fn(),
+  version: vi.fn(async () => ({ versionName: '0.15.0', versionCode: 1500 })),
+}))
 
 vi.mock('@capacitor/core', () => ({
   Capacitor: { isNativePlatform: () => true },
-  registerPlugin: () => ({ checkUpdate }),
+  registerPlugin: () => ({ checkUpdate, version }),
 }))
 
 import { autoCheckPhoneUpdate, parseWatchRecords } from './watch'
@@ -67,6 +70,15 @@ describe('autoCheckPhoneUpdate', () => {
   beforeEach(() => {
     store.clear()
     checkUpdate.mockReset()
+  })
+
+  it('kurulu surum degisince onbellegi atar - kurulan guncelleme bant olarak kalmaz', async () => {
+    checkUpdate.mockResolvedValue({ state: 'available', versionName: '0.16.0' })
+    await autoCheckPhoneUpdate()
+    version.mockResolvedValueOnce({ versionName: '0.16.0', versionCode: 1600 })
+    checkUpdate.mockResolvedValue({ state: 'upToDate' })
+    expect(await autoCheckPhoneUpdate()).toEqual({ state: 'upToDate' })
+    expect(checkUpdate).toHaveBeenCalledTimes(2)
   })
 
   it('asks once, then serves the cached answer for a day', async () => {

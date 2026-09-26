@@ -37,6 +37,9 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
+      // Ayni alan adinda sunucunun kendi sayfalari var; SW bunlari uygulama kabuguna
+      // ceviriyordu (/plan/tabak eski uygulama menusunu acti).
+      workbox: { navigateFallbackDenylist: [/^\/(api|plan|ota|bundle)(\/|$)/] },
       devOptions: { enabled: true },
     }),
   ],

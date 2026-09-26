@@ -140,26 +140,29 @@ const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000
  */
 export async function autoCheckPhoneUpdate(): Promise<PhoneUpdate | null> {
   if (!isNative()) return null
+  // Onbellek kurulu surume bagli: 0.37.0 kurulduktan sonra dunku "0.37.0 hazir"
+  // cevabi bir gun daha bant olarak kaliyordu, Guncelle "zaten guncel" diyordu.
+  const installed = (await WearBridge.version()).versionName
   const cached = readCache()
-  if (cached && Date.now() - cached.at < CHECK_INTERVAL_MS) return cached.result
+  if (cached && cached.installed === installed && Date.now() - cached.at < CHECK_INTERVAL_MS) return cached.result
   const result = await checkPhoneUpdate()
   // Blocked = ag yok / manifest bozuk. Onbellek yalniz gercek bir cevapta tazelenir,
   // yoksa ucakta acilan uygulama bir gun boyunca guncellemeyi kacirir.
   if (result.state !== 'blocked') {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), result }))
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), installed, result }))
   }
   return result
 }
 
-function readCache(): { at: number; result: PhoneUpdate } | null {
+function readCache(): { at: number; installed?: string; result: PhoneUpdate } | null {
   const raw = localStorage.getItem(CACHE_KEY)
   if (raw === null) return null
   try {
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed !== 'object' || parsed === null) return null
-    const { at, result } = parsed as { at?: unknown; result?: unknown }
+    const { at, installed, result } = parsed as { at?: unknown; installed?: unknown; result?: unknown }
     if (typeof at !== 'number' || typeof result !== 'object' || result === null) return null
-    return { at, result: result as PhoneUpdate }
+    return { at, installed: typeof installed === 'string' ? installed : undefined, result: result as PhoneUpdate }
   } catch {
     return null
   }
