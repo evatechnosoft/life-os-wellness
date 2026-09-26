@@ -91,50 +91,45 @@ export function WorkoutFields({
         />
       )}
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 grid grid-cols-4 gap-2">
         {value.type === 'resistance' ? (
           <>
-            <input
-              type="number"
-              inputMode="numeric"
-              aria-label="set"
-              placeholder="set"
-              value={value.sets}
-              onChange={(e) => set({ sets: e.target.value })}
-              className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
-            />
-            <input
-              type="number"
-              inputMode="numeric"
-              aria-label="tekrar"
-              placeholder="tekrar"
-              value={value.reps}
-              onChange={(e) => set({ reps: e.target.value })}
-              className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
-            />
-            <input
-              type="number"
-              inputMode="decimal"
-              aria-label="ağırlık (kg)"
-              placeholder="kg"
-              value={value.weight}
-              onChange={(e) => set({ weight: e.target.value })}
-              className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
-            />
+            <Stat label="set" value={value.sets} onChange={(sets) => set({ sets })} />
+            <Stat label="tekrar" value={value.reps} onChange={(reps) => set({ reps })} />
+            <Stat label="kg" value={value.weight} decimal onChange={(weight) => set({ weight })} />
           </>
         ) : null}
         {(showMinutes || value.type !== 'resistance') && (
-          <input
-            type="number"
-            inputMode="numeric"
-            aria-label="süre (dakika)"
-            placeholder="dk"
-            value={value.minutes}
-            onChange={(e) => set({ minutes: e.target.value })}
-            className="w-20 rounded-field bg-glass-inset px-2 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
-          />
+          <Stat label="dk" value={value.minutes} onChange={(minutes) => set({ minutes })} />
         )}
       </div>
     </>
+  )
+}
+
+/**
+ * Etiket kutunun ustunde sabit: placeholder yazinca kayboluyordu, dort dolu kutuda
+ * hangisinin set hangisinin tekrar oldugu bir bakista okunmuyordu.
+ */
+function Stat({ label, value, decimal = false, onChange }: {
+  label: string
+  value: string
+  decimal?: boolean
+  onChange: (value: string) => void
+}) {
+  return (
+    <label className="flex flex-col items-center gap-1">
+      <span className="text-[11px] uppercase tracking-wide text-ink-faint">{label}</span>
+      <input
+        type="number"
+        inputMode={decimal ? 'decimal' : 'numeric'}
+        placeholder="—"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full rounded-field px-2 py-2.5 text-center text-lg font-semibold tabular-nums outline-none focus:ring-2 focus:ring-a1 ${
+          value === '' ? 'bg-glass-inset text-ink-dim' : 'bg-a1/15 text-ink'
+        }`}
+      />
+    </label>
   )
 }

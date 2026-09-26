@@ -38,9 +38,29 @@ export class ApiError extends Error {
   }
 }
 
-/** Thin fetch wrapper. Callers must treat a rejection as "still offline", never as data loss. */
+/** Elle yazilmis adres icin bekleme: olu LAN adresi TCP zaman asimina kadar asiliyordu. */
+const OVERRIDE_TIMEOUT_MS = 5000
+
+/**
+ * Thin fetch wrapper. Callers must treat a rejection as "still offline", never as data loss.
+ *
+ * Elle yazilmis adrese (ev agi) ulasilamazsa varsayilana duser: sunucunun LAN adresi
+ * degisince (192.168.1.185 -> 192.168.0.4) telefon kendini sunucusuz sanip eski
+ * yerel veriyle kaldi. Sunucu cevap verdiyse (4xx/5xx) ikinci deneme yok.
+ */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(getApiBase() + path, {
+  const base = getApiBase()
+  if (base === DEFAULT_BASE) return request<T>(base, path, init)
+  try {
+    return await request<T>(base, path, { ...init, signal: init.signal ?? AbortSignal.timeout(OVERRIDE_TIMEOUT_MS) })
+  } catch (err) {
+    if (err instanceof ApiError) throw err
+    return request<T>(DEFAULT_BASE, path, init)
+  }
+}
+
+async function request<T>(base: string, path: string, init: RequestInit): Promise<T> {
+  const res = await fetch(base + path, {
     ...init,
     headers: {
       'content-type': 'application/json',
