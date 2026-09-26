@@ -85,4 +85,6 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - `6b568e8`: 21:00'de 17:00 sonrası öğün yoksa "Akşam yemeği" kartı + yerel bildirim (id 3). Telefonda doğrulanmadı.
 - 26 Eyl kayıtlar: 107.4 kg, TA 114/74, öğünler 157 g / 2500 kcal; 24 Eyl akşam TAHMİN 55 g/800 eklendi; 25 Eyl adım 12.026.
 - Samsung BIA (yağ %32.5, iskelet 39.0) source=samsung ayrı; OKOK ile karıştırma.
-- Açık: Dean'in telefon modeli/RAM (Gemma 3n E2B kararı), `fix/protein-lbm`.
+- `d8674c6`: protein hedefi yağsız kütleden (son 28 gün BIA ortancası, `recentLeanMass` chat.ts) → 2.3–2.6 g/kg LBM; Dean verisiyle LBM 70.3 → 162–183, kesimde ~172 g (eski ~237). Paket `e466c6e5`, health 200. Telefonda DOĞRULANMADI.
+- Deploy tuzağı: `docker compose up -d --build api` bir kez "Started" deyip konteyneri YENİLEMEDİ (eski paket kaldı). Her deploy sonrası `bundle.json` version değişti mi bak; değişmediyse tekrar çalıştır.
+- Sıradaki tek adım: Dean telefon modeli/RAM'i söyleyince Gemma 3n E2B (~3 GB, fit.evaitec.com'dan sunulur; GitHub release 2 GB sınırı) kararı. Açık: COACH-EVIDENCE.md:293 "Yeterli" hükmü bayat.
