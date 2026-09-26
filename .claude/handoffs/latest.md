@@ -76,3 +76,13 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - Sunucu d48901f ile yeniden kuruldu: health 200, `/bundle/bundle.json` min_native 3700, CORS https://localhost. 0.37.0 katalogda, APK 206.
 - **Açık: Koç "düşünürken patladı".** Sunucu loglarında telefondan hiç `/api/chat` yok. Tahmin (doğrulanmadı): Ayar'da LAN sunucu adresi → 25 sn timeout → cihaz-içi Gemma çöküyor.
   Dean'e soruldu: Ayar sunucu adresi ne, uygulama kapandı mı, "Modeli sil" görünüyor mu.
+
+## 26 Eyl — Koç çökmesi
+- `39ba0d4` (dev): cihaz-içi Gemma istemi 1280 token penceresini aşıyordu (sunucu personası 6886 karakter) → kısa yerel persona, istem ≤2400 karakter. Canlı paketle yayında.
+- Dean telefonda doğruladı: Koç sunucudan cevap veriyor (`POST /api/chat` 200, 7.3 sn). Uçak modunda yerel model testi YAPILMADI.
+- Sıradaki: `fix/protein-lbm`.
+- `55915d3`: sohbet sırası (UUID → zaman sıralı id) + çevrimdışı önce kural motoru, serbest soruda model ek yorum. Uçakta yerel model çökmedi (Dean), cevap kalitesi zayıftı.
+- `6b568e8`: 21:00'de 17:00 sonrası öğün yoksa "Akşam yemeği" kartı + yerel bildirim (id 3). Telefonda doğrulanmadı.
+- 26 Eyl kayıtlar: 107.4 kg, TA 114/74, öğünler 157 g / 2500 kcal; 24 Eyl akşam TAHMİN 55 g/800 eklendi; 25 Eyl adım 12.026.
+- Samsung BIA (yağ %32.5, iskelet 39.0) source=samsung ayrı; OKOK ile karıştırma.
+- Açık: Dean'in telefon modeli/RAM (Gemma 3n E2B kararı), `fix/protein-lbm`.
