@@ -4,6 +4,7 @@ import { lastDates, toLocalDate } from './date'
 import { db, type ChatMessage } from './db'
 import { foodMemory, movingAverage, type FoodMemory } from './metrics'
 import {
+  leanMassKg,
   mealSlot,
   proteinTarget,
   slotGaps,
@@ -148,6 +149,16 @@ export async function buildContext(now: Date = new Date()): Promise<string> {
   return (await gather(now)).text
 }
 
+/** Son 28 gunun tartilarindan yagsiz kutle; BIA yoksa null. Kompozisyon karar birimi 28 gun. */
+export async function recentLeanMass(end: string): Promise<number | null> {
+  const start = lastDates(28, new Date(`${end}T12:00:00`))[0]!
+  const [fat, logs] = await Promise.all([
+    db.wearable.where('date').between(start, end, true, true).filter((r) => r.metric === 'body_fat_kg').toArray(),
+    db.daily_log.where('date').between(start, end, true, true).toArray(),
+  ])
+  return leanMassKg(fat, Object.fromEntries(logs.map((l) => [l.date, l.weight_kg])))
+}
+
 /** Baglam bir kez toplanir: modele metin olarak, offline Eva'ya yapilandirilmis olarak gider. */
 async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; known: FoodMemory[] }> {
   const dates = lastDates(7, now)
@@ -224,7 +235,7 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
   const slot = gaps[0]?.slot ?? mealSlot(time)
   const ctx: CoachContext = {
     tips: coachTips(workouts35, goals, split, end),
-    protein: proteinTarget(avgWeight, goals),
+    protein: proteinTarget(avgWeight, goals, await recentLeanMass(end)),
     gaps,
     foods: suggestFoods(recentMeals, slot, { recentMeals: meals, limit: MAX_FOODS }),
     trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals),

@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect } from 'react'
 
+import { recentLeanMass } from '../lib/chat'
 import { lastDates, toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import { dietBreak, weeklyPoints } from '../lib/dietBreak'
@@ -39,7 +40,8 @@ export function Diet({ date }: { date: string }) {
   const weekLogs = logs.filter((l) => week.includes(l.date))
   const avgWeight = movingAverage(weekLogs.map((l) => l.weight_kg))
   const avgSteps = movingAverage(weekLogs.map((l) => l.steps))
-  const target = proteinTarget(avgWeight, goals)
+  const lean = useLiveQuery(() => recentLeanMass(date), [date]) ?? null
+  const target = proteinTarget(avgWeight, goals, lean)
 
   const now = new Date()
   const clock = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`

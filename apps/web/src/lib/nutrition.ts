@@ -23,6 +23,13 @@ const MAIN_SLOTS: Exclude<MealSlot, 'snack'>[] = ['morning', 'noon', 'evening']
 /** Direnc antrenmani yapan biri icin etkili protein araligi, vucut agirligi basina. */
 const G_PER_KG = { min: 1.6, max: 2.2, maintain: 1.8 } as const
 
+/**
+ * Yagsiz kutle biliniyorsa (BIA) hedef ondan: kesimde 2.3-3.1 g/kg yagsiz kutle
+ * (Helms 2014). Toplam kilo obez vucutta yagi da sayar - 107 kg'da 2.2 g/kg 237 g
+ * eder, yagsiz kutleyle ~170 g. Ust sinir 2.6: ustu tokluk/kalori bedeli, ek kazanc yok.
+ */
+const G_PER_LEAN_KG = { min: 2.3, max: 2.6 } as const
+
 /** Kas protein sentezi ogun basina ~0.4 g/kg ile doygunlasir; gunluk toplami tek ogune yigmak bunu kacirir. */
 const PER_SLOT_G_PER_KG = 0.4
 
@@ -82,12 +89,21 @@ export interface ProteinTarget {
  * Protein hedefi 7-gun ortalama kilodan turetilir (gunluk kilo degil - AGENTS.md kilidi).
  * Kalori aciginda araligin ust ucu onerilir: acikta protein kas korur.
  */
-export function proteinTarget(avgWeightKg: number | null, goals: Goals): ProteinTarget | null {
+export function proteinTarget(
+  avgWeightKg: number | null,
+  goals: Goals,
+  leanKg: number | null = null,
+): ProteinTarget | null {
   if (avgWeightKg == null || avgWeightKg <= 0) return null
-  const min_g = Math.round(avgWeightKg * G_PER_KG.min)
-  const max_g = Math.round(avgWeightKg * G_PER_KG.max)
   const cutting = weeklyLossKg(goals, avgWeightKg) > 0
-  const recommended_g = Math.round(avgWeightKg * (cutting ? G_PER_KG.max : G_PER_KG.maintain))
+  const lean = leanKg != null && leanKg > 0
+  // ponytail: BIA yoksa toplam kilo - obez ve BIA'siz kullanicida hedef sisik kalir;
+  // o gun gelirse boydan referans kilo (BMI 25) eklenir.
+  const min_g = Math.round(lean ? leanKg * G_PER_LEAN_KG.min : avgWeightKg * G_PER_KG.min)
+  const max_g = Math.round(lean ? leanKg * G_PER_LEAN_KG.max : avgWeightKg * G_PER_KG.max)
+  const recommended_g = lean
+    ? cutting ? Math.round((min_g + max_g) / 2) : min_g
+    : Math.round(avgWeightKg * (cutting ? G_PER_KG.max : G_PER_KG.maintain))
   const current_goal_g = goals.protein_g
   return {
     kind: 'protein_target',
@@ -98,6 +114,21 @@ export function proteinTarget(avgWeightKg: number | null, goals: Goals): Protein
     delta_g: recommended_g - current_goal_g,
     severity: current_goal_g < min_g || current_goal_g > max_g ? 'warn' : 'info',
   }
+}
+
+/**
+ * Son tartilarin yagsiz kutlesi (kilo - yag kg), ortanca. BIA tek olcumde sallanir;
+ * ortanca bir kotu olcumu yutar. Kilosu olmayan gun sayilmaz.
+ */
+export function leanMassKg(
+  fatKg: { date: string; value: number }[],
+  weightOn: Record<string, number | null | undefined>,
+): number | null {
+  const leans = fatKg.flatMap(({ date, value }) => {
+    const w = weightOn[date]
+    return w != null && w > value ? [Math.round((w - value) * 10) / 10] : []
+  })
+  return median(leans)
 }
 
 export interface SlotGap {

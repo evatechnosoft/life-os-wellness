@@ -4,6 +4,7 @@ import type { Meal } from './db'
 import {
   foldTr,
   mealSlot,
+  leanMassKg,
   proteinTarget,
   slotGaps,
   suggestFoods,
@@ -57,8 +58,33 @@ describe('proteinTarget', () => {
     expect(proteinTarget(80, { protein_g: 140, weekly_loss_pct: 0, sets_per_group: 10 })?.severity).toBe('info')
   })
 
+  test('yagsiz kutle varsa hedef ondan: obez vucutta toplam kilo proteini sisirir', () => {
+    const goals = { protein_g: 180, weekly_loss_pct: 0.7, sets_per_group: 10 }
+    const t = proteinTarget(107.6, goals, 70.4)
+    expect(t?.min_g).toBe(162)
+    expect(t?.max_g).toBe(183)
+    expect(t?.recommended_g).toBe(173)
+    expect(proteinTarget(107.6, { ...goals, weekly_loss_pct: 0 }, 70.4)?.recommended_g).toBe(162)
+  })
+
   test('no weight average means no advice at all', () => {
     expect(proteinTarget(null, { protein_g: 140, weekly_loss_pct: 0.7, sets_per_group: 10 })).toBeNull()
+  })
+})
+
+describe('leanMassKg', () => {
+  test('tarti gunlerinin yagsiz kutle ortancasi; yagi olmayan gun sayilmaz', () => {
+    const fat = [
+      { date: '2026-09-23', value: 37.5 },
+      { date: '2026-09-24', value: 37.2 },
+      { date: '2026-09-25', value: 36.0 },
+    ]
+    const weight = { '2026-09-23': 107.9, '2026-09-24': 107.5 } as Record<string, number | null | undefined>
+    expect(leanMassKg(fat, weight)).toBe(70.4)
+  })
+
+  test('veri yoksa null', () => {
+    expect(leanMassKg([], {})).toBeNull()
   })
 })
 

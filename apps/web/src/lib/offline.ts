@@ -124,7 +124,7 @@ function answer(folded: string, ctx: CoachContext): string {
 
   if (PROTEIN_Q.test(folded)) {
     const lines: string[] = []
-    if (ctx.protein) lines.push(`Protein hedefin 7 günlük ortalama kilondan ~${num(ctx.protein.recommended_g)} g/gün (${num(ctx.protein.min_g)}-${num(ctx.protein.max_g)}).`)
+    if (ctx.protein) lines.push(`Protein hedefin ~${num(ctx.protein.recommended_g)} g/gün (${num(ctx.protein.min_g)}-${num(ctx.protein.max_g)}).`)
     for (const gap of ctx.gaps.slice(0, 2)) lines.push(gapText(gap, ctx.foods.filter((f) => f.slot === gap.slot)))
     if (lines.length === 0) lines.push('Elimde hesaplanmış bir beslenme önerisi yok — kilo ve öğün kaydı girilince çıkarırım.')
     return lines.join(' ')
