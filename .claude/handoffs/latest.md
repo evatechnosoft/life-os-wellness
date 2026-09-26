@@ -88,3 +88,16 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - `d8674c6`: protein hedefi yağsız kütleden (son 28 gün BIA ortancası, `recentLeanMass` chat.ts) → 2.3–2.6 g/kg LBM; Dean verisiyle LBM 70.3 → 162–183, kesimde ~172 g (eski ~237). Paket `e466c6e5`, health 200. Telefonda DOĞRULANMADI.
 - Deploy tuzağı: `docker compose up -d --build api` bir kez "Started" deyip konteyneri YENİLEMEDİ (eski paket kaldı). Her deploy sonrası `bundle.json` version değişti mi bak; değişmediyse tekrar çalıştır.
 - Sıradaki tek adım: Dean telefon modeli/RAM'i söyleyince Gemma 3n E2B (~3 GB, fit.evaitec.com'dan sunulur; GitHub release 2 GB sınırı) kararı. Açık: COACH-EVIDENCE.md:293 "Yeterli" hükmü bayat.
+
+
+## 26 Eyl gece — telefon bağlantı/güncelleme zinciri (hepsi dev + canlı; telefonda DOĞRULANMADI)
+- Kök neden: telefonda Ayar "Sunucu adresi" = `http://192.168.1.185:3011` (eski LAN; sunucu artık 192.168.0.4). Telefon kendini sunucusuz sanıp eski yerel veriyle kaldı (yalnız 22 Eyl kilo), Koç "Sunucu kapalı". Dean'e: alanı boş bırak.
+- `e016ec2` api: elle adres 5 sn'de ulaşılamazsa DEFAULT_BASE (fit.evaitec.com); 4xx'te ikinci deneme yok. + antrenman set/tekrar/kg/dk etiketleri üstte sabit.
+- `1a56db5` canlı paket: `bundle.json` da iniyor (yoksa "Yeni ekranlar indi·Yenile" döngüsü). Eski kod çalıştığı için 2 kez daha Yenile gerekebilir.
+- `c507906` telefon güncelleme önbelleği kurulu sürüme bağlı ("0.37.0 hazır" bandı kurduktan sonra kalıyordu) + PWA SW `/api|plan|ota|bundle` gezinmesini yutmuyor.
+- `0ef1c85` "Makine doluysa": mobility (mechanic other + Kneeling_Hip_Flexor) kuvvet hareketinin yerine önerilmez.
+- `ffe8383` Hafta sekmesi "Vücut kompozisyonu" kartı (OKOK, 28 gün, lib/body.ts, ui/Body.tsx, ui/Sparkline.tsx).
+- Son canlı paket `5e41b4a2`, health 200.
+- Çalışan alt ajan: `fix/hareket-turkce` (43 hareketin Türkçe talimatları + alternatif kural denetimi) — worktree'de, push/deploy YOK; bitince merge + deploy + bundle version kontrolü.
+- Açık: saat uygulaması tuşları (Dean: "gönder/güncelle çalışmıyor"; sunucuda 24/26 Eyl nabız geldi) → ekran fotoğrafı istendi, sonra 0.38.0 (titreşim+mesaj geri bildirimi). Telefon sürümü sorusu cevapsız. Gemma 3n kararı (telefon modeli/RAM). ZimaOS taşıma onayı (bilgisayar kapanınca sunucu yok).
+- 26 Eyl kayıt: 107.4 kg, TA 114/74 + akşam 119/71 (measurement), 159 g / ~2795 kcal (+tekila-tonik 140), adım 7.601, OKOK yağ 37.2 kg / iskelet 35.1 / viseral 25.5 / BMR 2018. 12→26 Eyl yağ −1.0 kg, kas sabit. Bakım ~2500 kcal; hedef ort. 2000–2100.
