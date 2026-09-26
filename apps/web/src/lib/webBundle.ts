@@ -49,7 +49,10 @@ export async function checkWebBundle(): Promise<string | null> {
   const remote = (await res.json()) as BundleManifest
   const { versionCode } = await WebBundle.info()
   if (bundleAction(local, remote, versionCode) !== 'install') return null
-  const { path } = await WebBundle.install({ base: BASE, version: remote.version, files: remote.files })
+  // bundle.json kendi listesinde yok (ops/web_bundle.mjs); indirilmezse yenilenen paket
+  // surumunu bilemiyor, ayni paketi tekrar indirip "Yenile" seridi donguye giriyordu.
+  const files = [...remote.files, 'bundle.json']
+  const { path } = await WebBundle.install({ base: BASE, version: remote.version, files })
   return path
 }
 
