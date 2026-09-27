@@ -106,3 +106,9 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - `9c65559` hareket Türkçe talimatları + alternatif aynı tür/yön (alt ajan işi bitirildi). `ffa1fc2` Plan: alternatif şeridi aynı sırada değiştirir, Kaldır sonrası yeni hareket o sıraya girer, ↑/↓; Kütüphane Liste/Kart (2'li kare) görünümü. 415 test. Canlı paket `fa7fed1e`. Telefonda DOĞRULANMADI.
 - Samsung zip 26–27 Eyl içe aktarıldı; 27 Eyl daily'deki saat TA 131/80 silindi (nota yazıldı), 26 Eyl adım 7621.
 - Telefon S24 Ultra (12 GB) → hedef Gemma 3n E4B int4 `.task` (4.4 GB, google/gemma-3n-E4B-it-litert-preview). HF indirme 403: lisans Dean'in HF hesabında kabul edilmemiş. Kabul sonrası: indir → fit.evaitec.com'dan sun → LocalLlmPlugin URL/SHA/MAX_TOKENS + localLlm.ts istem sınırları → APK 0.38.0.
+
+## 27 Eyl akşam — Gemma 3n E4B
+- PR #22 (`48491cd`) + tag v0.38.0: cihaz-içi model Gemma 3n E4B int4, `https://fit.evaitec.com/ota/gemma-3n-E4B-it-int4.task` (4405655031 B, sha 2b8e9d04…ac4f = HF LFS oid). MAX_TOKENS 4096, istem 7200 karakter, eski `.task` indirmede silinir. `ota/*.task*` gitignore.
+- Canlı paket `ed4544475525cac8` min_native 3800 (eski APK yeni istem sınırını almaz). OTA katalog 0.38.0, APK 200.
+- Telefonda DOĞRULANMADI: Ayar > Cihaz-içi Eva > indir (Wi-Fi, 4.4 GB) → uçak modunda soru. RAM/çökme ve cevap süresi bakılacak.
+- 27 Eyl öğünler: 151 g P / 3215 kcal (sabah+akşam fotoğrafla düzeltildi).
