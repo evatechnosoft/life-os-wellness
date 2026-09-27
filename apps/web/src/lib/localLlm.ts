@@ -9,8 +9,17 @@ import type { NoteDraft } from './voice'
  * kural tabanli offline.ts tek yedek.
  */
 
-/** `persistent`: model /sdcard/evaitec/llm altinda, uygulama kaldirilinca silinmiyor. */
-export type ModelStatus = { ready: boolean; sizeMb: number; persistent: boolean; canPersist: boolean }
+/**
+ * `persistent`: model /sdcard/evaitec/llm altinda, uygulama kaldirilinca silinmiyor.
+ * `downloading`: sistem indiricisinde suren indirme var (uygulama kapaliyken de surer).
+ */
+export type ModelStatus = {
+  ready: boolean
+  downloading: boolean
+  sizeMb: number
+  persistent: boolean
+  canPersist: boolean
+}
 
 /** Implemented in android/app/src/main/java/com/evaitec/wellness/LocalLlmPlugin.kt. */
 const LocalLlm = registerPlugin<{

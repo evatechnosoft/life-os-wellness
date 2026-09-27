@@ -1,12 +1,13 @@
 package com.evaitec.wellness
 
+import android.app.DownloadManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import com.evaitec.ota.OtaManifest
-import com.evaitec.ota.OtaUpdater
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
@@ -41,6 +42,7 @@ class LocalLlmPlugin : Plugin() {
         const val MODEL_SHA256 = "2b8e9d04bf8c5c50346d248c5e24a7e65102251c94dee6f04d5dce5ce3e6ac4f"
         /** KV penceresi (istem + yanit); model kartindaki olcumler 4096 ile. */
         const val MAX_TOKENS = 4096
+        private const val PREF_ID = "download_id"
 
         @Volatile private var engine: LlmInference? = null
     }
@@ -66,14 +68,26 @@ class LocalLlmPlugin : Plugin() {
 
     @PluginMethod
     fun status(call: PluginCall) {
-        val file = modelFile()
-        call.resolve(
-            JSObject()
-                .put("ready", file.exists())
-                .put("sizeMb", if (file.exists()) file.length() / (1024 * 1024) else 0)
-                .put("persistent", externalFile()?.exists() == true)
-                .put("canPersist", Build.VERSION.SDK_INT >= Build.VERSION_CODES.R),
-        )
+        val id = pendingId()
+        if (id >= 0 && query(downloads(), id)?.first == DownloadManager.STATUS_SUCCESSFUL) {
+            // Uygulama kapaliyken bitmis: sha256 4.4 GB'ta birkac saniye, UI thread'inde olmasin.
+            thread(isDaemon = true) {
+                runCatching { finish() }
+                call.resolve(statusOf(modelFile()))
+            }
+            return
+        }
+        call.resolve(statusOf(modelFile()))
+    }
+
+    private fun statusOf(file: File): JSObject {
+        val downloading = pendingId() >= 0
+        return JSObject()
+            .put("ready", file.exists())
+            .put("downloading", downloading)
+            .put("sizeMb", if (file.exists()) file.length() / (1024 * 1024) else 0)
+            .put("persistent", externalFile()?.exists() == true)
+            .put("canPersist", Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
     }
 
     /**
@@ -115,37 +129,98 @@ class LocalLlmPlugin : Plugin() {
         }
     }
 
-    /** Ara durumlar `modelDownload` olayiyla (OTA'daki `phoneUpdate` deseni). */
+    /**
+     * Indirme sistemin DownloadManager'inda: uygulama arka plana gecse ya da kapansa da
+     * surer, ag kopunca kaldigi yerden devam eder, bildirimde ilerleme gorunur (4.4 GB,
+     * tunelden ~30 dk). Uygulama aciksa ilerleme `modelDownload` olayiyla da gelir; kapaliyken
+     * bitmisse ilk `status`/`download` cagrisi dosyayi dogrulayip yerine koyar.
+     */
     @PluginMethod
     fun download(call: PluginCall) {
-        thread(isDaemon = true) {
-            val target = downloadTarget()
-            val part = File(target.path + ".part")
-            val result = runCatching {
-                OtaUpdater.fetchTo(MODEL_URL, part, "evaitec-llm") { pct ->
-                    notifyListeners("modelDownload", JSObject().put("status", "İndiriliyor %$pct"))
-                }
-                notifyListeners("modelDownload", JSObject().put("status", "Doğrulanıyor"))
-                val actual = part.inputStream().use { OtaManifest.sha256(it) }
-                check(OtaManifest.matches(actual, MODEL_SHA256)) { "sha256 tutmadı" }
-                check(part.renameTo(target)) { "dosya taşınamadı" }
-                // Eski model surumleri (Gemma 3 1B) yer kaplamasin.
-                listOfNotNull(internalFile().parentFile, externalFile()?.parentFile)
-                    .flatMap { it.listFiles()?.toList().orEmpty() }
-                    .filter { it.name.endsWith(".task") && it.name != MODEL_FILE }
-                    .forEach { it.delete() }
-            }
-            part.delete()
-            call.resolve(
-                JSObject()
-                    .put("ok", result.isSuccess)
-                    .put("status", result.fold({ "Model hazır" }, { "İndirilemedi: ${it.message}" })),
-            )
+        val dm = downloads()
+        val id = pendingId().takeIf { it >= 0 && query(dm, it) != null } ?: run {
+            staging().delete()
+            val request = DownloadManager.Request(Uri.parse(MODEL_URL))
+                .setTitle("Eva modeli")
+                .setDescription(MODEL_FILE)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationUri(Uri.fromFile(staging()))
+                .setAllowedOverMetered(false)
+            dm.enqueue(request).also { prefs().edit().putLong(PREF_ID, it).apply() }
         }
+        thread(isDaemon = true) {
+            while (true) {
+                val (state, pct) = query(dm, id) ?: (DownloadManager.STATUS_FAILED to 0)
+                when (state) {
+                    DownloadManager.STATUS_SUCCESSFUL -> {
+                        val result = runCatching { finish() }
+                        return@thread call.resolve(
+                            JSObject().put("ok", result.isSuccess)
+                                .put("status", result.fold({ "Model hazır" }, { "İndirilemedi: ${it.message}" })),
+                        )
+                    }
+                    DownloadManager.STATUS_FAILED -> {
+                        prefs().edit().remove(PREF_ID).apply()
+                        dm.remove(id)
+                        return@thread call.resolve(JSObject().put("ok", false).put("status", "İndirilemedi, tekrar bas"))
+                    }
+                    DownloadManager.STATUS_PAUSED ->
+                        notifyListeners("modelDownload", JSObject().put("status", "Bekliyor (Wi-Fi?) %$pct"))
+                    else -> notifyListeners("modelDownload", JSObject().put("status", "Arka planda iniyor %$pct"))
+                }
+                Thread.sleep(2000)
+            }
+        }
+    }
+
+    private fun downloads() = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+    private fun prefs() = context.getSharedPreferences("local_llm", Context.MODE_PRIVATE)
+    private fun pendingId(): Long = prefs().getLong(PREF_ID, -1)
+
+    /** DownloadManager yazma hedefi: uygulamanin dis klasoru, izin gerektirmez. */
+    private fun staging(): File =
+        File(context.getExternalFilesDir("llm"), "$MODEL_FILE.dl")
+
+    /** (durum, yuzde) ya da kayit yoksa null. */
+    private fun query(dm: DownloadManager, id: Long): Pair<Int, Int>? =
+        dm.query(DownloadManager.Query().setFilterById(id)).use { c ->
+            if (!c.moveToFirst()) return null
+            val done = c.getLong(c.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+            val total = c.getLong(c.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+            c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS)) to
+                (if (total > 0) (done * 100 / total).toInt() else 0)
+        }
+
+    /** Inen dosyayi dogrula, kalici yerine koy, eski surumleri sil. Iki kez cagrilsa da zararsiz. */
+    @Synchronized
+    private fun finish() {
+        val target = downloadTarget()
+        val source = staging()
+        prefs().edit().remove(PREF_ID).apply()
+        if (!source.exists()) { check(target.exists()) { "indirilen dosya yok" }; return }
+        notifyListeners("modelDownload", JSObject().put("status", "Doğrulanıyor"))
+        val actual = source.inputStream().use { OtaManifest.sha256(it) }
+        if (!OtaManifest.matches(actual, MODEL_SHA256)) {
+            source.delete()
+            error("sha256 tutmadı")
+        }
+        if (!source.renameTo(target)) {
+            // Farkli dosya sistemleri: renameTo calismaz, kopyala-sil gerekiyor.
+            source.copyTo(target, overwrite = true)
+            source.delete()
+        }
+        // Eski model surumleri (Gemma 3 1B) yer kaplamasin.
+        listOfNotNull(internalFile().parentFile, externalFile()?.parentFile)
+            .flatMap { it.listFiles()?.toList().orEmpty() }
+            .filter { it.name.endsWith(".task") && it.name != MODEL_FILE }
+            .forEach { it.delete() }
     }
 
     @PluginMethod
     fun remove(call: PluginCall) {
+        pendingId().takeIf { it >= 0 }?.let { downloads().remove(it) }
+        prefs().edit().remove(PREF_ID).apply()
+        staging().delete()
         engine?.close()
         engine = null
         internalFile().delete()

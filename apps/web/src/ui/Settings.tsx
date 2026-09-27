@@ -205,8 +205,19 @@ function LocalEva() {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    void localModelStatus().then(setModel)
     const handle = onModelDownload(setStatus)
+    void localModelStatus().then(async (s) => {
+      setModel(s)
+      if (!s?.downloading) return
+      // Arka planda suren indirmeye yeniden baglan: ilerleme ve bitiste durum tazelenir.
+      setBusy(true)
+      try {
+        setStatus((await downloadLocalModel()).status)
+        setModel(await localModelStatus())
+      } finally {
+        setBusy(false)
+      }
+    })
     return () => {
       void handle.then((h) => h?.remove())
     }
@@ -229,7 +240,7 @@ function LocalEva() {
       <p className="text-xs text-ink-faint">
         {model.ready
           ? `Model telefonda (${model.sizeMb} MB). Sunucu kapalıyken Eva buradan yanıtlar.`
-          : 'Sunucu kapalıyken de yanıt için Gemma 3n E4B indirilebilir (~4,4 GB, Wi-Fi şart). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
+          : 'Sunucu kapalıyken de yanıt için Gemma 3n E4B indirilebilir (~4,4 GB, Wi-Fi şart). İndirme arka planda sürer, uygulamayı kapatabilirsin. İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
       </p>
       <button
         type="button"
