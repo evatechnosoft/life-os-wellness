@@ -1,68 +1,52 @@
-# Handoff: hareket listesi mobilleşti, cihazda doğrulanmadı
+# Handoff: Eva yedek zinciri telefonda doğrulanacak
 
-> 2026-09-20 16:10 · `dev` @ `f273952` (origin/dev ile aynı) · çalışma ağacı temiz
+> 2026-09-27 gece · `dev` @ `b19721a` (+ bu devir commit'i) · test 416/416 · fit.evaitec.com health 200
 
 ## Goal
-Dean "hareket bölümü mavili masaüstü web gibi duruyor" dedi. Liste görünümündeki iki
-masaüstü kalıbı (sol sabit bölge sütunu, native `<select>`) mobil çip şeridine çevrildi.
-Sıradaki büyük iş değişmedi: kardiyo yükü hesabı — `docs/PLAN-WEAR.md` §8.
+Sunucu (bu PC) kapalıyken Eva susmasın. Zincir: sunucu → Firebase AI Logic bulut yedeği →
+Gemini Nano (telefon) → Gemma 3n E4B (telefon) → kural motoru. Kod bitti ve canlıda;
+kalan iş **telefonda görmek** (kabul = Dean uygulamada görür). Ayrıntı: `.claude/handoffs/latest.md` § "27 Eyl".
 
 ## State
-- `f273952` feat(ui): `apps/web/src/ui/Exercises.tsx` liste görünümü yeniden yazıldı —
-  tam genişlik pill arama, yatay kaydırılan bölge + alet çip şeritleri (mevcut `Chip`),
-  56 px küpür, chevron. Detay kartı (`Exercise.tsx`) **dokunulmadı**.
-- `npm run typecheck --workspaces` çıktısız · `npm test` 345 pass / 21 dosya.
-- **Doğrulanmadı:** Dean'in gördüğü ekran görüntüsü hâlâ ESKİ sürümü gösteriyordu
-  (sol sütun + açılır menü). Hangi istemciye baktığı sorulmuştu, cevap gelmeden oturum
-  bitti: telefondaki APK mı (v0.20.0, bu değişiklik içinde yok) yoksa dev sunucusu mu.
-- APK sürümü `apps/web/android/variables.gradle` → `0.20.0`; bu UI değişikliği hiçbir
-  APK'de değil.
+- APK **0.39.0** OTA katalogunda (Gemini Nano önce, ML Kit `genai-prompt:1.0.0-beta4`, Kotlin 2.3.21).
+- PR #26 `7a29d56`: `apps/web/src/lib/cloudAi.ts` + `chat.ts` offline() başı. Canlı paket `05107bd05ae6ea40`
+  (APK'sız iner). Firebase projesi `evaitec-wellness` (deancjx@gmail.com, Spark — veriyle gönderim Dean onaylı).
+- App Check reCAPTCHA Enterprise kayıtlı, **ENFORCED değil**.
+- Dean'in telefonu **Galaxy Z Fold 7** (ML Kit GenAI resmi listesinde); S24 Ultra ikinci telefon. Cihaz koşulu kodda yok,
+  `checkStatus()` çalışma anında karar verir.
+- Gemma dosyası sunucuda `ota/gemma-3n-E4B-it-int4.task` (git dışı), telefona indirmek tünelden 3–8 saat sürdü — öncelik değil.
+- unverified: WebView'de reCAPTCHA puanı / AI Logic cevabı; Fold 7'de Nano durumu.
 
 ## Next
-1. Dean'e sor: hareket ekranına **telefondaki APK'den mi** yoksa **dev sunucusundan mı**
-   bakıyor. APK ise → `variables.gradle` 0.21.0, `node ops/build_apk.mjs`,
-   sonra `node ops/publish_ota.mjs` (Dean "ekle" derse sorma, yayınla).
-   Dev sunucusu ise → hard-refresh / service worker temizliği yeter.
-2. Cihazda göründükten sonra UX geri bildirimini al; `Exercise.tsx` detay kartında da
-   masaüstü duran bir şey varsa oraya geç.
-3. Asıl kuyruk: `apps/web/src/lib/cardioLoad.ts` TDD ile (`zoneOf`, `trimpFromSeries`,
-   `trimpFromSession`, `acuteChronicRatio`) — sözleşme `docs/PLAN-WEAR.md` §8.3.
+1. Dean'den iki ekran bilgisi al: (a) Ayar > Cihaz-içi Eva kartı "Gemini Nano hazır" mı; (b) sunucu kapalıyken
+   (`docker compose stop api`) Eva cevabı "Sunucu kapalı, bulut yedeği yanıtlıyor" ile mi başlıyor. Sonra `docker compose start api`.
+2. (b) yerel model notuyla geldiyse: telefonda WebView konsolu (`chrome://inspect`) → `askCloud` uyarısı. 403 → Firebase
+   konsol AI Logic → Get started (Gemini Developer API); App Check düşük puan → Android Play Integrity sağlayıcısı.
+3. (b) çalıştıysa: `python <scratchpad sarmalayıcı> --project evaitec-wellness --account deancjx@gmail.com --domains fit.evaitec.com,localhost,evaitec-wellness.web.app --enforce`
+   (sarmalayıcı yoksa `~/.claude/skills/firebase-gemini/setup_ai.py`, firebase-tools yerine gcloud token + `x-goog-user-project` başlığı).
 
 ## Don't repeat
-- Native `<select>` hareket filtresinde kullanma — masaüstü açılır menüsü açıyor,
-  Dean'in "mavili masaüstü" şikâyetinin kaynağı buydu.
-- Ekran görüntüsü eski çıktığında önce istemciyi sor: kod doğruysa sorun önbellek/derleme,
-  kodu tekrar değiştirme.
-- Önceki oturumların ölü yolları (yüzmede nabız, Watch6 Fitness Index, Reddit erişimi,
-  `vite preview` https, aurora glow yükseklik ölçümü) → `.claude/handoffs/latest.md`
-  ve `2026-09-19-2230-kardiyo-yuku-sirada.md`. Yeniden araştırma açma.
+- Uygulama içi thread indirmesi (0.38.0) — arka planda ölür, hata olunca `.part` silinirdi → DownloadManager.
+- GitHub release'e model koymak — 2 GB sınırı.
+- Bash heredoc içinde python'a `\\n` yazmak — gerçek satır sonuna dönüşüp TS'yi bozdu; TS/Kotlin düzenlemede Edit tool.
+- `firebase-tools` oturumu deancjxvr'de; deancjx için gcloud kullan, login isteme.
 
 ## Read first
-1. `apps/web/src/ui/Exercises.tsx` — değişen dosya
-2. `~/.ai/guides/evaitec-ota-catalog.md` — APK yayını gerekirse tek kaynak
-3. `docs/PLAN-WEAR.md` §8 — Next #3'ün sözleşmesi
-4. `AGENTS.md` — kilitli kararlar
+1. `.claude/handoffs/latest.md` — son iki bölüm (27 Eyl akşam/gece)
+2. `apps/web/src/lib/cloudAi.ts` — bulut yedeği
+3. `apps/web/android/app/src/main/java/com/evaitec/wellness/LocalLlmPlugin.kt` — Nano/Gemma
 
 ## Verify
-```bash
-git rev-parse --short HEAD              # f273952
-git status --porcelain | wc -l          # 0
-grep -c "overflow-x-auto" apps/web/src/ui/Exercises.tsx   # 2 (çip şeritleri)
-npm test                                # 345 pass
+git rev-parse --short HEAD               # b19721a'dan sonraki devir commit'i
+git status --porcelain | grep -v worktrees  # boş
+npm test                                  # 416 passed
+curl -s https://fit.evaitec.com/bundle/bundle.json | head -3   # version 05107bd05ae6ea40, min_native 3900
+
+## <yeniden başlangıç> promptu (yapıştır)
 ```
-
-## Yeniden başlangıç promptu (yapıştır)
-
-```
-life-os-wellness (D:\projects\evaitec\lifeOS\life-os-wellness), dal dev @ f273952, ağaç temiz,
-origin ile aynı. Dün akşam hareket (Exercises) liste görünümü masaüstü kalıplarından
-temizlendi: sol sabit bölge sütunu ve native select gitti, yerine yatay çip şeritleri +
-pill arama + 56px küpürlü satırlar geldi. typecheck temiz, 345 test yeşil. AMA Dean'in
-baktığı ekran hâlâ eski sürümü gösteriyordu — telefondaki APK (v0.20.0, değişiklik içinde
-yok) mi dev sunucusu mu olduğu sorulmuştu, cevap gelmedi.
-
-Önce HANDOFF.md'yi oku ve Verify bloğunu çalıştır.
-Next #1: Dean'e hangi istemciye baktığını sor. APK ise sürümü 0.21.0'a çek,
-ops/build_apk.mjs + ops/publish_ota.mjs ile OTA'ya koy.
-Yeni iş açma — kardiyo yükü (PLAN-WEAR §8) sırada ama önce bu ekran cihazda görünsün.
+Durum: life-os-wellness dev'de. Eva yedek zinciri (sunucu → Firebase AI Logic → Gemini Nano → Gemma → kural) kodu bitti,
+canlıda (APK 0.39.0, canlı paket 05107bd0), telefonda (Galaxy Z Fold 7) doğrulanmadı. App Check enforce kapalı.
+Ortam: D:\projects\evaitec\lifeOS\life-os-wellness, sunucu docker compose (api), fit.evaitec.com tünel.
+Önce HANDOFF.md oku, Verify bloğunu çalıştır. Öncelik: Next 1 (Dean'den Nano kartı + sunucu kapalı cevap),
+sonra 2 veya 3. Öğün/ölçüm kayıtları dean-pt skill'iyle. Yeni iş açma.
 ```

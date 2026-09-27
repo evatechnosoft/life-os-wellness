@@ -114,7 +114,7 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - 27 Eyl öğünler: 151 g P / 3215 kcal (sabah+akşam fotoğrafla düzeltildi).
 
 ## 27 Eyl gece — Nano + bulut yedeği
-- 0.38.1 DownloadManager, 0.38.2 tarayıcı indirmesi (/sdcard/Download, tam boyut), 0.39.0 Gemini Nano (ML Kit genai-prompt beta4, Kotlin 2.3.21) önce, Gemma yedek. Dean'in telefonu **Fold 8** (Nano resmi listede); S24 Ultra ikinci telefon.
+- 0.38.1 DownloadManager, 0.38.2 tarayıcı indirmesi (/sdcard/Download, tam boyut), 0.39.0 Gemini Nano (ML Kit genai-prompt beta4, Kotlin 2.3.21) önce, Gemma yedek. Dean'in telefonu **Galaxy Z Fold 7** (ML Kit GenAI resmi listesinde; cihaz kontrolü yok, `checkStatus()` çalışma anında karar verir); S24 Ultra ikinci telefon.
 - PR #26 (`7a29d56`): sunucu kapalıyken Firebase AI Logic (gemini-2.5-flash) + App Check reCAPTCHA Enterprise. Proje `evaitec-wellness` (deancjx@gmail.com, Spark — veriyle gönderim Dean onaylı). Domainler fit.evaitec.com, localhost, evaitec-wellness.web.app. Canlı paket `05107bd05ae6ea40`, health 200.
 - DOĞRULANMADI: WebView'de reCAPTCHA puanı / AI Logic çağrısı (403 olursa konsol AI Logic → Get started; düşük puanda Play Integrity). App Check henüz ENFORCED değil — çalıştığı görülünce `setup_ai.py --enforce`.
 - Kaçış tuzağı: Bash heredoc içinde python'a `\n` yazınca gerçek satır sonuna dönüşüyor → TS dosyalarında Edit tool kullan.
