@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { gemmaPrompt, MAX_LOCAL_CONTEXT, MAX_PROMPT_CHARS } from './localLlm'
+import { gemmaPrompt, MAX_LOCAL_CONTEXT, MAX_PROMPT_CHARS, nanoPrompt } from './localLlm'
 
 describe('gemmaPrompt', () => {
   test('persona ve baglam ilk kullanici turune gomulur, model turu acik biter', () => {
@@ -49,5 +49,16 @@ describe('gemmaPrompt', () => {
 
   test('son tur kullanici degilse hata', () => {
     expect(() => gemmaPrompt('', [{ role: 'assistant', content: 'x' }])).toThrow()
+  })
+
+  test('nano istemi duz metin: sablon belirteci yok, Eva: ile biter, persona basta', () => {
+    const p = nanoPrompt('2026-09-14: 84 kg', [
+      { role: 'user', content: 'a' }, { role: 'assistant', content: 'b' }, { role: 'user', content: 'kaç kiloyum?' },
+    ])
+    expect(p).not.toContain('<start_of_turn>')
+    expect(p.startsWith('Kullanıcı: Sen Eva')).toBe(true)
+    expect(p).toContain('\n\nEva: b\n\nKullanıcı: kaç kiloyum?')
+    expect(p.endsWith('\n\nEva:')).toBe(true)
+    expect(p.length).toBeLessThanOrEqual(MAX_PROMPT_CHARS)
   })
 })

@@ -15,6 +15,8 @@ import type { NoteDraft } from './voice'
  */
 export type ModelStatus = {
   ready: boolean
+  /** Hazir olan motor: sistemin Gemini Nano'su (AICore) ya da indirilen Gemma. */
+  engine: 'nano' | 'gemma' | null
   downloading: boolean
   sizeMb: number
   persistent: boolean
@@ -27,7 +29,7 @@ const LocalLlm = registerPlugin<{
   download(): Promise<{ ok: boolean; status: string }>
   persist(): Promise<{ ok: boolean; status: string }>
   remove(): Promise<void>
-  generate(opts: { prompt: string }): Promise<{ text: string }>
+  generate(opts: { prompt: string; engine: 'nano' | 'gemma' }): Promise<{ text: string }>
   addListener(event: 'modelDownload', fn: (e: { status: string }) => void): Promise<PluginListenerHandle>
 }>('LocalLlm')
 
@@ -52,11 +54,27 @@ Kaydedilecek veri geçtiyse yanıtın sonuna tek satır ekle: <kayit>{"weight_kg
 
 export type Turn = { role: 'user' | 'assistant'; content: string }
 
+type Format = { turn: (role: Turn['role'], text: string) => string; sep: string; tail: string }
+
+/** Gemma sohbet sablonu. Sistem rolu yok: persona ilk kullanici turune gomulur. */
+const GEMMA: Format = {
+  turn: (role, text) => `<start_of_turn>${role === 'user' ? 'user' : 'model'}\n${text}<end_of_turn>`,
+  sep: '\n',
+  tail: '\n<start_of_turn>model\n',
+}
+
+/** Gemini Nano (ML Kit Prompt API) duz metin alir; sablon belirteci yok. */
+const PLAIN: Format = {
+  turn: (role, text) => `${role === 'user' ? 'Kullanıcı' : 'Eva'}: ${text}`,
+  sep: '\n\n',
+  tail: '\n\nEva:',
+}
+
 /**
- * Gemma'nin sistem rolu yok: persona + baglam ilk kullanici turune gomulur, gecmis
- * sohbet sablonuyla akar. Saf fonksiyon - test edilir, cihaz istemez.
+ * Persona + baglam ilk kullanici turune gomulur, gecmis kirpilir, baglam kalan butceyi
+ * alir (persona ve son soru hic kirpilmaz). Saf fonksiyon - test edilir, cihaz istemez.
  */
-export function gemmaPrompt(context: string, turns: Turn[]): string {
+function buildPrompt(context: string, turns: Turn[], f: Format): string {
   const recent = turns.slice(-MAX_LOCAL_TURNS).map((t, i, all) => ({
     ...t,
     content: t.content.slice(0, i === all.length - 1 ? MAX_LAST_CHARS : MAX_TURN_CHARS),
@@ -66,19 +84,17 @@ export function gemmaPrompt(context: string, turns: Turn[]): string {
   const build = (ctx: string): string => {
     const head = `${LOCAL_SYSTEM}\n\nKullanıcının son günleri:\n${ctx}`
     const body = recent
-      .map((t, i) => {
-        const role = t.role === 'user' ? 'user' : 'model'
-        const text = i === 0 && t.role === 'user' ? `${head}\n\n${t.content}` : t.content
-        return `<start_of_turn>${role}\n${text}<end_of_turn>`
-      })
-      .join('\n')
-    const prefixed = recent[0]!.role === 'user' ? body : `<start_of_turn>user\n${head}<end_of_turn>\n${body}`
-    return `${prefixed}\n<start_of_turn>model\n`
+      .map((t, i) => f.turn(t.role, i === 0 && t.role === 'user' ? `${head}\n\n${t.content}` : t.content))
+      .join(f.sep)
+    const prefixed = recent[0]!.role === 'user' ? body : `${f.turn('user', head)}${f.sep}${body}`
+    return `${prefixed}${f.tail}`
   }
-  // Baglam kalan butceyi alir: persona ve son soru hic kirpilmaz.
   const room = MAX_PROMPT_CHARS - build('').length
   return build(context.slice(0, Math.max(0, Math.min(MAX_LOCAL_CONTEXT, room))))
 }
+
+export const gemmaPrompt = (context: string, turns: Turn[]): string => buildPrompt(context, turns, GEMMA)
+export const nanoPrompt = (context: string, turns: Turn[]): string => buildPrompt(context, turns, PLAIN)
 
 export async function localModelReady(): Promise<boolean> {
   if (!isNative()) return false
@@ -116,7 +132,9 @@ export async function onModelDownload(listener: (status: string) => void): Promi
 
 /** Telefondaki modelden yanit; <kayit> ayristirmasi sunucudakiyle ayni fonksiyon. */
 export async function askLocal(context: string, turns: Turn[]): Promise<{ text: string; draft: NoteDraft | null }> {
-  const { text } = await LocalLlm.generate({ prompt: gemmaPrompt(context, turns) })
+  const engine = (await LocalLlm.status()).engine ?? 'gemma'
+  const prompt = engine === 'nano' ? nanoPrompt(context, turns) : gemmaPrompt(context, turns)
+  const { text } = await LocalLlm.generate({ prompt, engine })
   const parsed = splitReply(text)
   return { text: parsed.text, draft: parsed.draft as NoteDraft | null }
 }

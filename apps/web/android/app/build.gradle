@@ -102,6 +102,8 @@ dependencies {
     // LocalLlmPlugin: sunucu yokken Gemma 3n E4B telefonda. Alternatifi llama.cpp JNI'yi
     // kendimiz derlemek - NDK + bakim yuzeyi; MediaPipe hazir .task dosyasini calistiriyor.
     implementation 'com.google.mediapipe:tasks-genai:0.10.27'
+    // Gemini Nano (AICore): sistemde hazirsa indirme yok; Gemma yalniz yedek.
+    implementation 'com.google.mlkit:genai-prompt:1.0.0-beta4'
 }
 
 apply from: 'capacitor.build.gradle'

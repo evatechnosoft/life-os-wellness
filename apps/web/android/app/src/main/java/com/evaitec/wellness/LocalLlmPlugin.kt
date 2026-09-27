@@ -14,8 +14,12 @@ import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import com.google.mlkit.genai.common.DownloadStatus
+import com.google.mlkit.genai.common.FeatureStatus
+import com.google.mlkit.genai.prompt.Generation
 import java.io.File
 import kotlin.concurrent.thread
+import kotlinx.coroutines.runBlocking
 
 /**
  * Cihaz-ici Eva: sunucu yokken Gemma 3n E4B (int4) telefonda calisir. Persona ve baglam
@@ -47,7 +51,17 @@ class LocalLlmPlugin : Plugin() {
         private const val PREF_ID = "download_id"
 
         @Volatile private var engine: LlmInference? = null
+
+        /** Sistemin Gemini Nano'su (AICore, ML Kit Prompt API). Model telefonla gelir, indirme yok. */
+        private val nano by lazy { Generation.getClient() }
     }
+
+    /**
+     * Nano durumu: AVAILABLE / DOWNLOADABLE / DOWNLOADING / UNAVAILABLE. Desteklenmeyen
+     * cihazda ya da AICore yoksa istisna atabilir - o zaman UNAVAILABLE sayilir.
+     */
+    private fun nanoStatus(): Int =
+        runCatching { runBlocking { nano.checkStatus() } }.getOrDefault(FeatureStatus.UNAVAILABLE)
 
     private fun internalFile(): File = File(File(context.filesDir, "llm").apply { mkdirs() }, MODEL_FILE)
 
@@ -82,23 +96,23 @@ class LocalLlmPlugin : Plugin() {
 
     @PluginMethod
     fun status(call: PluginCall) {
-        val id = pendingId()
-        if (id >= 0 && query(downloads(), id)?.first == DownloadManager.STATUS_SUCCESSFUL) {
-            // Uygulama kapaliyken bitmis: sha256 4.4 GB'ta birkac saniye, UI thread'inde olmasin.
-            thread(isDaemon = true) {
+        // Nano sorgusu AICore'a gider; sha256 de uzun - ikisi de UI thread'inde olmasin.
+        thread(isDaemon = true) {
+            val id = pendingId()
+            if (id >= 0 && query(downloads(), id)?.first == DownloadManager.STATUS_SUCCESSFUL) {
                 runCatching { finish() }
-                call.resolve(statusOf(modelFile()))
             }
-            return
+            call.resolve(statusOf(modelFile()))
         }
-        call.resolve(statusOf(modelFile()))
     }
 
     private fun statusOf(file: File): JSObject {
-        val downloading = pendingId() >= 0
+        val nanoReady = nanoStatus() == FeatureStatus.AVAILABLE
+        val engine = if (nanoReady) "nano" else if (file.exists()) "gemma" else null
         return JSObject()
-            .put("ready", file.exists())
-            .put("downloading", downloading)
+            .put("ready", engine != null)
+            .put("engine", engine)
+            .put("downloading", pendingId() >= 0)
             .put("sizeMb", if (file.exists()) file.length() / (1024 * 1024) else 0)
             .put("persistent", externalFile()?.exists() == true)
             .put("canPersist", Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
@@ -151,6 +165,38 @@ class LocalLlmPlugin : Plugin() {
      */
     @PluginMethod
     fun download(call: PluginCall) {
+        thread(isDaemon = true) {
+            // Once sistem modeli: Nano indirilebiliyorsa (birkac yuz MB, AICore yonetir) onu al.
+            when (nanoStatus()) {
+                FeatureStatus.AVAILABLE ->
+                    return@thread call.resolve(JSObject().put("ok", true).put("status", "Gemini Nano hazır"))
+                FeatureStatus.DOWNLOADABLE, FeatureStatus.DOWNLOADING -> {
+                    val ok = runCatching {
+                        runBlocking {
+                            nano.download().collect { s ->
+                                when (s) {
+                                    is DownloadStatus.DownloadProgress -> notifyListeners(
+                                        "modelDownload",
+                                        JSObject().put("status", "Gemini Nano iniyor (${s.totalBytesDownloaded / (1024 * 1024)} MB)"),
+                                    )
+                                    is DownloadStatus.DownloadFailed -> throw s.e
+                                    else -> Unit
+                                }
+                            }
+                        }
+                    }
+                    return@thread call.resolve(
+                        JSObject().put("ok", ok.isSuccess)
+                            .put("status", ok.fold({ "Gemini Nano hazır" }, { "Nano inmedi: ${it.message}" })),
+                    )
+                }
+                else -> downloadGemma(call)
+            }
+        }
+    }
+
+    /** Nano yoksa: Gemma dosyasi sistem DownloadManager'iyla. */
+    private fun downloadGemma(call: PluginCall) {
         val dm = downloads()
         val id = pendingId().takeIf { it >= 0 && query(dm, it) != null } ?: run {
             staging().delete()
@@ -247,8 +293,12 @@ class LocalLlmPlugin : Plugin() {
     fun generate(call: PluginCall) {
         val prompt = call.getString("prompt")
         if (prompt.isNullOrBlank()) return call.reject("prompt bos")
+        val useNano = call.getString("engine") == "nano"
         thread(isDaemon = true) {
-            runCatching { engine().generateResponse(prompt) }
+            runCatching {
+                if (useNano) runBlocking { nano.generateContent(prompt) }.candidates.first().text
+                else engine().generateResponse(prompt)
+            }
                 .fold({ call.resolve(JSObject().put("text", it)) }, { call.reject("Model yanıt veremedi: ${it.message}") })
         }
     }

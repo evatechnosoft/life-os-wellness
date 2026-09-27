@@ -238,11 +238,13 @@ function LocalEva() {
   return (
     <Card title="Cihaz-içi Eva">
       <p className="text-xs text-ink-faint">
-        {model.ready
-          ? `Model telefonda (${model.sizeMb} MB). Sunucu kapalıyken Eva buradan yanıtlar.`
-          : 'Sunucu kapalıyken de yanıt için Gemma 3n E4B indirilebilir (~4,4 GB, Wi-Fi şart). İndirme arka planda sürer. Takılırsa tarayıcıdan indir: fit.evaitec.com/ota/gemma-3n-E4B-it-int4.task (İndirilenler klasörüne iner; sonra Kalıcı klasöre taşı iznini ver). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
+        {model.engine === 'nano'
+          ? 'Gemini Nano hazır (telefonun sistem modeli). Sunucu kapalıyken Eva buradan yanıtlar.'
+          : model.ready
+            ? `Model telefonda (${model.sizeMb} MB). Sunucu kapalıyken Eva buradan yanıtlar.`
+            : 'Sunucu kapalıyken de yanıt için telefon modeli: destekleyen telefonda Gemini Nano (sistemden), yoksa Gemma 3n E4B (~4,4 GB, Wi-Fi şart; takılırsa tarayıcıdan fit.evaitec.com/ota/gemma-3n-E4B-it-int4.task). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
       </p>
-      <button
+      {model.engine !== 'nano' && <button
         type="button"
         onClick={() =>
           void run(async () => {
@@ -258,7 +260,7 @@ function LocalEva() {
         className="mt-3 w-full rounded-field bg-glass-strong py-3 text-sm disabled:opacity-50"
       >
         {busy ? 'Çalışıyor…' : model.ready ? 'Modeli sil' : 'Modeli indir'}
-      </button>
+      </button>}
       {model.canPersist && !model.persistent && (
         <button
           type="button"
