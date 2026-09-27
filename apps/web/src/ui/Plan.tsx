@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
 import { toLocalDate } from '../lib/date'
-import { find, search } from '../lib/exercises'
-import { addExercise, removeExercise, replaceExercise, stepSets } from '../lib/planEdit'
+import { alternatives, find, search } from '../lib/exercises'
+import { addExercise, moveExercise, removeExercise, replaceExercise, stepSets } from '../lib/planEdit'
 import { WEEKDAYS } from '../lib/split'
 import { DAY_TYPE_LABEL, saveDay, useWorkoutPlan, type DayType, type PlanExercise } from '../lib/workoutPlan'
 import { Exercise } from './Exercise'
@@ -20,8 +20,8 @@ const ORDER = [1, 2, 3, 4, 5, 6, 0]
 export function Plan() {
   const plan = useWorkoutPlan()
   const [saving, setSaving] = useState<number | null>(null)
-  // Which move is open in the sheet; index -1 = adding a new one to that day.
-  const [editing, setEditing] = useState<{ weekday: number; index: number } | null>(null)
+  // Which move is open in the sheet; index -1 = adding a new one, at `at` (a removed move's slot) or the end.
+  const [editing, setEditing] = useState<{ weekday: number; index: number; at?: number } | null>(null)
   const [query, setQuery] = useState('')
   const today = new Date(toLocalDate() + 'T00:00:00').getDay()
 
@@ -34,6 +34,7 @@ export function Plan() {
   const current = editing && editing.index >= 0 ? moves[editing.index] : undefined
   const currentEx = current ? find(current.id) : null
   const results = query.trim() ? search(query).slice(0, 8) : []
+  const swaps = current ? alternatives(current.id).slice(0, 6) : []
 
   const write = (list: PlanExercise[]) => {
     if (!editing) return
@@ -43,10 +44,17 @@ export function Plan() {
     setEditing(null)
     setQuery('')
   }
+  const move = (delta: 1 | -1) => {
+    if (!editing) return
+    const to = editing.index + delta
+    if (to < 0 || to >= moves.length) return
+    write(moveExercise(moves, editing.index, delta))
+    setEditing({ ...editing, index: to })
+  }
   const choose = (id: string) => {
     if (!editing) return
     if (editing.index < 0) {
-      write(addExercise(moves, id))
+      write(addExercise(moves, id, editing.at))
       close()
     } else {
       write(replaceExercise(moves, editing.index, id))
@@ -119,6 +127,9 @@ export function Plan() {
 
       <Sheet open={editing !== null} onClose={close}
         title={current ? (currentEx?.name ?? current.id) : 'Hareket ekle'}>
+        {editing && editing.at !== undefined && (
+          <p className="px-1 text-xs text-ink-faint">Kaldırıldı. Seçtiğin hareket {editing.at + 1}. sıraya girer.</p>
+        )}
         {editing && current && (
           <div className="flex items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2">
@@ -128,10 +139,34 @@ export function Plan() {
               <button type="button" aria-label="Set artır" onClick={() => write(stepSets(moves, editing.index, 1))}
                 className="size-11 rounded-full bg-glass-strong text-lg">+</button>
             </div>
-            <button type="button" onClick={() => { write(removeExercise(moves, editing.index)); close() }}
-              className="min-h-11 rounded-pill px-4 text-sm text-load">
-              Kaldır
-            </button>
+            <div className="flex items-center gap-1">
+              <button type="button" aria-label="Yukarı taşı" disabled={editing.index === 0} onClick={() => move(-1)}
+                className="size-11 rounded-full bg-glass-strong disabled:opacity-30">↑</button>
+              <button type="button" aria-label="Aşağı taşı" disabled={editing.index === moves.length - 1} onClick={() => move(1)}
+                className="size-11 rounded-full bg-glass-strong disabled:opacity-30">↓</button>
+              {/* Sheet stays open in add mode so a new pick lands in the same slot. */}
+              <button type="button" onClick={() => {
+                write(removeExercise(moves, editing.index))
+                setEditing({ weekday: editing.weekday, index: -1, at: editing.index })
+              }}
+                className="min-h-11 rounded-pill px-3 text-sm text-load">
+                Kaldır
+              </button>
+            </div>
+          </div>
+        )}
+
+        {swaps.length > 0 && !query && (
+          <div className="mt-3">
+            <p className="px-1 text-xs text-ink-faint">Yerine geç — dokun, aynı sırada değişsin</p>
+            <div className="-mx-4 mt-1.5 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {swaps.map((a) => (
+                <button key={a.id} type="button" onClick={() => choose(a.id)}
+                  className="min-h-10 shrink-0 rounded-pill bg-glass-strong px-3 text-xs active:bg-a1 active:text-solid">
+                  {a.name} <span className="text-ink-faint">· {a.equipment_tr}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

@@ -27,6 +27,25 @@ const MUSCLE = [
   { id: 'triceps', label: 'Triseps' },
 ] as const
 
+type View = 'bar' | 'grid'
+const VIEW_KEY = 'exercises.view'
+
+function readView(): View {
+  try {
+    return localStorage.getItem(VIEW_KEY) === 'grid' ? 'grid' : 'bar'
+  } catch {
+    return 'bar'
+  }
+}
+
+function Thumb({ e, className }: { e: ExerciseData; className: string }) {
+  return e.media[0] === undefined ? (
+    <span className={`bg-glass-inset ${className}`} />
+  ) : (
+    <img src={e.media[0].url} alt="" loading="lazy" decoding="async" className={`bg-bg-deep object-cover ${className}`} />
+  )
+}
+
 /** Ayni kasi baska aletle calistiran ilk iki hareket. Bos ise hic cizilmez. */
 function Swaps({ ex }: { ex: ExerciseData }) {
   const swaps = alternatives(ex.id)
@@ -49,6 +68,15 @@ export function Exercises() {
   const [equipment, setEquipment] = useState<(typeof EQUIPMENT)[number]['id']>('all')
   const [muscle, setMuscle] = useState<(typeof MUSCLE)[number]['id']>('all')
   const [open, setOpen] = useState<string | null>(null)
+  const [view, setView] = useState<View>(readView)
+  const pickView = (v: View) => {
+    setView(v)
+    try {
+      localStorage.setItem(VIEW_KEY, v)
+    } catch {
+      // Private mode: the choice just isn't remembered.
+    }
+  }
 
   const list = useMemo(
     () =>
@@ -103,15 +131,41 @@ export function Exercises() {
         ))}
       </div>
 
-      <p className="text-[11px] text-ink-faint">
-        {list.length} hareket{list.length !== EXERCISES.length && ` · ${EXERCISES.length} içinden`}
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] text-ink-faint">
+          {list.length} hareket{list.length !== EXERCISES.length && ` · ${EXERCISES.length} içinden`}
+        </p>
+        <div className="flex gap-1" role="group" aria-label="Görünüm">
+          {(['bar', 'grid'] as const).map((v) => (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => pickView(v)}
+              className={`min-h-9 rounded-pill px-3 text-xs ${view === v ? 'bg-a1 text-solid' : 'bg-glass text-ink-dim'}`}>
+              {v === 'bar' ? 'Liste' : 'Kart'}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {list.length === 0 ? (
         <p className="glass-card p-4 text-sm text-ink-dim">
           Bu filtrede hareket yok. Kütüphane şu an salonundaki aletler kadar — eksik bir alet
           varsa söyle, eklerim.
         </p>
+      ) : view === 'grid' ? (
+        <ul className="grid grid-cols-2 gap-2">
+          {list.map((e) => (
+            <li key={e.id}>
+              <button type="button" onClick={() => setOpen(e.id)}
+                className="glass-card flex w-full flex-col overflow-hidden text-left active:scale-[0.98]">
+                <Thumb e={e} className="aspect-square w-full" />
+                <span className="flex flex-col gap-0.5 p-2">
+                  <span className="line-clamp-2 text-sm leading-tight text-ink">{e.name}</span>
+                  <span className="truncate text-[11px] text-ink-faint">{e.equipment_tr} · {e.primary_tr[0]}</span>
+                  {e.cue !== '' && <span className="line-clamp-2 text-[11px] text-ink-dim">{e.cue}</span>}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
       ) : (
         <ul className="flex flex-col gap-2">
           {list.map((e) => (
@@ -121,17 +175,7 @@ export function Exercises() {
                 onClick={() => setOpen(e.id)}
                 className="glass-card flex w-full items-center gap-3 p-2.5 text-left active:scale-[0.99]"
               >
-                {e.media[0] === undefined ? (
-                  <span className="size-14 shrink-0 rounded-field bg-glass-inset" />
-                ) : (
-                  <img
-                    src={e.media[0].url}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="size-14 shrink-0 rounded-field bg-bg-deep object-cover"
-                  />
-                )}
+                <Thumb e={e} className="size-14 shrink-0 rounded-field" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm text-ink">{e.name}</span>
                   <span className="block truncate text-[11px] text-ink-faint">

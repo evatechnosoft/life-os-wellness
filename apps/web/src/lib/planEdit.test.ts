@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { addExercise, removeExercise, replaceExercise, stepSets } from './planEdit'
+import { addExercise, moveExercise, removeExercise, replaceExercise, stepSets } from './planEdit'
 import type { PlanExercise } from './workoutPlan'
 
 const day: PlanExercise[] = [
@@ -25,5 +25,18 @@ describe('planEdit', () => {
   test('kaldir ve ekle', () => {
     expect(removeExercise(day, 0).map((e) => e.id)).toEqual(['Dead_Bug'])
     expect(addExercise(day, 'Plank').at(-1)).toEqual({ id: 'Plank', sets: 3, warmup: 0 })
+  })
+
+  // Kaldirilanin yerine eklenen ayni sirada durur, sona dusmez.
+  test('ekle verilen siraya girer', () => {
+    expect(addExercise(day, 'Plank', 0).map((e) => e.id)).toEqual(['Plank', 'Leg_Press', 'Dead_Bug'])
+    expect(addExercise(day, 'Plank', 1).map((e) => e.id)).toEqual(['Leg_Press', 'Plank', 'Dead_Bug'])
+  })
+
+  test('yukari/asagi tasi, kenarda yerinde kalir', () => {
+    expect(moveExercise(day, 1, -1).map((e) => e.id)).toEqual(['Dead_Bug', 'Leg_Press'])
+    expect(moveExercise(day, 0, 1).map((e) => e.id)).toEqual(['Dead_Bug', 'Leg_Press'])
+    expect(moveExercise(day, 0, -1)).toEqual(day)
+    expect(moveExercise(day, 1, 1)).toEqual(day)
   })
 })

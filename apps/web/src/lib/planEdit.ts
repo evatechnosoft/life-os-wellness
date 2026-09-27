@@ -19,6 +19,15 @@ export function removeExercise(list: PlanExercise[], index: number): PlanExercis
   return list.filter((_, i) => i !== index)
 }
 
-export function addExercise(list: PlanExercise[], id: string): PlanExercise[] {
-  return [...list, { id, sets: DEFAULT_SETS, warmup: 0 }]
+/** `at` = kaldirilan hareketin sirasi; verilmezse sona. */
+export function addExercise(list: PlanExercise[], id: string, at = list.length): PlanExercise[] {
+  return [...list.slice(0, at), { id, sets: DEFAULT_SETS, warmup: 0 }, ...list.slice(at)]
+}
+
+export function moveExercise(list: PlanExercise[], index: number, delta: 1 | -1): PlanExercise[] {
+  const to = index + delta
+  if (to < 0 || to >= list.length) return list
+  const next = [...list]
+  ;[next[index], next[to]] = [next[to]!, next[index]!]
+  return next
 }
