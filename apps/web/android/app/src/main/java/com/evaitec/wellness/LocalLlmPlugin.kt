@@ -42,6 +42,8 @@ class LocalLlmPlugin : Plugin() {
         const val MODEL_SHA256 = "2b8e9d04bf8c5c50346d248c5e24a7e65102251c94dee6f04d5dce5ce3e6ac4f"
         /** KV penceresi (istem + yanit); model kartindaki olcumler 4096 ile. */
         const val MAX_TOKENS = 4096
+        /** Boyut kontrolu: tarayicidan inen dosyada sha256 yok, yarim dosya boyuttan yakalanir. */
+        const val MODEL_BYTES = 4_405_655_031L
         private const val PREF_ID = "download_id"
 
         @Volatile private var engine: LlmInference? = null
@@ -59,8 +61,20 @@ class LocalLlmPlugin : Plugin() {
             File(Environment.getExternalStorageDirectory(), "evaitec/llm/$MODEL_FILE")
         else null
 
-    /** Okuma: kalici kopya varsa o, yoksa uygulama klasoru. */
-    private fun modelFile(): File = externalFile()?.takeIf { it.exists() } ?: internalFile()
+    /**
+     * Tarayiciyla indirilmis kopya: /sdcard/Download. Uygulama ici indirme takilirsa
+     * fit.evaitec.com/ota/<dosya> tarayicida acilir; okumak icin "tum dosyalara erisim" gerekir.
+     */
+    private fun browserFile(): File? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager())
+            File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), MODEL_FILE)
+        else null
+
+    /** Okuma: kalici kopya, yoksa tarayici indirmesi (tam boyutsa), yoksa uygulama klasoru. */
+    private fun modelFile(): File =
+        externalFile()?.takeIf { it.exists() }
+            ?: browserFile()?.takeIf { it.length() == MODEL_BYTES }
+            ?: internalFile()
 
     /** Indirme hedefi: izin varsa dogrudan kalici klasore insin, sonra tasimaya gerek kalmasin. */
     private fun downloadTarget(): File =
