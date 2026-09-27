@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { gemmaPrompt, MAX_PROMPT_CHARS } from './localLlm'
+import { gemmaPrompt, MAX_LOCAL_CONTEXT, MAX_PROMPT_CHARS } from './localLlm'
 
 describe('gemmaPrompt', () => {
   test('persona ve baglam ilk kullanici turune gomulur, model turu acik biter', () => {
@@ -16,12 +16,12 @@ describe('gemmaPrompt', () => {
       role: i % 2 === 0 ? ('user' as const) : ('assistant' as const),
       content: `t${i}`,
     }))
-    const p = gemmaPrompt('x'.repeat(5000), turns)
+    const p = gemmaPrompt('x'.repeat(MAX_LOCAL_CONTEXT + 1000), turns)
     expect(p).not.toContain('\nt0<')
     expect(p).toContain('<start_of_turn>model\nt5<end_of_turn>')
     expect(p).toContain('<start_of_turn>user\nt6<end_of_turn>')
-    expect(p).toContain('x'.repeat(1200))
-    expect(p).not.toContain('x'.repeat(1201))
+    expect(p).toContain('x'.repeat(MAX_LOCAL_CONTEXT))
+    expect(p).not.toContain('x'.repeat(MAX_LOCAL_CONTEXT + 1))
   })
 
   test('kirpilmis gecmis asistanla basliyorsa persona ayri bir kullanici turu olur', () => {
@@ -34,8 +34,8 @@ describe('gemmaPrompt', () => {
     expect(p).toContain('<start_of_turn>model\nb<end_of_turn>')
   })
 
-  test('istem 1280 tokenlik pencereye sigar: uzun baglam ve uzun gecmis kirpilir', () => {
-    const long = 'ş'.repeat(3000)
+  test('istem 4096 tokenlik pencereye sigar: uzun baglam ve uzun gecmis kirpilir', () => {
+    const long = 'ş'.repeat(MAX_PROMPT_CHARS)
     const p = gemmaPrompt(long, [
       { role: 'user', content: long }, { role: 'assistant', content: long },
       { role: 'user', content: long }, { role: 'assistant', content: long },
