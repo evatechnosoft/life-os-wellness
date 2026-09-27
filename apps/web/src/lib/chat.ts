@@ -16,6 +16,7 @@ import {
   type SlotGap,
   type WeightTrend,
 } from './nutrition'
+import { askCloud, CLOUD_NOTE } from './cloudAi'
 import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
 import { OFFLINE_NOTE, offlineReply } from './offline'
 import { productLines } from './products'
@@ -312,6 +313,12 @@ export async function ask(
   // Sunucu yoksa ya da dustuyse Eva susmaz: persona ve veri telefonda. Model indirildiyse
   // (APK) o konusur; yoksa ya da tikanirsa kural motoru. Fotograf yalniz sunucuyla.
   const offline = async (): Promise<ChatMessage> => {
+    // Internet varsa once bulut (Firebase AI Logic): sunucuyla ayni model ve persona.
+    const image = opts.image ? await toBase64(opts.image) : undefined
+    const cloud = await askCloud(context, history, image && { mimeType: image.media_type, data: image.data })
+    if (cloud) {
+      return remember({ role: 'eva', text: `${CLOUD_NOTE} ${cloud.text}`, via: 'text', draft: fillWorkout(cloud.draft, text) ?? undefined })
+    }
     // Fotograf sunucusuz okunamaz (cihaz-ici model gorme yetenegi tasimiyor). Bunu
     // soylemeden metin cevabi vermek, tabaga bakilmis gibi gorunurdu.
     if (opts.image) {
