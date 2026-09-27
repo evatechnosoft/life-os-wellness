@@ -101,3 +101,8 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - Çalışan alt ajan: `fix/hareket-turkce` (43 hareketin Türkçe talimatları + alternatif kural denetimi) — worktree'de, push/deploy YOK; bitince merge + deploy + bundle version kontrolü.
 - Açık: saat uygulaması tuşları (Dean: "gönder/güncelle çalışmıyor"; sunucuda 24/26 Eyl nabız geldi) → ekran fotoğrafı istendi, sonra 0.38.0 (titreşim+mesaj geri bildirimi). Telefon sürümü sorusu cevapsız. Gemma 3n kararı (telefon modeli/RAM). ZimaOS taşıma onayı (bilgisayar kapanınca sunucu yok).
 - 26 Eyl kayıt: 107.4 kg, TA 114/74 + akşam 119/71 (measurement), 159 g / ~2795 kcal (+tekila-tonik 140), adım 7.601, OKOK yağ 37.2 kg / iskelet 35.1 / viseral 25.5 / BMR 2018. 12→26 Eyl yağ −1.0 kg, kas sabit. Bakım ~2500 kcal; hedef ort. 2000–2100.
+
+## 27 Eyl sabah
+- `9c65559` hareket Türkçe talimatları + alternatif aynı tür/yön (alt ajan işi bitirildi). `ffa1fc2` Plan: alternatif şeridi aynı sırada değiştirir, Kaldır sonrası yeni hareket o sıraya girer, ↑/↓; Kütüphane Liste/Kart (2'li kare) görünümü. 415 test. Canlı paket `fa7fed1e`. Telefonda DOĞRULANMADI.
+- Samsung zip 26–27 Eyl içe aktarıldı; 27 Eyl daily'deki saat TA 131/80 silindi (nota yazıldı), 26 Eyl adım 7621.
+- Telefon S24 Ultra (12 GB) → hedef Gemma 3n E4B int4 `.task` (4.4 GB, google/gemma-3n-E4B-it-litert-preview). HF indirme 403: lisans Dean'in HF hesabında kabul edilmemiş. Kabul sonrası: indir → fit.evaitec.com'dan sun → LocalLlmPlugin URL/SHA/MAX_TOKENS + localLlm.ts istem sınırları → APK 0.38.0.
