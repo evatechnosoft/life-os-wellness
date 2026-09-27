@@ -30,6 +30,10 @@ export interface Exercise {
   equipment_tr: string
   level: string
   mechanic: string
+  /** strength / stretching / cardio. Eski katalogda yok. */
+  category?: string
+  /** push / pull / static; kardiyoda null. Eski katalogda yok. */
+  force?: string | null
   primary: string[]
   primary_tr: string[]
   secondary: string[]
@@ -117,24 +121,33 @@ export function byMuscle(muscle: string, opts: { includeSecondary?: boolean } = 
 }
 
 /**
- * Germe / isinma / kardiyo: kas listesi dolu ama yuk tasimaz. Kaynak DB bunlari
- * `other` isaretliyor; hip flexor germesi yanlislikla `isolation` gelmis.
+ * Germe / kardiyo / kuvvet. `mechanic` bunu tasiyamiyor: ayak bilegi ve kalca
+ * cemberi upstream'de `isolation`. Eski onbellekte category yoksa mechanic'e duser.
  */
-const MOBILITY_IDS = new Set(['Kneeling_Hip_Flexor'])
-const isMobility = (e: Exercise): boolean => e.mechanic === 'other' || MOBILITY_IDS.has(e.id)
+const kind = (e: Exercise): string => e.category ?? (e.mechanic === 'other' ? 'stretching' : 'strength')
+
+/** Kurek/pulldown ayni sirt cekisi; upstream birine lats, digerine middle back diyor. */
+const MUSCLE_GROUP: Record<string, string> = { 'middle back': 'lats' }
+const group = (m: string): string => MUSCLE_GROUP[m] ?? m
 
 /**
- * "Bu makine dolu / bende yok" sorusunun cevabi: ayni kasi calistiran baskalari.
- * Kuvvet hareketinin yerine germe ya da bisiklet onerilmez (leg extension -> recumbent).
+ * "Bu makine dolu / bende yok" sorusunun cevabi: ayni kasi ayni yonde calistiran baskalari.
+ * - Tur ayni: kuvvetin yerine germe/bisiklet, germenin yerine kuvvet onerilmez.
+ * - Yon ayni: omuz presinin yerine face pull onerilmez. static (plank) her yone uyar.
  */
 export function alternatives(id: string, opts: { equipment?: string[] } = {}): Exercise[] {
   const source = find(id)
   if (source === null) return []
+  const muscles = source.primary.map(group)
+  const sameForce = (e: Exercise): boolean =>
+    e.force === source.force ||
+    [e.force, source.force].some((f) => f === undefined || f === null || f === 'static')
   return EXERCISES.filter(
     (e) =>
       e.id !== id &&
-      isMobility(e) === isMobility(source) &&
-      e.primary.some((m) => source.primary.includes(m)) &&
+      kind(e) === kind(source) &&
+      sameForce(e) &&
+      e.primary.some((m) => muscles.includes(group(m))) &&
       (opts.equipment === undefined || opts.equipment.includes(e.equipment)),
   )
 }

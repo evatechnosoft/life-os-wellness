@@ -40,7 +40,13 @@
         "shoulders"
       ],
       "cue": "Kulplar göğüs hizasında olacak şekilde koltuğu ayarla. Omuz kürekleri mindere yapışık.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Ağırlığı seç, koltuğu kulplar göğüs hizasına gelecek şekilde ayarla.",
+        "Sırtını ve kürek kemiklerini mindere yasla, kulpları tut.",
+        "Nefes vererek kulpları ileri it; dirseği kilitleme.",
+        "Nefes alarak kulpları yavaşça geri getir."
+      ]
     },
     "Butterfly": {
       "name": "Butterfly / pec deck",
@@ -48,7 +54,14 @@
         "shoulders"
       ],
       "cue": "Üst kollar yere paralel olacak şekilde koltuğu ayarla; arkada fazla açılma.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Koltuğu, kolların yere paralel olacak şekilde ayarla; sırtın mindere yaslı.",
+        "Kulpları ya da pedleri tut; burası başlangıç.",
+        "Nefes vererek kolları önde birleştir, göğsünü bir saniye sık.",
+        "Nefes alarak yavaşça aç; göğüste hafif gerginlik hissedince dur."
+      ],
+      "force": "push"
     },
     "Incline_Dumbbell_Press": {
       "name": "Dambıl eğimli bench press",
@@ -56,13 +69,26 @@
         "shoulders"
       ],
       "cue": "Sehpa 30 derece yeter; 45 derece işi omuza kaydırır.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Sehpayı yaklaşık 30 dereceye ayarla, dambıllar uyluklarının üstündeyken uzan.",
+        "Dambılları omuz hizasına getir, avuçlar ayaklarına baksın.",
+        "Nefes vererek dambılları göğsünle yukarı it; tepede dirseği kilitleme.",
+        "Nefes alarak yavaşça indir; iniş çıkıştan yavaş olsun.",
+        "Set bitince dambılları önce uyluklarına, sonra yere bırak."
+      ]
     },
     "Leverage_Incline_Chest_Press": {
       "name": "Eğimli göğüs presi (makine)",
       "load": [],
-      "cue": "",
-      "focus": []
+      "cue": "Kulplar üst göğüs hizasında başlasın; iterken nefes ver, dirseği kilitleme.",
+      "focus": [],
+      "instructions": [
+        "Ağırlığı seç, koltuğu kulplar üst göğüs hizasına gelecek şekilde ayarla.",
+        "Sırtını mindere yasla, göğsü dik tut, kürek kemiklerini geriye topla.",
+        "Nefes vererek kulpları ileri it; dirseği kilitleme.",
+        "Nefes alarak kontrollü şekilde geri gel; ağırlığı set bitene kadar yığına bırakma."
+      ]
     },
     "Wide-Grip_Lat_Pulldown": {
       "name": "Lat pulldown (geniş tutuş)",
@@ -70,13 +96,27 @@
         "shoulders"
       ],
       "cue": "Barı ensene değil göğsüne çek; geriye yatma.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Diz pedini bacaklarını sabitleyecek şekilde ayarla ve otur.",
+        "Barı omuz genişliğinden geniş, avuçlar öne bakacak şekilde tut.",
+        "Gövdeyi hafif geriye yasla, göğsü öne çıkar.",
+        "Nefes vererek barı üst göğsüne çek, kürek kemiklerini aşağı ve geriye sık.",
+        "Nefes alarak barı yavaşça yukarı bırak."
+      ]
     },
     "Close-Grip_Front_Lat_Pulldown": {
       "name": "Lat pulldown (dar/nötr tutuş)",
       "load": [],
       "cue": "Dirsekleri gövdeye yakın tut; çekiş kanattan gelsin.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Diz pedini bacaklarını sabitleyecek şekilde ayarla ve otur.",
+        "Barı ya da nötr kulpu omuz genişliğinden dar tut, kollar yukarıda düz.",
+        "Gövdeyi hafif geriye yasla, göğsü öne çıkar.",
+        "Nefes vererek kulpu üst göğsüne çek; dirsekler gövdeye yakın, kürek kemiklerini sık.",
+        "Nefes alarak kolları yavaşça yukarı bırak."
+      ]
     },
     "Seated_Cable_Rows": {
       "name": "Oturarak kablo çekiş (row)",
@@ -84,13 +124,25 @@
         "lower back"
       ],
       "cue": "Gövdeyi sallamadan çek; bel sabit kalsın.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Makineye otur, ayaklarını platforma koy, dizler hafif bükülü.",
+        "Sırtını düz tutup öne uzanarak V-barı tut, dik oturuşa geç; kollar önde düz.",
+        "Nefes vererek kulpu karnına doğru çek; dirsekler gövdeye yakın, kürek kemiklerini sık.",
+        "Nefes alarak kolları yavaşça öne bırak; gövdeyi sallama."
+      ]
     },
     "Leverage_Iso_Row": {
       "name": "Makine row",
       "load": [],
       "cue": "Göğsün minderde kalsın; kopuyorsa ağırlık fazla.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Ağırlığı seç, koltuğu kulplar göğüs hizasına gelecek şekilde ayarla; göğsün minderde.",
+        "Kulpları avuçlar karşılıklı ya da aşağı bakacak şekilde tut.",
+        "Nefes vererek kulpları gövdene doğru çek, kürek kemiklerini birbirine yaklaştır.",
+        "Bir an bekle, sonra nefes alarak yavaşça geri bırak."
+      ]
     },
     "Leg_Press": {
       "name": "Leg press",
@@ -98,7 +150,14 @@
         "lower back"
       ],
       "cue": "Dizleri göğse fazla çekme; kalçan minderden kalkıyorsa menzil bitmiştir, orada dur.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Makineye otur, ayaklarını platformda omuz genişliğinde koy; sırt ve kalça minderde.",
+        "Platformu itip güvenlik kollarını aç; dizleri kilitleme.",
+        "Nefes alarak platformu yavaşça indir; kalçan minderden kalkmadan dur.",
+        "Nefes vererek topuklardan iterek başlangıca dön.",
+        "Set bitince güvenlik kollarını geri kapat."
+      ]
     },
     "Hack_Squat": {
       "name": "Hack squat (makine)",
@@ -106,19 +165,38 @@
         "lower back"
       ],
       "cue": "Bel minderde kalsın, topuk platformdan kalkmasın.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Sırtını mindere yasla, omuzlarını pedlerin altına yerleştir.",
+        "Ayakları platformda omuz genişliğinde, parmak uçları hafif dışa dönük koy.",
+        "Bacakları düzleştirip güvenlik kollarını aç; dizleri kilitleme.",
+        "Nefes alarak dizleri bükerek yavaşça in; sırtın minderden ayrılmasın.",
+        "Nefes vererek topuklardan iterek başlangıca dön."
+      ]
     },
     "Leg_Extensions": {
       "name": "Leg extension",
       "load": [],
       "cue": "Minderi ayak bileğinin hemen üstüne ayarla.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Sırt minderini dizlerin koltuğun kenarına gelecek şekilde ayarla; alt ped ayak bileğinin hemen üstünde olsun.",
+        "Oturup yan kulpları tut; gövde koltukta sabit kalsın.",
+        "Nefes vererek bacaklarını ön bacakla düzleşene kadar kaldır, bir saniye bekle.",
+        "Nefes alarak ağırlığı yavaşça indir."
+      ]
     },
     "Lying_Leg_Curls": {
       "name": "Yatarak leg curl",
       "load": [],
       "cue": "Kalçan minderden kalkmasın; kalkıyorsa ağırlık fazla.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Makineyi boyuna göre ayarla; yüzüstü uzan, ped baldırların alt kısmında, aşil tendonunun üstünde olsun.",
+        "Kalçan ve uyluğun mindere yapışık kalsın, yan kulpları tut.",
+        "Nefes vererek bacaklarını kalçana doğru bük, bir saniye bekle.",
+        "Nefes alarak yavaşça başlangıca indir."
+      ]
     },
     "Romanian_Deadlift": {
       "name": "Romanian deadlift",
@@ -126,7 +204,13 @@
         "lower back"
       ],
       "cue": "Bel düz kalacak. Hareket dizden değil kalçadan; sırt yuvarlanırsa ağırlık fazla.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Barı omuz genişliğinden biraz geniş tutarak dik dur; dizler hafif bükülü.",
+        "Sırtını düz tutup kalçanı geriye iterek barı bacaklarına yakın aşağı kaydır.",
+        "Arka bacakta gerilme hissettiğin yerde ya da sırtın yuvarlanmadan önce dur.",
+        "Nefes vererek kalçanı öne getirip dik konuma dön."
+      ]
     },
     "Barbell_Hip_Thrust": {
       "name": "Hip thrust",
@@ -134,15 +218,27 @@
         "lower back"
       ],
       "cue": "Tepede kaburgayı yukarı açma; beli değil kalçayı sık.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Sırtını sehpaya dayayarak yere otur; bar kalça kemiğinin üstünde, arada ped olsun.",
+        "Kürek kemiklerin sehpanın kenarına yaslansın, ayaklar kalça genişliğinde yere bassın.",
+        "Topuklardan iterek kalçanı yukarı kaldır; tepede gövde ile uyluk düz bir çizgi yapsın.",
+        "Tepede kalçanı bir saniye sık, sonra kontrollü şekilde indir."
+      ]
     },
     "Goblet_Squat": {
       "name": "Goblet squat",
       "load": [
         "lower back"
       ],
-      "cue": "Dambılı göğüste dik tut; topuk yerden kalkmasın.",
-      "focus": []
+      "cue": "Ağırlığı göğsünde dik tut; topuk yerden kalkmasın.",
+      "focus": [],
+      "instructions": [
+        "Ağırlığı (kettlebell ya da dambıl) göğsünün önünde iki elle tut; ayaklar omuz genişliğinde.",
+        "Göğsü dik, sırtı düz tutarak kalçanı geriye ve aşağı indir.",
+        "Rahat inebildiğin yerde dur; dizler ayak uçlarıyla aynı yöne baksın.",
+        "Topuklardan iterek ayağa kalk, nefesini kalkarken ver."
+      ]
     },
     "Leverage_Shoulder_Press": {
       "name": "Omuz presi (makine)",
@@ -150,7 +246,13 @@
         "shoulders"
       ],
       "cue": "Kulplar omuz hizasında başlasın. Tansiyon için: iterken nefes ver, tutma.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Ağırlığı seç, koltuğu kulplar omuz hizasına gelecek şekilde ayarla.",
+        "Sırtını mindere yasla, göğüs dik, kulpları tut.",
+        "Nefes vererek kulpları yukarı it; dirseği kilitleme.",
+        "Nefes alarak kontrollü şekilde omuz hizasına indir; ağırlığı set bitene kadar yığına bırakma."
+      ]
     },
     "Side_Lateral_Raise": {
       "name": "Dambıl yan kaldırış",
@@ -158,31 +260,61 @@
         "shoulders"
       ],
       "cue": "Omuz hizasını geçme, dirsek hafif bükülü. Sallayarak kaldırıyorsan ağırlık fazla.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "İki elde birer dambılla dik dur; kollar yanda, avuçlar gövdene baksın.",
+        "Dirsekler hafif bükülü, gövdeyi sallamadan dambılları yanlara kaldır.",
+        "Kollar omuz hizasına gelince dur.",
+        "Nefes alarak yavaşça indir."
+      ]
     },
     "Face_Pull": {
       "name": "Face pull (kablo)",
       "load": [],
       "cue": "Kabloyu alına doğru çek, dirsekler omuz hizasında ve yukarıda.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Makarayı yüz hizasının biraz üstüne al ve ip tak.",
+        "İpi iki elinle tut, bir adım geri çekil; kollar önde uzansın.",
+        "Nefes vererek ipi yüzüne doğru çek, ellerini iki yana ayır; dirsekler omuz hizasında ve yukarıda.",
+        "Kürek kemiklerini bir saniye sık, sonra kolları yavaşça öne bırak."
+      ]
     },
     "Triceps_Pushdown": {
       "name": "Triceps pushdown (kablo)",
       "load": [],
       "cue": "Dirsekler gövdeye yapışık; öne eğilerek ağırlığı bastırma.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Üst makaraya düz bar ya da ip tak, avuçlar aşağı bakacak şekilde omuz genişliğinde tut.",
+        "Dik dur, gövde çok hafif öne; üst kolları gövdene yapıştır.",
+        "Nefes vererek yalnız önkolu hareket ettirip barı kollar düzleşene kadar aşağı it.",
+        "Bir an bekle, nefes alarak yavaşça yukarı bırak."
+      ]
     },
     "Machine_Triceps_Extension": {
       "name": "Triceps (makine)",
       "load": [],
       "cue": "Dirsek minderde sabit kalsın.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Ağırlığı seç, koltuğu üst kolların pede tam oturacak şekilde ayarla.",
+        "Kolları pede yasla, kulpları tut; dirsekler sabit.",
+        "Nefes vererek kolunu düzleştirip kulpları aşağı it, bir an bekle.",
+        "Nefes alarak yavaşça geri bırak; ağırlığı set bitene kadar yığına bırakma."
+      ]
     },
     "Machine_Bicep_Curl": {
       "name": "Biseps curl (makine)",
       "load": [],
       "cue": "Koltuğu dirsek mindere denk gelecek şekilde ayarla.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Ağırlığı seç, koltuğu üst kolların pede tam oturacak şekilde ayarla.",
+        "Kolları pede yasla, kulpları tut.",
+        "Nefes vererek dirseği bükerek kulpları yukarı çek, tepede bir an bekle.",
+        "Nefes alarak yavaşça indir; ağırlığı set bitene kadar yığına bırakma."
+      ]
     },
     "Plank": {
       "name": "Plank",
@@ -190,7 +322,13 @@
         "lower back"
       ],
       "cue": "Kalça ne düşsün ne kalksın. Nefesini tutma.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Yüzüstü yere uzan; dirsekler tam omuzlarının altında olsun.",
+        "Önkollar ve ayak parmakları üstünde yükselerek vücudu düz bir çizgiye getir.",
+        "Karnını ve kalçanı hafif sık; kalça ne düşsün ne kalksın.",
+        "Pozisyonu normal nefes alarak koru; form bozulunca bırak."
+      ]
     },
     "Arnold_Dumbbell_Press": {
       "name": "Arnold press (dambıl)",
@@ -198,13 +336,25 @@
         "shoulders"
       ],
       "cue": "Dönüş kontrollü olsun; omuz hassassa düz dambıl presi daha güvenli.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Sırt destekli sehpaya otur. Dambılları üst göğüs hizasında, avuç içleri sana bakacak şekilde tut.",
+        "Nefes vererek dambılları yukarı iterken avuçlarını yavaşça öne doğru çevir.",
+        "Kollar yukarıda neredeyse düzleşince dur; dirseği kilitleme.",
+        "Nefes alarak aynı yolu tersine izle: indirirken avuçlar yeniden sana dönsün."
+      ]
     },
     "Dumbbell_Shrug": {
       "name": "Dambıl shrug (trapez)",
       "load": [],
       "cue": "Omuzu yukarı kaldır, döndürme.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "İki elinde birer dambılla dik dur; kollar yanda, avuçlar gövdene baksın.",
+        "Nefes vererek omuzlarını kulaklarına doğru düz yukarı kaldır.",
+        "Tepede bir saniye bekle; kolları bükme.",
+        "Nefes alarak omuzlarını yavaşça indir."
+      ]
     },
     "Reverse_Flyes": {
       "name": "Ters fly (arka omuz)",
@@ -212,7 +362,13 @@
         "lower back"
       ],
       "cue": "Sırt düz, gövde sabit; kollar hafif bükülü.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Eğimli sehpaya göğsün ve karnın dayalı olacak şekilde yüzüstü uzan; ellerde dambıl, avuçlar birbirine baksın.",
+        "Kollar aşağı sarksın; dirsekler hafif bükülü.",
+        "Nefes vererek kolları yanlara doğru yay çizerek yere paralel olana kadar kaldır; kürek kemiklerini sık.",
+        "Nefes alarak yavaşça indir."
+      ]
     },
     "Pallof_Press": {
       "name": "Pallof press (kablo, anti-rotasyon)",
@@ -276,6 +432,13 @@
             "far": true
           }
         ]
+      ],
+      "instructions": [
+        "Kablo kulpunu göğüs hizasına al; kabloya yan dön ve gerginlik olana kadar yana çekil.",
+        "Ayaklar kalça genişliğinde, dizler hafif bükülü; kulpu iki elle göğsünün ortasında tut.",
+        "Nefes vererek kulpu göğsünden düz ileri it; gövden dönmesin.",
+        "Kollar önde birkaç saniye bekle, sonra kulpu göğsüne geri getir.",
+        "Set bitince öbür yöne dönüp tekrarla."
       ]
     },
     "Dead_Bug": {
@@ -327,6 +490,13 @@
             "r": 9
           }
         ]
+      ],
+      "instructions": [
+        "Sırtüstü yat, kolları tavana doğru uzat.",
+        "Kalça ve dizleri 90 dereceye bük; baldırlar yere paralel.",
+        "Nefes vererek belini yere bastır; hareket boyunca bu teması koru.",
+        "Bir bacağı yere değmeden öne uzat, sonra geri getir.",
+        "Diğer bacakla aynısını yap; sırayla devam et."
       ]
     },
     "Cable_Crunch": {
@@ -335,112 +505,210 @@
         "lower back"
       ],
       "cue": "Kalçadan değil karından bük; sırt yuvarlanarak inecek.",
-      "focus": []
+      "focus": [],
+      "instructions": [
+        "Üst makaraya ip tak. Makaranın önünde diz çök, ipi yüzünün iki yanında tut.",
+        "Kalçanı sabit tut; hareket boyunca yerinden oynamasın.",
+        "Nefes vererek sırtını yuvarlayarak dirseklerini uyluklarının ortasına doğru indir.",
+        "Nefes alarak yavaşça dik konuma dön; karın gerginliğini bırakma."
+      ]
     },
     "Cat_Stretch": {
       "name": "Kedi-deve (omurga yuvarlama)",
       "load": [
         "lower back"
       ],
-      "cue": "Nefesle eşle: sırtı yuvarlarken ver, çukurlaştırırken al. Bel ağrıyorsa menzili kısalt, zorlamadan salın."
+      "cue": "Nefesle eşle: sırtı yuvarlarken ver, çukurlaştırırken al. Bel ağrıyorsa menzili kısalt, zorlamadan salın.",
+      "instructions": [
+        "Elleri omuz, dizleri kalça altında olacak şekilde yerde dört ayak pozisyonuna geç.",
+        "Nefes vererek karnını içe çek, sırtını yukarı yuvarla ve başını serbest bırak.",
+        "Nefes alarak sırtını yavaşça ters yöne, hafifçe çukurlaştır; göğüs öne açılsın.",
+        "İki pozisyon arasında yavaşça gidip gel."
+      ]
     },
     "Kneeling_Hip_Flexor": {
-      "name": "Diz çökerek kalça öne itme (hip flexor)",
+      "name": "Diz çökerek kalça önü germe (hip flexor)",
       "load": [
         "lower back"
       ],
-      "cue": "Beli çukurlaştırma; kalçayı hafif içeri kıvır ve gövdeyi dik tutarak öne it, gerginliği arkadaki bacağın kasığında hisset."
+      "cue": "Beli çukurlaştırma; kalçayı hafif içeri kıvır ve gövdeyi dik tutarak öne it, gerginliği arkadaki bacağın kasığında hisset.",
+      "instructions": [
+        "Mindere diz çök; bir ayağını öne alıp tabanını yere bas, arkadaki bacağın ayak üstü yerde kalsın.",
+        "Gövdeyi dik tut, kalçanı hafif içeri kıvır.",
+        "Ağırlığını yavaşça öne kaydır; arkadaki bacağın kasık önünde gerilme hisset.",
+        "15-30 saniye bekle, normal nefes al; sonra taraf değiştir."
+      ]
     },
     "Standing_Hip_Circles": {
       "name": "Ayakta kalça çemberi",
       "load": [
         "lower back"
       ],
-      "cue": "Bir yere tutun; çemberi büyütmek için beli bükme, hareket kalça ekleminden gelsin."
+      "cue": "Bir yere tutun; çemberi büyütmek için beli bükme, hareket kalça ekleminden gelsin.",
+      "instructions": [
+        "Bir yere tutunarak tek ayak üstünde dur.",
+        "Diğer dizini kalça hizasına kaldır.",
+        "Dizinle yavaşça dışa doğru büyük bir çember çiz; bel sabit kalsın.",
+        "Tekrarlar bitince yön değiştir, sonra diğer bacağa geç."
+      ]
     },
     "Dynamic_Chest_Stretch": {
       "name": "Dinamik göğüs açma (kol savurma)",
       "load": [
         "shoulders"
       ],
-      "cue": "Yavaş başla, ısındıkça hızlan. Omuz hassassa kolları omuz hizasının üstüne çıkarma."
+      "cue": "Yavaş başla, ısındıkça hızlan. Omuz hassassa kolları omuz hizasının üstüne çıkarma.",
+      "instructions": [
+        "Dik dur; kollar önde uzanmış, avuçlar birbirine değsin.",
+        "Kolları düz tutarak rahat olduğu kadar yana ve geriye aç.",
+        "Kolları yeniden önde birleştir; abartılı alkış gibi.",
+        "Yavaş başla, ısındıkça hızlan; 5-10 tekrar yeter."
+      ]
     },
     "Ankle_Circles": {
       "name": "Ayak bileği çemberi",
       "load": [
         "calves"
       ],
-      "cue": "Topuk sabit, çember yalnız ayak bileğinden çizilsin; diz hareketi eşlik etmemeli."
+      "cue": "Topuk sabit, çember yalnız ayak bileğinden çizilsin; diz hareketi eşlik etmemeli.",
+      "instructions": [
+        "Sağlam bir yere (sehpa, kafes) tutunarak dik dur.",
+        "Bir ayağını yerden birkaç santim kaldır.",
+        "Ayak başparmağınla havada yavaşça büyük bir çember çiz; her çember bir tekrar.",
+        "Tekrarlar bitince yön değiştir, sonra diğer ayağa geç. Normal nefes al."
+      ]
     },
     "Calf_Press_On_The_Leg_Press_Machine": {
       "name": "Calf press (leg press makinesinde)",
       "load": [
         "calves"
       ],
-      "cue": "Dizi kilitleme; topuğu yavaş indirip tam yukarı bas, sıçrama yok."
+      "cue": "Dizi kilitleme; topuğu yavaş indirip tam yukarı bas, sıçrama yok.",
+      "instructions": [
+        "Leg press makinesine otur, ayak parmak uçlarını platformun alt kenarına omuz genişliğinde koy.",
+        "Platformu bacaklar düzleşene kadar it, güvenlik kollarını aç; dizleri kilitleme.",
+        "Nefes vererek ayak bileklerinden iterek platformu olabildiğince yukarı bas.",
+        "Nefes alarak topuklarını yavaşça geri indir, baldırda gerilme hisset.",
+        "Set bitince güvenlik kollarını geri kapat."
+      ]
     },
     "Split_Squat_with_Dumbbells": {
       "name": "Split squat (dambıllı, destekli)",
       "load": [
         "knees"
       ],
-      "cue": "Dengeyi bir yere tutunarak kur; ön diz ayak parmağını geçmesin, iniş kontrollü."
+      "cue": "Dengeyi bir yere tutunarak kur; ön diz ayak parmağını geçmesin, iniş kontrollü.",
+      "instructions": [
+        "Ellerinde dambıl ya da bir yere tutunarak adım açar gibi dur: bir ayak önde, diğeri arkada.",
+        "Gövde dik, ön dizin ayağınla aynı yöne baksın.",
+        "Nefes alarak iki dizi birden bükerek kontrollü şekilde aşağı in.",
+        "Nefes vererek ön ayağının topuğundan iterek yukarı çık; set bitince bacak değiştir."
+      ]
     },
     "Seated_Leg_Curl": {
       "name": "Oturarak leg curl (makine)",
       "load": [
         "hamstrings"
       ],
-      "cue": "Sırtı dayalı tut, kalça kalkmasın; dönüşü frenleyerek indir. Salonda Life Fitness 'Seated Leg Curl'."
+      "cue": "Sırtı dayalı tut, kalça kalkmasın; dönüşü frenleyerek indir. Salonda Life Fitness 'Seated Leg Curl'.",
+      "instructions": [
+        "Makineyi boyuna göre ayarla, sırtını desteğe yasla.",
+        "Baldırlarını alt pedin üstüne koy, üst pedi dizlerinin hemen üstünde uyluklarına sabitle.",
+        "Nefes vererek dizlerini bükerek pedi aşağı ve geriye çek, bir saniye bekle.",
+        "Nefes alarak yavaşça başlangıca dön."
+      ]
     },
     "Recumbent_Bike": {
       "name": "Yatay bisiklet (recumbent)",
       "load": [
         "knees"
       ],
-      "cue": "Zone 2 ölçütü watt: 85-110 W, 60-70 rpm. Program tuşu yok, manuel sabit dirençte kal. Salonda Diesel Fitness 700R."
+      "cue": "Zone 2 ölçütü watt: 85-110 W, 60-70 rpm. Program tuşu yok, manuel sabit dirençte kal. Salonda Diesel Fitness 700R.",
+      "instructions": [
+        "Koltuğu, pedal en uzaktayken dizin hafif bükülü kalacak şekilde ayarla.",
+        "Sırtını desteğe yasla, ayaklarını pedallara yerleştir.",
+        "Pedal çevirmeye başla, manuel programı ve sabit direnci seç.",
+        "Konuşabileceğin rahat bir tempoda çevir."
+      ]
     },
     "Cable_Crossover": {
       "name": "Kablo crossover (göğüs)",
       "load": [
         "shoulders"
       ],
-      "cue": "Dirsek hafif bükülü sabit kalsın; hareket omuzdan gelsin, menzili zorlamadan göğsün önünde birleştir."
+      "cue": "Dirsek hafif bükülü sabit kalsın; hareket omuzdan gelsin, menzili zorlamadan göğsün önünde birleştir.",
+      "instructions": [
+        "Makaraları baş hizasının üstüne al, iki kulpu tut ve bir adım öne çık.",
+        "Gövdeyi hafif öne eğ; dirsekler hafif bükülü ve sabit kalsın.",
+        "Kolları yanlara doğru geniş bir yayla aç; göğüste gerginlik hissedince dur.",
+        "Nefes vererek aynı yaydan kolları göğsünün önünde buluştur, bir saniye sık."
+      ]
     },
     "EZ-Bar_Curl": {
       "name": "EZ bar biseps curl",
       "load": [
         "forearms"
       ],
-      "cue": "Dirsek gövdeye yapışık, gövdeyi sallama. Bilek ağrırsa EZ barın kırık yerinden tut."
+      "cue": "Dirsek gövdeye yapışık, gövdeyi sallama. Bilek ağrırsa EZ barın kırık yerinden tut.",
+      "instructions": [
+        "EZ barı dış kıvrımlarından tut ve dik dur; dirsekler gövdeye yakın.",
+        "Nefes vererek barı yalnız önkolları hareket ettirerek omuz hizasına kaldır.",
+        "Tepede bir an bekleyip bisepsi sık.",
+        "Nefes alarak barı yavaşça başlangıca indir."
+      ]
     },
     "Dumbbell_Bench_Press": {
       "name": "Dambıl bench press (düz)",
       "load": [
         "shoulders"
       ],
-      "cue": "Dambılları göğüs hizasında tut, dirsek 45 derece; itişte nefes ver, kilitleme."
+      "cue": "Dambılları göğüs hizasında tut, dirsek 45 derece; itişte nefes ver, kilitleme.",
+      "instructions": [
+        "Dambıllar uyluklarının üstündeyken düz sehpaya sırtüstü uzan ve dambılları göğüs hizasına getir.",
+        "Avuçlar ayaklarına baksın; dambıllar göğsünün iki yanında, dirsekler gövdeye 45 derece.",
+        "Nefes vererek dambılları göğsünle yukarı it; tepede dirseği kilitleme.",
+        "Nefes alarak yavaşça göğüs hizasına indir; iniş çıkıştan yavaş olsun.",
+        "Set bitince dambılları önce uyluklarına, sonra yere bırak."
+      ]
     },
     "Machine_Preacher_Curls": {
       "name": "Preacher curl (makine/pupit)",
       "load": [
         "forearms"
       ],
-      "cue": "Kol yastığa tam yaslı; aşağıda dirseği tam açma, gerginliği koru."
+      "cue": "Kol yastığa tam yaslı; aşağıda dirseği tam açma, gerginliği koru.",
+      "instructions": [
+        "Ağırlığı seç, koltuğu kolların pede tam yaslanacak şekilde ayarla.",
+        "Üst kolunun arkasını pede koy, kulpları avuçlar yukarı bakacak şekilde tut.",
+        "Nefes vererek yalnız önkolu hareket ettirip kulpları kaldır, tepede bir saniye sık.",
+        "Nefes alarak yavaşça indir."
+      ]
     },
     "Ab_Crunch_Machine": {
       "name": "Abdominal crunch (makine)",
       "load": [
         "lower back"
       ],
-      "cue": "Boynu çekme, hareket karından gelsin. Tansiyonda nefes tutma — kıvrılırken ver."
+      "cue": "Boynu çekme, hareket karından gelsin. Tansiyonda nefes tutma — kıvrılırken ver.",
+      "instructions": [
+        "Hafif bir ağırlık seç. Oturup ayaklarını pedlerin altına yerleştir, üstteki kulpları tut.",
+        "Nefes vererek göğsünü kalçana doğru kıvır; hareketi kollarla değil karınla yap.",
+        "En altta bir saniye bekle.",
+        "Nefes alarak yavaşça başlangıca dön."
+      ]
     },
     "Thigh_Abductor": {
       "name": "Hip abduction (kalça dış, makine)",
       "load": [
         "glutes"
       ],
-      "cue": "Gövde dik ve sabit; dizleri dışa iterken beli yaslı tut, sallanma yok."
+      "cue": "Gövde dik ve sabit; dizleri dışa iterken beli yaslı tut, sallanma yok.",
+      "instructions": [
+        "Ağırlığı seç, makineye otur; pedler dizlerinin dış yanında olsun, yan kulpları tut.",
+        "Sırtını mindere yasla; gövde hareket boyunca sabit.",
+        "Nefes vererek bacaklarını yavaşça dışa aç, bir saniye bekle.",
+        "Nefes alarak kontrollü şekilde kapat."
+      ]
     }
   }
 }

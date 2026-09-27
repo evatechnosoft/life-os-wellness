@@ -7,7 +7,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 const UPSTREAM = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json'
 export const IMAGE_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/'
 
-/** Upstream kaydindan tasinan alanlar. Geri kalani (category, force) tasinmiyor - kullanan yok. */
+/** Upstream kaydindan tasinan alanlar. category/force `alternatives()` icin tasiniyor. */
 export function shape(raw, tr) {
   const meta = tr.exercises[raw.id]
   return {
@@ -20,11 +20,17 @@ export function shape(raw, tr) {
     equipment_tr: tr.equipment[raw.equipment ?? 'body only'] ?? raw.equipment,
     level: raw.level,
     mechanic: raw.mechanic ?? 'other',
+    // Germe / kardiyo / kuvvet ayrimi - `alternatives()` yalniz ayni turu eslestirir.
+    // powerlifting de kuvvettir: hip thrust kalca kuvvet hareketleriyle eslesebilsin.
+    category: raw.category === 'powerlifting' ? 'strength' : raw.category,
+    // push/pull/static. Upstream yer yer yanlis (pec deck 'pull'); esleme dosyasi ezer.
+    force: meta.force ?? raw.force,
     primary: raw.primaryMuscles,
     secondary: raw.secondaryMuscles,
     primary_tr: raw.primaryMuscles.map((m) => tr.muscles[m] ?? m),
     secondary_tr: raw.secondaryMuscles.map((m) => tr.muscles[m] ?? m),
-    instructions: raw.instructions,
+    // Turkce adimlar esleme dosyasindan; eksikse upstream Ingilizcesi.
+    instructions: meta.instructions ?? raw.instructions,
     // Elle eklenen iki alan - upstream'de karsiligi yok:
     // load = yuk binen / korunacak nokta, cue = tek cumlelik Turkce uyari.
     // Kare basina fotograf uzeri vurgu. Bos dizi = henuz karelere bakilmadi,
