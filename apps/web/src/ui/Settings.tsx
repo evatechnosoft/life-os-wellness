@@ -240,7 +240,7 @@ function LocalEva() {
       <p className="text-xs text-ink-faint">
         {model.ready
           ? `Model telefonda (${model.sizeMb} MB). Sunucu kapalıyken Eva buradan yanıtlar.`
-          : 'Sunucu kapalıyken de yanıt için Gemma 3n E4B indirilebilir (~4,4 GB, Wi-Fi şart). İndirme arka planda sürer, uygulamayı kapatabilirsin. İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
+          : 'Sunucu kapalıyken de yanıt için Gemma 3n E4B indirilebilir (~4,4 GB, Wi-Fi şart). İndirme arka planda sürer. Takılırsa tarayıcıdan indir: fit.evaitec.com/ota/gemma-3n-E4B-it-int4.task (İndirilenler klasörüne iner; sonra Kalıcı klasöre taşı iznini ver). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
       </p>
       <button
         type="button"
