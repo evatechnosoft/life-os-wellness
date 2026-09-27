@@ -25,15 +25,15 @@ const LocalLlm = registerPlugin<{
 const isNative = (): boolean => Capacitor.isNativePlatform()
 
 /**
- * Modelin KV penceresi 1280 token (istem + yanit). Sunucunun personasi tek basina
- * ~7000 karakter - pencereyi asar ve MediaPipe hata atmadan sureci dusurur. Turkce
- * ~3 karakter/token: 2400 karakterlik istem ~800 token, yanita ~450 token kalir.
+ * Modelin KV penceresi 4096 token (istem + yanit, LocalLlmPlugin.MAX_TOKENS). Asilirsa
+ * MediaPipe hata atmadan sureci dusurur. Turkce ~3 karakter/token: 7200 karakterlik
+ * istem ~2400 token, yanita ~1700 token kalir.
  */
-export const MAX_PROMPT_CHARS = 2400
-const MAX_LOCAL_CONTEXT = 1200
+export const MAX_PROMPT_CHARS = 7200
+export const MAX_LOCAL_CONTEXT = 4000
 const MAX_LOCAL_TURNS = 4
-const MAX_TURN_CHARS = 300
-const MAX_LAST_CHARS = 500
+const MAX_TURN_CHARS = 600
+const MAX_LAST_CHARS = 1200
 export const LOCAL_NOTE = 'Sunucu kapalı, telefondaki model yanıtlıyor.'
 
 /** Sunucu personasinin ozu: uslup, saglik siniri, kayit satiri. */

@@ -196,8 +196,8 @@ function PhoneAppUpdate() {
 }
 
 /**
- * Cihaz-ici Eva: sunucu yokken telefondaki model konussun. ~530 MB indirme, calisirken
- * ~1 GB RAM - o yuzden yalniz kullanici isterse. Web'de kart hic gorunmez (model yok).
+ * Cihaz-ici Eva: sunucu yokken telefondaki model konussun. ~4.4 GB indirme, calisirken
+ * ~3-4 GB RAM - o yuzden yalniz kullanici isterse. Web'de kart hic gorunmez (model yok).
  */
 function LocalEva() {
   const [model, setModel] = useState<ModelStatus | null>(null)
@@ -229,7 +229,7 @@ function LocalEva() {
       <p className="text-xs text-ink-faint">
         {model.ready
           ? `Model telefonda (${model.sizeMb} MB). Sunucu kapalıyken Eva buradan yanıtlar.`
-          : 'Sunucu kapalıyken de yanıt için Gemma 3 1B indirilebilir (~530 MB, Wi-Fi önerilir). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
+          : 'Sunucu kapalıyken de yanıt için Gemma 3n E4B indirilebilir (~4,4 GB, Wi-Fi şart). İndirilmezse Eva yalnız hesaplanmış önerilerle yanıtlar.'}
       </p>
       <button
         type="button"

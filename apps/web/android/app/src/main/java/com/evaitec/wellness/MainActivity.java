@@ -15,7 +15,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(ActivityPlugin.class);
         // Saatteki uygulamadan gelen olcum kuyrugu.
         registerPlugin(WearBridgePlugin.class);
-        // Sunucu yokken cihaz-ici Eva (Gemma 3 1B).
+        // Sunucu yokken cihaz-ici Eva (Gemma 3n E4B).
         registerPlugin(LocalLlmPlugin.class);
         // Canli web paketi: ekranlar APK'siz fit.evaitec.com/bundle/'dan guncellenir.
         registerPlugin(WebBundlePlugin.class);

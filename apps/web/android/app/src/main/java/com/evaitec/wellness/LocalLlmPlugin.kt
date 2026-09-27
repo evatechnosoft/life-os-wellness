@@ -17,30 +17,30 @@ import java.io.File
 import kotlin.concurrent.thread
 
 /**
- * Cihaz-ici Eva: sunucu yokken Gemma 3 1B (int4) telefonda calisir. Persona ve baglam
+ * Cihaz-ici Eva: sunucu yokken Gemma 3n E4B (int4) telefonda calisir. Persona ve baglam
  * JS'ten hazir gelir (apps/api/src/persona.ts ayni metin); burasi yalniz modeli tutar,
- * indirir ve calistirir. Model dosyasi ~530 MB, calisirken ~1.1 GB RAM - o yuzden
+ * indirir ve calistirir. Model dosyasi ~4.4 GB, calisirken ~3-4 GB RAM - o yuzden
  * indirme her zaman kullanicinin dugmesiyle, motor ilk soruda tembel kurulur.
  *
  * Model HF'de Gemma lisansiyla kapili; telefon oraya gidemez. Dosya bir kez lisans
- * kabul edilerek indirilip repo'nun `models` yayinina konur - adres sabit, etiket yok.
+ * kabul edilerek indirilip sunucunun ./ota dizinine konur (GitHub release 2 GB siniri).
  */
 @CapacitorPlugin(name = "LocalLlm")
 class LocalLlmPlugin : Plugin() {
 
     companion object {
         const val MODEL_URL =
-            "https://github.com/evatechnosoft/life-os-wellness/releases/download/models/gemma3-1b-it-int4.task"
-        const val MODEL_FILE = "gemma3-1b-it-int4.task"
+            "https://fit.evaitec.com/ota/gemma-3n-E4B-it-int4.task"
+        const val MODEL_FILE = "gemma-3n-E4B-it-int4.task"
 
         /**
          * Yayindaki dosyanin sha256'si - kaynaktaki (HuggingFace) degerle ayni dogrulandi.
          * APK'daki kilidin esi: dosya degistirilirse motor onu hic acmaz. Dosya yenilenirse
          * bu sabit de guncellenir, yoksa indirme reddedilir.
          */
-        const val MODEL_SHA256 = "e3d981c01aeaaac69a84ffa0d4be13281b3176731063f1bea1c9fe6887bd9dee"
-        /** Bu model dosyasinin KV onbellegi 1280 token; ustu calisma aninda hata. */
-        const val MAX_TOKENS = 1280
+        const val MODEL_SHA256 = "2b8e9d04bf8c5c50346d248c5e24a7e65102251c94dee6f04d5dce5ce3e6ac4f"
+        /** KV penceresi (istem + yanit); model kartindaki olcumler 4096 ile. */
+        const val MAX_TOKENS = 4096
 
         @Volatile private var engine: LlmInference? = null
     }
@@ -129,6 +129,11 @@ class LocalLlmPlugin : Plugin() {
                 val actual = part.inputStream().use { OtaManifest.sha256(it) }
                 check(OtaManifest.matches(actual, MODEL_SHA256)) { "sha256 tutmadı" }
                 check(part.renameTo(target)) { "dosya taşınamadı" }
+                // Eski model surumleri (Gemma 3 1B) yer kaplamasin.
+                listOfNotNull(internalFile().parentFile, externalFile()?.parentFile)
+                    .flatMap { it.listFiles()?.toList().orEmpty() }
+                    .filter { it.name.endsWith(".task") && it.name != MODEL_FILE }
+                    .forEach { it.delete() }
             }
             part.delete()
             call.resolve(

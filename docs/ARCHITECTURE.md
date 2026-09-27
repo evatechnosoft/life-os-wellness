@@ -31,7 +31,7 @@ ask(soru)
   │                    │ 429 → "Eva yoğun" (offline'a düşmez: sunucu ayakta)
   │                    └ ağ hatası ↓
   └─ sunucu yok/düştü
-       ├─ model indirilmiş (yalnız APK) ──► Gemma 3 1B int4, telefonda   (serbest konuşma)
+       ├─ model indirilmiş (yalnız APK) ──► Gemma 3n E4B int4, telefonda (serbest konuşma)
        └─ değilse ──────────────────────► offline.ts kural motoru        (PWA dahil, 0 MB)
 ```
 
@@ -58,8 +58,8 @@ yeteneği taşımıyor, bunu söylemeden metin yanıtı vermek tabağa bakılmı
 - **ORM yok, `pg` + düz SQL.** Şema küçük ve sabit.
 - **Sağlık kontrolleri hem DB constraint hem API schema'sında.** DB son savunma:
   ileride MCP (F2) yazma yaptığında API'yi baypas etse bile saçma değer giremez.
-- **Cihaz-içi model APK'ya gömülmez, indirilir.** Dosya ~530 MB; APK'ya koymak her
-  sürüm güncellemesini yarım gigabayta çıkarırdı. İndirme kullanıcının düğmesiyle,
+- **Cihaz-içi model APK'ya gömülmez, indirilir.** Dosya ~4,4 GB (Gemma 3n E4B); APK'ya koymak her
+  sürüm güncellemesini gigabaytlara çıkarırdı. İndirme kullanıcının düğmesiyle,
   `OtaUpdater.fetchTo` ile — APK güncellemesiyle aynı indirme döngüsü, iki kopya ağ
   kodu iki farklı hata davranışı demekti.
 - **MediaPipe `tasks-genai`, llama.cpp değil.** Hazır `.task` dosyasını çalıştırıyor;
