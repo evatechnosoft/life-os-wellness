@@ -71,3 +71,11 @@ services:
 
 volumes:
   wellness_pgdata:
+
+networks:
+  default:
+    # Sabit aralik: Docker havuzu tukenince 192.168.0.0/20 vermisti; ev agi (192.168.1.x)
+    # onunla cakisti ve api YZ gecidine (192.168.1.186) EHOSTUNREACH aliyordu.
+    ipam:
+      config:
+        - subnet: 172.24.10.0/24
