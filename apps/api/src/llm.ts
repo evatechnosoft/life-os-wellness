@@ -1,13 +1,10 @@
 import OpenAI from 'openai'
 
 /**
- * Everything model-shaped goes through the LiteLLM proxy, never straight to a vendor.
- * The proxy owns the provider keys, the model aliases and (later) the RAG layer, so this
- * file only knows two things: an OpenAI-compatible base URL and an alias to ask for.
- *
- * Aliases (defined in config/litellm.yaml, not here):
- *   wellness-chat     conversation, vision-capable
- *   wellness-vision   single-shot photo reading
+ * Everything model-shaped goes through the home AI gateway (ZimaOS yz-litellm, netmovies
+ * repo infra/yz), never straight to a vendor. The gateway owns the provider keys; this app
+ * holds only its own virtual key, an OpenAI-compatible base URL and a model name:
+ *   gemini-flash   conversation, vision, web search (falls back to gemini -> yerel)
  */
 export interface LlmConfig {
   baseUrl: string
@@ -24,10 +21,10 @@ export function createLlm(env: NodeJS.ProcessEnv = process.env): Llm | null {
   if (!baseUrl) return null
   const config: LlmConfig = {
     baseUrl,
-    // LiteLLM master key. Any non-empty string keeps the SDK happy when the proxy is open.
-    apiKey: env.LLM_API_KEY ?? 'proxy',
-    chatModel: env.LLM_CHAT_MODEL ?? 'wellness-chat',
-    visionModel: env.LLM_VISION_MODEL ?? env.LLM_CHAT_MODEL ?? 'wellness-vision',
+    // This app's virtual key on the gateway.
+    apiKey: env.LLM_API_KEY ?? '',
+    chatModel: env.LLM_CHAT_MODEL ?? 'gemini-flash',
+    visionModel: env.LLM_VISION_MODEL ?? env.LLM_CHAT_MODEL ?? 'gemini-flash',
   }
   return {
     // maxRetries: 0 - 429'un sebebi dakikalik saglayici kotasi; SDK'nin otomatik
