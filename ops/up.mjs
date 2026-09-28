@@ -96,10 +96,8 @@ process.on('SIGINT', () => {
 
 const env = ensureEnv()
 
-console.log('1/4 postgres + litellm proxy')
+console.log('1/4 postgres (YZ: ev gecidi, LLM_BASE_URL)')
 await run('docker', ['compose', 'up', '-d', '--wait', 'db'])
-// The proxy holds the provider keys; without GEMINI_API_KEY it starts but answers 502.
-await run('docker', ['compose', 'up', '-d', 'litellm'])
 
 console.log('2/4 migration')
 await run(process.execPath, ['--env-file=.env', 'db/migrate.js'])

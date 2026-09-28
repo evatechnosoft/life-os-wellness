@@ -15,26 +15,6 @@ services:
       interval: 5s
       retries: 10
 
-  # All provider keys live here, never in the app. The app only knows aliases.
-  litellm:
-    image: ghcr.io/berriai/litellm:main-stable
-    restart: unless-stopped
-    command: ["--config", "/app/config.yaml", "--port", "4000"]
-    volumes:
-      - ./config/litellm.yaml:/app/config.yaml:ro
-    environment:
-      # Empty is allowed so `compose up db` still works; litellm itself fails loudly without it.
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      LITELLM_MASTER_KEY: ${LLM_API_KEY:-proxy}
-    ports:
-      - "4000:4000"
-    healthcheck:
-      # The image has no wget/curl, only its own python.
-      test: ["CMD", "python3", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:4000/health/liveliness',timeout=3)"]
-      interval: 10s
-      retries: 12
-
   api:
     restart: unless-stopped
     build:
@@ -44,10 +24,12 @@ services:
       DATABASE_URL: postgres://wellness:wellness@db:5432/wellness
       API_TOKEN: ${API_TOKEN:-change-me}
       API_PORT: 3011
-      LLM_BASE_URL: http://litellm:4000/v1
-      LLM_API_KEY: ${LLM_API_KEY:-proxy}
-      LLM_CHAT_MODEL: wellness-chat
-      LLM_VISION_MODEL: wellness-vision
+      # Ev YZ gecidi (ZimaOS yz-litellm, netmovies repo infra/yz): saglayici anahtari orada,
+      # burada yalniz bu uygulamanin sanal anahtari. Gecit yoksa Eva telefonda bulut/Nano'ya duser.
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://yz.evaitec.com:4000/v1}
+      LLM_API_KEY: ${LLM_API_KEY:?YZ gecidinin wellness sanal anahtari}
+      LLM_CHAT_MODEL: gemini-flash
+      LLM_VISION_MODEL: gemini-flash
       OTA_DIR: /app/ota
       # Egzersiz katalogu: repodaki dosya dogrudan servis edilir (APK'siz guncelleme).
       EXERCISES_FILE: /app/data/exercises.json
@@ -63,8 +45,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      litellm:
-        condition: service_started
 
   # Ev disindan erisim: fit.evaitec.com hem PWA'yi hem API'yi bu konteynerden servis
   # eder. Kendi tuneli var, netmovies'inkine binmiyor: origin `http://localhost:3011`
