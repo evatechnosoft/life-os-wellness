@@ -67,8 +67,14 @@ export function pendingReminders(input: {
   waist_logged_this_week?: boolean
   /** Bugunun ogun saatleri (HH:MM). Verilmezse aksam yemegi sorulmaz. */
   meal_times?: string[]
+  /** Bugun "Gec" denenler - o gun bir daha sorulmaz. */
+  skipped?: string[]
 }): Reminder[] {
   if (!input.settings.enabled) return []
+  return dueReminders(input).filter((r) => !input.skipped?.includes(r.id))
+}
+
+function dueReminders(input: Parameters<typeof pendingReminders>[0]): Reminder[] {
   const now = minutesOf(input.now)
   const due: Reminder[] = []
   if (now >= minutesOf(input.settings.weigh_at) && input.log?.weight_kg == null) {
@@ -100,6 +106,26 @@ export function pendingReminders(input: {
 export function useReminderSettings(): ReminderSettings {
   const stored = useLiveQuery(() => db.settings.get('reminders'), [])
   return { ...DEFAULT_REMINDERS, ...((stored?.value as Partial<ReminderSettings> | undefined) ?? {}) }
+}
+
+const SKIPPED_KEY = 'reminders_skipped'
+
+/** Bugun gecilen hatirlatmalar; baska gunun kaydi bos sayilir. */
+export async function skippedToday(today: string): Promise<string[]> {
+  const row = await db.settings.get(SKIPPED_KEY)
+  const value = row?.value as { date: string; ids: string[] } | undefined
+  return value?.date === today ? value.ids : []
+}
+
+export function useSkippedToday(today: string): string[] {
+  return useLiveQuery(() => skippedToday(today), [today]) ?? []
+}
+
+/** Karttaki "Gec": bugun ne kart ne bildirim; yarin normal. */
+export async function skipReminder(id: Reminder['id'], today: string): Promise<void> {
+  const ids = await skippedToday(today)
+  await db.settings.put({ key: SKIPPED_KEY, value: { date: today, ids: [...new Set([...ids, id])] } })
+  await refreshNotifications()
 }
 
 export async function saveReminderSettings(settings: ReminderSettings): Promise<void> {
@@ -158,28 +184,36 @@ export async function scheduleNotifications(settings: ReminderSettings, now: Dat
   if (granted.display !== 'granted') return
 
   const today = toLocalDate(now)
-  const [log, retro, meals] = await Promise.all([
+  const [log, retro, meals, skipped] = await Promise.all([
     db.daily_log.get(today),
     db.retro.get(today),
     db.meal.where('date').equals(today).toArray(),
+    skippedToday(today),
   ])
   const done: Record<ScheduledReminder, boolean> = {
-    weigh: log?.weight_kg != null,
-    retro: !isBlank(retro),
-    dinner: hasDinner(meals.map((m) => m.time)),
+    weigh: log?.weight_kg != null || skipped.includes('weigh'),
+    retro: !isBlank(retro) || skipped.includes('retro'),
+    dinner: hasDinner(meals.map((m) => m.time)) || skipped.includes('dinner'),
   }
 
-  await LocalNotifications.schedule({
-    notifications: (['weigh', 'retro', 'dinner'] as const).map((key) => ({
-      id: NOTIFICATION_IDS[key],
-      title: TEXT[key].title,
-      body: TEXT[key].body,
-      schedule: {
-        at: nextFireAt(key === 'weigh' ? settings.weigh_at : settings.retro_at, done[key], now),
-        repeats: true,
-        every: 'day',
-        allowWhileIdle: true,
-      },
-    })),
-  })
+  await LocalNotifications.schedule({ notifications: notificationsFor(settings, done, now) })
+}
+
+/**
+ * Tek seferlik bildirimler. `at` + `repeats` kullanilmaz: eklenti tekrar araligini
+ * `at - simdi` alir (LocalNotificationManager.kt), 20:50'de kurulan 21:00 bildirimi
+ * 10 dakikada bir calar. Zincir her acilista ve her kayitta yeniden kurulur.
+ * ponytail: uygulama hic acilmazsa ertesi gun bildirim gelmez; gunluk garanti
+ * gerekirse `on: { hour, minute }` + ertesi gunun kaydina gore iptal.
+ */
+export function notificationsFor(settings: ReminderSettings, done: Record<ScheduledReminder, boolean>, now: Date) {
+  return (['weigh', 'retro', 'dinner'] as const).map((key) => ({
+    id: NOTIFICATION_IDS[key],
+    title: TEXT[key].title,
+    body: TEXT[key].body,
+    schedule: {
+      at: nextFireAt(key === 'weigh' ? settings.weigh_at : settings.retro_at, done[key], now),
+      allowWhileIdle: true,
+    },
+  }))
 }

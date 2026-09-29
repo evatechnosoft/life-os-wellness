@@ -5,7 +5,7 @@ import { lastDates, toLocalDate } from '../lib/date'
 import { db, type Workout } from '../lib/db'
 import { isNative } from '../lib/health'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
-import { pendingReminders, useReminderSettings } from '../lib/reminders'
+import { pendingReminders, skipReminder, useReminderSettings, useSkippedToday } from '../lib/reminders'
 import { useGoals } from '../lib/settings'
 import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro, upsertWorkout } from '../lib/store'
 import { Diet } from './Diet'
@@ -59,7 +59,9 @@ export function Today({ date }: { date: string }) {
   const eveningFirst = now.getHours() >= 20
   // Hatirlatma yalniz bugun icin: gecmis bir gune bakarken "tartilmadin" demek anlamsiz.
   const reminders = useReminderSettings()
-  const due = date === toLocalDate(now)
+  const today = toLocalDate(now)
+  const skipped = useSkippedToday(today)
+  const due = date === today
     ? pendingReminders({
         log,
         retro,
@@ -68,6 +70,7 @@ export function Today({ date }: { date: string }) {
         weekday: now.getDay(),
         waist_logged_this_week: weekLogs.some((l) => l.waist_cm != null),
         meal_times: dayMeals.map((m) => m.time),
+        skipped,
       })
     : []
 
@@ -107,12 +110,15 @@ export function Today({ date }: { date: string }) {
       {due.length > 0 && (
         <ul className="rounded-field bg-glass-inset p-3 text-sm">
           {due.map((r) => (
-            <li key={r.id} className="flex gap-2 py-0.5">
+            <li key={r.id} className="flex items-center gap-2 py-0.5">
               <span aria-hidden className="text-a1">•</span>
-              <span>
+              <span className="flex-1">
                 <span className="text-ink-dim">{r.title}</span>
                 <span className="text-ink-faint"> — {r.body}</span>
               </span>
+              <button type="button" onClick={() => void skipReminder(r.id, today)} className="shrink-0 rounded-pill bg-glass-inset px-3 py-1.5 text-xs text-ink-dim">
+                Geç
+              </button>
             </li>
           ))}
         </ul>
