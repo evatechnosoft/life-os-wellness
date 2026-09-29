@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, Retro } from './db'
-import { nextFireAt, pendingReminders, type ReminderSettings } from './reminders'
+import { nextFireAt, notificationsFor, pendingReminders, type ReminderSettings } from './reminders'
 
 const times: ReminderSettings = { enabled: true, weigh_at: '09:00', retro_at: '21:00', waist_day: 1 }
 const log = (fields: Partial<DailyLog> = {}): DailyLog => ({ date: '2026-09-13', updated_at: '', ...fields })
@@ -125,5 +125,32 @@ describe('aksam yemegi hatirlatmasi', () => {
 
   test('ogun listesi verilmezse sorulmaz', () => {
     expect(pendingReminders({ log: log({ weight_kg: 100 }), retro: retro({ went_well: 'x' }), now: '22:00', settings: times })).toEqual([])
+  })
+})
+
+describe('gecilen hatirlatma', () => {
+  test('bugun gecilen kart bir daha gosterilmez', () => {
+    const due = pendingReminders({ log: undefined, retro: undefined, now: '21:30', settings: times, meal_times: [], skipped: ['dinner', 'weigh'] })
+    expect(due.map((r) => r.id)).toEqual(['retro'])
+  })
+})
+
+describe('notificationsFor', () => {
+  const now = new Date(2026, 8, 29, 20, 50)
+  const none = { weigh: false, retro: false, dinner: false }
+
+  // Eklenti `at` + repeats'te araligi `at - simdi` alir: 20:50'de kurulunca 21:00
+  // bildirimi 10 dakikada bir, 09:00'da kurulunca aksam bildirimi sabah da calar.
+  test('tek seferlik kurar - tekrar araligi yok', () => {
+    for (const n of notificationsFor(times, none, now)) {
+      expect(n.schedule).toEqual({ at: n.schedule.at, allowWhileIdle: true })
+    }
+  })
+
+  test('yapilan ya da gecilen bugun calmaz, yarina kurulur', () => {
+    const [weigh, retro, dinner] = notificationsFor(times, { weigh: true, retro: false, dinner: true }, now)
+    expect(weigh?.schedule.at).toEqual(new Date(2026, 8, 30, 9, 0))
+    expect(retro?.schedule.at).toEqual(new Date(2026, 8, 29, 21, 0))
+    expect(dinner?.schedule.at).toEqual(new Date(2026, 8, 30, 21, 0))
   })
 })
