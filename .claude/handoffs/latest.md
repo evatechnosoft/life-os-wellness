@@ -164,4 +164,4 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 
 ## Next — tek adım
 30 Eyl Çarşamba (B günü, salon): sabah kolluk TA + kilo kaydet; shake küçült (light yoğurt ya da süzmenin yarısı çıksın → ~450 kcal). Hedef 2000–2100 kcal, protein 130–150 g.
-Onay bekleyen: plana Pzt `Leg_Extensions` → `Leg_Press` + Salı/Perşembe 25–30 dk zone 2 kardiyo (`/api/workout-plan` PUT + GET). Deploy doğrulaması: `/bundle/bundle.json` version PR #29/#30 sonrası mı — değilse `docker compose up -d --build api`, sonra `/health` 200.
+Plan güncellendi (Dean onayı, PUT 200 + GET): Pzt A `Leg_Extensions` → `Leg_Press`; Salı/Perşembe `day_type: swim` label "Kardiyo 30 dk: yüzme ya da yürüyüş" (label max 40 karakter — şema). Bu hafta: Salı akşam 20–30 dk tempolu yürüyüş, Çar B, Per ilk kardiyo, Cum A′; yeni Pzt gelecek hafta. Deploy doğrulaması: `/bundle/bundle.json` version PR #29/#30 sonrası mı — değilse `docker compose up -d --build api`, sonra `/health` 200.
