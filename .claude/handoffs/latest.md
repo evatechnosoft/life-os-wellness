@@ -170,5 +170,12 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - **Deploy:** `docker compose up -d --build api` → health 200, `bundle.json` version `05107bd…` → `e5d4b8fa85b1a612`; HEAD a0facea PR #29 + #30 içeriyor. Telefonda "Yenile" DOĞRULANMADI.
 - Kuru meyve kararı: günde 1 porsiyon (1 incir / 4 kayısı / 1 yk üzüm), taze meyve yerine, yoğurt/cevizle; kuruyemiş bir avuç çiğ tuzsuz, ceviz öncelik.
 
+## 30 Eyl sabah — 12 haftalık protokol + tabak/preset düzeltmeleri
+- **`docs/PROTOKOL-12-HAFTA.md`** (alt ajan web kanıtı; Dean'e dosya gönderildi): 1900–1950 kcal, protein 150–165 g, yağ 55–65, karb ~200, lif 30–40; Pzt/Çar/Cum salon + Sal/Per zone 2 40–45 dk + Cmt 60 dk yürüyüş; 10k adım; uyku 7–8; hafta 4/8/12 kontrol + ayar kuralları; 12 haftada −8–10 kg, %34.8→~%29–30. Hekim: reçeteli omega-3 4 g, 25-OH D testi, 12. hafta tahlil.
+  **Çelişki:** dün Dean'e protein 130–150 dedim, protokol 150–165 (Helms LBM×2.0–2.4). Menü dosyası ve tabak hedefleri 130–150'de → Dean'e söylenmeli, `MENU`/`secici.html` KINDS güncellenmeli (yapılmadı).
+- `tools/secici/preset.html` yeni plana çekildi (Çar B: hip thrust, RDL/back extension, row, eğimli pres, triceps, Pallof; Cum A′; Pzt A), düz set notu. `secici.html` tabak satırları kırpılmıyor, porsiyon+kcal alt satır. Canlıda (fit.evaitec.com/plan/) doğrulandı (curl), telefonda DOĞRULANMADI.
+- Dean bugün salonda (B). Sözlü kararlar: bugün RDL yerine back extension (yoksa hip abduction); salon sonrası whey suyla (+az çözünebilir kahve); kahve günde 2, filtre/çözünebilir, 15:00'e kadar; salon öncesi süzme+muz atlandı (kahvaltıdan hemen çıktı).
+- Kayıt: 30 Eyl daily/öğün henüz API'ye YAZILMADI.
+
 ## Next — tek adım
-30 Eyl Çarşamba B (yeni plan): sabah TA + kilo; salonda gerçek tekrar + ağırlık kaydı (düz set). Dean telefonda Yenile → Plan ekranı yeni günleri gösteriyor mu, bildirim "Geç" çalışıyor mu. 4 hafta sonra orta sırt için row ekle.
+Dean'in 30 Eyl B seansını (gerçek kg×tekrar) ve öğünleri API'ye yaz. Protein hedefini 150–165'e netleştir: Dean'e söyle, `docs/MENU-30EYL-2EKI.md` + `secici.html` KINDS + uygulama `proteinTarget` aralığı hizala. Sonra `docs/PROTOKOL-12-HAFTA.md` commit (henüz commit edilmedi).
