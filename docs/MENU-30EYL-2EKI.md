@@ -1,6 +1,6 @@
 # Menü — 30 Eylül – 2 Ekim (diyetisyen listesi ② + senin mutfağın)
 
-Hedef: günde ~1850–2000 kcal, 130–150 g protein. Aynı menüler fit.evaitec.com/plan/ → Tabak kur → hazır gün. Bakımın ~2600 (22–28 Eyl kayıtları).
+Hedef: günde 1900–1950 kcal, **150–165 g protein** (protokol; menülerdeki 130–140 g'a akşam 100 g lor ya da öğle proteinini 150 g yaparak çık). Aynı menüler fit.evaitec.com/plan/ → Tabak kur → hazır gün. Bakımın ~2600 (22–28 Eyl kayıtları).
 Rakamlar tahmin; porsiyon ölçüsü diyetisyen listesiyle aynı. Su 2.5–3 L.
 
 ## Senin haftan ile liste — fark nerede?

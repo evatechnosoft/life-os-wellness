@@ -129,6 +129,10 @@ h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em
 
 .note { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 12px 14px; font-size: 13.5px; color: var(--ink-dim); }
 .note b { color: var(--ink); font-weight: 600; }
+.proto { display: grid; gap: 10px; }
+.proto-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13.5px; color: var(--ink-dim); line-height: 1.45; }
+.proto-card b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+.proto-card.warn { border-left: 3px solid var(--warn); }
 
 /* --- yemek --- */
 .foodwrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
@@ -283,8 +287,8 @@ h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em
       </aside>
     </div>
     <p class="note" style="margin-top:18px">
-      <b>Ne kadar gerek?</b> Günde ~<b>2000 kcal</b> (bakım ~2600, 22–28 Eyl kayıtları) ve protein <b>130–150 g</b>
-      (yağsız kütle ~70 kg × ~2; 180 g fazlaydı, kaloriyi şişirdi). Karbonhidrat antrenman öncesi/sonrası öğüne;
+      <b>Ne kadar gerek?</b> Günde <b>1900–1950 kcal</b> (bakım ~2600, 22–28 Eyl kayıtları) ve protein <b>150–165 g</b>
+      (yağsız kütle ~70 kg × 2.0–2.4, Helms 2014; 180 g fazlaydı, kaloriyi şişirdi). Karbonhidrat antrenman öncesi/sonrası öğüne;
       dinlenme günü akşam tahıl yok. Karar birimi <b>7 günlük ortalama</b>, tek gün değil.
       Hazır menüler diyetisyen listesi ②'den (<code>docs/MENU-30EYL-2EKI.md</code>).
     </p>
@@ -303,6 +307,20 @@ h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em
       seansın olduğu gün yüksek, yüzme günü orta, dinlenme günü düşük. Yağ her gün aynı bantta.
       Haftalık toplam, tek güne bakmaktan daha doğru okunur.
     </p>
+
+    <div class="meta" style="margin-top:28px">
+      <h2>12 haftalık protokol · 30 Eyl → 22 Ara</h2>
+      <span class="count">kanıtlı · docs/PROTOKOL-12-HAFTA.md</span>
+    </div>
+    <div class="proto">
+      <div class="proto-card"><b>Hedef</b>107.5 → ~98 kg (−8–10 kg) · yağ %34.8 → ~%29–30 · bel −8–10 cm · kuvvet korunur. Haftada 0.7–0.8 kg. İlk 2 hafta +1–2 kg su düşer, açığı büyütme.</div>
+      <div class="proto-card"><b>Günlük</b>1900–1950 kcal · protein 150–165 g · yağ 55–65 g (doymuş &lt;20) · karb ~200 g, lif 30–40 g · alkol 0, şeker/meyve suyu 0 · kuru meyve 1 porsiyon · su 3 L.</div>
+      <div class="proto-card"><b>Hafta</b>Pzt A · Sal zone 2 40–45 dk · Çar B · Per zone 2 · Cum A′ · Cmt 60 dk yürüyüş + 1 serbest öğün · Paz dinlenme. 10.000 adım, yemek sonrası 5–10 dk yürüyüş. Salonda düz set, RIR 1–2, gerçek tekrar yaz; 12'yi rahat geçince +2.5 kg.</div>
+      <div class="proto-card"><b>Rutin</b>Sabah aç tartı (7-gün ort) · kolluk TA Ekim ortasına kadar · kreatin 3–5 g · antrenman günü 1 kahve 60 dk önce, 15:00 sonrası kafein yok · 23:00 yatış, 7–8 saat.</div>
+      <div class="proto-card"><b>Kontrol</b>Hafta 4 (27 Eki): −2.5–4 kg, bel −3–4 cm; &lt;0.4 kg/hafta → −100 kcal; &gt;1.1 kg/hafta ya da kuvvet düşüyor → +100–150. Hafta 6–8: iştah/uyku bozulursa 1 hafta bakım 2500. Hafta 8 (24 Kas): foto, bel, BIA, ~101 kg. Hafta 12 (22 Ara): ~98 kg, tahlil (HbA1c, lipid, insülin, ALT, ferritin). 3 hafta yatay → bakım 2400'e.</div>
+      <div class="proto-card"><b>Hekim</b>TG 302 için reçeteli omega-3 4 g · 25-OH D testi · kreatin kullandığını söyle · 12. hafta tahlil.</div>
+      <div class="proto-card warn"><b>Yapma</b>1600 kcal altı · keto/karb kesme · öğün atlama · yağ yakıcı, L-karnitin, CLA, detoks · BIA'yı haftalık hedef yapmak · 6 saat altı uyku · ağır koşu/plyometrik · 3+ kahve · aynı anda hacim beklemek.</div>
+    </div>
   </section>
 
 <div class="dock">
@@ -623,7 +641,7 @@ function renderPlate() {
   bars.append(bar('Yağ', t.f, todayKind().f, 'g'));
   const kcal = document.createElement('p');
   kcal.className = 'hint';
-  kcal.textContent = 'Toplam ' + Math.round(t.kcal) + ' kcal · günlük hedef ~2000 (bakım ~2600).';
+  kcal.textContent = 'Toplam ' + Math.round(t.kcal) + ' kcal · günlük hedef 1900–1950 (bakım ~2600).';
   bars.append(kcal);
 
   const box = $('picked');
@@ -755,9 +773,9 @@ $('save').onclick = async () => {
 /* --- zar + kural kanıtı --- */
 const DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
 const KINDS = {
-  lift: { label: 'Ağırlık', pr: [130, 150], c: [150, 200], f: [60, 85] },
-  swim: { label: 'Yüzme', pr: [125, 145], c: [140, 180], f: [60, 85] },
-  rest: { label: 'Dinlenme', pr: [120, 140], c: [110, 150], f: [60, 85] },
+  lift: { label: 'Ağırlık', pr: [150, 165], c: [170, 210], f: [55, 70] },
+  swim: { label: 'Yüzme', pr: [150, 165], c: [150, 190], f: [55, 70] },
+  rest: { label: 'Dinlenme', pr: [150, 165], c: [120, 160], f: [55, 70] },
 };
 /* Program varsayılanı (PROGRAM-2026-09): Pzt/Çar/Cum ağırlık, Sal/Per yüzme, hafta sonu yürüyüş. */
 const WEEK_DEFAULT = { 1: 'lift', 2: 'swim', 3: 'lift', 4: 'swim', 5: 'lift', 6: 'rest', 0: 'rest' };
