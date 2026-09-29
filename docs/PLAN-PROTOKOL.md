@@ -6,7 +6,7 @@ scriptler uygulamaya entegre, bildirimler buradan ve uygulamadan, server side, u
 
 ## Scope Lock
 
-Değişir: `apps/api` (+1 endpoint, +1 migration), `apps/web` Hafta sekmesi (+1 kart, +1 bildirim), `tools/secici/secici.html` Hafta (+1 kart fetch).
+Değişir: `apps/api` (+1 endpoint, +1 migration), `apps/web` Hafta sekmesi (+1 kart, +1 bildirim). **Site kartı YOK** (Dean, 30 Eyl: "hepsi uygulama içinde"); `tools/secici` dokunulmaz.
 Değişmez: öğün/seans/ölçüm akışı, persona, offline-first (kart sunucu yokken "veri yok" der, uygulama çalışmaya devam eder).
 
 ## Veri
@@ -30,7 +30,7 @@ Girdi: protocol satırı + daily_log (kilo, bel, adım) + meal (kcal, protein) +
 ## Görünürlük
 
 - **Uygulama** Hafta sekmesi: "Protokol · hafta N" kartı (mevcut `ui/Body.tsx` yanına `ui/Protocol.tsx`): 7-gün ort, beklenen bant, verdict rengi, action, checkpoint. Sunucu yoksa son başarılı yanıt IndexedDB `settings.protocol_status`'tan.
-- **Site** `secici.html` Hafta: aynı endpoint'i fetch eden kart (token: site public → endpoint token'sız salt-okunur `GET /api/protocol/status/public` YA DA site kartı statik kalır; karar Dean).
+- **Site**: yok. İleride "yayınla" düğmesiyle uygulamadan statik sayfaya çıkılabilir (YAGNI, ayrı iş).
 - **Koç sohbeti**: `dean-pt` skill'i her oturum başında `GET /api/protocol/status` okur, verdict'i söyler.
 
 ## Bildirim
@@ -49,7 +49,7 @@ Girdi: protocol satırı + daily_log (kilo, bel, adım) + meal (kcal, protein) +
 - Kuvvet trendi: yalnız aynı hareket ve aynı tekrar aralığı kıyaslanır.
 - Diyetisyen değişikliği → protocol satırı PUT ile güncellenir, eski değer notes'ta.
 
-## Açık kararlar (Dean)
+## Kararlar
 
-1. Site kartı için token'sız salt-okunur endpoint açılsın mı (durum verisi herkese açık olur) — yoksa site statik kalır?
-2. Başlangıç: 30 Eyl 107.5 kg / bel 117 / %34.8 doğru mu?
+1. Site kartı yok, token'sız endpoint yok (Dean, 30 Eyl).
+2. Açık: başlangıç 30 Eyl 107.5 kg / bel 117 / %34.8 doğru mu? (Dean teyidi)
