@@ -138,5 +138,18 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - Bash `curl -d` ile Türkçe/`·` içeren gövde → Content-Length 400; gövdeyi dosyaya yaz, `--data @file`.
 - `POST /api/workouts` cardio için `sets: []` zorunlu.
 
+## 29 Eyl — sunucu kapalı, iki PR, diyetisyen listesi
+- **Sunucu KAPALI:** `fit.evaitec.com/health` 530, bu PC'de Docker Desktop çalışmıyor, ZimaOS 192.168.1.186 ping yok. Bugünkü hiçbir veri API'ye YAZILMADI.
+- **PR #29** (`acaecea`): persona — kısıtlama kilidi yalnız ilaç/tedavi alan tanıda; izlem bandı + takviye kilidi açmaz; plato/kreatin kuralı; PROGRAM §8. API testleri 41 pass, 1 fail = Postgres :5433 kapalı (değişiklik öncesi de aynı). Deploy EDİLMEDİ.
+- **PR #30** (`56190b7`): bildirim seli kök nedeni — `@capacitor/local-notifications` `at`+`repeats` → `setRepeating(at, at-now)` (LocalNotificationManager.kt:320), `every` yok sayılıyor → 21:00 bildirimi 10 dk'da bir / akşam bildirimi sabah. Artık tek seferlik `at`; Bugün kartında "Geç" (settings `reminders_skipped` {date, ids}). Web 419 test, typecheck temiz. Deploy EDİLMEDİ, telefonda DOĞRULANMADI.
+- **Bugün (Dean, sohbet — API'ye girilmedi; Dean uygulamaya kendisi girecek):** kilo 107.5, TA 114/79, kahvaltı 2 haşlanmış yumurta + dünden lorlu yumurta + domates/biber/yeşillik ≈25–28 g P / ~380 kcal. Mide bulantısı + yorgunluk (protein tamamlamak için fazla yeme).
+- **Diyetisyen belgeleri geldi (fotoğraf):** ① "Ketojenik" 5 gün (~1000–1200 kcal, yumurta beyazı, 100 g kıyma/150 g tavuk, kuruyemiş, günlük 1 L yeşil çay+limon+maden suyu) · ② dengeli liste (2 dilim tam buğday, köfte/tavuk 120 g, akşam çorba + sebze/baklagil + yoğurt, spor sonrası whey 24 g, kreatin, 2.5–3 L su; ~1700–1900 kcal, ~110–130 g P). Tahlil: AKŞ, HOMA-IR, lipid, ALT/AST, TSH, T4, hemogram, demir, ferritin, Mg, B12, folik asit.
+
+## Decisions (29 Eyl)
+- 180 g protein hedefi bırakıldı; diyetisyen süreç sahibi, esas liste ②. Koç ona çelişmemeli. (Önerilen 140–160 g bandı, ② listeyle ~110–130 g — diyetisyenin hedefi geçerli.)
+- ① keto: itiraz yok; Dean diyetisyene süresini ve antrenman günlerinde ne yeneceğini soracak.
+- Tahlil: hekime kreatinin/eGFR + HbA1c eklemesini sor; kreatin kullanımını söyle (kreatinini yükseltir). 10–12 saat açlık, öncesinde kahve/kreatin/ağır antrenman yok.
+
 ## Next — tek adım
-29 Eyl Salı sabah: kolluk TA 2 ölçüm + kilo kaydet; Salı dinlenme günü = akşam karb yok. Sonra 5 Eki Pazartesi: kilo 7-gün ort + bel + OKOK ile karb kuralının etkisine bak. Kod tarafı açıklar (protein-lbm, ZimaOS taşıma, saat tuşları) 26–27 Eyl bölümlerinde duruyor.
+Docker Desktop açılınca (ya da sunucu nerede çalışacaksa): `docker compose up -d --build api` → `bundle.json` version değişti mi → `/health` 200 değilse `docker compose --profile tunnel up -d --force-recreate cloudflared`. Sonra Dean telefonda: "Yenile" → bildirim tek sefer mi, "Geç" çalışıyor mu.
+Onay bekleyen: ② listeyi uygulamaya öğün şablonu olarak girmek + protein hedefini düşürmek (`recentLeanMass`/`proteinTarget`). Sunucu açılınca 29 Eyl kilo/TA/kahvaltı API'de mi kontrol et (Dean uygulamadan girdiyse outbox'tan gelir).
