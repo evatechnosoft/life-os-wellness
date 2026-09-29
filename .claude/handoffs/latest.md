@@ -182,4 +182,5 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - **Dean isteği:** protokol takibi sunucuda, uygulama + site + koç aynı hesabı okusun, bildirimler. Tasarım: `docs/PLAN-PROTOKOL.md` (Scope Lock, migration `protocol`, `GET /api/protocol/status` saf fonksiyon TDD, Hafta kartı, reminders id 4, site kartı). Kod YAZILMADI.
 
 ## Next — tek adım
-Dean'in 2 açık kararını al (site için token'sız salt-okunur endpoint? başlangıç 107.5/117/34.8 doğru?) → `feature/protokol` dalında `apps/api/src/protocol.ts` TDD ile başla (PLAN-PROTOKOL §Hesap). Ayrıca 30 Eyl B seansı + öğünler API'ye yazılacak (Dean rakamları verince).
+**Takvim (Dean, 30 Eyl):** protokol takibi Pazartesi 5 Eki'ye tasarlanır, sıkıştırılmaz; erken biterse Cuma 2 Eki aktif. Dean 30 Eyl seans + ölçümleri yarın (1 Eki) iletecek → API'ye yaz.
+Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → web Hafta kartı + reminders id 4 → site kartı (Dean'in 2 kararı hâlâ açık: token'sız endpoint? başlangıç 107.5/117/34.8?). Deploy: `docker compose up -d --build api` + bundle version kontrol. Kabul: telefonda Hafta sekmesinde kart.
