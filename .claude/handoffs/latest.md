@@ -184,6 +184,12 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 ## Not — saat uygulaması (Dean, 30 Eyl)
 "Saat uygulamasında güzel yapalım" → ayrı ajan, `ux-pi` personası, dal `feature/wear-ux`. Giriş `docs/PLAN-WEAR.md` §S-next. Protokol işinden bağımsız, paralel açılabilir.
 
+## BUG — 29 Eyl 22:52 üç bildirim aynı anda, içerik yanlış (Dean ekran görüntüsü)
+- "Akşam yemeği / Akşam retrosu / Sabah tartısı" 22:52'de birlikte düştü; akşam öğünü ve kilo o gün API'de VARDI (ben yazdım). Dean: "yalandan bildirim atıyorsun, olmaz".
+- Tahmin (doğrulanmadı): `refreshNotifications` App mount'ta IndexedDB'yi sunucu senkronu bitmeden okuyor → `done` yanlış. Aynı anda düşme: yeni paket "Yenile" sonrası mı, eski repeats alarmının stale catch-up'ı mı (LocalNotificationManager.kt: geçmiş `at` anında ateşlenir) — telefon logu gerek (`adb logcat -s LN` ya da Capacitor Logger).
+- **Kural (Dean):** sunucu tek gerçek; uygulama açılışta önce pull, bildirim ancak senkron sonrası ve senkronlu veriye göre kurulur. Sohbetten API'ye yazılan kayıt telefona ulaşmadan bildirim atılmaz.
+- Düzeltme adayı: `refreshNotifications` mount'tan kaldır → sync tamamlanınca (`store` pull sonrası) çağır; `scheduleNotifications` içinde `at` geçmişe düşemez garantisi için `nextFireAt` sonucu `<= now` ise +1 gün (savunma) + test. Öncelik: protokol işinden ÖNCE (güven kaybı).
+
 ## Next — tek adım
 **Takvim (Dean, 30 Eyl):** protokol takibi Pazartesi 5 Eki'ye tasarlanır, sıkıştırılmaz; erken biterse Cuma 2 Eki aktif. Dean 30 Eyl seans + ölçümleri yarın (1 Eki) iletecek → API'ye yaz.
 Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → web Hafta kartı + reminders id 4 (Dean kararı: site kartı YOK, hepsi uygulamada; açık yalnız başlangıç 107.5/117/34.8 teyidi). Deploy: `docker compose up -d --build api` + bundle version kontrol. Kabul: telefonda Hafta sekmesinde kart.
