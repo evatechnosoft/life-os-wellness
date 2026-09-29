@@ -1,6 +1,6 @@
-# Handoff: 25 Eyl koçluk günü (kayıtlar tamam, akşam öğünü açık) · protein/BIA kod düzeltmesi onay bekliyor
+# Handoff: 28 Eyl koçluk günü (salon A + yüzme, 3 öğün, haftalık değerlendirme, TA serisi temizlendi) · eski açıklar aşağıda
 
-> 2026-09-25 ~13:30 · koç worktree `_wt-pt` · dal `coach/dean-pt` (→ `dev`'e push) · plan: bu dosya + `docs/PLAN-GERCEKCI.md` + `docs/SALON-UYGULAMASI.md`
+> 2026-09-28 ~13:00 son güncelleme · koçluk yalnız API üzerinden (kod/commit yok bugün) · eski bölümler 25–27 Eyl
 
 ## Goal
 1. (açık) Yapılan her şey **telefondaki uygulamada** görünsün; sonra salon verisi uygulamaya girsin (uzaktan kabuk `server.url`, salon S1 — başlanmadı).
@@ -118,3 +118,25 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - PR #26 (`7a29d56`): sunucu kapalıyken Firebase AI Logic (gemini-2.5-flash) + App Check reCAPTCHA Enterprise. Proje `evaitec-wellness` (deancjx@gmail.com, Spark — veriyle gönderim Dean onaylı). Domainler fit.evaitec.com, localhost, evaitec-wellness.web.app. Canlı paket `05107bd05ae6ea40`, health 200.
 - DOĞRULANMADI: WebView'de reCAPTCHA puanı / AI Logic çağrısı (403 olursa konsol AI Logic → Get started; düşük puanda Play Integrity). App Check henüz ENFORCED değil — çalıştığı görülünce `setup_ai.py --enforce`.
 - Kaçış tuzağı: Bash heredoc içinde python'a `\n` yazınca gerçek satır sonuna dönüşüyor → TS dosyalarında Edit tool kullan.
+
+
+## 28 Eyl — koçluk (hepsi API'de, GET ile doğrulandı; telefonda görüldüğü DOĞRULANMADI)
+- **Öğünler** (3 kayıt, 131 g P / 1575 kcal): 08:11 `eb5b0228-...0357` kahvaltı 42/520 (Dean payı 3 yumurta + lor 100 g, yağsız menemen, kaşar, UNO Denge 1 dilim) ·
+  10:39 `...0358` shake 24/400 (Eker süzme 214 g + laktozsuz süt 200 ml + muz + tarçın) · 12:08 `...0359` öğle 65/655 (bonfile ~200 g + pilav 2-3 yk + Mis light 100 g + parmak patates ~80 g + ketçap).
+  Akşam `...0360` 65/790 (bonfile ~100 g kızla paylaşıldı + parmak patates ~60 g + ton-patates salatası + pirinçli ıspanak ~250 g + süzme 100 g; paylar tahmin).
+  **Gün: 4 kayıt 196 g P / 2365 kcal** (GET doğrulandı). Haftalık ton hakkı (1) kullanıldı. Gün kapandı: daily steps 6287 (saat ekranı, yürüyüş dahil, 113 dk aktif, 844 kcal) PUT+GET doğrulandı. Dean hafif yorgun; uyku 23:30 + su önerildi.
+- **Seanslar:** `5d1f0c2e-...0001` resistance 38 dk 18 set (Leg ext 35/40/45, Bench 30/35/40, Close-grip pulldown 30/35/40, Arnold 5/7.5/10, EZ curl 10/15/20, Dead bug 3×10; tekrar 12 VARSAYIM) · `...0002` cardio yüzme 11 dk 275 m HR 116.
+- **Plan:** Pzt → Close-Grip_Front_Lat_Pulldown + Arnold_Dumbbell_Press + EZ-Bar_Curl; Cum → Wide-Grip_Lat_Pulldown. GET doğrulandı.
+- **Ölçüm:** 28 Eyl kilo 107.9, bel 117/113 (23 Eyl ile aynı), OKOK 10 metrik wearable'a (yağ %34.8, iskelet 35.2). Adım düzeltme: 24→10451, 26→7684, 27→9745 (Samsung arşivi `6bd60b8a-...zip`).
+  Importer ÇALIŞTIRILMADI: arşivdeki 2 seans bugünkü elle kayıtların kopyası olurdu (farklı id), saat TA'sı daily'ye girmemeli.
+- **Haftalık:** 7-gün kilo ort 107.74 (önceki 107.78) → 23 Eyl kuralı tetiklendi: **dinlenme günü akşam karbonhidratı yok** (Dean'e bildirildi). Adım ort 9762. Kolluk TA ort 121/78.
+- **TA serisi:** Dean onayıyla 18–21 Eyl bp null'landı, eski değerler notes'ta; yedek `$TEMP/bp_backup_18_21.json` (scratch, kalıcı değil — değerler notes'ta zaten).
+- ZimaOS WOL: `~/.ai/scripts/home-net/zima_wol.py` (LAN NIC bind); hafıza `zima-ac-wol`. Kapalıyken betikle uyandırma henüz denenmedi.
+
+## Don't repeat (28 Eyl)
+- Servis tabağı/tepsi fotoğrafı = aile ortak; Dean'in payını sor/yaz (hafıza `menemen-yagsiz-paylasimli`).
+- Bash `curl -d` ile Türkçe/`·` içeren gövde → Content-Length 400; gövdeyi dosyaya yaz, `--data @file`.
+- `POST /api/workouts` cardio için `sets: []` zorunlu.
+
+## Next — tek adım
+29 Eyl Salı sabah: kolluk TA 2 ölçüm + kilo kaydet; Salı dinlenme günü = akşam karb yok. Sonra 5 Eki Pazartesi: kilo 7-gün ort + bel + OKOK ile karb kuralının etkisine bak. Kod tarafı açıklar (protein-lbm, ZimaOS taşıma, saat tuşları) 26–27 Eyl bölümlerinde duruyor.
