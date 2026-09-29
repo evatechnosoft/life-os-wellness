@@ -273,15 +273,19 @@ h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em
           <h2 style="font-size:16px">Tabak</h2>
           <p class="hint" id="day-kind"></p>
         </div>
+        <div>
+          <div class="strip" id="menu-strip" aria-label="Hazır menü"></div>
+          <p class="hint" id="menu-note"></p>
+        </div>
         <div class="bars" id="bars"></div>
         <div class="picked" id="picked"><p class="empty">Soldan yemek ekle.</p></div>
       </aside>
     </div>
     <p class="note" style="margin-top:18px">
-      <b>Ne kadar gerek?</b> Protein günde <b>150–180 g</b> (107,5 kg'da 1,6–2,2 g/kg hedef kilo; kas korunsun diye
-      aşağısı değil). Karbonhidrat <b>antrenman günü 160–200 g</b>, <b>dinlenme günü 100–130 g</b> — kalorinin değil,
-      seansın peşinden gider. Yağ 70–80 g, altına inme (hormon). Kalan-kalori sayacı yok: karar birimi
-      <b>7 günlük ortalama</b>, tek gün değil.
+      <b>Ne kadar gerek?</b> Günde ~<b>2000 kcal</b> (bakım ~2600, 22–28 Eyl kayıtları) ve protein <b>130–150 g</b>
+      (yağsız kütle ~70 kg × ~2; 180 g fazlaydı, kaloriyi şişirdi). Karbonhidrat antrenman öncesi/sonrası öğüne;
+      dinlenme günü akşam tahıl yok. Karar birimi <b>7 günlük ortalama</b>, tek gün değil.
+      Hazır menüler diyetisyen listesi ②'den (<code>docs/MENU-30EYL-2EKI.md</code>).
     </p>
   </section>
 </div>
@@ -496,6 +500,53 @@ function renderRotate() {
 }
 
 /* --- tabak --- */
+/* Diyetisyen listesi ② uyarlaması (docs/MENU-30EYL-2EKI.md). Değerler tahmin: kcal, P, K, Y. */
+const M = (n, p, kcal, pr, c, f) => ({ n, p, kcal, pr, c, f });
+const MENUS = [
+  { id: 'car', label: 'Çar · salon', note: 'Salon günü B. Karbonhidrat salon öncesi ve öğlede.', items: [
+    M('Kahvaltı: 2 yumurta, 2 yk lor, 5 zeytin, sebze', '+ 1 dilim tam buğday', 380, 25, 20, 22),
+    M('Salon öncesi: süzme yoğurt + ½ muz', '200 g + tarçın', 220, 20, 22, 6),
+    M('Salon sonrası: whey', '1 ölçek, suyla', 105, 20, 3, 1.5),
+    M('Öğle: köfte, salata, bulgur, ayran', '120 g · 3 yk', 525, 35, 36, 27),
+    M('Akşam: çorba, kuru fasulye, salata, yoğurt', '1 kase · 6 yk · 4 yk', 530, 27, 65, 18),
+    M('Ara: 1 kuru incir + 3 ceviz', '20:00–21:00', 150, 3, 13, 10),
+  ] },
+  { id: 'per', label: 'Per · kardiyo', note: 'Kardiyo günü: yulaf kahvaltı, akşam balık.', items: [
+    M('Kahvaltı: yulaf kase + 2 haşlanmış yumurta', 'süt 200 ml · 3 yk yulaf · chia · ½ muz · 5 fındık', 500, 27, 49, 22),
+    M('Ara: süzme yoğurt + elma', '150 g · 1 adet', 250, 16, 37, 5),
+    M('Öğle: 2 yumurta, 2 yk lor, karabuğday, salata, kefir', '3 yk · 1 bardak', 435, 29, 32, 22),
+    M('Akşam: balık, salata, 1 dilim ekmek', '250 g fırın/ızgara', 470, 60, 19, 16),
+    M('Ara: yoğurt + portakal', '4 yk · 1 adet', 120, 5, 20, 3),
+    M('Ara: 10 badem', '', 70, 2.5, 2, 6),
+  ] },
+  { id: 'cum', label: 'Cum · salon', note: 'Salon günü A′. Shake küçük: whey ve light yoğurt yok.', items: [
+    M('Kahvaltı: yağsız menemen 3 yumurta + lor', '50 g lor · 1 dilim ekmek', 375, 30, 22, 18),
+    M('Salon öncesi: küçük shake', 'süzme 200 g · süt 200 ml · ½ muz', 365, 27, 39, 11),
+    M('Öğle: tavuk göğsü, pilav, salata, yoğurt', '150 g · 3 yk · 4 yk', 495, 54, 33, 16),
+    M('Akşam: kıymalı sebze yemeği, salata, yoğurt', '1 tabak ~300 g', 435, 21, 29, 26),
+    M('Ara: elma + 10 badem', '', 165, 3, 27, 6),
+  ] },
+  { id: 'sen', label: 'Senin günün', note: '22–28 Eyl ortalaman (öğün kayıtlarından). Fark: shake, akşama eklenen süzme + makarna, porsiyon.', items: [
+    M('Kahvaltı: 3 yumurta, lor, kaşar, ekmek', 'menemen ya da haşlama', 520, 42, 28, 28),
+    M('Shake: süzme + light yoğurt + süt + muz + whey', 'büyük', 550, 47, 55, 14),
+    M('Öğle: et 200 g, pilav 2–3 yk, patates, yoğurt', '', 700, 55, 60, 26),
+    M('Akşam: ana yemek + süzme + makarna/pilav', 'ya da pide/kızartma', 860, 21, 90, 44),
+  ] },
+];
+
+function renderMenus() {
+  chipRow($('menu-strip'), MENUS, state.menu, (id) => {
+    state.menu = id;
+    const m = MENUS.find((x) => x.id === id);
+    state.plate = m.items.map((x) => ({ ...x, q: 1 }));
+    renderMenus();
+    renderPlate();
+    renderDock();
+  });
+  const m = MENUS.find((x) => x.id === state.menu);
+  $('menu-note').textContent = m ? m.note : 'Hazır bir gün seç ya da soldan kendi tabağını kur.';
+}
+
 function renderFoods() {
   chipRow($('food-groups'), FOOD_GROUPS, state.foodGroup, (id) => { state.foodGroup = id; renderFoods(); });
   $('fuel-title').textContent = FOOD_GROUPS.find((g) => g.id === state.foodGroup).label;
@@ -529,6 +580,7 @@ function renderFoods() {
     };
     box.append(row);
   }
+  renderMenus();
   renderPlate();
 }
 
@@ -570,7 +622,7 @@ function renderPlate() {
   bars.append(bar('Yağ', t.f, todayKind().f, 'g'));
   const kcal = document.createElement('p');
   kcal.className = 'hint';
-  kcal.textContent = 'Toplam ' + Math.round(t.kcal) + ' kcal — bilgi olsun diye; hedef değil.';
+  kcal.textContent = 'Toplam ' + Math.round(t.kcal) + ' kcal · günlük hedef ~2000 (bakım ~2600).';
   bars.append(kcal);
 
   const box = $('picked');
@@ -644,7 +696,7 @@ function today() {
 
 $('clear').onclick = () => {
   if (state.tab === 'lift') { state.picks.clear(); renderLift(); }
-  else { state.plate = []; renderPlate(); }
+  else { state.plate = []; state.menu = null; renderMenus(); renderPlate(); }
   renderDock();
 };
 
@@ -696,9 +748,9 @@ $('save').onclick = async () => {
 /* --- zar + kural kanıtı --- */
 const DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
 const KINDS = {
-  lift: { label: 'Ağırlık', pr: [160, 180], c: [160, 200], f: [70, 80] },
-  swim: { label: 'Yüzme', pr: [150, 175], c: [130, 160], f: [70, 80] },
-  rest: { label: 'Dinlenme', pr: [150, 170], c: [100, 130], f: [70, 80] },
+  lift: { label: 'Ağırlık', pr: [130, 150], c: [150, 200], f: [60, 85] },
+  swim: { label: 'Yüzme', pr: [125, 145], c: [140, 180], f: [60, 85] },
+  rest: { label: 'Dinlenme', pr: [120, 140], c: [110, 150], f: [60, 85] },
 };
 /* Program varsayılanı (PROGRAM-2026-09): Pzt/Çar/Cum ağırlık, Sal/Per yüzme, hafta sonu yürüyüş. */
 const WEEK_DEFAULT = { 1: 'lift', 2: 'swim', 3: 'lift', 4: 'swim', 5: 'lift', 6: 'rest', 0: 'rest' };
