@@ -451,3 +451,14 @@ Health Connect zinciri devreden çıkar, gecikme saatin kendi ölçüm sıklığ
   aynı mantıkta tutulacak, ölçüm sıklığı ayrı ayarlanmayacak.
 
 **Sıra:** Faz 2 UI'dan sonra. Dean 23 Eylül'de "olur" dedi, acelesi yok.
+
+## S-next — "Saat uygulamasını güzel yapalım" (Dean, 30 Eyl 2026) — AYRI AJAN, ux-pi personası
+
+Dean'in sözü: "Saat uygulamasında güzel yapalım, başka ajanla persona ile işe uygun yapar kullanırız."
+Bu iş protokol takibinden (PLAN-PROTOKOL) bağımsız; ayrı worktree/dal `feature/wear-ux`, `ux-pi` skill'i ile.
+
+Bilinen açıklar (26 Eyl devir): "gönder/güncelle çalışmıyor" (Dean; sunucuda 24/26 Eyl nabız GELDİ → tuş geri bildirimi yok
+sanılıyor) → titreşim + "Gönderildi" mesajı; PLAN-UI:176 "hoş bir görsel widget ana ekrana". Ekran fotoğrafı istendi, gelmedi.
+
+Ajana giriş: bu dosya + `docs/SAAT-RUTIN.md` + `apps/wear` (varsa) + 26 Eyl devir notu. Kabul: Dean saatte görür.
+Başlangıç: seans sırasında set sayacı + nabız + "gönder" geri bildirimi; ana ekran widget'ı ikinci.

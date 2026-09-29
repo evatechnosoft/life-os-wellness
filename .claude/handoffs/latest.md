@@ -181,6 +181,9 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - `secici.html` Hafta sekmesine 7 protokol kartı eklendi; KINDS protein 150–165; `MENU` notu hizalandı; canlı (curl) doğrulandı, telefonda DOĞRULANMADI. Commit `dev`.
 - **Dean isteği:** protokol takibi sunucuda, uygulama + site + koç aynı hesabı okusun, bildirimler. Tasarım: `docs/PLAN-PROTOKOL.md` (Scope Lock, migration `protocol`, `GET /api/protocol/status` saf fonksiyon TDD, Hafta kartı, reminders id 4, site kartı). Kod YAZILMADI.
 
+## Not — saat uygulaması (Dean, 30 Eyl)
+"Saat uygulamasında güzel yapalım" → ayrı ajan, `ux-pi` personası, dal `feature/wear-ux`. Giriş `docs/PLAN-WEAR.md` §S-next. Protokol işinden bağımsız, paralel açılabilir.
+
 ## Next — tek adım
 **Takvim (Dean, 30 Eyl):** protokol takibi Pazartesi 5 Eki'ye tasarlanır, sıkıştırılmaz; erken biterse Cuma 2 Eki aktif. Dean 30 Eyl seans + ölçümleri yarın (1 Eki) iletecek → API'ye yaz.
 Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → web Hafta kartı + reminders id 4 → site kartı (Dean'in 2 kararı hâlâ açık: token'sız endpoint? başlangıç 107.5/117/34.8?). Deploy: `docker compose up -d --build api` + bundle version kontrol. Kabul: telefonda Hafta sekmesinde kart.
