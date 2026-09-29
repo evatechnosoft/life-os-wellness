@@ -159,7 +159,8 @@ h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em
 
 .picked { display: flex; flex-direction: column; gap: 6px; }
 .picked-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
-.picked-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.picked-row span { flex: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.3; }
+.picked-row .qty { flex: 0 0 auto; }
 .picked-row .qty { font: 400 12px/1 "IBM Plex Mono", monospace; color: var(--ink-faint); }
 .x { appearance: none; border: 0; background: none; color: var(--ink-faint); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px; }
 .x:hover { color: var(--over); }
@@ -639,6 +640,12 @@ function renderPlate() {
     row.className = 'picked-row';
     const n = document.createElement('span');
     n.textContent = item.n;
+    if (item.p) {
+      const sub = document.createElement('small');
+      sub.style.cssText = 'display:block;color:var(--ink-faint);font-size:12px';
+      sub.textContent = item.p + ' · ' + item.kcal + ' kcal · ' + item.pr + ' g P';
+      n.append(sub);
+    }
     const q = document.createElement('span');
     q.className = 'qty';
     q.textContent = '×' + item.q;
