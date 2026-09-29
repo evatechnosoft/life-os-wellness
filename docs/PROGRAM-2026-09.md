@@ -155,3 +155,42 @@ meta-regresyon (PMID 41343037); split vs full-body meta-analizi (2024).
 Ab crunch makinesi havuzda kalır ama **son sırada**: omurga fleksiyonu + göğüs önünde yük,
 tansiyonda ıkınmaya davet. Dead bug, Pallof press ve kablo crunch aynı işi omurgayı bükmeden
 yapar; zar bu üçünü tüketmeden makineye gitmez (`plan.js` → `IKINCIL`).
+
+## 8. Hafta 2 değerlendirmesi (29 Eyl) — diyetisyen + PT
+
+Kaynak: canlı `daily`/`meal`/`workout`/`workout-plan`, 12–28 Eyl. Program çerçevesi değişmiyor; aşağıdakiler ayar.
+
+**Veri.** Kilo 7-gün ort 107.74 (önceki hafta 107.78, başlangıç 108.0) — iki haftadır yatay. Bel 117 cm (23 ve 28 Eyl aynı).
+OKOK 12→26 Eyl yağ −1.0 kg, iskelet kas sabit (BIA, yalnız yön). Protein (öğün kayıtlarından) 22–28 Eyl ort **167 g**.
+Adım 7-gün ort ~9.300. Kolluk tansiyon sabah ort **121/78** (22–27 Eyl, kalibrasyon sonrası) — §1'deki 138/87 kalibrasyon öncesi seriydi.
+
+**Plato okuması.** Kreatin ~10 Eyl'de 3 g/gün başladı; yüklemesiz dozda doyum 3–4 hafta, bu sürede tartı 0.5–1.5 kg su tutabilir.
+Yağ düşüp kas sabitken tartının durması bununla uyumlu. **5 Eki'ye kadar yeni kısıtlama yok**; karar 5 Eki'de bel + 7-gün ort ile.
+"Dinlenme günü akşam karbonhidratı yok" cümlesi kural değildir; §4'teki akşam şablonu zaten bunu takas diliyle söylüyor
+(dinlenme gününde sebze/baklagil yemeği + yoğurt). Uygulama aynı, dil §4'ünki.
+
+**Beslenme — kayıtlardan çıkan dört takas** (kısıtlama değil, aynı öğünün daha iyi hâli):
+| Görülen | Sıklık | Takas |
+|---|---|---|
+| Kıymalı pide (~800–900 kcal) | 2× (22, 26 Eyl) | Haftada 1, serbest günde; diğer gün lahmacun değil ev köftesi + bulgur + salata |
+| Palamut kızartma, galeta unlu | 2× (22, 26 Eyl) | Fırın/ızgara — omega-3 aynı kalır, galeta + kızartma yağı gider. Balık kotası §4 aynen |
+| Tatlı (pasta, kek, kurabiye) | Pazar 27 Eyl | Serbest gün Cumartesi; Pazar'a taşarsa bir sonraki Cumartesi kotası o hafta kullanılmış sayılır, telafi yok |
+| Tekila-tonik | 26 Eyl | Tonik şekerli (TG 302) → soda + limon. Alkol ≤2 birim/hafta aynen |
+Protein 167 g: hedef 180 aynen, ama 165–180 bandı yeterli (yağsız kütle ~70 kg × 2.4). Eksik gün akşama 100 g lor (§4).
+
+**Adım.** 8. hafta hedefi (7.500) aşıldı. Yeni taban **8.500** (7-gün ort), üst sınır koyma; yükseltme yok — NEAT'i sürdürülebilir tut.
+
+**Tansiyon.** Egzersiz kuralları (8–15 tekrar, Valsalva yok, baş gövde altında yok) iyi pratik, kalıyor.
+Kolluk sabah ort 4 hafta <130/80 kalırsa (~20 Eki) seans öncesi TA ölçüm şartı kalkar. §2 hekim notu şu an tetiklenmiyor;
+glukoz/TG kontrol tahlili hekimin takviminde (Aralık, 12. hafta sonu önerilir).
+
+**Antrenman — üç düzeltme.**
+1. **Piramit yerine düz set.** 21/25/28 Eyl kayıtlarında her hareket 3 set artan ağırlık × 12 (ör. bench 30/35/40). İlk iki set
+   ısınma yoğunluğunda kalıyor → etkili set hareket başına ~1, haftalık hacim planın ~⅓'ü. Yeni: plandaki `warmup` rampa setleri,
+   sonra **3 set aynı ağırlıkta**, son sette RIR 2. Başlangıç ağırlığı = son piramit setinin ağırlığı; ilk sette 10 çıkmazsa bir kademe in.
+2. **Gerçek tekrar + RIR kaydı.** "12 varsayım" ile çift ilerleme (§5) çalışmaz. Her sette gerçek tekrar; son sette RIR.
+3. **A′ 24 set → 17.** Düz setle 24 set 60 dk'yı aşar. Leg press 3 · eğik göğüs 3 · geniş pulldown 3 · yan omuz 2 ·
+   biceps 2 + triceps 2 (süperset) · calf 2 · dead bug — (Pzt/Çar'da var). A ve B 18 sette kalır. (Plan değişikliği Dean onayıyla yazılır.)
+
+**Eksik kaldıraç: uyku.** 2026'da kayıt yok. Kalori açığında kısa uyku kaybı yağdan kasa kaydırıyor (Nedeltcheva 2010).
+Saat gece takılırsa Samsung uyku verisi gelir; hedef 7 saat+ ortalama.

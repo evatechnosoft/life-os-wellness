@@ -451,6 +451,18 @@ describe('SYSTEM prompt', () => {
     }
   })
 
+  test('izlem bandi ve takviye beslenme onerisini kilitlemiyor, tedavi alan tani kilitliyor', () => {
+    assert.match(SYSTEM, /izlem bandı/)
+    assert.match(SYSTEM, /[Tt]akviye .*ilaç sayılmaz/)
+    assert.match(SYSTEM, /ilaç kullanılan ya da tedavi gören tanı/)
+  })
+
+  test('plato ve kreatin: tartiya kisitlamayla tepki yok', () => {
+    assert.match(SYSTEM, /[Pp]lato/)
+    assert.match(SYSTEM, /kreatin/)
+    assert.match(SYSTEM, /bel ölçüsü/)
+  })
+
   test('yonlendirme cumlesi kalibi istemde var', () => {
     assert.match(SYSTEM, /ne gördüm → ne yapmalısın → ben ne yapabilirim/)
   })
