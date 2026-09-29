@@ -158,5 +158,9 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - Tahlil 4 Eyl özeti `docs/PROGRAM-2026-09.md` §1b'de; TSH/T4, HOMA-IR, Mg, folik, demir sayısı yok (orijinal PDF bizde değil).
 - Hafıza: `telefonda-kisa-cevap` — Dean telefondan okuyor, uzun liste/tablo kayıyor → kısa paragraf.
 
+## 29 Eyl akşamüstü — kayıtlar API'de (POST 201 + GET doğrulandı)
+- daily 29 Eyl: 107.5 kg, TA 114/79. Öğünler id `29a0e2c1-0929-4a11-9c00-00000000000{1,2,3}`: kahvaltı 27/380 · öğle 62/700 (tavuk ~150 g + bulgur ~150 g + yoğurtlu karnabahar) · shake 15:20 52/600 (süzme 200 + light yoğurt 200 + süt 200 + muz + whey 24). **Gün: 141 g P / 1680 kcal**; akşam kıymalı karnabahar ≤400 kcal önerildi — henüz kaydedilmedi.
+- Etiket yorumu (kaydedilmedi, yenmedi): vegan fıstık/fındık ezmesi 587 kcal/100 g → 1 yk/gün; kırma yeşil zeytin tuz 5.5 g/100 g → 5 adet; Akmaz tam yağlı süzme peynir 218 kcal, doymuş 12 g → ~30 g, light'a geç.
+
 ## Next — tek adım
 Dean onay bekliyor: plana Pzt `Leg_Extensions` → `Leg_Press` (ana; extension sona opsiyonel) + Salı/Perşembe 25–30 dk zone 2 kardiyo (`/api/workout-plan` PUT, sonra GET). Ayrıca deploy doğrulaması (bundle version) ve 29 Eyl kilo 107.5 / TA 114/79 / kahvaltı API'de mi kontrol.
