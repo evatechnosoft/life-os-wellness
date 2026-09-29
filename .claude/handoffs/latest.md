@@ -177,5 +177,9 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - Dean bugün salonda (B). Sözlü kararlar: bugün RDL yerine back extension (yoksa hip abduction); salon sonrası whey suyla (+az çözünebilir kahve); kahve günde 2, filtre/çözünebilir, 15:00'e kadar; salon öncesi süzme+muz atlandı (kahvaltıdan hemen çıktı).
 - Kayıt: 30 Eyl daily/öğün henüz API'ye YAZILMADI.
 
+## 30 Eyl — protokol sitede + PLAN-PROTOKOL
+- `secici.html` Hafta sekmesine 7 protokol kartı eklendi; KINDS protein 150–165; `MENU` notu hizalandı; canlı (curl) doğrulandı, telefonda DOĞRULANMADI. Commit `dev`.
+- **Dean isteği:** protokol takibi sunucuda, uygulama + site + koç aynı hesabı okusun, bildirimler. Tasarım: `docs/PLAN-PROTOKOL.md` (Scope Lock, migration `protocol`, `GET /api/protocol/status` saf fonksiyon TDD, Hafta kartı, reminders id 4, site kartı). Kod YAZILMADI.
+
 ## Next — tek adım
-Dean'in 30 Eyl B seansını (gerçek kg×tekrar) ve öğünleri API'ye yaz. Protein hedefini 150–165'e netleştir: Dean'e söyle, `docs/MENU-30EYL-2EKI.md` + `secici.html` KINDS + uygulama `proteinTarget` aralığı hizala. Sonra `docs/PROTOKOL-12-HAFTA.md` commit (henüz commit edilmedi).
+Dean'in 2 açık kararını al (site için token'sız salt-okunur endpoint? başlangıç 107.5/117/34.8 doğru?) → `feature/protokol` dalında `apps/api/src/protocol.ts` TDD ile başla (PLAN-PROTOKOL §Hesap). Ayrıca 30 Eyl B seansı + öğünler API'ye yazılacak (Dean rakamları verince).
