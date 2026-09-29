@@ -1,6 +1,7 @@
-# Handoff: 28 Eyl koçluk günü (salon A + yüzme, 3 öğün, haftalık değerlendirme, TA serisi temizlendi) · eski açıklar aşağıda
+# Handoff: 30 Eyl kapanış — bildirim BUG'ı öncelikli, protokol takibi Pzt 5 Eki'ye tasarlanıyor, saat UX ayrı ajan
 
-> 2026-09-28 ~13:00 son güncelleme · koçluk yalnız API üzerinden (kod/commit yok bugün) · eski bölümler 25–27 Eyl
+> 2026-09-30 son güncelleme · dal `dev` temiz (`c4e1c06`), untracked yalnız `.claude/plan-backup-2026-09-29.json` + `.claude/worktrees/` · en yeni bölümler EN ALTTA (29 Eyl akşam → 30 Eyl)
+> Sıra: (1) BUG bildirim senkron (aşağıda) → (2) Dean'in 30 Eyl seans/öğün rakamları API'ye → (3) `feature/protokol` (PLAN-PROTOKOL.md) → (4) `feature/wear-ux` ayrı ajan
 
 ## Goal
 1. (açık) Yapılan her şey **telefondaki uygulamada** görünsün; sonra salon verisi uygulamaya girsin (uzaktan kabuk `server.url`, salon S1 — başlanmadı).
