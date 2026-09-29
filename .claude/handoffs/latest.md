@@ -150,6 +150,13 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 - ① keto: itiraz yok; Dean diyetisyene süresini ve antrenman günlerinde ne yeneceğini soracak.
 - Tahlil: hekime kreatinin/eGFR + HbA1c eklemesini sor; kreatin kullanımını söyle (kreatinini yükseltir). 10–12 saat açlık, öncesinde kahve/kreatin/ağır antrenman yok.
 
+## 29 Eyl öğleden sonra
+- **Sunucu tekrar açık:** Docker (başka biri/oturum başlatmış) → `fit.evaitec.com/health` 200, `/api/meals|daily` 200 (query `start`/`end`). PR #29/#30 içeren api imajıyla mı çalışıyor DOĞRULANMADI → `bundle.json` version kontrol + gerekirse `docker compose up -d --build api`.
+- **Gerçek bakım ≈ 2600 kcal:** 22–28 Eyl tam kayıtlı 7 gün ort 2630 kcal, kilo 107.4–107.9 sabit (API GET). Hedef 2000–2100 kcal, protein 130–150 g (Dean'e söylendi; 180 g hatasını kabul ettim — kalori fazlasının ve bulantının kaynağı).
+- **Dews Life (@bthnkuru) araştırması** (alt ajan, web): yöntem kamuya açık değil; paket 2/4/6 ay 2.899/5.199/7.299 TL; Şikayetvar'da aynı liste/monoton/geç program şikâyetleri; "2 ayda −46 kg" fizyolojik olarak su/glikojen. Dean'e çerçeve verildi: 0.5–1 kg/hafta, adaptif TDEE, keto şart değil.
+- **Tansiyon normal** (Dean itiraz etti, haklı): kolluk ort 121/78, bugün 114/79 → artık tansiyon gerekçesiyle kısıtlama yok, crunch serbest. Kardiyo/yemek sonrası yürüyüş gerekçesi TG + HbA1c.
+- Tahlil 4 Eyl özeti `docs/PROGRAM-2026-09.md` §1b'de; TSH/T4, HOMA-IR, Mg, folik, demir sayısı yok (orijinal PDF bizde değil).
+- Hafıza: `telefonda-kisa-cevap` — Dean telefondan okuyor, uzun liste/tablo kayıyor → kısa paragraf.
+
 ## Next — tek adım
-Docker Desktop açılınca (ya da sunucu nerede çalışacaksa): `docker compose up -d --build api` → `bundle.json` version değişti mi → `/health` 200 değilse `docker compose --profile tunnel up -d --force-recreate cloudflared`. Sonra Dean telefonda: "Yenile" → bildirim tek sefer mi, "Geç" çalışıyor mu.
-Onay bekleyen: ② listeyi uygulamaya öğün şablonu olarak girmek + protein hedefini düşürmek (`recentLeanMass`/`proteinTarget`). Sunucu açılınca 29 Eyl kilo/TA/kahvaltı API'de mi kontrol et (Dean uygulamadan girdiyse outbox'tan gelir).
+Dean onay bekliyor: plana Pzt `Leg_Extensions` → `Leg_Press` (ana; extension sona opsiyonel) + Salı/Perşembe 25–30 dk zone 2 kardiyo (`/api/workout-plan` PUT, sonra GET). Ayrıca deploy doğrulaması (bundle version) ve 29 Eyl kilo 107.5 / TA 114/79 / kahvaltı API'de mi kontrol.
