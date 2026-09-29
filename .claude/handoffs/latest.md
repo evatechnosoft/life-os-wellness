@@ -193,4 +193,4 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 
 ## Next — tek adım
 **Takvim (Dean, 30 Eyl):** protokol takibi Pazartesi 5 Eki'ye tasarlanır, sıkıştırılmaz; erken biterse Cuma 2 Eki aktif. Dean 30 Eyl seans + ölçümleri yarın (1 Eki) iletecek → API'ye yaz.
-Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → web Hafta kartı + reminders id 4 (Dean kararı: site kartı YOK, hepsi uygulamada; açık yalnız başlangıç 107.5/117/34.8 teyidi). Deploy: `docker compose up -d --build api` + bundle version kontrol. Kabul: telefonda Hafta sekmesinde kart.
+Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → site kartı (`secici.html` Hafta) → web Hafta kartı + reminders id 4 (Dean son karar 30 Eyl gece: site kartı VAR, ilk teslim, token'sız salt-okunur özet endpoint; uygulama kartı kabul edilince site kartı kalkar. Açık: başlangıç 107.5/117/34.8 teyidi). Deploy: `docker compose up -d --build api` + bundle version kontrol. Kabul: telefonda Hafta sekmesinde kart.

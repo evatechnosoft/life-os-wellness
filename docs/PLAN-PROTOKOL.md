@@ -6,7 +6,7 @@ scriptler uygulamaya entegre, bildirimler buradan ve uygulamadan, server side, u
 
 ## Scope Lock
 
-Değişir: `apps/api` (+1 endpoint, +1 migration), `apps/web` Hafta sekmesi (+1 kart, +1 bildirim). **Site kartı YOK** (Dean, 30 Eyl: "hepsi uygulama içinde"); `tools/secici` dokunulmaz.
+Değişir: `apps/api` (+1 endpoint, +1 migration), `tools/secici/secici.html` Hafta (+1 kart, İLK teslim), `apps/web` Hafta sekmesi (+1 kart, +1 bildirim). Sıra: API → site kartı (Dean hemen görür) → uygulama kartı → Dean "tamam" deyince site kartı kalkar (Dean, 30 Eyl gece).
 Değişmez: öğün/seans/ölçüm akışı, persona, offline-first (kart sunucu yokken "veri yok" der, uygulama çalışmaya devam eder).
 
 ## Veri
@@ -30,7 +30,7 @@ Girdi: protocol satırı + daily_log (kilo, bel, adım) + meal (kcal, protein) +
 ## Görünürlük
 
 - **Uygulama** Hafta sekmesi: "Protokol · hafta N" kartı (mevcut `ui/Body.tsx` yanına `ui/Protocol.tsx`): 7-gün ort, beklenen bant, verdict rengi, action, checkpoint. Sunucu yoksa son başarılı yanıt IndexedDB `settings.protocol_status`'tan.
-- **Site**: yok. İleride "yayınla" düğmesiyle uygulamadan statik sayfaya çıkılabilir (YAGNI, ayrı iş).
+- **Site** `secici.html` Hafta: `GET /api/protocol/status/public` (token'sız, salt-okunur, yalnız özet: hafta, 7-gün ort, delta, verdict, action, checkpoint — öğün/seans yok) fetch eden kart. Geçici: uygulama kartı kabul edilince kaldırılır.
 - **Koç sohbeti**: `dean-pt` skill'i her oturum başında `GET /api/protocol/status` okur, verdict'i söyler.
 
 ## Bildirim
@@ -51,5 +51,5 @@ Girdi: protocol satırı + daily_log (kilo, bel, adım) + meal (kcal, protein) +
 
 ## Kararlar
 
-1. Site kartı yok, token'sız endpoint yok (Dean, 30 Eyl).
+1. Site kartı VAR ve ilk teslim; token'sız salt-okunur özet endpoint kabul (Dean, 30 Eyl gece: "kaldırma, koymadan uygulamaya görebiliyorum").
 2. Açık: başlangıç 30 Eyl 107.5 kg / bel 117 / %34.8 doğru mu? (Dean teyidi)
