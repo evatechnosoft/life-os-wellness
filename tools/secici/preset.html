@@ -95,7 +95,7 @@ button.copy {
 
   <div class="tabs" role="tablist" id="tabs"></div>
   <p class="bookend">Önce 2 tansiyon (≥160/100 → yürüyüş) · bisiklet 5–8 dk 85–110 W ·
-    3×12 RIR 2 · ara bileşik 90–120 sn, izolasyon 60–90 sn · soğuma 10–15 dk hafif yüzme.</p>
+    ısınmadan sonra düz set: 3 set aynı kg, RIR 2 · ara bileşik 90–120 sn, izolasyon 60–90 sn · soğuma 10–15 dk hafif yüzme.</p>
   <p class="bookend">Sıra her gün aynı mantık: <b>bacak → göğüs → sırt → omuz → kol → core</b>.
     Büyükten küçüğe; bacak başta çünkü en ağır ve bisikletle zaten ısınmış.<br>
     Mobilite — bisikletten sonra 3 dk: kedi-deve 10 · ayakta kalça çemberi 10/taraf · dinamik göğüs açma 10–15.
@@ -106,7 +106,7 @@ button.copy {
     <button class="copy" id="copy" type="button">Metin olarak kopyala</button>
     <span class="hint" id="copied" role="status"></span>
   </div>
-  <p class="foot">Kaynak: canlı seans planı (0.35.0) + 21 Eyl günlüğü §4 hedefleri (+%5 kuralı).
+  <p class="foot">Kaynak: canlı seans planı (29 Eyl denetimi: düz set, bacak/arka zincir). Gerçek tekrarı yaz; 12'yi rahat geçince +2.5 kg.
     Uygulamadaki set kartı geçen seferi doldurur; hedefe + ile çık.</p>
 </div>
 
@@ -114,31 +114,30 @@ button.copy {
 // ramp: [yuzde, tekrar] ciftleri; sets: kg (null = bul) ve tekrar.
 var BACAK = [[50, 8], [75, 5]], UST = [[60, 8]];
 var DAYS = [
-  { key: 'a2', tab: 'Cum 25 Eyl · A′', moves: [
-    { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Başta: en büyük hareket, taze ve bisikletle ısınmış bacakla' },
-    { id: 'Calf_Press_On_The_Leg_Press_Machine', name: 'Calf press (leg press makinesinde)', sets: [[null, 12], [null, 12], [null, 12]] },
-    { id: 'Leverage_Incline_Chest_Press', name: 'Eğimli göğüs presi — plakalı leverage makine', ramp: UST, sets: [[30, 12], [30, 12], [30, 12]], hint: '30 kg tahmin — plakalıda iki taraftaki plakaların toplamını yaz' },
-    { id: 'Close-Grip_Front_Lat_Pulldown', name: 'Lat pulldown (dar/nötr tutuş)', ramp: UST, sets: [[40, 12], [40, 12], [40, 12]] },
-    { id: 'Side_Lateral_Raise', name: 'Dambıl yan kaldırış', sets: [[5, 12], [5, 12], [5, 12]] },
-    { id: 'Machine_Bicep_Curl', name: 'Biseps curl — Life Fitness no 7', sets: [[20, 12], [22.5, 12], [22.5, 12]] },
-    { id: 'Machine_Triceps_Extension', name: 'Triceps press — Life Fitness no 8', sets: [[30, 12], [32.5, 12], [35, 12]] },
-    { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
-  ]},
-  { key: 'a', tab: 'Pzt 28 Eyl · A', moves: [
-    { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
-    { id: 'Machine_Bench_Press', name: 'Chest press — Life Fitness makine (bar değil)', ramp: UST, sets: [[40, 12], [45, 12], [50, 12]] },
-    { id: 'Wide-Grip_Lat_Pulldown', name: 'Lat pulldown (geniş tutuş)', ramp: UST, sets: [[40, 12], [45, 12], [45, 12]] },
-    { id: 'Leverage_Shoulder_Press', name: 'Omuz presi — Life Fitness makine', ramp: UST, sets: [[null, 12], [null, 12], [null, 12]] },
-    { id: 'Machine_Bicep_Curl', name: 'Biseps curl — Life Fitness no 7', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
-    { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
-  ]},
   { key: 'b', tab: 'Çar 30 Eyl · B', moves: [
-    { id: 'Barbell_Hip_Thrust', name: 'Hip thrust', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]] },
+    { id: 'Barbell_Hip_Thrust', name: 'Hip thrust', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Düz set: 3 set aynı kg, son sette 2 tekrar yedek' },
+    { id: 'Romanian_Deadlift', name: 'Romanian deadlift — dambıl ya da boş bar', ramp: UST, sets: [[null, 10], [null, 10], [null, 10]], hint: 'İlk hafta hafif: bel düz, hareket kalçadan. Leg curl yerine' },
+    { id: 'Leverage_Iso_Row', name: 'Makine row', ramp: UST, sets: [[35, 12], [35, 12], [35, 12]] },
+    { id: 'Leverage_Incline_Chest_Press', name: 'Eğimli göğüs presi — plakalı leverage makine', ramp: UST, sets: [[30, 12], [30, 12], [30, 12]], hint: 'Pec deck yerine' },
+    { id: 'Machine_Triceps_Extension', name: 'Triceps press — Life Fitness no 8', sets: [[35, 12], [35, 12], [35, 12]] },
+    { id: 'Pallof_Press', name: 'Pallof press (kablo)', sets: [[null, '12/taraf'], [null, '12/taraf']] },
+  ]},
+  { key: 'a2', tab: 'Cum 2 Eki · A′', moves: [
+    { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Başta: en büyük hareket' },
+    { id: 'Leg_Extensions', name: 'Leg extension', sets: [[45, 12], [45, 12]] },
+    { id: 'Wide-Grip_Lat_Pulldown', name: 'Lat pulldown (geniş tutuş)', ramp: UST, sets: [[40, 12], [40, 12], [40, 12]] },
+    { id: 'Butterfly', name: 'Butterfly / pec deck', sets: [[40, 12], [40, 12]] },
+    { id: 'Machine_Bicep_Curl', name: 'Biseps curl — Life Fitness no 7', sets: [[22.5, 12], [22.5, 12], [22.5, 12]] },
+    { id: 'Calf_Press_On_The_Leg_Press_Machine', name: 'Calf press (leg press makinesinde)', sets: [[null, 15], [null, 15]] },
+    { id: 'Arnold_Dumbbell_Press', name: 'Arnold press (dambıl)', ramp: UST, sets: [[10, 12], [10, 12]], hint: '5 kg ısınmaydı; 10 kg ile düz set' },
+  ]},
+  { key: 'a', tab: 'Pzt 5 Eki · A', moves: [
+    { id: 'Leg_Press', name: 'Leg press', ramp: BACAK, sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cumanın ağırlığı' },
     { id: 'Seated_Leg_Curl', name: 'Oturarak leg curl (makine)', sets: [[null, 12], [null, 12], [null, 12]] },
-    { id: 'Butterfly', name: 'Butterfly / pec deck', ramp: UST, sets: [[35, 12], [40, 12], [40, 12]] },
-    { id: 'Leverage_Iso_Row', name: 'Makine row', ramp: UST, sets: [[30, 12], [35, 12], [35, 12]] },
-    { id: 'Machine_Triceps_Extension', name: 'Triceps press — Life Fitness no 8', sets: [[null, 12], [null, 12], [null, 12]], hint: 'Cuma\'nın ağırlığı' },
-    { id: 'Pallof_Press', name: 'Pallof press (kablo)', sets: [[null, '12/taraf'], [null, '12/taraf'], [null, '12/taraf']] },
+    { id: 'Machine_Bench_Press', name: 'Chest press — Life Fitness makine (bar değil)', ramp: UST, sets: [[40, 12], [40, 12], [40, 12]] },
+    { id: 'Close-Grip_Front_Lat_Pulldown', name: 'Lat pulldown (dar/nötr tutuş)', ramp: UST, sets: [[40, 12], [40, 12], [40, 12]] },
+    { id: 'Side_Lateral_Raise', name: 'Dambıl yan kaldırış', sets: [[5, 15], [5, 15], [5, 15]] },
+    { id: 'Dead_Bug', name: 'Dead bug', sets: [[null, '10/taraf'], [null, '10/taraf']], bodyweight: true },
   ]},
 ];
 
@@ -158,13 +157,13 @@ function rampText(m, r) {
 
 // Karsilastir sekmesi: ayni sira, uc gun yan yana. B = bilesik (cok eklem), I = izolasyon (tek eklem).
 var COMPARE = [
-  ['1 Bacak (ana)', ['Leg press', 'B', 'ön bacak + kalça'], ['Hip thrust', 'B', 'kalça + arka bacak'], ['Leg press', 'B', 'ön bacak + kalça']],
-  ['2 Bacak (ek)', null, ['Leg curl', 'İ', 'arka bacak'], ['Calf press', 'İ', 'baldır']],
-  ['3 Göğüs', ['Chest press düz', 'B', 'göğüs orta + ön omuz + triceps'], ['Pec deck', 'İ', 'yalnız göğüs'], ['Eğimli pres', 'B', 'üst göğüs + ön omuz + triceps']],
-  ['4 Sırt', ['Pulldown geniş', 'B', 'sırt genişliği + biseps'], ['Row', 'B', 'sırt ortası kalınlık + arka omuz'], ['Pulldown dar', 'B', 'kanat alt + daha çok biseps']],
-  ['5 Omuz', ['Omuz presi', 'B', 'ön-yan omuz + triceps'], null, ['Yan kaldırış', 'İ', 'yan omuz']],
-  ['6 Kol', ['Biseps', 'İ', ''], ['Triceps', 'İ', ''], ['Biseps + triceps', 'İ', '']],
-  ['7 Core', ['Dead bug', 'İ', 'karın, bel çökmesine karşı'], ['Pallof', 'İ', 'yan karın, dönmeye karşı'], ['Dead bug', 'İ', 'karın']],
+  ['1 Bacak (ana)', ['Hip thrust', 'B', 'kalça + arka bacak'], ['Leg press', 'B', 'ön bacak + kalça'], ['Leg press', 'B', 'ön bacak + kalça']],
+  ['2 Bacak (ek)', ['Romanian deadlift', 'B', 'arka bacak + kalça + bel'], ['Leg extension', 'İ', 'ön bacak'], ['Leg curl', 'İ', 'arka bacak']],
+  ['3 Göğüs', ['Eğimli pres', 'B', 'üst göğüs + ön omuz + triceps'], ['Pec deck', 'İ', 'yalnız göğüs'], ['Chest press düz', 'B', 'göğüs orta + ön omuz + triceps']],
+  ['4 Sırt', ['Row', 'B', 'sırt ortası kalınlık + arka omuz'], ['Pulldown geniş', 'B', 'sırt genişliği + biseps'], ['Pulldown dar', 'B', 'kanat alt + daha çok biseps']],
+  ['5 Omuz / kol', ['Triceps', 'İ', ''], ['Biseps + Arnold', 'İ/B', 'kol + omuz'], ['Yan kaldırış', 'İ', 'yan omuz']],
+  ['6 Ek', null, ['Calf press', 'İ', 'baldır'], null],
+  ['7 Core', ['Pallof', 'İ', 'yan karın, dönmeye karşı'], null, ['Dead bug', 'İ', 'karın, bel çökmesine karşı']],
 ];
 var CMP_TAB = { key: 'cmp', tab: 'Karşılaştır' };
 function renderCompare(box) {
@@ -173,7 +172,7 @@ function renderCompare(box) {
     var k = c[1] === 'B' ? 'b' : 'i';
     return '<td><b><span class="k ' + k + '">' + c[1] + '</span>' + c[0] + '</b><span class="zone">' + c[2] + '</span></td>';
   };
-  box.innerHTML = '<table class="cmp"><thead><tr><th>Sıra</th><th>Pzt A</th><th>Çar B</th><th>Cum A′</th></tr></thead><tbody>' +
+  box.innerHTML = '<table class="cmp"><thead><tr><th>Sıra</th><th>Çar B</th><th>Cum A′</th><th>Pzt A</th></tr></thead><tbody>' +
     COMPARE.map(function (r) { return '<tr><th>' + r[0] + '</th>' + cell(r[1]) + cell(r[2]) + cell(r[3]) + '</tr>'; }).join('') +
     '</tbody></table>' +
     '<p class="hint"><b>B bileşik</b>: çok eklem, çok kas — ağır, başta, rampa setli. <b>İ izolasyon</b>: tek eklem, tek kas — hafif, sonda, tamamlar.</p>' +
