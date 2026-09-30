@@ -12,10 +12,13 @@ Günün ayrıntısı: `.claude/handoffs/latest.md` § "30 Eyl sabah".
   (`reminders_v2` anahtarı). Canlıda; **telefonda DOĞRULANMADI**. Açık: eklentinin geçmiş `at`'i anında
   ateşlemesi (stale catch-up) — APK gerekebilir, Dean cevap vermedi.
 - 30 Eyl API'de (GET kanıtlı): daily 107.4 / 127-77 / nabız 56; OKOK 11 metrik; kahvaltı 34 g/520;
-  B seansı 59 dk 7 hareket (hip thrust 30 = plaka toplamı) + bisiklet 12 dk + havuz 10 dk 150 m. Öğle/akşam YOK.
+  B seansı 59 dk 7 hareket (hip thrust 30 = plaka toplamı) + bisiklet 12 dk + havuz 10 dk 150 m;
+  öğle 62 g/720 (T-bone + karnabahar); uyku wearable `sleep_*` 377 dk (derin 30). Akşam öğünü YOK (gün 96 g P).
 - Adım tabanı 6.000 (hedef değil): PROGRAM/PROTOKOL/secici.html, canlıda.
-- Docker Desktop sabah 2× sessiz öldü → AutoStart=true; watchdog betiği hazır, zamanlanmış görev
-  **kurulmadı** (izin) — kayıt komutu betiğin 2. satırında (`~/.ai/scripts/home-net/docker_watchdog.ps1`).
+- Docker Desktop bugün 3× sessiz öldü (09:55, 10:12, 11:45; neden bilinmiyor; 3311'deki `netmovies/atv_power.py`
+  ilgisiz — api host portu yok). Yalnız Start-Process yetmedi (motor 500), kill + `wsl --shutdown` + start çalıştı.
+  Watchdog betiği bu yolu izliyor (`~/.ai/scripts/home-net/docker_watchdog.ps1`); AutoStart=true; zamanlanmış görev
+  **kurulmadı** (izin) — kayıt komutu betiğin 3. satırında. PC kapanıyor: sunucu kapalıyken telefon outbox'ta biriktirir.
 - Samsung zip 29–30 Eyl aktarıldı; 28 Eyl adım 7068.
 
 ## Next
