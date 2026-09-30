@@ -201,3 +201,17 @@ Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL �
 - **30 Eyl API'de (GET kanıtlı):** daily 107.4 kg, kolluk 127/77 nabız 56; OKOK 11 metrik + Samsung 29–30 Eyl adım/tansiyon (28 Eyl adım 7068'e düzeltildi); kahvaltı 34 g/520; B seansı 59 dk 7 hareket (hip thrust 30 plaka toplamı, row 25, eğimli göğüs 30, kablo triceps 25, pallof 15, dead bug, plank; pallof/dead bug/plank tekrar boş) + bisiklet 12 dk; saat 1:11:11, 583 kcal, ort 111/maks 155. Yüzme bekleniyor.
 - **Docker Desktop 2× sessiz öldü** (~09:55 ve ~10:12; backend logunda kapanma yok). Çözüm: tam yeniden başlatma (`Stop-Process` + `wsl --shutdown` + başlat). AutoStart=true yapıldı; watchdog betiği `~/.ai/scripts/home-net/docker_watchdog.ps1` (zamanlanmış görev kurulmadı — izin, Dean kuracak). Şüphe: paralel Claude oturumu (ZimaOS taşıma?) — doğrulanmadı.
 - Hafıza: `salon-b-kayit-kurali`, `docker-watchdog`.
+
+## 30 Eyl öğleden sonra — Docker watchdog kuruldu, ZimaOS taşıma hazırlığı, Samsung 30 Eyl
+- **Watchdog** zamanlanmış görev `wellness-docker-watchdog` (5 dk) KURULDU (Dean "Kur"); ilk koşu Last Result 0, health 200. HANDOFF `fb8385e`.
+- **Karar (Dean):** Docker Desktop bağımlılığı → kök çözüm ZimaOS'a taşıma. OS değişmiyor (Debian+Dockge ileride aday).
+  Kapsam yalnız wellness (db+api+tünel); LiteLLM zaten ZimaOS'ta (yz-litellm), plan envanteri bu açıdan bayat.
+  Dean: "zima açılacak, o ara düzenle, geçişi ben haber veririm" → hazırlık serbest, **cutover Dean'in "geç"iyle**.
+- Dal `chore/zimaos-tasima` `c822673` (push EDİLMEDİ): compose `POSTGRES_PASSWORD`/`DB_BIND` .env'den (varsayılan eski PC değeri; ZimaOS'ta hex parola + `DB_BIND=127.0.0.1:5434`). `docker compose config -q` ok.
+- **ZimaOS KAPALI:** WOL (`zima_wol.py`) 240 sn cevapsız; SSH yoklaması 30+90 dk. Dean elle açmalı. ZimaOS kapalıyken Eva'nın sunucu LLM'i (yz-litellm) de yok.
+- Repo public → ZimaOS'ta `git clone` kimliksiz olur; ZimaOS'ta git/compose var mı DOĞRULANMADI. ota/ 4.9 GB scp gerekecek.
+- **Samsung 30 Eyl zip:** kilo CSV yoktu → `import_samsung.mjs` kilo tablosu opsiyonel + `--no-workouts` (dev `b8b1e08`, 419 test). Adım 6361 PUT 200 + GET; seanslar yazılmadı (3 seans, çift yok).
+- Dean soruları cevaplandı: Mayi Tuz (Delice kaynak tuzu, beyan %31,2 Na vs %39,3 → ~%20 az; mineraller eser; iyotlu mu bak).
+
+## Next — tek adım
+ZimaOS açılınca (ssh zima): git/compose/port 3011-5434 yokla → repo `/DATA/AppData/life-os-wellness` clone + dalı merge edip çek → `.env` (yeni parola, DB_BIND, API_TOKEN, LLM key, CF creds) scp chmod 600 → ota/ scp → `docker compose up -d --build db api` (tünelsiz) → `curl 192.168.1.186:3011/health`. Sonra Dean'e "hazır" de; cutover (PC tünel stop → pg_dump/restore → satır sayısı → ZimaOS tünel) yalnız "geç" ile. Akşam öğünü bekleniyor (gün 96 g P).
