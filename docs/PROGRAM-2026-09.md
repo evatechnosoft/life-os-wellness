@@ -194,3 +194,7 @@ glukoz/TG kontrol tahlili hekimin takviminde (Aralık, 12. hafta sonu önerilir)
 
 **Eksik kaldıraç: uyku.** 2026'da kayıt yok. Kalori açığında kısa uyku kaybı yağdan kasa kaydırıyor (Nedeltcheva 2010).
 Saat gece takılırsa Samsung uyku verisi gelir; hedef 7 saat+ ortalama.
+
+## Adım standardı (Dean, 30 Eyl)
+Günlük adım **hedef değil, taban: 6.000** (7-gün ort). Kış geliyor; 9.000+ havaya bağlı bonus sayılır, borç değil.
+§3 kademesi, §8 "taban 8.500" ve PROTOKOL-12-HAFTA "10.000" bununla değişti. Yemek sonrası 5–10 dk yürüyüş kalır.
