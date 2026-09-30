@@ -80,4 +80,5 @@ networks:
     # onunla cakisti ve api YZ gecidine (192.168.1.186) EHOSTUNREACH aliyordu.
     ipam:
       config:
-        - subnet: 172.24.10.0/24
+        # ZimaOS'ta 172.24.0.0/16 dolu (big-bear-minio): orada .env NET_SUBNET=10.42.10.0/24.
+        - subnet: ${NET_SUBNET:-172.24.10.0/24}
