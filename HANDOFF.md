@@ -1,11 +1,11 @@
 # Handoff: 30 Eyl kapanış — sunucu ZimaOS'ta canlı, gün kayıtları tam
 
-> 2026-09-30 akşam · `dev` @ `21449c9`+devir commit · test 419/419 · fit.evaitec.com health 200 (PC'de)
+> 2026-09-30 akşam · `dev` @ `6b277d2`+ · test 419/419 · fit.evaitec.com health 200 (ZimaOS'tan)
 > Ayrıntı ve geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
 1. Dean'in günlük öğün/seans/ölçümü sohbetten API'ye — kabul = telefonda görünür.
-2. Sunucuyu PC/Docker Desktop'tan ZimaOS'a taşı (Dean kararı 30 Eyl; cutover yalnız Dean "geç" deyince).
+2. Sunucu ZimaOS'ta — kalan: OTA kopyası + publish_ota ZimaOS'a.
 3. Sıradaki kod işi `feature/protokol` (`docs/PLAN-PROTOKOL.md`, hedef Pzt 5 Eki).
 
 ## State (API GET kanıtlı)
@@ -14,9 +14,7 @@
   19:00 meyve şeftali/armut/ananas/üzüm 3/250 (miktar varsayım). Gece shake YOK (Dean sordu, içmedi — yazma).
 - Daily 30 Eyl: 107.4 kg, 127/77, adım 6361 (Samsung zip 17:35, elle PUT). Seanslar 3 (B 59 dk, bisiklet 12, havuz 10), Samsung seansları yazılmadı.
 - `ops/import_samsung.mjs`: kilo CSV opsiyonel + `--no-workouts` (dev `b8b1e08`).
-- Docker watchdog zamanlanmış görev KURULU (5 dk, Last Result 0).
-- ZimaOS: `chore/zimaos-tasima` `c822673` (lokal, push yok) — compose `POSTGRES_PASSWORD`/`DB_BIND` .env'den.
-  **ZimaOS kapalı:** WOL 240 sn + SSH yoklaması 2 saat cevapsız → Dean elle açacak. Kapalıyken Eva'nın yz-litellm'i de yok.
+- compose: `POSTGRES_PASSWORD`/`DB_BIND`/`NET_SUBNET` .env'den (dev). ZimaOS'ta api LLM (yz-litellm) erişimi 200.
 
 ## Next
 1. **Sunucu ZimaOS'ta canlı** (30 Eyl ~21:10; hafıza `sunucu-zimaos`): satır sayıları eşit, fit.evaitec.com health/plan/bundle 200.
@@ -30,7 +28,7 @@
 - "Yedim/içtim" = aynı turda POST + GET; "yapalım mı" = yazma (hafıza `yendi-dendi-an-yaz`). Gün toplamında kayıt listesini göster.
 - Samsung zip: `--from <gün> --no-workouts`, adımı elle PUT (daily yalnız boş alanı doldurur). Zip'i PowerShell `Expand-Archive` ile aç.
 - PC tünelini/watchdog'u AÇMA — iki tünel = veri iki DB'ye bölünür. API artık yalnız https://fit.evaitec.com (PC 127.0.0.1:3011 kapalı).
-- Docker 530'da süreç anlatma; watchdog zaten 5 dk'da bir düzeltiyor.
+- 530'da süreç anlatma: `ssh zima` → `docker compose ps` / tünel logu; tünel kimliği sahibi 65532 olmalı.
 
 ## Verify
 git log --oneline -1                                   # devir commit
