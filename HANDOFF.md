@@ -1,4 +1,4 @@
-# Handoff: 30 Eyl kapanış — gün kayıtları tam, ZimaOS taşıma hazırlıkta (ZimaOS kapalı)
+# Handoff: 30 Eyl kapanış — sunucu ZimaOS'ta canlı, gün kayıtları tam
 
 > 2026-09-30 akşam · `dev` @ `21449c9`+devir commit · test 419/419 · fit.evaitec.com health 200 (PC'de)
 > Ayrıntı ve geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
@@ -19,16 +19,17 @@
   **ZimaOS kapalı:** WOL 240 sn + SSH yoklaması 2 saat cevapsız → Dean elle açacak. Kapalıyken Eva'nın yz-litellm'i de yok.
 
 ## Next
-1. Dean "zima açık" deyince: `ssh zima` → git/compose/port (3011, 5434) yokla → repo `/DATA/AppData/life-os-wellness`
-   (public repo, clone kimliksiz) → `.env` scp chmod 600 (yeni hex parola, `DB_BIND=127.0.0.1:5434`, API_TOKEN, LLM key, CF creds)
-   → `ota/` (4.9 GB) scp → `docker compose up -d --build db api` tünelsiz → `curl 192.168.1.186:3011/health`. "Hazır" de, bekle.
-2. Cutover yalnız "geç" ile: PC tünel stop → `pg_dump -Fc` → restore → satır sayıları → ZimaOS tünel → health/ota/plan → PC api stop (silme).
+1. **Sunucu ZimaOS'ta canlı** (30 Eyl ~21:10; hafıza `sunucu-zimaos`): satır sayıları eşit, fit.evaitec.com health/plan/bundle 200.
+   PC api/db/tunnel durdu (restart=no, volume yedek, 7 Eki'ye kadar silme); PC watchdog DISABLED.
+   Açık: `ota/` kopyası arka planda sürüyordu (4.9 GB, ~2 MB/s) → `ssh zima du -sh .../ota` 4.9G mi bak; eksikse `tar -cf - ota | ssh zima tar -xf - -C /DATA/AppData/life-os-wellness`.
+   Açık: `ops/publish_ota.mjs` hâlâ PC `./ota`'ya yazıyor → ZimaOS'a scp eklenmeli. Deploy = PC build + docker save/load (ZimaOS npm ETIMEDOUT).
+2. Meyve 19:00 düzeltildi (2 g / 160 kcal) → gün 157 g / 2230 kcal.
 3. `feature/protokol` TDD (`apps/api/src/protocol.ts`). Açık teyit: başlangıç 107.5 / bel 117 / %34.8.
 
 ## Don't repeat
 - "Yedim/içtim" = aynı turda POST + GET; "yapalım mı" = yazma (hafıza `yendi-dendi-an-yaz`). Gün toplamında kayıt listesini göster.
 - Samsung zip: `--from <gün> --no-workouts`, adımı elle PUT (daily yalnız boş alanı doldurur). Zip'i PowerShell `Expand-Archive` ile aç.
-- Cutover öncesi iki tünel aynı anda açılmaz (veri iki DB'ye bölünür).
+- PC tünelini/watchdog'u AÇMA — iki tünel = veri iki DB'ye bölünür. API artık yalnız https://fit.evaitec.com (PC 127.0.0.1:3011 kapalı).
 - Docker 530'da süreç anlatma; watchdog zaten 5 dk'da bir düzeltiyor.
 
 ## Verify
