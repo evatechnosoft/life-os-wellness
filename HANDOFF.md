@@ -18,7 +18,7 @@ Günün ayrıntısı: `.claude/handoffs/latest.md` § "30 Eyl sabah".
 - Docker Desktop bugün 3× sessiz öldü (09:55, 10:12, 11:45; neden bilinmiyor; 3311'deki `netmovies/atv_power.py`
   ilgisiz — api host portu yok). Yalnız Start-Process yetmedi (motor 500), kill + `wsl --shutdown` + start çalıştı.
   Watchdog betiği bu yolu izliyor (`~/.ai/scripts/home-net/docker_watchdog.ps1`); AutoStart=true; zamanlanmış görev
-  **kurulmadı** (izin) — kayıt komutu betiğin 3. satırında. PC kapanıyor: sunucu kapalıyken telefon outbox'ta biriktirir.
+  **kuruldu** (30 Eyl 13:04, 5 dk, ilk koşu Last Result 0). PC kapanıyor: sunucu kapalıyken telefon outbox'ta biriktirir.
 - Samsung zip 29–30 Eyl aktarıldı; 28 Eyl adım 7068.
 
 ## Next
@@ -32,7 +32,6 @@ Günün ayrıntısı: `.claude/handoffs/latest.md` § "30 Eyl sabah".
 - Samsung importu seansları körlemesine POST etmez (`--from`); daily'de yalnız boş alanı doldurur → adımı elle `PUT`.
 - Hip thrust makinesinin kol ağırlığı bilinmiyor → kg = plaka toplamı, nota "kol hariç".
 - Docker 530'da süreç anlatma; watchdog betiğini çalıştır, kaydı yaz, GET göster (memory `docker-watchdog`).
-- `schtasks`/Register-ScheduledTask auto mode'da reddediliyor → Dean kendisi kurar.
 
 ## Read first
 1. `.claude/handoffs/latest.md` — son bölüm (30 Eyl sabah)
