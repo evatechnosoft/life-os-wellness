@@ -13,10 +13,14 @@ export interface ReminderSettings {
   waist_day: number
 }
 
+// v2: saatler 10:00/22:00'e cekildi (Dean, 30 Eyl). Yeni anahtar, telefonda eski
+// 09:00/21:00 kaydi kalmissa onu ezmek icin; Ayar'dan degistirilen saat buraya yazilir.
+const SETTINGS_KEY = 'reminders_v2'
+
 export const DEFAULT_REMINDERS: ReminderSettings = {
   enabled: true,
-  weigh_at: '09:00',
-  retro_at: '21:00',
+  weigh_at: '10:00',
+  retro_at: '22:00',
   waist_day: 1,
 }
 
@@ -104,7 +108,7 @@ function dueReminders(input: Parameters<typeof pendingReminders>[0]): Reminder[]
 }
 
 export function useReminderSettings(): ReminderSettings {
-  const stored = useLiveQuery(() => db.settings.get('reminders'), [])
+  const stored = useLiveQuery(() => db.settings.get(SETTINGS_KEY), [])
   return { ...DEFAULT_REMINDERS, ...((stored?.value as Partial<ReminderSettings> | undefined) ?? {}) }
 }
 
@@ -129,7 +133,7 @@ export async function skipReminder(id: Reminder['id'], today: string): Promise<v
 }
 
 export async function saveReminderSettings(settings: ReminderSettings): Promise<void> {
-  await db.settings.put({ key: 'reminders', value: settings })
+  await db.settings.put({ key: SETTINGS_KEY, value: settings })
   await scheduleNotifications(settings)
 }
 
@@ -158,7 +162,7 @@ export function nextFireAt(time: string, done: boolean, now: Date): Date {
 /** Ayari okuyup bildirimleri gunun guncel verisine gore yeniden kurar. */
 export async function refreshNotifications(): Promise<void> {
   if (!isNative()) return
-  const row = await db.settings.get('reminders')
+  const row = await db.settings.get(SETTINGS_KEY)
   await scheduleNotifications({ ...DEFAULT_REMINDERS, ...((row?.value as Partial<ReminderSettings> | undefined) ?? {}) })
 }
 
