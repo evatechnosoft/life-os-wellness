@@ -105,10 +105,11 @@ export function App() {
       void pullWorkoutPlan().catch(() => {})
       void pullProfile().catch(() => {})
       void pullGoals().catch(() => {})
+    } else {
+      // Telefon bildirimleri her acilista yeniden kurulur (ilk kurulum, APK guncellemesi).
+      // Sunucu varsa pullRange bitince kurar; cekme dusarsa onceki (senkronlu) zincir kalir.
+      void refreshNotifications().catch(() => {})
     }
-    // Telefon bildirimleri her acilista yeniden kurulur: kullanici saati Ayar'dan
-    // degistirmemis olsa da ilk kurulumda ve APK guncellemesinden sonra gerekiyor.
-    void refreshNotifications().catch(() => {})
     // Watch data on launch and every 15 min while the app stays open.
     // Telefonun hareket olaylari ayni ritimde toplanir; syncHealth bu araliklari
     // yuksek nabiz penceresini eslestirmek icin okur, o yuzden once bu kosar.
