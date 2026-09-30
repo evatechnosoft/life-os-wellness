@@ -215,3 +215,8 @@ Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL �
 
 ## Next — tek adım
 ZimaOS açılınca (ssh zima): git/compose/port 3011-5434 yokla → repo `/DATA/AppData/life-os-wellness` clone + dalı merge edip çek → `.env` (yeni parola, DB_BIND, API_TOKEN, LLM key, CF creds) scp chmod 600 → ota/ scp → `docker compose up -d --build db api` (tünelsiz) → `curl 192.168.1.186:3011/health`. Sonra Dean'e "hazır" de; cutover (PC tünel stop → pg_dump/restore → satır sayısı → ZimaOS tünel) yalnız "geç" ile. Akşam öğünü bekleniyor (gün 96 g P).
+
+## 30 Eyl akşam — öğün düzeltmeleri
+- Sabah oturumu whey'i "yendi" dedi ama POST etmemişti; akşam shake Dean sormadan (içilmeden) yazıldı → silindi. Kural hafızada: `yendi-dendi-an-yaz`.
+- Son hal (GET): 08:45 kahvaltı 34/520 · 10:45 whey 24/120 · 11:50 öğle 62/720 · 17:00 akşam 35/710 · 19:00 meyve 3/250 → **158 g / 2320 kcal**.
+- Samsung 17:35 zip: adım 6361. Next değişmedi: ZimaOS açılınca hazırlık (HANDOFF.md Next 1).

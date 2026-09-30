@@ -1,54 +1,37 @@
-# Handoff: bildirim fix canlıda, protokol Pzt 5 Eki, Docker watchdog kurulacak
+# Handoff: 30 Eyl kapanış — gün kayıtları tam, ZimaOS taşıma hazırlıkta (ZimaOS kapalı)
 
-> 2026-09-30 öğle · `dev` @ `03be176` · 0 kirli dosya · test 419/419 · fit.evaitec.com health 200, canlı paket `b2e5b0c8`
+> 2026-09-30 akşam · `dev` @ `21449c9`+devir commit · test 419/419 · fit.evaitec.com health 200 (PC'de)
+> Ayrıntı ve geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
-Dean'in günlük seans/öğün/ölçümü sohbetten API'ye (kabul = telefonda görünür); sırada `feature/protokol`
-(`docs/PLAN-PROTOKOL.md`, hedef Pzt 5 Eki) ve saat UX'i ayrı ajan (`docs/PLAN-WEAR.md` §S-next).
-Günün ayrıntısı: `.claude/handoffs/latest.md` § "30 Eyl sabah".
+1. Dean'in günlük öğün/seans/ölçümü sohbetten API'ye — kabul = telefonda görünür.
+2. Sunucuyu PC/Docker Desktop'tan ZimaOS'a taşı (Dean kararı 30 Eyl; cutover yalnız Dean "geç" deyince).
+3. Sıradaki kod işi `feature/protokol` (`docs/PLAN-PROTOKOL.md`, hedef Pzt 5 Eki).
 
-## State
-- Bildirim BUG kapandı: PR #31 `da025eb` (bildirim `pullRange` sonrası kurulur) + saatler 10:00/22:00
-  (`reminders_v2` anahtarı). Canlıda; **telefonda DOĞRULANMADI**. Açık: eklentinin geçmiş `at`'i anında
-  ateşlemesi (stale catch-up) — APK gerekebilir, Dean cevap vermedi.
-- 30 Eyl API'de (GET kanıtlı): daily 107.4 / 127-77 / nabız 56; OKOK 11 metrik; kahvaltı 34 g/520;
-  B seansı 59 dk 7 hareket (hip thrust 30 = plaka toplamı) + bisiklet 12 dk + havuz 10 dk 150 m;
-  öğle 62 g/720 (T-bone + karnabahar); uyku wearable `sleep_*` 377 dk (derin 30). Akşam öğünü YOK (gün 96 g P).
-- Adım tabanı 6.000 (hedef değil): PROGRAM/PROTOKOL/secici.html, canlıda.
-- Docker Desktop bugün 3× sessiz öldü (09:55, 10:12, 11:45; neden bilinmiyor; 3311'deki `netmovies/atv_power.py`
-  ilgisiz — api host portu yok). Yalnız Start-Process yetmedi (motor 500), kill + `wsl --shutdown` + start çalıştı.
-  Watchdog betiği bu yolu izliyor (`~/.ai/scripts/home-net/docker_watchdog.ps1`); AutoStart=true; zamanlanmış görev
-  **kuruldu** (30 Eyl 13:04, 5 dk, ilk koşu Last Result 0). PC kapanıyor: sunucu kapalıyken telefon outbox'ta biriktirir.
-- Samsung zip 29–30 Eyl aktarıldı; 28 Eyl adım 7068.
+## State (API GET kanıtlı)
+- **30 Eyl öğünler (5 kayıt, 158 g P / 2320 kcal, hepsi tahmini porsiyon):** 08:45 kahvaltı 34/520 ·
+  10:45 whey suyla 24/120 (Dean: 24 g) · 11:50 öğle T-bone 62/720 · 17:00 akşam kıymalı nohut+karnabahar+yeşil 35/710 ·
+  19:00 meyve şeftali/armut/ananas/üzüm 3/250 (miktar varsayım). Gece shake YOK (Dean sordu, içmedi — yazma).
+- Daily 30 Eyl: 107.4 kg, 127/77, adım 6361 (Samsung zip 17:35, elle PUT). Seanslar 3 (B 59 dk, bisiklet 12, havuz 10), Samsung seansları yazılmadı.
+- `ops/import_samsung.mjs`: kilo CSV opsiyonel + `--no-workouts` (dev `b8b1e08`).
+- Docker watchdog zamanlanmış görev KURULU (5 dk, Last Result 0).
+- ZimaOS: `chore/zimaos-tasima` `c822673` (lokal, push yok) — compose `POSTGRES_PASSWORD`/`DB_BIND` .env'den.
+  **ZimaOS kapalı:** WOL 240 sn + SSH yoklaması 2 saat cevapsız → Dean elle açacak. Kapalıyken Eva'nın yz-litellm'i de yok.
 
 ## Next
-1. Dean öğle/akşam öğününü yazınca `POST /api/meals` (dean-pt skill; hedef 150–165 g, kahvaltı 34 g).
-   Pallof/dead bug/plank tekrarları boş — Dean söylerse `POST /api/workouts` id `30b0e2c1-0930-4a11-9d00-000000000001` ile upsert.
-2. Dean'e sor: 0.39.0'da bildirimler 10:00/22:00 göründü mü; 22:52 gibi topluca düşme tekrarladı mı → tekrarlarsa
-   `apps/web/src/lib/reminders.ts` `notificationsFor`: `at` yerine `on:{hour,minute}` + APK.
-3. `feature/protokol`: `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → site kartı → Hafta kartı.
+1. Dean "zima açık" deyince: `ssh zima` → git/compose/port (3011, 5434) yokla → repo `/DATA/AppData/life-os-wellness`
+   (public repo, clone kimliksiz) → `.env` scp chmod 600 (yeni hex parola, `DB_BIND=127.0.0.1:5434`, API_TOKEN, LLM key, CF creds)
+   → `ota/` (4.9 GB) scp → `docker compose up -d --build db api` tünelsiz → `curl 192.168.1.186:3011/health`. "Hazır" de, bekle.
+2. Cutover yalnız "geç" ile: PC tünel stop → `pg_dump -Fc` → restore → satır sayıları → ZimaOS tünel → health/ota/plan → PC api stop (silme).
+3. `feature/protokol` TDD (`apps/api/src/protocol.ts`). Açık teyit: başlangıç 107.5 / bel 117 / %34.8.
 
 ## Don't repeat
-- Samsung importu seansları körlemesine POST etmez (`--from`); daily'de yalnız boş alanı doldurur → adımı elle `PUT`.
-- Hip thrust makinesinin kol ağırlığı bilinmiyor → kg = plaka toplamı, nota "kol hariç".
-- Docker 530'da süreç anlatma; watchdog betiğini çalıştır, kaydı yaz, GET göster (memory `docker-watchdog`).
-
-## Read first
-1. `.claude/handoffs/latest.md` — son bölüm (30 Eyl sabah)
-2. `docs/MENU-30EYL-2EKI.md` — bugün Çar, yarın Per menüsü
-3. `docs/PLAN-PROTOKOL.md` — sıradaki kod işi
+- "Yedim/içtim" = aynı turda POST + GET; "yapalım mı" = yazma (hafıza `yendi-dendi-an-yaz`). Gün toplamında kayıt listesini göster.
+- Samsung zip: `--from <gün> --no-workouts`, adımı elle PUT (daily yalnız boş alanı doldurur). Zip'i PowerShell `Expand-Archive` ile aç.
+- Cutover öncesi iki tünel aynı anda açılmaz (veri iki DB'ye bölünür).
+- Docker 530'da süreç anlatma; watchdog zaten 5 dk'da bir düzeltiyor.
 
 ## Verify
-git rev-parse --short HEAD                       # 03be176 (değilse git log 03be176..HEAD)
-git status --porcelain | grep -v worktrees        # boş
-npm test 2>&1 | grep Tests                        # 419 passed
-curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health   # 200 (530 → docker_watchdog.ps1)
-
-## <yeniden başlangıç> promptu (yapıştır)
-```
-Durum: life-os-wellness dev @ 03be176 temiz. Bildirim fix (#31, 10:00/22:00) canlıda ama telefonda doğrulanmadı.
-30 Eyl kahvaltı+B seansı+havuz API'de; öğle/akşam öğünü yok. Docker Desktop sabah 2× düştü; watchdog betiği hazır,
-zamanlanmış görevi Dean kuracak. Sıradaki kod işi feature/protokol (Pzt 5 Eki).
-Ortam: D:\projects\evaitec\lifeOS\life-os-wellness, docker compose --profile tunnel, fit.evaitec.com.
-Önce HANDOFF.md oku, Verify çalıştır. Öncelik: Next 1 (öğün kaydı, dean-pt), 2, sonra 3. Yeni iş açma.
-```
+git log --oneline -1                                   # devir commit
+curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health   # 200
+ssh -o ConnectTimeout=5 zima true && echo zima-up      # açık mı
