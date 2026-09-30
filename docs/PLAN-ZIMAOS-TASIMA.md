@@ -1,6 +1,6 @@
 # PLAN — Sunucuları PC'den ZimaOS'a taşıma
 
-> 2026-09-25 · Durum: **keşif bitti, cutover Dean onayı bekliyor** · Keşif yalnız okuma komutlarıyla yapıldı
+> 2026-09-25 · Durum: **TAMAMLANDI 30 Eyl ~21:10** — canlı ZimaOS (satır sayıları eşit, health 200). PC konteynerleri durdu, volume yedek. Ayrıntı: hafıza `sunucu-zimaos`.
 > (PC: `docker ps/inspect/volume/system df`, `du`; ZimaOS: `ssh zima` okuma). Hiçbir şey durdurulmadı/kurulmadı.
 
 ## Envanter (PC)

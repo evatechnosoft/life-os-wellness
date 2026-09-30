@@ -315,7 +315,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const fromIndex = args.indexOf('--from')
   const from = fromIndex >= 0 ? args[fromIndex + 1] : null
   const apiIndex = args.indexOf('--api')
-  const api = apiIndex >= 0 ? args[apiIndex + 1] : 'http://127.0.0.1:3011'
+  const api = apiIndex >= 0 ? args[apiIndex + 1] : 'https://fit.evaitec.com'
 
   const { dir, cleanup } = openExport(path)
   let result

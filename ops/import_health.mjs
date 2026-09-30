@@ -191,7 +191,7 @@ const from = fromIndex >= 0 ? args[fromIndex + 1] : null
 const after = (date) => from === null || date >= from
 const withWorkouts = args.includes('--workouts')
 const apiIndex = args.indexOf('--api')
-const api = apiIndex >= 0 ? args[apiIndex + 1] : 'http://127.0.0.1:3011'
+const api = apiIndex >= 0 ? args[apiIndex + 1] : 'https://fit.evaitec.com'
 
 const { dbPath, cleanup } = openExport(path)
 let result
