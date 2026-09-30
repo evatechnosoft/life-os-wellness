@@ -252,6 +252,9 @@ export async function pullRange(start: string, end: string): Promise<void> {
     await db.meal.bulkPut(meals.map((m, i) => (local[i]?.photo ? { ...m, photo: local[i]!.photo } : m)))
     await db.measurement.bulkPut(measurements)
   })
+  // Sunucu tek gercek: bildirimler ancak cekilen veriye gore kurulur. Sohbetten
+  // API'ye yazilan kilo/ogun telefona inmeden "girmedin" bildirimi kurulmasin.
+  refreshReminders()
 }
 
 /**
