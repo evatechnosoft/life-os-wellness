@@ -5,6 +5,7 @@
 //   npm run import:samsung -- <yol> --dry-run  -> sadece ozet basar
 //   npm run import:samsung -- <yol> --api http://192.168.1.185:3311
 //   npm run import:samsung -- <yol> --from 2026-09-12   -> o tarihten oncesini atar
+//   npm run import:samsung -- <yol> --no-workouts       -> seanslari yazmaz (yalniz adim/tansiyon)
 //
 // Ne alinir: gunluk adim, kilo, tansiyon ve anlamli egzersiz seanslari.
 // Saat hareket adini (omuz/kol) arsive yazmiyor - yalniz seans tipi var; hareket
@@ -67,10 +68,11 @@ export function parseCsv(text) {
 }
 
 /** Samsung CSV'si: 1. satir meta, 2. satir baslik. Nesne dizisi dondurur. */
-function readTable(dir, name) {
+function readTable(dir, name, optional = false) {
   // Tam eslesme: "…exercise" prefixi "…exercise.custom_exercise" dosyasini da yakalar.
   const wanted = new RegExp(`^${name.replace(/\./g, '\\.')}\\.\\d+\\.csv$`)
   const file = readdirSync(dir).find((f) => wanted.test(f))
+  if (!file && optional) return []
   if (!file) throw new Error(`${name}*.csv arsivde yok`)
   const text = readFileSync(join(dir, file), 'utf8').replace(/^﻿/, '')
   const rows = parseCsv(text)
@@ -162,8 +164,9 @@ export function collect(dir, from = null) {
     put(date, 'steps', steps)
   }
 
-  // Kilo: gunun son olcumu gecerli (satirlar zaman sirali).
-  for (const r of readTable(dir, 'com.samsung.health.weight')) {
+  // Kilo: gunun son olcumu gecerli (satirlar zaman sirali). Tablo her disa aktarimda
+  // gelmiyor (30 Eyl zip'i: yok) - kilo zaten OKOK'tan girildigi icin eksik olmasi hata degil.
+  for (const r of readTable(dir, 'com.samsung.health.weight', true)) {
     const kg = Math.round(Number(r.weight) * 10) / 10
     if (!Number.isFinite(kg) || kg <= 0) continue
     const date = localDay(r.start_time, r.time_offset)
@@ -359,6 +362,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     written++
   }
   // Seanslar: id = Samsung datauuid, tekrar calistirma uzerine yazar.
-  for (const w of workouts) await send(api, token, 'POST', '/api/workouts', w)
+  // --no-workouts: seans elle/koctan girildiyse Samsung kopyasi ikinci seans olur.
+  if (!args.includes('--no-workouts')) for (const w of workouts) await send(api, token, 'POST', '/api/workouts', w)
   console.log(`\nyazildi. gunluk: ${written} gun dolduruldu, ${skipped} gun zaten doluydu. antrenman: ${workouts.length}`)
 }
