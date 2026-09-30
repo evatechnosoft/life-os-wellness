@@ -4,10 +4,12 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: wellness
-      POSTGRES_PASSWORD: wellness
+      # Parola .env'den; yoksa eski PC kurulumunun degeri (mevcut volume o parolayla olustu).
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wellness}
       POSTGRES_DB: wellness
     ports:
-      - "5433:5432"
+      # ZimaOS'ta 5433 dolu ve DB LAN'a acilmaz: .env'de DB_BIND=127.0.0.1:5434.
+      - "${DB_BIND:-5433}:5432"
     volumes:
       - wellness_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -21,7 +23,7 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     environment:
-      DATABASE_URL: postgres://wellness:wellness@db:5432/wellness
+      DATABASE_URL: postgres://wellness:${POSTGRES_PASSWORD:-wellness}@db:5432/wellness
       API_TOKEN: ${API_TOKEN:-change-me}
       API_PORT: 3011
       # Ev YZ gecidi (ZimaOS yz-litellm, netmovies repo infra/yz): saglayici anahtari orada,
