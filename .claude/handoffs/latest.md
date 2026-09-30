@@ -194,3 +194,10 @@ Açık kontrol: 22–24 Eyl `daily` tansiyonu saatten mi geldi (7-gün ortalamas
 ## Next — tek adım
 **Takvim (Dean, 30 Eyl):** protokol takibi Pazartesi 5 Eki'ye tasarlanır, sıkıştırılmaz; erken biterse Cuma 2 Eki aktif. Dean 30 Eyl seans + ölçümleri yarın (1 Eki) iletecek → API'ye yaz.
 Kod: `feature/protokol` dalında `apps/api/src/protocol.ts` TDD (PLAN-PROTOKOL §Hesap) → endpoint → site kartı (`secici.html` Hafta) → web Hafta kartı + reminders id 4 (Dean son karar 30 Eyl gece: site kartı VAR, ilk teslim, token'sız salt-okunur özet endpoint; uygulama kartı kabul edilince site kartı kalkar. Açık: başlangıç 107.5/117/34.8 teyidi). Deploy: `docker compose up -d --build api` + bundle version kontrol. Kabul: telefonda Hafta sekmesinde kart.
+
+## 30 Eyl sabah — bildirim fix canlıda, B seansı + ölçümler API'de, Docker iki kez düştü
+- **Bildirim BUG kapatıldı:** PR #31 (`da025eb`) — `pullRange` sonunda `refreshReminders()`, mount'ta yalnız sunucusuz kurulumda. Saatler 10:00/22:00 (`reminders_v2` anahtarı, eski 09:00/21:00 kaydını ezer). 419 test, canlı paket `b2e5b0c8`. Telefonda DOĞRULANMADI. Açık: eklentinin geçmiş `at` → anında ateşleme davranışı (stale catch-up) için APK gerekebilir, Dean'e soruldu, cevap yok.
+- **Adım 6.000 taban** (hedef değil) — PROGRAM §"Adım standardı", PROTOKOL, secici.html; canlıda.
+- **30 Eyl API'de (GET kanıtlı):** daily 107.4 kg, kolluk 127/77 nabız 56; OKOK 11 metrik + Samsung 29–30 Eyl adım/tansiyon (28 Eyl adım 7068'e düzeltildi); kahvaltı 34 g/520; B seansı 59 dk 7 hareket (hip thrust 30 plaka toplamı, row 25, eğimli göğüs 30, kablo triceps 25, pallof 15, dead bug, plank; pallof/dead bug/plank tekrar boş) + bisiklet 12 dk; saat 1:11:11, 583 kcal, ort 111/maks 155. Yüzme bekleniyor.
+- **Docker Desktop 2× sessiz öldü** (~09:55 ve ~10:12; backend logunda kapanma yok). Çözüm: tam yeniden başlatma (`Stop-Process` + `wsl --shutdown` + başlat). AutoStart=true yapıldı; watchdog betiği `~/.ai/scripts/home-net/docker_watchdog.ps1` (zamanlanmış görev kurulmadı — izin, Dean kuracak). Şüphe: paralel Claude oturumu (ZimaOS taşıma?) — doğrulanmadı.
+- Hafıza: `salon-b-kayit-kurali`, `docker-watchdog`.
