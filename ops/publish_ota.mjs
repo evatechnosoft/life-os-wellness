@@ -68,6 +68,10 @@ const wearApk = `wellness-wear-${version}.apk`
 const today = new Date().toISOString().slice(0, 10)
 mkdirSync(otaDir, { recursive: true })
 for (const f of [phoneApk, wearApk]) copyFileSync(join(dir, f), join(otaDir, f))
+// fit.evaitec.com/ota ZimaOS'tan servis ediliyor (30 Eyl'den beri); PC'deki ./ota yalniz arsiv.
+// Katalog guncellenmeden once dosya sunucuda olmali, yoksa telefon 404 indirir.
+const zimaOta = process.env.OTA_REMOTE ?? 'zima:/DATA/AppData/life-os-wellness/ota/'
+execFileSync('scp', [phoneApk, wearApk, zimaOta], { cwd: otaDir, stdio: 'inherit' })
 
 const entries = {
   'wellness-phone': {
