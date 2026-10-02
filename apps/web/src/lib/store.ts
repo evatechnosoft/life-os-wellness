@@ -228,6 +228,25 @@ async function recordRejection(entry: OutboxEntry, err: unknown): Promise<void> 
   await db.settings.put({ key: REJECTED_KEY, value: [...previous, record].slice(-20) })
 }
 
+/**
+ * Gunun proteini en az o gunun ogun toplami. Uygulama ogun kaydederken
+ * daily_log.protein_g'yi kendisi artiriyor; sohbetten API'ye yazilan ogun bunu
+ * yapmiyor (2 Eki: ogunler 177 g, halka 0/180). Halka, hafta ve koc daily_log
+ * okudugu icin tek duzeltme yeri cekilen veri.
+ * ponytail: max - ogun baska cihazdan silinirse/dusurulurse yerel toplam
+ * yuksek kalabilir; elle protein dugmesi ile ogunu ayirmak icin ayri alan gerekir.
+ */
+export function withMealProtein(daily: DailyLog[], meals: Meal[], stamp: string): DailyLog[] {
+  const sums = new Map<string, number>()
+  for (const m of meals) sums.set(m.date, (sums.get(m.date) ?? 0) + (m.protein_g ?? 0))
+  const byDate = new Map(daily.map((d) => [d.date, d]))
+  for (const [date, sum] of sums) {
+    const row = byDate.get(date)
+    if (sum > (row?.protein_g ?? 0)) byDate.set(date, { ...(row ?? { date, updated_at: stamp }), protein_g: sum })
+  }
+  return [...byDate.values()]
+}
+
 /** Pulls the server's copy into IndexedDB. Used on load so a second device sees existing data. */
 export async function pullRange(start: string, end: string): Promise<void> {
   const query = `?start=${start}&end=${end}`
@@ -241,7 +260,8 @@ export async function pullRange(start: string, end: string): Promise<void> {
   ])
   // Dizi bicimi: Dexie'nin tek tek tablo alan imzasi bes tabloda bitiyor.
   await db.transaction('rw', [db.daily_log, db.workout, db.retro, db.wearable, db.meal, db.measurement], async () => {
-    await db.daily_log.bulkPut(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? now() })))
+    const stamp = now()
+    await db.daily_log.bulkPut(withMealProtein(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? stamp })), meals, stamp))
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
     // Sunucu kendi uuid'sini veriyor; yerel anahtar date+metric oldugu icin

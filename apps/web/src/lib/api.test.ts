@@ -61,3 +61,21 @@ describe('ulasilamayan elle adres', () => {
     expect(calls).toBe(1)
   })
 })
+
+describe('cagiranin suresi olan istek (Eva, 25 sn)', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('olu elle adres cagiranin suresini yemez - 5 sn sonra varsayilana gecer (2 Eki: sunucu 200 dedi, telefon "Sunucu kapali")', async () => {
+    setApiBase('http://192.168.1.185:3011')
+    globalThis.fetch = ((url: string, init: RequestInit) =>
+      new Promise((resolve, reject) => {
+        const signal = init.signal!
+        if (signal.aborted) return reject(signal.reason)
+        // Gercek fetch gibi: iptal edilen sinyal istegi keser.
+        signal.addEventListener('abort', () => reject(signal.reason))
+        // LAN adresi hic cevap vermez (TCP zaman asimi); asil sunucu hemen cevaplar.
+        if (!url.startsWith('http://192.168.1.185')) resolve(new Response('{"text":"ok"}', { status: 200 }))
+      })) as typeof fetch
+    await expect(api('/api/chat', { method: 'POST', signal: AbortSignal.timeout(8000) })).resolves.toEqual({ text: 'ok' })
+  }, 10_000)
+})
