@@ -1,5 +1,4 @@
 const TOKEN_KEY = 'wellness.api_token'
-const BASE_KEY = 'wellness.api_base'
 
 /** Giris alan adi: PWA'yi da API'yi de ayni konteyner servis eder. */
 const SERVER = 'https://fit.evaitec.com'
@@ -8,19 +7,14 @@ const SERVER = 'https://fit.evaitec.com'
  * Where the API lives. Served from fit.evaitec.com the app is already on the API's
  * origin, so the base is empty and no request leaves the origin. Dev is the same shape:
  * Vite proxies /api to :3011. Only the callers that cannot be same-origin -- the APK's
- * webview, the Pages mirror -- need the full URL. Overridable for the home network.
+ * webview, the Pages mirror -- need the full URL. Tek adres: elle sunucu adresi (ev agi)
+ * 2 Eki'de kaldirildi - eski LAN adresi telefonda kalip Eva'yi ve senkronu bekletiyordu.
  */
 const DEFAULT_BASE =
   !import.meta.env.PROD || window.location.origin === SERVER ? '' : SERVER
 
 export function getApiBase(): string {
-  return localStorage.getItem(BASE_KEY) ?? DEFAULT_BASE
-}
-
-export function setApiBase(base: string): void {
-  const trimmed = base.trim().replace(/\/$/, '')
-  if (trimmed) localStorage.setItem(BASE_KEY, trimmed)
-  else localStorage.removeItem(BASE_KEY)
+  return DEFAULT_BASE
 }
 
 export function getToken(): string {
@@ -38,29 +32,9 @@ export class ApiError extends Error {
   }
 }
 
-/** Elle yazilmis adres icin bekleme: olu LAN adresi TCP zaman asimina kadar asiliyordu. */
-const OVERRIDE_TIMEOUT_MS = 5000
-
-/**
- * Thin fetch wrapper. Callers must treat a rejection as "still offline", never as data loss.
- *
- * Elle yazilmis adrese (ev agi) ulasilamazsa varsayilana duser: sunucunun LAN adresi
- * degisince (192.168.1.185 -> 192.168.0.4) telefon kendini sunucusuz sanip eski
- * yerel veriyle kaldi. Sunucu cevap verdiyse (4xx/5xx) ikinci deneme yok.
- */
+/** Thin fetch wrapper. Callers must treat a rejection as "still offline", never as data loss. */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const base = getApiBase()
-  if (base === DEFAULT_BASE) return request<T>(base, path, init)
-  try {
-    // Elle adres kendi 5 sn'sini alir, cagiranin suresi ayrica gecerli: Eva 25 sn
-    // verince olu LAN adresi butun sureyi yiyor, varsayilana iptal edilmis sinyalle
-    // gidiliyordu - sunucu 200 donup telefon "Sunucu kapali" diyordu (2 Eki).
-    const timeout = AbortSignal.timeout(OVERRIDE_TIMEOUT_MS)
-    return await request<T>(base, path, { ...init, signal: init.signal ? AbortSignal.any([init.signal, timeout]) : timeout })
-  } catch (err) {
-    if (err instanceof ApiError) throw err
-    return request<T>(DEFAULT_BASE, path, init)
-  }
+  return request<T>(DEFAULT_BASE, path, init)
 }
 
 async function request<T>(base: string, path: string, init: RequestInit): Promise<T> {
