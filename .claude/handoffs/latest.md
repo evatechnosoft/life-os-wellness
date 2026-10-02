@@ -283,3 +283,8 @@ Dean "deploy" derse ZimaOS: `cd /DATA/AppData/life-os-wellness && git pull && do
 - Önce yedek: `backups/wellness-2026-10-02-*-predeploy.sql.gz` (2 adet).
 - **Açık:** kalıcı bildirim kaynağı teyitsiz (kodda tek kalıcı bildirim `SleepService` "Uyku takibi açık", START_STICKY + otomatik durmuyor → APK düzeltmesi aday); Dean bildirim başlığını söylemedi. "Saat verisi 9 gündür yok": saat Dean'in diğer telefonuna eşli — o telefona APK + aynı token kurulursa HC senkronu oradan gelir (iki cihazda bildirim çift çalar).
 - Dean'e: Ayarlar'daki sunucu adresi alanını boşalt (eski LAN adresi).
+
+## 2 Eki 22:30 — elle sunucu adresi kaldırıldı, paket kendiliğinden (en yeni)
+- PR #37 (`0548107`) canlı, paket `6e7a5c55`: Ayar "Sunucu adresi" + `?api=` + yedek adres mantığı SİLİNDİ, eski kayıt açılışta temizlenir. "Yenile" şeridi yok: `updateScreens()` açılışta + `visibilitychange` (uygulamaya dönüş) + aşağı çekmede paketi kendiliğinden uygular. Kök: kontrol yalnız soğuk açılıştaydı, Dean şeridi hiç görmedi.
+- Telefonda eski paket hâlâ eski mantıkta: Dean bir kez uygulamayı tamamen kapatıp açmalı (şerit çıkarsa son kez Yenile). Telefonda DOĞRULANMADI.
+- Dean'in "saatte 2 buton bir uzun yazı" = Ayar → "Saat uygulaması" (Saate gönder) + "Telefon uygulaması" (Güncelleme denetle) kartları; şu an gerek yok.
