@@ -198,3 +198,25 @@ Saat gece takılırsa Samsung uyku verisi gelir; hedef 7 saat+ ortalama.
 ## Adım standardı (Dean, 30 Eyl)
 Günlük adım **hedef değil, taban: 6.000** (7-gün ort). Kış geliyor; 9.000+ havaya bağlı bonus sayılır, borç değil.
 §3 kademesi, §8 "taban 8.500" ve PROTOKOL-12-HAFTA "10.000" bununla değişti. Yemek sonrası 5–10 dk yürüyüş kalır.
+
+## Sistem kararı yeniden doğrulandı — 2 Eki (alt ajan, birincil kaynak)
+
+21 Eyl kararı (3 gün → tüm vücut) kanıtla uyumlu; split lehine veri yok. Düzeltmeler:
+
+- "Split vs full-body 2024" = Ramos-Campo ve ark., JSCR 2024, PMID 38595233 (14 çalışma, n=392):
+  hacim eşitken kuvvet ve hipertrofi farkı yok (p>0.3). 2025–26 daha yeni meta bulunamadı.
+- Frekans: Schoenfeld 2019 (PMID 30558493) fark yok; Pelland ve ark. Sports Med 2026
+  (PMID 41343037, 67 çalışma) frekans etkisi "negligible". Her iki PMID doğrulandı.
+- **"Seans başı 15+ set → böl" iddiasının birincil kaynağı YOK (doğrulanmadı).** En yakın:
+  Remmert 2025 preprint (SportRxiv 10.51224/SRXIV.537) seans içi azalan getiri ≈11 set/kas;
+  14 set/seans tüm-vücutta kas başına bu eşik aşılmıyor.
+- Açıkta koruma dozu: Roth 2023 (PMID 36114738) 3 vs 5 set/hareket eşit koruma; Spiering 2021
+  (PMID 33629972) 2 seans × 2–3 set korur; Robinson 2024 (10.1007/s40279-024-02069-2) kuvvet
+  RIR'den bağımsız, hipertrofi failure'a yaklaştıkça artar → RIR 1–2.
+  Murphy & Koehler 2022 (10.1111/sms.14075): >500 kcal/gün açık yağsız kütle kazanımını siler.
+- Obez/orta yaş özel set dozu metası yok (doğrulanmadı).
+
+**Haftaya (5 Eki) şablon:** Pzt A / Çar B / Cum A′, 7 hareket × **2 set × 12, RIR 1–2**
+(bacak itiş, bacak çekiş/kalça, göğüs, sırt yatay, sırt dikey, omuz, kol/core dönüşümlü),
+14 set/seans, ~45 dk. Kas başı haftada 6 ana + 2–4 dolaylı set. 3. set yalnız ikinci set
+15'i geçince eklenir. Sal/Per yüzme ya da yürüyüş değişmez.
