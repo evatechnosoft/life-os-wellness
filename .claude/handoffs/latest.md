@@ -288,3 +288,8 @@ Dean "deploy" derse ZimaOS: `cd /DATA/AppData/life-os-wellness && git pull && do
 - PR #37 (`0548107`) canlı, paket `6e7a5c55`: Ayar "Sunucu adresi" + `?api=` + yedek adres mantığı SİLİNDİ, eski kayıt açılışta temizlenir. "Yenile" şeridi yok: `updateScreens()` açılışta + `visibilitychange` (uygulamaya dönüş) + aşağı çekmede paketi kendiliğinden uygular. Kök: kontrol yalnız soğuk açılıştaydı, Dean şeridi hiç görmedi.
 - Telefonda eski paket hâlâ eski mantıkta: Dean bir kez uygulamayı tamamen kapatıp açmalı (şerit çıkarsa son kez Yenile). Telefonda DOĞRULANMADI.
 - Dean'in "saatte 2 buton bir uzun yazı" = Ayar → "Saat uygulaması" (Saate gönder) + "Telefon uygulaması" (Güncelleme denetle) kartları; şu an gerek yok.
+
+## 2 Eki 23:00 — bildirim düğmeleri, akşam eşiği, seçici 2 set (en yeni)
+- PR #38 akşam yemeği eşiği 17:00→16:00 (palamut 16:21 "akşam yok" sayılıyordu). PR #39 `/plan/` seçici tüm vücut 2 set ×12 (bölünmüş sistem değişmedi). PR #40 bildirimde Cevapla / Geç (`registerActionTypes`, listener App mount; Geç = `skipReminder` → iptal + bugün sorulmaz). Canlı paket `c0f0c90c`. Telefonda DOĞRULANMADI.
+- Kalıcı bildirim = "Akşam yemeği" + "Akşam retrosu" hatırlatmaları (Dean). Kaydırma "yapıldı" saymıyor; tekrar kurulumda (pull/kayıt) yarına kurulmalı — "durmadan" tekrarın mekanizması BULUNAMADI. Yarın tekrar ederse bak.
+- Bekleyen: retro 2 Eki (Dean'e 3 soru soruldu); "Haftayı kur"u uygulamanın Plan sekmesine taşıma önerildi (plan.js ortak) — Dean "yap" demedi.
