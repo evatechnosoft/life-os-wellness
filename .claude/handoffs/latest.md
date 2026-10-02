@@ -254,3 +254,9 @@ Dean akşam yemeğini söyleyince POST + GET, gün toplamını kayıt listesiyle
 - 1 Eki akşam 20:46 27/450 zaten API'de (Dean girmiş). Gün 1 Eki: 174 g / 2510 kcal.
 - **Health Connect senkron ÇALIŞMIYOR:** `/api/wearable` `source` filtresini yok sayıyor; gruplayınca `health_connect` kaynaklı kayıt 25 Eyl'den beri YOK. Kaynaklar: okok/samsung_csv/samsung/watch_app/cuff. Dean'e telefonda Samsung Health→Health Connect paylaşımı + uygulama Ayarlar→Saat senkron soruldu.
 - **ZimaOS WiFi (düzeltildi):** Dell BIOS LAN/WLAN Switching — kablo takılınca WiFi radyosu donanımdan kapanır, çıkınca açılır. Kanıt dmesg: eth0 Link Up 1585 s → RF_KILL 1590 s; tünel 10:06'da (kablo 10:26'dan önce) WiFi ile kayıtlıydı. Fallback zaten var, BIOS değişikliği GEREKMEZ. Sabahki kesinti ağ değil, makine kapalıydı. Not: eth0 100 Mbps (gigabit değil) → kablo/port kontrol.
+
+## 2 Eki akşam — sistem denetimi + gün kapandı (en yeni)
+- Gün 2 Eki (GET): kahvaltı 45/600 · whey 24/120 (`...9c00-...0004`, akşam POST'unda id çakışıp ezilince yeniden yazıldı) · öğle 58/610 · akşam airfryer palamut 350 g çiğ bütün balık + salata 50/400 (`...0003`) → 177 g / 1730 kcal.
+- Denetim: typecheck 0, test 419+71+6 yeşil (api yerel PG18 `--locale=C` ile), build 0, canlı GET'ler 200, 5xx 0.
+- Prod açıkları (onay bekliyor): yedek yok · konteynerler restart=no · 009 migration kaydı yok · /health DB'siz. Kod: wearable source filtresi, Settings.tsx:451 toISOString, fastify audit, lint yok.
+- Ayrıntı ve Next: HANDOFF.md.
