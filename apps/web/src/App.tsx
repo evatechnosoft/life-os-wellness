@@ -9,7 +9,7 @@ import { autoCheckPhoneUpdate, checkPhoneUpdate, drainWatch, installPhoneUpdate,
 import { pullProfile } from './lib/profile'
 import { pullGoals } from './lib/settings'
 import { pullSplit } from './lib/split'
-import { refreshNotifications } from './lib/reminders'
+import { listenReminderActions, refreshNotifications } from './lib/reminders'
 import { REJECTED_KEY, hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
 import { getApiBase } from './lib/api'
 import { syncBadge } from './lib/syncStatus'
@@ -129,6 +129,8 @@ export function App() {
     void sync()
     // Arka plan senkronu: uygulama kapaliyken de 8 saatte bir olcum aksin.
     void scheduleBackgroundSync().catch(() => {})
+    // Bildirimdeki Cevapla / Gec dugmeleri. Listener kurulmadan "Gec" bosa basilir.
+    void listenReminderActions().catch(() => {})
     // Telefon guncellemesi: acilista bir kez, sonra en fazla gunde bir (lib/watch.ts).
     // Guncelleme yoksa hicbir sey gosterilmiyor - yalnizca Ayar sekmesine bir nokta duser.
     void autoCheckPhoneUpdate()
