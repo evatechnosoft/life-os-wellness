@@ -276,3 +276,10 @@ Dean "deploy" derse ZimaOS: `cd /DATA/AppData/life-os-wellness && git pull && do
 - **Restart politikası:** api/db/tunnel üçü de `unless-stopped` (api recreate, db/tunnel `docker update` — kesintisiz). HANDOFF Next 1a'nın restart kısmı KAPANDI.
 - **ZimaOS compose tuzağı:** düz `docker compose` çalışmıyor (`/DATA/.docker` root, permission denied; `.docker-dean/buildx/.lock` root sahipli). Çalışan: `DOCKER_CONFIG=$(mktemp -d /tmp/dc.XXXX) /usr/lib/docker/cli-plugins/docker-compose up -d --build api`.
 - Açık: günlük pg_dump cron (backups/ dizini var, cron yok) · 009 migration kaydı · fix/health-db · envanterde chest press ve plakalı makine iki ayrı satır+foto, Dean "tek makine" dedi — teyit edilmedi, doküman değişmedi.
+
+## 2 Eki 22:00 — halka 0/180 + Eva "Sunucu kapalı" düzeltildi, canlıda (en yeni)
+- **PR #36 (`ec0ae81`) canlı, paket `2b419aaf`:** (1) halka/hafta/koç `daily_log.protein_g` okuyordu; sohbetten POST edilen öğün bu alanı doldurmuyor (sunucuda 22 Eyl–2 Eki hep boş, öğün toplamı 140–196). `pullRange` artık günün proteinini en az öğün toplamı yapıyor (`withMealProtein`). Headless Chrome canlı: 0/180 → **177/180**. (2) Eva: telefonda elle LAN adresi (Ayarlar → sunucu adresi) çağıranın 25 sn sinyalini yiyordu, varsayılana iptal edilmiş sinyalle gidiyordu → sunucu 200 (21:37:39, 1.9 sn), telefon "Sunucu kapalı". Elle adres artık kendi 5 sn'si (`AbortSignal.any`). Telefonda DOĞRULANMADI.
+- Split notları (Pzt/Çar/Cum) "3×12 RIR 2" → "2×12 RIR 1–2" (PUT 200 + GET). Not alanı max 200 karakter.
+- Önce yedek: `backups/wellness-2026-10-02-*-predeploy.sql.gz` (2 adet).
+- **Açık:** kalıcı bildirim kaynağı teyitsiz (kodda tek kalıcı bildirim `SleepService` "Uyku takibi açık", START_STICKY + otomatik durmuyor → APK düzeltmesi aday); Dean bildirim başlığını söylemedi. "Saat verisi 9 gündür yok": saat Dean'in diğer telefonuna eşli — o telefona APK + aynı token kurulursa HC senkronu oradan gelir (iki cihazda bildirim çift çalar).
+- Dean'e: Ayarlar'daki sunucu adresi alanını boşalt (eski LAN adresi).
