@@ -220,3 +220,37 @@ ZimaOS açılınca (ssh zima): git/compose/port 3011-5434 yokla → repo `/DATA/
 - Sabah oturumu whey'i "yendi" dedi ama POST etmemişti; akşam shake Dean sormadan (içilmeden) yazıldı → silindi. Kural hafızada: `yendi-dendi-an-yaz`.
 - Son hal (GET): 08:45 kahvaltı 34/520 · 10:45 whey 24/120 · 11:50 öğle 62/720 · 17:00 akşam 35/710 · 19:00 meyve 3/250 → **158 g / 2320 kcal**.
 - Samsung 17:35 zip: adım 6361. Next değişmedi: ZimaOS açılınca hazırlık (HANDOFF.md Next 1).
+
+## 1 Eki — gün kaydı, publish_ota ZimaOS, ZimaOS kesintisi (en yeni)
+- **Kayıtlı (API GET kanıtlı):** daily 1 Eki 107.05 kg, 114/77 (nabız alanı yok; Dean "nabız o verdiğim" dedi — 114/77 tansiyon kabul).
+  OKOK 10 metrik (`/api/wearable` source=okok): yağ %34.5 / 37.0 kg, iskelet kası 35.0, visseral 25.5, bmr 2013.6.
+  Öğünler (id `1001a0e2-1001-4a11-9c00-00000000000{1,2,3}`): 08:30 kahvaltı 37/480 · 12:30 öğle tavuk+bulgur+yoğurt 72/720 ·
+  13:45 kapalı kır pidesi + ayran 32/560 (Dean düzeltti: kır pidesi, küçük) · 16:31 kumpirden azıcık 6/300 (id ...004, tahmin). Gün şu an 147 g / 2060 kcal.
+- **Akşam:** Dean kumpirden azıcık yedi (yazıldı). Akşama "belki" çorba + ton balıklı salata — planlanan, YAZILMADI; yediğini söyleyince POST (ton ~150 g ≈35 g P, bu hafta ilk ton).
+- **Trend:** 7-gün ort 22 Eyl 107.63 → 1 Eki 107.56 (≈0.1 kg / 10 gün, hedef 0.6/hafta) → plato sınırı. Adaylar: 27 Eyl serbest gün 3417 kcal, 29–30 Eyl adım 3330/6361, kreatin su. Dean'e bel ölçümü istendi (son 117, 21 Eyl).
+- **Kod:** `f5b28cc` (dev, push) `ops/publish_ota.mjs` APK'ları `scp` ile `zima:/DATA/AppData/life-os-wellness/ota/` (env `OTA_REMOTE`). scp + sha256 doğrulandı; betiğin tamamı yeni sürümle koşulmadı.
+  ZimaOS ota/: yalnız 0.39.0 APK'lar + Gemma (hepsi 206); eski APK'lar PC arşivinde, bilerek kopyalanmadı.
+- **Test kırmızı (biliniyor):** `@wellness/api` testi `127.0.0.1:5433` Postgres istiyor; PC db durdu → ECONNREFUSED. Web 419/419 yeşil. Çözüm adayı: test için geçici Postgres. ZimaOS prod DB'ye test BAĞLAMA (veri silebilir).
+- **ZimaOS kesintisi ~13:50:** fit.evaitec.com 530, ssh/ports zaman aşımı, WOL 240 sn cevapsız; ~14:38 kendiliğinden geri geldi (health 200). Kök neden araştırılmadı.
+- **CRM tüneli (Dean: "atla", ertelendi):** `crm.evaitec.com` wellness tünelinin config'inde (ZimaOS canlı; PC'de `ops/cloudflared/config.yml` uncommitted diff — commit ETME). Hedef: CRM kendi tüneli → `D:/projects/evaitec/crm/docker-compose.zima.yml`. Engel: PC `~/.cloudflared/cert.pem` 30 Eyl'de süresi dolmuş → Dean `cloudflared tunnel login`. ZimaOS'ta ayrıca CasaOS `cloudflared` (token/dashboard yönetimli) var.
+- **Bekleyen:** Dean'in "bayat/yanlış verileri süz" isteği kapsamı teyit edilmedi (öneri: bu dosyadaki 25 Eyl PC/LAN bölümleri).
+
+### Next — tek adım
+Dean akşam yemeğini söyleyince POST + GET, gün toplamını kayıt listesiyle ver. Sonra `feature/protokol` (başlangıç 107.5 / bel 117 / %34.8 teyidi bekliyor).
+
+## 2 Eki sabah — ZimaOS kapalı, API'ye YAZILMADI (bekleyen)
+- WOL sonrası ping geldi, ssh/health 530 (açılış sürüyor ya da servisler kalkmadı).
+- Bekleyen POST: OKOK 2 Eki kilo ~107.9 (üst satır kırpık), yağ %34.8 / 37.5 kg, iskelet 35.2 kg %32.6, kas 67.3, su %48.9, visseral 26.0, kemik 3.14, bmr 2025.5, protein %13.4, yağsız 70.42.
+- Bekleyen öğün: kahvaltı sucuklu menemen (yumurta + beyaz peynir/lor + sucuk, yağlı) + kase sucuk + domates/salatalık/maydanoz. Dean payı SORULDU.
+- 1 Eki akşam (çorba + ton salata) hâlâ teyitsiz.
+- 2 Eki A′ seansı (Dean, salonda, 2 set kuralı): lat pulldown MAKİNE 35 kg, "press" 35 kg (hangi press belirsiz — leg press mi butterfly mi, tekrar sayısı yok). OKOK 2 Eki kilo 107.9 (70.42+37.5). Saat BIA kaydedilmeyecek.
+- 2 Eki A′ devam: leg extension 35 kg; buraya kadar tüm setler 12 tekrar (2 set/hareket). "press 35" hâlâ belirsiz (leg press?).
+- 2 Eki: salon sonrası havuz 10 dk (cardio swim, sets: []) — ZimaOS açılınca POST. Mesafe/nabız Dean iletirse ekle.
+- 2 Eki A′: biseps makine yerine EZ-Bar_Curl 15 (ısınma) → 25 kg çalışma (Dean), tekrar bekleniyor.
+- 2 Eki A′ BİTTİ, tüm setler 2×12: leg press 35? ("press 35" belirsiz), leg extension 35, lat pulldown makine 35, butterfly 40 (varsayım), EZ curl 25, calf ?, Arnold 10 (varsayım). Saat süre/kcal yok. Sonra havuz 10 dk. ZimaOS açılınca POST.
+
+## 2 Eki ~10:30 — ZimaOS geri geldi (tünel 07:06Z), bekleyenler API'de (PUT/POST 200/201 + GET)
+- daily 2 Eki 107.9 · daily 1 Eki steps 7946 · okok 2 Eki 10 metrik · workout A′ `1002a0e2-...9d00-...0001` (14 set, needs_review: press 35=leg press VARSAYIM, butterfly 40/Arnold 10 plan değeri, calf kg yok) · havuz 10 dk `...0002` · kahvaltı `...9c00-...0001` 55/1000 TÜM TABAK VARSAYIM.
+- 1 Eki akşam 20:46 27/450 zaten API'de (Dean girmiş). Gün 1 Eki: 174 g / 2510 kcal.
+- **Health Connect senkron ÇALIŞMIYOR:** `/api/wearable` `source` filtresini yok sayıyor; gruplayınca `health_connect` kaynaklı kayıt 25 Eyl'den beri YOK. Kaynaklar: okok/samsung_csv/samsung/watch_app/cuff. Dean'e telefonda Samsung Health→Health Connect paylaşımı + uygulama Ayarlar→Saat senkron soruldu.
+- **ZimaOS WiFi:** `Supervisor wlan0` profili (SSID Deancjx-2.4ghz, autoconnect yes) var ama `phy0 hard=1` → donanım/BIOS seviyesinde kapalı, nmcli/rfkill açamıyor. Dean'in ZimaOS UI ya da BIOS'tan açması gerek. Ethernet düşerse otomatik WiFi bu yüzden ŞU AN mümkün değil.
