@@ -14,6 +14,14 @@ import { REJECTED_KEY, hasServer, pullRange, startSyncLoop, syncOutbox } from '.
 import { getApiBase } from './lib/api'
 import { syncBadge } from './lib/syncStatus'
 import { applyWebBundle, checkWebBundle } from './lib/webBundle'
+
+/** Indirilen yeni paket varsa hemen ona gecer (ayni origin: yerel veri kaybolmaz). */
+async function updateScreens(): Promise<void> {
+  // ponytail: form doldururken arka plandan donulurse sayfa yenilenir; sorun olursa
+  // yalniz soguk acilista uygula.
+  const path = await checkWebBundle().catch(() => null)
+  if (path) await applyWebBundle(path).catch(() => {})
+}
 import { pullWorkoutPlan } from './lib/workoutPlan'
 import { Drawer, type DrawerPage } from './ui/Drawer'
 import { Eva } from './ui/Eva'
@@ -60,7 +68,6 @@ export function App() {
   const [installing, setInstalling] = useState(false)
   const updateReady = update?.state === 'available'
   // Downloaded web bundle waiting to be opened (lib/webBundle.ts); cold start opens it anyway.
-  const [bundlePath, setBundlePath] = useState<string | null>(null)
   const [quickAdd, setQuickAdd] = useState(false)
   const [menu, setMenu] = useState(false)
   // ?page=moves ile dogrudan bir drawer sayfasi acilir (kisayol, ekran dogrulamasi).
@@ -127,11 +134,16 @@ export function App() {
     void autoCheckPhoneUpdate()
       .then((u) => setUpdate(u ?? null))
       .catch(() => {})
-    void checkWebBundle().then(setBundlePath).catch(() => {})
+    // Yeni ekranlar sormadan yuklenir: "Yenile" seridi yalniz soguk acilista kontrol
+    // ediliyordu, arka plandan donen uygulamada hic gorunmedi (Dean 2 Eki).
+    void updateScreens()
+    const resume = () => { if (document.visibilityState === 'visible') void updateScreens() }
+    document.addEventListener('visibilitychange', resume)
     const health = window.setInterval(() => void sync(), 900_000)
     return () => {
       window.removeEventListener('online', update)
       window.removeEventListener('offline', update)
+      document.removeEventListener('visibilitychange', resume)
       window.clearInterval(rollover)
       window.clearInterval(health)
       stop()
@@ -154,7 +166,7 @@ export function App() {
       await pullGoals().catch(() => {})
     }
     setUpdate(await checkPhoneUpdate().catch(() => null))
-    setBundlePath(await checkWebBundle().catch(() => null))
+    await updateScreens()
     setDate(toLocalDate())
   }
 
@@ -182,15 +194,6 @@ export function App() {
         )}
       </header>
 
-      {bundlePath && !updateReady && (
-        <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-glass-strong px-4 py-3 text-sm">
-          <span>Yeni ekranlar indi</span>
-          <button type="button" onClick={() => void applyWebBundle(bundlePath)}
-            className="rounded-full bg-a1 px-4 py-1.5 font-medium text-solid">
-            Yenile
-          </button>
-        </div>
-      )}
       {updateReady && (
         <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-glass-strong px-4 py-3 text-sm">
           <span>Yeni sürüm {update.versionName ?? ''} hazır</span>
