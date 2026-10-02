@@ -65,6 +65,12 @@ describe('alternatives', () => {
     expect(ids).not.toContain('Kneeling_Hip_Flexor')
   })
 
+  test('baldirin makinesiz alternatifi var (Dean 2 Eki calf\'i vucut agirligiyla yapti)', () => {
+    const ids = alternatives('Calf_Press_On_The_Leg_Press_Machine').map((e) => e.id)
+    expect(ids).toEqual(expect.arrayContaining(['Standing_Dumbbell_Calf_Raise', 'Seated_Calf_Raise', 'Calf_Raises_-_With_Bands']))
+    expect(ids).not.toContain('Ankle_Circles')
+  })
+
   test('bilinmeyen id icin bos liste, hata degil', () => {
     expect(alternatives('Yok')).toEqual([])
   })
