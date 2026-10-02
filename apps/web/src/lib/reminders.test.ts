@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, Retro } from './db'
-import { nextFireAt, notificationsFor, pendingReminders, type ReminderSettings } from './reminders'
+import { nextFireAt, notificationsFor, pendingReminders, REMINDER_ACTIONS, type ReminderSettings } from './reminders'
 
 const times: ReminderSettings = { enabled: true, weigh_at: '09:00', retro_at: '21:00', waist_day: 1 }
 const log = (fields: Partial<DailyLog> = {}): DailyLog => ({ date: '2026-09-13', updated_at: '', ...fields })
@@ -148,6 +148,13 @@ describe('notificationsFor', () => {
   test('tek seferlik kurar - tekrar araligi yok', () => {
     for (const n of notificationsFor(times, none, now)) {
       expect(n.schedule).toEqual({ at: n.schedule.at, allowWhileIdle: true })
+    }
+  })
+
+  test('bildirimde Cevapla / Gec dugmeleri; hangi hatirlatma oldugu ekte (Dean 2 Eki)', () => {
+    for (const n of notificationsFor(times, none, now)) {
+      expect(n.actionTypeId).toBe(REMINDER_ACTIONS)
+      expect(['weigh', 'retro', 'dinner']).toContain(n.extra.id)
     }
   })
 

@@ -148,6 +148,27 @@ type ScheduledReminder = 'weigh' | 'retro' | 'dinner'
 const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1, retro: 2, dinner: 3 }
 
 /**
+ * Bildirimdeki dugmeler (Dean 2 Eki: kaydirinca ertesi acilista geri geliyordu).
+ * Cevapla = uygulamayi acar; Gec = karttaki "Gec" ile ayni, bugun bir daha sorulmaz.
+ */
+export const REMINDER_ACTIONS = 'reminder'
+
+const isScheduled = (id: unknown): id is ScheduledReminder => id === 'weigh' || id === 'retro' || id === 'dinner'
+
+/** Uygulama acilisinda bir kez: dugme tiplerini kaydeder, "Gec"i dinler. */
+export async function listenReminderActions(): Promise<void> {
+  if (!isNative()) return
+  const { LocalNotifications } = await import('@capacitor/local-notifications')
+  await LocalNotifications.registerActionTypes({
+    types: [{ id: REMINDER_ACTIONS, actions: [{ id: 'answer', title: 'Cevapla' }, { id: 'skip', title: 'Geç' }] }],
+  })
+  await LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
+    const id: unknown = action.notification.extra?.id
+    if (action.actionId === 'skip' && isScheduled(id)) void skipReminder(id, toLocalDate())
+  })
+}
+
+/**
  * Bir sonraki atesleme ani, yerel saatle. Bugun girilmisse ya da saat gectiyse
  * yarin; ikisi de degilse bugun. Date alan alan kuruldugu icin ay/yil sonu
  * kendiliginde tasar ve toISOString() gun kaydirmasi olmaz.
@@ -215,6 +236,8 @@ export function notificationsFor(settings: ReminderSettings, done: Record<Schedu
     id: NOTIFICATION_IDS[key],
     title: TEXT[key].title,
     body: TEXT[key].body,
+    actionTypeId: REMINDER_ACTIONS,
+    extra: { id: key },
     schedule: {
       at: nextFireAt(key === 'weigh' ? settings.weigh_at : settings.retro_at, done[key], now),
       allowWhileIdle: true,
