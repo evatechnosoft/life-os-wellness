@@ -52,7 +52,11 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const base = getApiBase()
   if (base === DEFAULT_BASE) return request<T>(base, path, init)
   try {
-    return await request<T>(base, path, { ...init, signal: init.signal ?? AbortSignal.timeout(OVERRIDE_TIMEOUT_MS) })
+    // Elle adres kendi 5 sn'sini alir, cagiranin suresi ayrica gecerli: Eva 25 sn
+    // verince olu LAN adresi butun sureyi yiyor, varsayilana iptal edilmis sinyalle
+    // gidiliyordu - sunucu 200 donup telefon "Sunucu kapali" diyordu (2 Eki).
+    const timeout = AbortSignal.timeout(OVERRIDE_TIMEOUT_MS)
+    return await request<T>(base, path, { ...init, signal: init.signal ? AbortSignal.any([init.signal, timeout]) : timeout })
   } catch (err) {
     if (err instanceof ApiError) throw err
     return request<T>(DEFAULT_BASE, path, init)

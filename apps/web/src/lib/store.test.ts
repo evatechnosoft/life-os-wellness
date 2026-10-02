@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { ApiError } from './api'
-import { verdictFor } from './store'
+import { verdictFor, withMealProtein } from './store'
 
 // The drain stops at the first entry it cannot send, so this verdict decides whether a
 // single bad write freezes every write queued after it. That is the failure mode the
@@ -38,5 +38,24 @@ describe('verdictFor', () => {
     expect(verdictFor(new ApiError(400, 'body/weight_kg must be <= 400'), 'PUT')).toBe('rejected')
     expect(verdictFor(new ApiError(422, 'unprocessable'), 'POST')).toBe('rejected')
     expect(verdictFor(new ApiError(404, 'not found'), 'PUT')).toBe('rejected')
+  })
+})
+
+describe('withMealProtein', () => {
+  const at = '2026-10-02T00:00:00Z'
+  const meal = (date: string, protein_g: number | null) => ({ id: `${date}-${protein_g}`, date, time: '12:00', protein_g, kcal: null, note: null, estimated: true })
+
+  test('sohbetten yazilan ogunler gunun proteinine sayilir (2 Eki: ogunler 177 g, halka 0)', () => {
+    const out = withMealProtein([{ date: '2026-10-02', weight_kg: 107.9, updated_at: at }], [meal('2026-10-02', 45), meal('2026-10-02', 132)], at)
+    expect(out).toEqual([{ date: '2026-10-02', weight_kg: 107.9, protein_g: 177, updated_at: at }])
+  })
+
+  test('elle eklenen protein ogun toplamindan buyukse korunur', () => {
+    const out = withMealProtein([{ date: '2026-10-01', protein_g: 200, updated_at: at }], [meal('2026-10-01', 150)], at)
+    expect(out[0]!.protein_g).toBe(200)
+  })
+
+  test('gunluk satiri olmayan ogun gunu de satir alir', () => {
+    expect(withMealProtein([], [meal('2026-09-30', 60), meal('2026-09-30', null)], at)).toEqual([{ date: '2026-09-30', protein_g: 60, updated_at: at }])
   })
 })
