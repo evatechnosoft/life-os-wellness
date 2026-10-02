@@ -1,36 +1,45 @@
-# Handoff: 30 Eyl kapanış — sunucu ZimaOS'ta canlı, gün kayıtları tam
+# Handoff: 2 Eki — gün kayıtları, akşam palamut bekleniyor
 
-> 2026-09-30 akşam · `dev` @ `6b277d2`+ · test 419/419 · fit.evaitec.com health 200 (ZimaOS'tan)
+> 2026-10-02 öğleden sonra · `dev` @ `d474900` · dirty: `ops/cloudflared/config.yml` (CRM tüneli, commit ETME) + 2 untracked
 > Ayrıntı ve geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
 1. Dean'in günlük öğün/seans/ölçümü sohbetten API'ye — kabul = telefonda görünür.
-2. Sunucu ZimaOS'ta — kalan: OTA kopyası + publish_ota ZimaOS'a.
-3. Sıradaki kod işi `feature/protokol` (`docs/PLAN-PROTOKOL.md`, hedef Pzt 5 Eki).
+2. Sıradaki kod işi `feature/protokol` (`docs/PLAN-PROTOKOL.md`, hedef Pzt 5 Eki).
+3. Health Connect senkronunu geri getir (25 Eyl'den beri sunucuya `health_connect` kaynaklı kayıt yok).
 
-## State (API GET kanıtlı)
-- **30 Eyl öğünler (5 kayıt, 158 g P / 2320 kcal, hepsi tahmini porsiyon):** 08:45 kahvaltı 34/520 ·
-  10:45 whey suyla 24/120 (Dean: 24 g) · 11:50 öğle T-bone 62/720 · 17:00 akşam kıymalı nohut+karnabahar+yeşil 35/710 ·
-  19:00 meyve şeftali/armut/ananas/üzüm 3/250 (miktar varsayım). Gece shake YOK (Dean sordu, içmedi — yazma).
-- Daily 30 Eyl: 107.4 kg, 127/77, adım 6361 (Samsung zip 17:35, elle PUT). Seanslar 3 (B 59 dk, bisiklet 12, havuz 10), Samsung seansları yazılmadı.
-- `ops/import_samsung.mjs`: kilo CSV opsiyonel + `--no-workouts` (dev `b8b1e08`).
-- compose: `POSTGRES_PASSWORD`/`DB_BIND`/`NET_SUBNET` .env'den (dev). ZimaOS'ta api LLM (yz-litellm) erişimi 200.
+## State (API GET kanıtlı, 2 Eki)
+- daily 2 Eki 107.9 kg (OKOK; yağsız 70.42 + yağ 37.5). OKOK 10 metrik wearable'da. 1 Eki adım 7946.
+- Öğünler: 08:15 kahvaltı 45/600 (yumurta+lor+ince sucuk menemen + 3 parça sucuk) · 11:45 whey 24/120 · 11:56 öğle 58/610 (tavuk 150 g + kumpir 100 g + füme ton az salata). **Toplam 127 g / 1330 kcal.**
+- Seans A′ `1002a0e2-1002-4a11-9d00-000000000001` 14 set 2×12, `needs_review`: "press 35" = leg press VARSAYIM, butterfly 40 / Arnold 10 plan değeri, calf kg yok, EZ curl 25. Havuz 10 dk `...0002`.
+- Antrenman kararı: 3 gün tüm vücut, **2 set × 12 RIR 1–2**, 3. set yalnız 2. set 15'i geçince — `docs/PROGRAM-2026-09.md` son bölüm (`03fe066`).
+- Saat (Samsung) BIA yağ/kas kaydedilmez, OKOK esas. Saat günden güne ±3 puan oynuyor.
+- ZimaOS: gece 00:00 kapanır (`gece-kapanma-planla.service`), BIOS RTC 10:00 açar. Dell LAN/WLAN Switching kablo takılıyken WiFi'yi donanımdan kapatır = fallback zaten var. WOL sabah kablo takılı olmadığı için çalışmadı (eth0 ilk link 10:26).
 
 ## Next
-1. **Sunucu ZimaOS'ta canlı** (30 Eyl ~21:10; hafıza `sunucu-zimaos`): satır sayıları eşit, fit.evaitec.com health/plan/bundle 200.
-   PC api/db/tunnel durdu (restart=no, volume yedek, 7 Eki'ye kadar silme); PC watchdog DISABLED.
-   Açık: `ota/` kopyası arka planda sürüyordu (4.9 GB, ~2 MB/s) → `ssh zima du -sh .../ota` 4.9G mi bak; eksikse `tar -cf - ota | ssh zima tar -xf - -C /DATA/AppData/life-os-wellness`.
-   Açık: `ops/publish_ota.mjs` hâlâ PC `./ota`'ya yazıyor → ZimaOS'a scp eklenmeli. Deploy = PC build + docker save/load (ZimaOS npm ETIMEDOUT).
-2. Meyve 19:00 düzeltildi (2 g / 160 kcal) → gün 157 g / 2230 kcal.
-3. `feature/protokol` TDD (`apps/api/src/protocol.ts`). Açık teyit: başlangıç 107.5 / bel 117 / %34.8.
+1. Dean akşam ~17:00 palamut (airfryer) yiyince POST + GET, gün toplamını kayıt listesiyle ver. Öneri 200 g ≈ 45 g P / 400 kcal; yemeden yazma.
+2. Bu gece 00:00 kapanıştan sonra kablo takılıyken WOL dene: `python ~/.ai/scripts/home-net/zima_wol.py`. Açılmazsa BIOS'ta "Wake on LAN = LAN Only" + "Deep Sleep Control = Disabled" Dean'e.
+3. Dean'den bekleyen: "press 35" teyidi, calf kg; telefonda Samsung Health → Health Connect paylaşımı açık mı + Fit Ayarlar → Saat senkron rozeti.
+4. `feature/protokol` TDD (`apps/api/src/protocol.ts`). Açık teyit: başlangıç 107.5 / bel 117 / %34.8.
 
 ## Don't repeat
-- "Yedim/içtim" = aynı turda POST + GET; "yapalım mı" = yazma (hafıza `yendi-dendi-an-yaz`). Gün toplamında kayıt listesini göster.
-- Samsung zip: `--from <gün> --no-workouts`, adımı elle PUT (daily yalnız boş alanı doldurur). Zip'i PowerShell `Expand-Archive` ile aç.
-- PC tünelini/watchdog'u AÇMA — iki tünel = veri iki DB'ye bölünür. API artık yalnız https://fit.evaitec.com (PC 127.0.0.1:3011 kapalı).
-- 530'da süreç anlatma: `ssh zima` → `docker compose ps` / tünel logu; tünel kimliği sahibi 65532 olmalı.
+- "Yedim/içtim" = aynı turda POST + GET; "yapalım mı/var" = yazma (hafıza `yendi-dendi-an-yaz`). Porsiyonu Dean'in söylediğiyle yaz; tabağın tamamını varsayma (bugün 2 kez düzeltildi).
+- `/api/wearable` `source` query filtresini YOK SAYIYOR — kaynağı istemcide grupla.
+- Ton balığı bu hafta 2 kez (1 Eki akşam, 2 Eki öğle) — hafta sonuna kadar ton yok.
+- ZimaOS kapalıyken bekleme; Dean sunucu isteyen iş isteyince WOL'u hemen arka planda yolla (`~/.claude/rules/zimaos-kapali.md`).
+- `gece-kapanma.timer` 00:00'da "poweroff already in progress" hatası verir — zararsız çift tetik.
 
 ## Verify
-git log --oneline -1                                   # devir commit
-curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health   # 200
-ssh -o ConnectTimeout=5 zima true && echo zima-up      # açık mı
+```
+git rev-parse --short HEAD          # d474900 (bu commit sonrası +1)
+curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health   # 200 (00:00–10:00 arası 530 normal)
+TOK=$(grep ^API_TOKEN= .env | cut -d= -f2-); curl -s -H "Authorization: Bearer $TOK" "https://fit.evaitec.com/api/meals?start=2026-10-02&end=2026-10-02"   # 3 kayıt, 127 g
+```
+
+## <yeniden başlangıç> promptu (yapıştır)
+```
+life-os-wellness, dev dalı. 2 Eki: Dean'in kilosu (107.9 OKOK), A′ seansı, havuz, kahvaltı/whey/öğle API'de (127 g / 1330 kcal). Akşam ~17:00 palamut bekleniyor. Sunucu ZimaOS (fit.evaitec.com), gece 00:00–10:00 kapalı.
+Önce HANDOFF.md oku, Verify bloğunu çalıştır.
+Öncelik: (1) Dean akşam yemeğini söyleyince POST+GET, gün toplamı (2) gece WOL testi (3) Dean'den press/calf/Health Connect cevapları (4) feature/protokol.
+Yeni iş açma; ops/cloudflared/config.yml commit etme.
+```
