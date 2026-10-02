@@ -26,6 +26,7 @@
 | EZ bar rafı (sabit ağırlıklı) | — | biseps curl, skullcrusher | `EZ-Bar_Curl` | `ez-bar-rafi.jpg` |
 | Ayarlanabilir bench (eğik/düz) | — | eğik dambıl press | — | `ayarlanabilir-bench.jpg` |
 | Düz bench + olimpik bar | Life Fitness / Paramount | bench press | — | `duz-bench-olimpik-bar.jpg`, `bench-bar-plaka.jpg`, `lifefitness-bench-bar.jpg`, `paramount-bench.jpg` |
+| **Smith makinesi** (destekli, zincirli/raylı bar) + düz bench | — | A günü düz göğüs (2 Eki, Dean: salonda tek göğüs makinesi var, o da eğik itiyor) | `Smith_Machine_Bench_Press` | — |
 
 ## Ağırlık kademeleri (fotoğrafla doğrulandı)
 

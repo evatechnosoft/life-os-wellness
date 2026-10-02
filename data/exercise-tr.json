@@ -749,6 +749,20 @@
         "Nefes vererek parmak uçlarında yüksel, en üstte 1 saniye bekle.",
         "Yavaşça topuklarını indir."
       ]
+    },
+    "Smith_Machine_Bench_Press": {
+      "name": "Smith makinesinde bench press (düz)",
+      "load": [
+        "shoulders"
+      ],
+      "cue": "Bar göğsün alt hizasına iner, dirsekler 45°; iterken nefes ver, nefes tutma.",
+      "instructions": [
+        "Düz bench'i bar göğsün alt hizasına (meme ucu hizası) inecek şekilde Smith makinesinin altına yerleştir.",
+        "Sırtüstü yat, ayaklar yerde, kürek kemiklerini geriye ve aşağı sık.",
+        "Barı omuz genişliğinden biraz geniş tut, bileği çevirip kancadan çıkar.",
+        "Nefes alarak barı kontrollü göğse indir, dirsekler gövdeye 45° açıda.",
+        "Nefes vererek yukarı it, dirseği kilitlemeden dur. Set bitince bileği çevirip kancaya as; güvenlik durdurucularını göğsün hemen üstüne ayarla."
+      ]
     }
   }
 }
