@@ -863,7 +863,7 @@ function renderWeekProof(box) {
       name.textContent = x.name + ' · ' + x.eq;
       const sets = document.createElement('span');
       sets.className = 'sets';
-      sets.textContent = x.sets + '×8–15';
+      sets.textContent = x.sets + '×12';
       row.append(slot, name, sets);
       list.append(row);
     }
@@ -936,7 +936,7 @@ function renderProof() {
     name.textContent = x.name + ' · ' + x.eq;
     const sets = document.createElement('span');
     sets.className = 'sets';
-    sets.textContent = x.sets + '×8–15';
+    sets.textContent = x.sets + '×12';
     row.append(slot, name, sets);
     list.append(row);
   }
