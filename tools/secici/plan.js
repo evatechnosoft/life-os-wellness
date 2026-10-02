@@ -51,10 +51,10 @@
         {
           ad: 'A / B günü',
           slots: [
-            { key: 'gogus', label: 'Göğüs', sets: 3, muscles: GOGUS },
-            { key: 'sirt', label: 'Sırt', sets: 3, muscles: SIRT },
-            { key: 'quad', label: 'Ön bacak', sets: 3, muscles: QUAD },
-            { key: 'arka', label: 'Arka zincir', sets: 3, muscles: ARKA },
+            { key: 'gogus', label: 'Göğüs', sets: 2, muscles: GOGUS },
+            { key: 'sirt', label: 'Sırt', sets: 2, muscles: SIRT },
+            { key: 'quad', label: 'Ön bacak', sets: 2, muscles: QUAD },
+            { key: 'arka', label: 'Arka zincir', sets: 2, muscles: ARKA },
             { key: 'omuz', label: 'Omuz', sets: 2, muscles: OMUZ },
             { key: 'kol', label: 'Kol', sets: 2, muscles: KOL },
             { key: 'karin', label: 'Karın', sets: 2, muscles: KARIN, core: true },
