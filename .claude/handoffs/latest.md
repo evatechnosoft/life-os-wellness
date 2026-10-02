@@ -260,3 +260,19 @@ Dean akşam yemeğini söyleyince POST + GET, gün toplamını kayıt listesiyle
 - Denetim: typecheck 0, test 419+71+6 yeşil (api yerel PG18 `--locale=C` ile), build 0, canlı GET'ler 200, 5xx 0.
 - Prod açıkları (onay bekliyor): yedek yok · konteynerler restart=no · 009 migration kaydı yok · /health DB'siz. Kod: wearable source filtresi, Settings.tsx:451 toISOString, fastify audit, lint yok.
 - Ayrıntı ve Next: HANDOFF.md.
+
+## 2 Eki akşam (devir sonrası) — A′ seansı teyitli, calf alternatifleri, plan 2 set (en yeni)
+- **A′ seansı teyitli** (`1002a0e2-1002-4a11-9d00-000000000001`, POST 200 + GET, needs_review=false): leg press 35, leg ext 35, lat pulldown makine 35, butterfly **35**, EZ curl 25, Arnold 10 — hepsi 2×12; calf ayakta vücut ağırlığı 12 + 10 (set sırası varsayım).
+- **PR #34 merge** (`267c1ec` dev): katalog 43→46 — `Standing_Dumbbell_Calf_Raise` (ayakta, vücut ağırlığı/dambıl), `Seated_Calf_Raise`, `Calf_Raises_-_With_Bands`. Sebep: baldırda tek kuvvet hareketi vardı, "yerine koy" boş dönüyordu (Dean şikâyeti). Web 420 test, tsc temiz. **Canlıya DEPLOY EDİLMEDİ** — telefonda ham id görünür.
+- **Plan (PUT 200 + GET):** A/B/A′ tüm hareketler `sets:2` (ısınmalar aynı), A′ calf → `Standing_Dumbbell_Calf_Raise`. Dean: "2x12 yap sonraki programlara". Tekrar alanı plan şemasında yok; 12 hedefi PROGRAM dokümanında.
+- **Ders:** Katalogda eksik hareketi tek seçenekle geçiştirme — eksik varsa söyle ve kataloğa ekle.
+
+### Next — tek adım
+Dean "deploy" derse ZimaOS: `cd /DATA/AppData/life-os-wellness && git pull && docker compose up -d --build api` → health 200 + `/bundle/bundle.json` sürüm değişti + `docker inspect` restart=unless-stopped. Sonra HANDOFF.md Next 1 (yedek cron, 009 kaydı, fix/health-db).
+
+## 2 Eki 21:15 — DEPLOY + restart düzeltildi (en yeni)
+- Dean "2li başla, bitir": PR #35 Smith bench (`69dfc53`) — plan A günü `Machine_Bench_Press` → `Smith_Machine_Bench_Press` (PUT 200 + GET). Dean: salonda tek göğüs makinesi var ve eğik itiyor; düz için Smith. Başlangıç bar + 10'ar kg, 2×12.
+- **Deploy (ZimaOS):** önce yedek `backups/wellness-2026-10-02-2113-predeploy.sql.gz` (24 KB) → `git pull` (69dfc53) → compose `up -d --build api`. Canlı paket `e313e8d0c82ec5ec`, JS'te `Smith_Machine_Bench_Press` + `Standing_Dumbbell_Calf_Raise` var; public health 200.
+- **Restart politikası:** api/db/tunnel üçü de `unless-stopped` (api recreate, db/tunnel `docker update` — kesintisiz). HANDOFF Next 1a'nın restart kısmı KAPANDI.
+- **ZimaOS compose tuzağı:** düz `docker compose` çalışmıyor (`/DATA/.docker` root, permission denied; `.docker-dean/buildx/.lock` root sahipli). Çalışan: `DOCKER_CONFIG=$(mktemp -d /tmp/dc.XXXX) /usr/lib/docker/cli-plugins/docker-compose up -d --build api`.
+- Açık: günlük pg_dump cron (backups/ dizini var, cron yok) · 009 migration kaydı · fix/health-db · envanterde chest press ve plakalı makine iki ayrı satır+foto, Dean "tek makine" dedi — teyit edilmedi, doküman değişmedi.
