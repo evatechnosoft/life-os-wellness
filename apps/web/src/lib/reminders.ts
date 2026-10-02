@@ -37,8 +37,8 @@ const TEXT: Record<Reminder['id'], Omit<Reminder, 'id'>> = {
   dinner: { title: 'Akşam yemeği', body: 'Akşam öğünü kayıtlı değil. Ne yediğini yaz, gün boş kalmasın.' },
 }
 
-/** Bu saatten sonraki ogun aksam yemegi sayilir. */
-const DINNER_FROM = '17:00'
+/** Bu saatten sonraki ogun aksam yemegi sayilir. Dean erken yiyor (2 Eki 16:21). */
+const DINNER_FROM = '16:00'
 
 /** Bugunun ogun saatlerinde aksam ogunu var mi. */
 export function hasDinner(mealTimes: string[]): boolean {

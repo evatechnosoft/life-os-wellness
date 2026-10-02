@@ -118,6 +118,10 @@ describe('aksam yemegi hatirlatmasi', () => {
     expect(at('21:00', ['09:00', '11:30', '15:15'])).toEqual(['dinner'])
   })
 
+  test('16:00 sonrasi ogun aksam sayilir (2 Eki: palamut 16:21, bildirim yine sordu)', () => {
+    expect(at('22:00', ['08:15', '11:56', '16:21'])).toEqual([])
+  })
+
   test('aksam ogunu girilmisse ya da saat gelmemisse susar', () => {
     expect(at('21:30', ['09:00', '19:30'])).toEqual([])
     expect(at('20:59', ['09:00'])).toEqual([])
