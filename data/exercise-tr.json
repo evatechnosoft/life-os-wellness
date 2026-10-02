@@ -709,6 +709,46 @@
         "Nefes vererek bacaklarını yavaşça dışa aç, bir saniye bekle.",
         "Nefes alarak kontrollü şekilde kapat."
       ]
+    },
+    "Standing_Dumbbell_Calf_Raise": {
+      "name": "Ayakta calf raise (vücut ağırlığı / dambıl)",
+      "load": [
+        "calves",
+        "ankles"
+      ],
+      "cue": "Basamak kenarında topuğu aşağı sarkıt, en üstte 1 sn sık; zorlaşınca tek bacak ya da elde dambıl.",
+      "instructions": [
+        "Basamağın kenarına ayak ucuyla bas, bir elinle duvar ya da korkuluktan destek al.",
+        "Topuklarını basamağın altına doğru yavaşça indir, baldırda gerilme hisset.",
+        "Nefes vererek parmak uçlarında olabildiğince yükseğe çık, en üstte 1 saniye bekle.",
+        "Yavaşça geri in. Vücut ağırlığı kolay gelince tek bacak yap ya da boştaki ele dambıl al."
+      ]
+    },
+    "Seated_Calf_Raise": {
+      "name": "Oturarak calf raise (makine)",
+      "load": [
+        "calves"
+      ],
+      "cue": "Dizler pedin altında sabit; tam aşağı in, tam yukarı bas, sekme yok.",
+      "instructions": [
+        "Makineye otur, ayak uçlarını platforma koy, dizlerini pedin altına yerleştir.",
+        "Güvenlik kolunu aç, topuklarını yavaşça aşağı indir.",
+        "Nefes vererek parmak uçlarında yukarı bas, en üstte kısa bekle.",
+        "Kontrollü in; set bitince güvenlik kolunu kapat."
+      ]
+    },
+    "Calf_Raises_-_With_Bands": {
+      "name": "Calf raise (direnç lastiğiyle)",
+      "load": [
+        "calves"
+      ],
+      "cue": "Lastik ayak ucunun altında ve elde gergin; yavaş in, en üstte sık.",
+      "instructions": [
+        "Lastiğin ortasına ayak uçlarınla bas, uçlarını omuz hizasında tut.",
+        "Dik dur, karnını sık.",
+        "Nefes vererek parmak uçlarında yüksel, en üstte 1 saniye bekle.",
+        "Yavaşça topuklarını indir."
+      ]
     }
   }
 }

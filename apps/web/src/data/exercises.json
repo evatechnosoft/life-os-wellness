@@ -1,7 +1,7 @@
 {
   "source": "yuhonas/free-exercise-db",
   "license": "Unlicense (public domain)",
-  "generated": "2026-09-26",
+  "generated": "2026-10-02",
   "exercises": [
     {
       "id": "Ab_Crunch_Machine",
@@ -335,6 +335,46 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Press_On_The_Leg_Press_Machine/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Calf_Raises_-_With_Bands",
+      "name": "Calf raise (direnç lastiğiyle)",
+      "name_en": "Calf Raises - With Bands",
+      "equipment": "bands",
+      "equipment_tr": "direnç bandı",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "category": "strength",
+      "force": "push",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "baldır"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Lastiğin ortasına ayak uçlarınla bas, uçlarını omuz hizasında tut.",
+        "Dik dur, karnını sık.",
+        "Nefes vererek parmak uçlarında yüksel, en üstte 1 saniye bekle.",
+        "Yavaşça topuklarını indir."
+      ],
+      "focus": [],
+      "load": [
+        "calves"
+      ],
+      "cue": "Lastik ayak ucunun altında ve elde gergin; yavaş in, en üstte sık.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Raises_-_With_Bands/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Raises_-_With_Bands/1.jpg"
         }
       ]
     },
@@ -1665,6 +1705,46 @@
       ]
     },
     {
+      "id": "Seated_Calf_Raise",
+      "name": "Oturarak calf raise (makine)",
+      "name_en": "Seated Calf Raise",
+      "equipment": "machine",
+      "equipment_tr": "makine",
+      "level": "beginner",
+      "mechanic": "isolation",
+      "category": "strength",
+      "force": "push",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "baldır"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Makineye otur, ayak uçlarını platforma koy, dizlerini pedin altına yerleştir.",
+        "Güvenlik kolunu aç, topuklarını yavaşça aşağı indir.",
+        "Nefes vererek parmak uçlarında yukarı bas, en üstte kısa bekle.",
+        "Kontrollü in; set bitince güvenlik kolunu kapat."
+      ],
+      "focus": [],
+      "load": [
+        "calves"
+      ],
+      "cue": "Dizler pedin altında sabit; tam aşağı in, tam yukarı bas, sekme yok.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Raise/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Raise/1.jpg"
+        }
+      ]
+    },
+    {
       "id": "Seated_Leg_Curl",
       "name": "Oturarak leg curl (makine)",
       "name_en": "Seated Leg Curl",
@@ -1787,6 +1867,47 @@
         {
           "type": "image",
           "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Squat_with_Dumbbells/1.jpg"
+        }
+      ]
+    },
+    {
+      "id": "Standing_Dumbbell_Calf_Raise",
+      "name": "Ayakta calf raise (vücut ağırlığı / dambıl)",
+      "name_en": "Standing Dumbbell Calf Raise",
+      "equipment": "dumbbell",
+      "equipment_tr": "dambıl",
+      "level": "intermediate",
+      "mechanic": "isolation",
+      "category": "strength",
+      "force": "push",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "primary_tr": [
+        "baldır"
+      ],
+      "secondary_tr": [],
+      "instructions": [
+        "Basamağın kenarına ayak ucuyla bas, bir elinle duvar ya da korkuluktan destek al.",
+        "Topuklarını basamağın altına doğru yavaşça indir, baldırda gerilme hisset.",
+        "Nefes vererek parmak uçlarında olabildiğince yükseğe çık, en üstte 1 saniye bekle.",
+        "Yavaşça geri in. Vücut ağırlığı kolay gelince tek bacak yap ya da boştaki ele dambıl al."
+      ],
+      "focus": [],
+      "load": [
+        "calves",
+        "ankles"
+      ],
+      "cue": "Basamak kenarında topuğu aşağı sarkıt, en üstte 1 sn sık; zorlaşınca tek bacak ya da elde dambıl.",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/0.jpg"
+        },
+        {
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/1.jpg"
         }
       ]
     },
