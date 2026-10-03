@@ -58,6 +58,8 @@ Karbonhidrat kesilmez; kalitesi değişir ve büyük kısmı antrenman gününe 
 | Antrenman sonrası | süt 300 ml + muz **veya** 200 g süzme yoğurt (ayran yalnız tuzsuzsa) | ~10–20 g |
 Toplam ~165–180 g; hedef tutmuyorsa akşama 100 g lor.
 
+**Ekmek alışkanlığı (Dean, 3 Eki):** ekmek yalnız sabah, o da her gün değil; öğle/akşamda ekmek yok. Öğün önerisinde ekmek önerilmez, karbonhidrat bulgur/baklagil/patatesten gelir.
+
 **Deniz ürünü, bar ve takviye kuralları (22 Eyl, etiketlerden doğrulandı):**
 - **Kabuklular** (karides, midye, kalamar): haftada ≤2 porsiyon (150–200 g). Ürik asit 6.0 üst
   yarıda olduğu için kabuklu yenen gün kırmızı et/sakatat yok, su 3 L. Omega-3'ü düşük →
