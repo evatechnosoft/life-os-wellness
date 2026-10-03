@@ -1,6 +1,6 @@
 # Handoff: 2 Eki gece — 8 PR canlıda, telefonda doğrulama ve yarının işleri
 
-> 2026-10-02 23:00 · `dev` @ `5bce4ce` (+ bu commit) · dirty: `ops/cloudflared/config.yml` (CRM tüneli, commit ETME) + untracked `.claude/plan-backup-2026-09-29.json`
+> 2026-10-03 09:40 · `dev` @ `20687e6` (+ bu commit) · dirty: `ops/cloudflared/config.yml` (CRM tüneli, commit ETME) + untracked `.claude/plan-backup-2026-09-29.json`
 > Ayrıntı ve geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
@@ -21,7 +21,7 @@
 ## Next (yarın, sırayla)
 1. Dean telefonu açınca: uygulamayı tamamen kapat-aç → halka 177/180 mi, Eva cevap veriyor mu, Ayar'da sunucu adresi yok mu, 22:00 bildiriminde Cevapla/Geç var mı ve Geç kapatıyor mu. Sunucu logundan eşzamanlı izle (`docker logs life-os-wellness-api-1 | grep /api/chat`).
 2. Retro 2 Eki: Dean'e 3 soru soruldu (iyi giden: öneri "A′ tam, 177 g, akşam nişastasız"; zorlanılan; yarın denenecek) → `PUT /api/retro/2026-10-02`.
-3. Prod açıkları (onaylı sayılır, Dean "bitir" dedi): günlük pg_dump cron (7 gün tut) · `npm run db:migrate` ZimaOS'ta (009 kaydı) · `fix/health-db` (`/health` `select 1`, wearable `source` filtresi, `Settings.tsx` dışa aktarma tarihi `date.ts`, `npm audit fix`, `.env.example` GEMINI_API_KEY).
+3. ~~Prod açıkları~~ **KAPANDI 3 Eki 09:35** (PR #41 + #42, canlı paket `c5738b51`): `/health` `select 1` (DB yoksa 503) · `GET /api/wearable?source=` filtresi (canlıda okok 10 kayıt; `health_connect` 23 Eyl–3 Eki **boş** → saat senkronu hâlâ yok) · Settings dışa aktarma `toLocalDate()` · `npm audit fix` (14→10, kalan @capacitor/cli→xcode breaking) · **yedek = compose `backup` sidecar** (ZimaOS'ta cron daemon yok): günlük pg_dump, 7 gün, `backups/wellness-YYYY-MM-DD-auto.sql.gz` (ilk dosya 24.5 KB, 12 tablo) · 009 `schema_migrations`'a kaydedildi (9 satır, `docker exec api node db/migrate.js`). GEMINI_API_KEY api kodunda okunmuyor → `.env.example`'a eklenmedi (ZimaOS .env'de ölü anahtar). API testi için: ZimaOS'ta geçici `postgres:16-alpine` + `ssh -L 5433:127.0.0.1:5440 zima` (PC'de PG ikilisi yok).
 4. "Haftayı kur" → Plan sekmesi: `tools/secici/plan.js` ortak kullanılsın, önizleme + "yerine koy" + Kaydet = `PUT /api/workout-plan`. Önce Dean "yap" desin.
 5. Kalıcı bildirim tekrar ederse: mekanizma bulunamadı. Aday: `SleepService` START_STICKY + otomatik durmama (APK işi).
 6. "Saat verisi 9 gündür yok": saat Dean'in diğer telefonuna eşli → o telefona APK + aynı token. Envanterde chest press / plakalı makine iki satır, Dean "tek makine" — teyit.
@@ -40,7 +40,7 @@
 ```
 git rev-parse --short HEAD
 curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health      # 200 (00:00–10:00 arası ZimaOS kapalı)
-curl -s https://fit.evaitec.com/bundle/bundle.json | grep version             # c0f0c90c885e4ab2 (ya da daha yeni)
+curl -s https://fit.evaitec.com/bundle/bundle.json | grep version             # c5738b51a37ca057 (ya da daha yeni)
 set -a; . ~/.ai/vg.env; set +a; curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/meals?start=2026-10-02&end=2026-10-02"   # 4 kayıt, 177 g
 ssh zima "docker inspect life-os-wellness-api-1 life-os-wellness-db-1 wellness-tunnel --format '{{.Name}} {{.HostConfig.RestartPolicy.Name}}'"   # 3× unless-stopped
 ```
