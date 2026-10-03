@@ -61,10 +61,15 @@ describe('proteinTarget', () => {
   test('yagsiz kutle varsa hedef ondan: obez vucutta toplam kilo proteini sisirir', () => {
     const goals = { protein_g: 180, weekly_loss_pct: 0.7, sets_per_group: 10 }
     const t = proteinTarget(107.6, goals, 70.4)
-    expect(t?.min_g).toBe(162)
+    expect(t?.min_g).toBe(134)
     expect(t?.max_g).toBe(183)
-    expect(t?.recommended_g).toBe(173)
-    expect(proteinTarget(107.6, { ...goals, weekly_loss_pct: 0 }, 70.4)?.recommended_g).toBe(162)
+    expect(t?.recommended_g).toBe(159)
+    expect(proteinTarget(107.6, { ...goals, weekly_loss_pct: 0 }, 70.4)?.recommended_g).toBe(134)
+  })
+
+  test('obezde 1.4 g/kg toplam kilo (yagsiz kutlede ~2.1) etkili aralikta, uyari yok', () => {
+    const t = proteinTarget(107, { protein_g: 150, weekly_loss_pct: 0.6, sets_per_group: 10 }, 72)
+    expect(t?.severity).toBe('info')
   })
 
   test('no weight average means no advice at all', () => {

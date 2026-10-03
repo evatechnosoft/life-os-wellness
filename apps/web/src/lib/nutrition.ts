@@ -24,11 +24,13 @@ const MAIN_SLOTS: Exclude<MealSlot, 'snack'>[] = ['morning', 'noon', 'evening']
 const G_PER_KG = { min: 1.6, max: 2.2, maintain: 1.8 } as const
 
 /**
- * Yagsiz kutle biliniyorsa (BIA) hedef ondan: kesimde 2.3-3.1 g/kg yagsiz kutle
- * (Helms 2014). Toplam kilo obez vucutta yagi da sayar - 107 kg'da 2.2 g/kg 237 g
- * eder, yagsiz kutleyle ~170 g. Ust sinir 2.6: ustu tokluk/kalori bedeli, ek kazanc yok.
+ * Yagsiz kutle biliniyorsa (BIA) hedef ondan. Toplam kilo obez vucutta yagi da sayar -
+ * 107 kg'da 2.2 g/kg 237 g eder. Alt sinir 1.9: Morton 2018 platosu (1.6 g/kg toplam
+ * kilo) ~%15 yagli antrenmanli vucutta yagsiz kutleye ~1.9 denk. Helms 2014'un 2.3-3.1'i
+ * zayif sporcunun kesimi icin; obezde 1.2-1.5 g/kg toplam kilo hedefini yanlis uyarir.
+ * Ust sinir 2.6: ustu tokluk/kalori bedeli, ek kazanc yok.
  */
-const G_PER_LEAN_KG = { min: 2.3, max: 2.6 } as const
+const G_PER_LEAN_KG = { min: 1.9, max: 2.6 } as const
 
 /** Kas protein sentezi ogun basina ~0.4 g/kg ile doygunlasir; gunluk toplami tek ogune yigmak bunu kacirir. */
 const PER_SLOT_G_PER_KG = 0.4
