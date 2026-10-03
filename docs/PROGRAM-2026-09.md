@@ -34,7 +34,7 @@ Böbrek sorunu veya potasyum tutan ilaç varsa §3 potasyum hedefi hekime sorulu
 | Hedef | Değer | Not |
 |---|---|---|
 | Haftalık kayıp | **0.6 kg/hafta** (ayar `weekly_loss_pct` 0.6) | on_track bandı 0.33–0.98; mevcut hız zaten içinde |
-| Protein | **180 g/gün** (1.67 g/kg; yağsız kütle ~75 kg × 2.4 ile de aynı) | uygulama min 173 → uyarı yok. Slot 43/43/43 + ara ≈51 (`slotGaps` 0.4 g/kg sabit) |
+| Protein | **150 g/gün** (3 Eki, Dean; önce 180) — 1.4 g/kg gerçek kilo · ~2.0 g/kg yağsız kütle (~72 kg) · 1.5 g/kg hedef kilo (100) | obezde gerçek kiloya 1.6–2.2 uygulamak hedefi şişirir; 150 taban, 165 civarı gün sorun değil. Ürik asit üst yarı → düşük hedef rahatlatır. Uygulama `proteinTarget` alt sınırı (1.6×kilo / 2.3×yağsız) 150'de uyarı verebilir — kod düzeltmesi ayrı iş |
 | Sodyum | **<2.000 mg** (~5 g tuz) | peynir suda bekletilir, salça/bulyon yerine domates+baharat, işlenmiş et ≤1/hafta |
 | Potasyum | 3.500–4.700 mg | çapa: muz, 200 g yoğurt, 1 kase baklagil, 150 g yeşil yapraklı, 20 g fındık |
 | Lif | 30 g/gün, 2 haftada kademeli | baklagil 1 kase ~12, bulgur 100 g ~5, yulaf ~4, 5 porsiyon sebze ~10 |
@@ -56,7 +56,7 @@ Karbonhidrat kesilmez; kalitesi değişir ve büyük kısmı antrenman gününe 
 | Ara | 200 g süzme yoğurt + 1 muz **veya** kabaklı yoğurt mezesi 250 g + 20 g fındık | ~20–25 g |
 | Akşam | öğle ile aynı kural; antrenman gününde bulgur/patates 100 g, dinlenme gününde sebze yemeği + yoğurt | ~45 g |
 | Antrenman sonrası | süt 300 ml + muz **veya** 200 g süzme yoğurt (ayran yalnız tuzsuzsa) | ~10–20 g |
-Toplam ~165–180 g; hedef tutmuyorsa akşama 100 g lor.
+Toplam ~150–180 g (hedef 150, 3 Eki); 150 tutmuyorsa akşama 100 g lor.
 
 **Ekmek alışkanlığı (Dean, 3 Eki):** ekmek yalnız sabah, o da her gün değil; öğle/akşamda ekmek yok. Öğün önerisinde ekmek önerilmez, karbonhidrat bulgur/baklagil/patatesten gelir.
 
