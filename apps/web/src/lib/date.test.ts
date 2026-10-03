@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { daysBetween, lastDates, toLocalDate } from './date'
+import { daysBetween, lastDates, shiftDate, toLocalDate } from './date'
 
 describe('toLocalDate', () => {
   test('uses the local calendar day, not UTC', () => {
@@ -43,5 +43,17 @@ describe('daysBetween', () => {
 
   test('the same day is zero', () => {
     expect(daysBetween('2026-02-28', '2026-02-28')).toBe(0)
+  })
+})
+
+describe('shiftDate', () => {
+  test('moves across month and year boundaries', () => {
+    expect(shiftDate('2026-10-01', -1)).toBe('2026-09-30')
+    expect(shiftDate('2026-12-31', 1)).toBe('2027-01-01')
+    expect(shiftDate('2028-02-28', 1)).toBe('2028-02-29')
+  })
+
+  test('zero keeps the day', () => {
+    expect(shiftDate('2026-10-03', 0)).toBe('2026-10-03')
   })
 })

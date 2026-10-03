@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 
+import { toLocalDate } from '../lib/date'
 import { db, type Measurement } from '../lib/db'
 import { dayValue, summary } from '../lib/measurements'
 import { deleteMeasurement, saveMeasurement } from '../lib/store'
@@ -26,6 +27,8 @@ export function Measurements({ date }: { date: string }) {
   const [dia, setDia] = useState('')
   const [pulse, setPulse] = useState('')
   const [weight, setWeight] = useState('')
+  // Bos = bugun icin simdi, gecmis gun icin 08:00 (sabah olcumu varsayimi).
+  const [time, setTime] = useState('')
   const [busy, setBusy] = useState(false)
   // Swipe-right edit: the same four fields, written back under the row's id and time.
   const [editing, setEditing] = useState<Measurement | null>(null)
@@ -39,9 +42,9 @@ export function Measurements({ date }: { date: string }) {
     const row = {
       id: editing?.id ?? crypto.randomUUID(),
       date,
-      // Olcumun saati simdi: kullanicidan istemek 60 sn kuralini bozar. Duzenlemede
-      // satirin kendi saati korunur.
-      time: editing?.time ?? new Date().toTimeString().slice(0, 5),
+      // Saat alani bos birakilirsa: duzenlemede satirin saati, bugun simdi, gecmis
+      // gunde 08:00. Bugun icin sormamak 60 sn kuralini korur.
+      time: time || editing?.time || (date === toLocalDate() ? new Date().toTimeString().slice(0, 5) : '08:00'),
       bp_systolic: num(sys),
       bp_diastolic: num(dia),
       pulse: num(pulse),
@@ -56,6 +59,7 @@ export function Measurements({ date }: { date: string }) {
       setDia('')
       setPulse('')
       setWeight('')
+      setTime('')
       setEditing(null)
     } finally {
       setBusy(false)
@@ -69,6 +73,7 @@ export function Measurements({ date }: { date: string }) {
     setDia(text(r.bp_diastolic))
     setPulse(text(r.pulse))
     setWeight(text(r.weight_kg))
+    setTime(r.time)
   }
 
   const field = (label: string, v: string, on: (s: string) => void, step = '1') => (
@@ -94,6 +99,15 @@ export function Measurements({ date }: { date: string }) {
         {field('küçük', dia, setDia)}
         {field('nabız', pulse, setPulse)}
         {field('kilo', weight, setWeight, '0.1')}
+        <label className="w-20">
+          <span className="block text-xs text-ink-faint">saat</span>
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="mt-1 min-h-11 w-full rounded-field bg-glass-inset px-1 py-2 text-center text-sm outline-none focus:ring-2 focus:ring-a1"
+          />
+        </label>
       </div>
 
       <button

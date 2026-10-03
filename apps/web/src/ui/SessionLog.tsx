@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 
 import { db, type Workout } from '../lib/db'
 import { find } from '../lib/exercises'
-import { buildWorkout, bump, prefill, type LogRow } from '../lib/sessionLog'
+import { buildWorkout, bump, fromServer, prefill, type LogRow } from '../lib/sessionLog'
 import { upsertWorkout } from '../lib/store'
 import { planFor, useWorkoutPlan } from '../lib/workoutPlan'
 import { Card } from './Field'
@@ -26,9 +26,12 @@ export function SessionLog({ date, today }: { date: string; today: Workout[] }) 
   const state = stored?.value as Stored | undefined
   // Saatin bugun buldugu direnc seansi varsa setler ona yazilir - ayni antrenman iki satir olmaz.
   const base = today.find((w) => w.type === 'resistance')
+  // Bu cihazda taslak yoksa sunucudaki setler esas: sohbetten yazilan seans da gorunur.
   const current: Stored = state ?? {
     workoutId: base?.id ?? crypto.randomUUID(),
-    rows: prefill(day.exercises, history, date, () => crypto.randomUUID()),
+    rows: base?.sets?.length
+      ? fromServer(day.exercises, base.sets, history, date, () => crypto.randomUUID())
+      : prefill(day.exercises, history, date, () => crypto.randomUUID()),
   }
 
   const save = async (rows: LogRow[], sync: boolean): Promise<void> => {

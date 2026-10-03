@@ -92,7 +92,9 @@ export function Today({ date }: { date: string }) {
     >
       {(['went_well', 'resistance', 'experiment'] as const).map((field, i) => (
         <textarea
-          key={field}
+          // Gun ya da sunucudan gelen retro degisince kutu yeniden kurulur (defaultValue
+          // yalniz ilk cizimde okunur; yoksa gecmis gune gecince eski metin kalirdi).
+          key={`${date}:${field}:${retro?.[field] ?? ''}`}
           rows={2}
           defaultValue={retro?.[field] ?? ''}
           placeholder={['Bugün ne iyi gitti?', 'Nerede zorlandım?', 'Yarın küçük deney?'][i]}

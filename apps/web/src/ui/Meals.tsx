@@ -40,6 +40,8 @@ export function Meals({ date }: { date: string }) {
   const [kcal, setKcal] = useState('')
   const [note, setNote] = useState('')
   const [hunger, setHunger] = useState<number | null>(null)
+  // Bos = simdi. Duzenlemede ve gecmis gune eklemede ogunun gercek saati yazilir.
+  const [time, setTime] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [openSet, setOpenSet] = useState<MenuSet['set'] | null>(null)
@@ -69,6 +71,7 @@ export function Meals({ date }: { date: string }) {
     setKcal('')
     setNote('')
     setHunger(null)
+    setTime('')
     setError(null)
     setEditing(null)
   }
@@ -80,6 +83,7 @@ export function Meals({ date }: { date: string }) {
     setKcal(m.kcal == null ? '' : String(m.kcal))
     setNote(m.note ?? '')
     setHunger(m.hunger ?? null)
+    setTime(m.time)
     // The form sits below the suggestions; bring it into view or the swipe looks like it did nothing.
     requestAnimationFrame(() => form.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
   }
@@ -131,6 +135,7 @@ export function Meals({ date }: { date: string }) {
           kcal: kcal === '' ? null : Number(kcal),
           note: note || null,
           hunger,
+          time: time || editing.time,
         })
         reset()
         return
@@ -142,6 +147,7 @@ export function Meals({ date }: { date: string }) {
         photo: photo ?? undefined,
         estimated: estimate !== null,
         hunger,
+        time: time || undefined,
       }, date)
       reset()
     } finally {
@@ -267,12 +273,21 @@ export function Meals({ date }: { date: string }) {
               className="w-28 rounded-field bg-glass-inset px-3 py-2 text-center tabular-nums outline-none focus:ring-2 focus:ring-a1"
             />
           </div>
-          <input
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="ne yedin?"
-            className="mt-2 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
-          />
+          <div className="mt-2 flex gap-2">
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="ne yedin?"
+              className="min-w-0 flex-1 rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
+            />
+            <input
+              type="time"
+              aria-label="Öğün saati"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-24 rounded-field bg-glass-inset px-2 py-2 text-center text-sm tabular-nums outline-none focus:ring-2 focus:ring-a1"
+            />
+          </div>
 
           <label className="mt-3 block">
             <span className="text-xs text-ink-faint">

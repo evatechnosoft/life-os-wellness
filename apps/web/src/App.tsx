@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 
-import { lastDates, toLocalDate } from './lib/date'
+import { daysBetween, lastDates, shiftDate, toLocalDate } from './lib/date'
 import { db } from './lib/db'
 import { syncActivity } from './lib/activity'
 import { isNative, scheduleBackgroundSync, syncHealth } from './lib/health'
@@ -63,7 +63,12 @@ export function App() {
     return TABS.some((t) => t.id === wanted) ? (wanted as TabId) : 'today'
   })
   const [online, setOnline] = useState(navigator.onLine)
-  const [date, setDate] = useState(toLocalDate())
+  // Gosterilen gun: null = bugunu izle (gece yarisi kendiliginden ilerler). Gecmis bir
+  // gune gidilince sabitlenir; boylece duzeltme/ekleme o gune yazilir (PLAN-DUZELTME D1).
+  const [today, setToday] = useState(toLocalDate())
+  const [pinned, setPinned] = useState<string | null>(null)
+  const date = pinned ?? today
+  const goTo = (d: string) => setPinned(d >= today ? null : d)
   const [update, setUpdate] = useState<PhoneUpdate | null>(null)
   const [installing, setInstalling] = useState(false)
   const updateReady = update?.state === 'available'
@@ -102,7 +107,7 @@ export function App() {
     window.addEventListener('offline', update)
     const stop = startSyncLoop()
     // Keep the header honest when the app stays open past midnight.
-    const rollover = window.setInterval(() => setDate(toLocalDate()), 60_000)
+    const rollover = window.setInterval(() => setToday(toLocalDate()), 60_000)
     // 30 gun: hafta ekrani 7 gunu cizer ama gecmis ictihat (kilo egilimi, Eva'nin
     // ozeti) daha genis pencere ister; satir sayisi kucuk oldugu icin ucuz.
     const window30 = lastDates(30)
@@ -152,6 +157,13 @@ export function App() {
     }
   }, [])
 
+  // Acilis 30 gunu ceker; daha eski bir gune gidilirse o gunun haftasi istenir.
+  useEffect(() => {
+    if (pinned && hasServer() && daysBetween(pinned, today) >= 29) {
+      void pullRange(shiftDate(pinned, -6), pinned).catch(() => {})
+    }
+  }, [pinned, today])
+
   /**
    * Asagi cekip birakinca: kuyrugu bosalt, sunucudan 30 gunu tazele, OTA manifestine
    * TEKRAR bak. `checkPhoneUpdate` gunluk onbellegi atlar - kullanici yenilemeyi
@@ -169,7 +181,7 @@ export function App() {
     }
     setUpdate(await checkPhoneUpdate().catch(() => null))
     await updateScreens()
-    setDate(toLocalDate())
+    setToday(toLocalDate())
   }
 
   return (
@@ -182,7 +194,13 @@ export function App() {
               <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>
           </button>
-          <h1 className="text-2xl font-semibold tracking-tight">{date}</h1>
+          <div className="flex items-center gap-1">
+            <button type="button" aria-label="Önceki gün" onClick={() => goTo(shiftDate(date, -1))}
+              className="flex size-9 items-center justify-center rounded-field text-ink-dim active:bg-glass">‹</button>
+            <h1 className="text-2xl font-semibold tracking-tight tabular-nums">{date}</h1>
+            <button type="button" aria-label="Sonraki gün" disabled={date >= today} onClick={() => goTo(shiftDate(date, 1))}
+              className="flex size-9 items-center justify-center rounded-field text-ink-dim active:bg-glass disabled:opacity-30">›</button>
+          </div>
         </div>
         {badge ? (
           <button type="button" onClick={() => badge.tone === 'error' && void showRejected()}
@@ -195,6 +213,13 @@ export function App() {
           </span>
         )}
       </header>
+
+      {pinned && (
+        <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-a3/15 px-4 py-2 text-sm">
+          <span>Geçmiş gün · kayıtlar {pinned} tarihine yazılır</span>
+          <button type="button" onClick={() => setPinned(null)} className="font-medium text-a3">Bugüne dön</button>
+        </div>
+      )}
 
       {updateReady && (
         <div className="mx-4 mb-2 flex items-center justify-between rounded-field bg-glass-strong px-4 py-3 text-sm">
@@ -221,9 +246,9 @@ export function App() {
       )}
       <main className="flex-1 px-4 pb-24">
         <PullToRefresh onRefresh={refresh}>
-          {page === null && tab === 'today' && <Today date={date} />}
+          {page === null && tab === 'today' && <Today key={date} date={date} />}
           {page === null && tab === 'plan' && <Plan />}
-          {page === null && tab === 'week' && <Week />}
+          {page === null && tab === 'week' && <Week onPickDay={(d) => { goTo(d); setTab('today') }} />}
           {page === null && tab === 'chat' && <Eva />}
           {page === 'moves' && <Exercises />}
           {page === 'settings' && <Settings />}
