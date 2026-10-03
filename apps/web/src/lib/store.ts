@@ -248,6 +248,27 @@ export function withMealProtein(daily: DailyLog[], meals: Meal[], stamp: string)
 }
 
 /** Pulls the server's copy into IndexedDB. Used on load so a second device sees existing data. */
+/** Outbox'ta hala gonderilmeyi bekleyen kayit id'leri (POST govdesi ya da DELETE yolu). */
+export function pendingIds(outbox: Pick<OutboxEntry, 'method' | 'path' | 'body'>[]): Set<string> {
+  const ids = new Set<string>()
+  for (const e of outbox) {
+    const bodyId = (e.body as { id?: unknown } | undefined)?.id
+    if (e.method === 'POST' && typeof bodyId === 'string') ids.add(bodyId)
+    if (e.method === 'DELETE') ids.add(e.path.slice(e.path.lastIndexOf('/') + 1))
+  }
+  return ids
+}
+
+/**
+ * Sunucu tek gercek (PLAN-DUZELTME D2): cekilen aralikta yerelde olup sunucuda olmayan
+ * satir baska yerden (sohbet, diger cihaz) silinmistir. Outbox'ta bekleyen satir haric:
+ * o henuz sunucuya ulasmamis yerel kayittir.
+ */
+export function staleIds(local: { id: string }[], server: { id: string }[], pending: Set<string>): string[] {
+  const live = new Set(server.map((r) => r.id))
+  return local.filter((r) => !live.has(r.id) && !pending.has(r.id)).map((r) => r.id)
+}
+
 export async function pullRange(start: string, end: string): Promise<void> {
   const query = `?start=${start}&end=${end}`
   const [daily, workouts, retros, wearable, meals, measurements] = await Promise.all([
@@ -259,8 +280,13 @@ export async function pullRange(start: string, end: string): Promise<void> {
     api<Measurement[]>(`/api/measurements${query}`),
   ])
   // Dizi bicimi: Dexie'nin tek tek tablo alan imzasi bes tabloda bitiyor.
-  await db.transaction('rw', [db.daily_log, db.workout, db.retro, db.wearable, db.meal, db.measurement], async () => {
+  await db.transaction('rw', [db.daily_log, db.workout, db.retro, db.wearable, db.meal, db.measurement, db.outbox], async () => {
     const stamp = now()
+    const pending = pendingIds(await db.outbox.toArray())
+    const span = [start, end, true, true] as const
+    await db.workout.bulkDelete(staleIds(await db.workout.where('date').between(...span).toArray(), workouts, pending))
+    await db.meal.bulkDelete(staleIds(await db.meal.where('date').between(...span).toArray(), meals, pending))
+    await db.measurement.bulkDelete(staleIds(await db.measurement.where('date').between(...span).toArray(), measurements, pending))
     await db.daily_log.bulkPut(withMealProtein(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? stamp })), meals, stamp))
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
