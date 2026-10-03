@@ -330,3 +330,13 @@ Dean telefonda: uygulamayı kapat-aç → veri duruyor mu (Dexie v9), ‹ ile d�
 
 ### Next — tek adım
 Dean 0.40 kurup token durumunu söyleyince: boşsa token dosyası gönder; doluysa Koç'a soru → `docker logs life-os-wellness-api-1 | grep /api/chat`. Sonra telefonda Dexie v9 göçü, ‹ dün, Tartı gir.
+
+## 3 Eki akşam — gün kaydı, protein hedefi 150, bulantı izlemi (EN YENİ, telefon Next'i hâlâ açık)
+- **Öğünler 3 Eki (GET):** kahvaltı 09:30 24 g · whey 10:00 24 g (1 ölçek varsayım) · kır pidesi kapalı kıymalı 1.5 adet 12:30 42 g / 1000 kcal · akşam palamut fırın 6 dilim + salata 17:57 75 g / 750 kcal (fotoğraftan) · yarım muz 18:09. Toplam **166 g / 2345 kcal**. Akşam shake (100 g süzme + 100 g light yoğurt ≈ 12 g) PLANLANDI, içilmedi → içerse POST.
+- **Protein hedefi 180 → 150** (Dean): `PUT /api/goals` → GET 150. PROGRAM §3/§4 güncel (`fed1c04`). Gerekçe: 1.4 g/kg gerçek kilo, ~2.0 g/kg yağsız kütle, 1.5 g/kg hedef kilo.
+- **PR #50 (`bf0ab5d`) canlı (Pages run 37132842190 success):** `G_PER_LEAN_KG.min` 2.3 → 1.9 (150 artık warn değil); Diet toparlanma planı kayıtlı hedefi kullanır, öneri yalnız `severity==='warn'` iken. Web 441/441, tsc 0. Telefonda DOĞRULANMADI. Eva metni hâlâ `recommended_g` (~159) gösterir, yanında ayar 150 — gerekirse sonra.
+- PROGRAM §4: ekmek yalnız sabah, o da her gün değil (`f62011e`) — öğle/akşam ekmek önerme.
+- **Bulantı:** zaman zaman yatarken 21:00 sonrası; mide yanması/ekşime YOK (Dean); kreatin sabah kahvaltı sonrası, whey salon dönüşü; kola/alkol yok. Kayıtlar 14 günde 7 akşam 19:30–21:00 arası yeme gösteriyor. 1 hafta deneme: 19:00 sonrası yemek/çorba/meyve yok, çay 19:00'a kadar. daily_log 3 Eki notes'ta. Kırmızı bayrak → hekim (söylendi). ~10 Eki'de sor: geçti mi.
+
+### Next — tek adım
+Telefon (0.40 token durumu) üstteki bölümden devam. Gün kaydı: shake içildiyse POST. ~10 Eki bulantı denemesini sor.
