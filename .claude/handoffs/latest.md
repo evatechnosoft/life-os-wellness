@@ -340,3 +340,12 @@ Dean 0.40 kurup token durumunu söyleyince: boşsa token dosyası gönder; doluy
 
 ### Next — tek adım
 Telefon (0.40 token durumu) üstteki bölümden devam. Gün kaydı: shake içildiyse POST. ~10 Eki bulantı denemesini sor.
+
+## 3 Eki gece — öğün sırası/not Kaydet canlı, saat OTA işi appkit'te (EN YENİ)
+- **PR #51 (`4d67568`) canlı:** öğünler `sortBy('time')` (Dexie uuid sırası dönüyordu), satırda sabah/öğle/akşam/ara öğün (`SLOT_TR` nutrition.ts'e taşındı), günün notu altında "Kaydet" (blur'u tetikler). Web 441/441, tsc 0.
+- **ZimaOS deploy 22:03:** predeploy yedeği `backups/wellness-2026-10-03-2203-predeploy.sql.gz` (25.5 KB), `git pull` → `4d67568`, api rebuild, health 200, bundle `2954c8b1` → `6cb423a3`. PR #50 (protein 1.9 alt sınır) telefona da bu paketle indi. Telefonda DOĞRULANMADI.
+- Not: Pages yayını telefona gitmez; telefon paketi ZimaOS `/bundle/`'dan gelir → her web PR'ından sonra ZimaOS deploy + bundle version kontrolü.
+- **Saat OTA (evaitec-appkit, ayrı repo):** saatte "Wellness Saat 0.40.0 Aktarılıyor %10–23" donuyordu. ota-wear 0.1.21 yayında (apps.json curl: vc16, sha `cf1d4c22…`): aktarım yolu Otomatik/Wi-Fi/Telefon, `CHANGE_NETWORK_STATE` eksikti (Wi-Fi hiç istenmiyordu), saat alıcısına 30 sn durma bekçisi. PR appkit #8 açık, birleşmedi. Cihazda DOĞRULANMADI. Devam eden alt iş: TLS eşleştirme kodlu ADB + kalıcı anahtar, TV'de QR açılması, telefondan saate "Wi-Fi debug aç" isteği (`WRITE_SECURE_SETTINGS`) → ayrıntı appkit HANDOFF.md.
+
+### Next — tek adım
+Dean saatte evaitecOTA → kendi kartında Güncelle (0.1.21) → Wellness Saat Güncelle; ekranda "Wi-Fi isteniyor… / İndiriliyor %N" mi bak. Telefonda öğün sırası + Kaydet + 150 g uyarısız mı.
