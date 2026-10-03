@@ -293,3 +293,13 @@ Dean "deploy" derse ZimaOS: `cd /DATA/AppData/life-os-wellness && git pull && do
 - PR #38 akşam yemeği eşiği 17:00→16:00 (palamut 16:21 "akşam yok" sayılıyordu). PR #39 `/plan/` seçici tüm vücut 2 set ×12 (bölünmüş sistem değişmedi). PR #40 bildirimde Cevapla / Geç (`registerActionTypes`, listener App mount; Geç = `skipReminder` → iptal + bugün sorulmaz). Canlı paket `c0f0c90c`. Telefonda DOĞRULANMADI.
 - Kalıcı bildirim = "Akşam yemeği" + "Akşam retrosu" hatırlatmaları (Dean). Kaydırma "yapıldı" saymıyor; tekrar kurulumda (pull/kayıt) yarına kurulmalı — "durmadan" tekrarın mekanizması BULUNAMADI. Yarın tekrar ederse bak.
 - Bekleyen: retro 2 Eki (Dean'e 3 soru soruldu); "Haftayı kur"u uygulamanın Plan sekmesine taşıma önerildi (plan.js ortak) — Dean "yap" demedi.
+
+## 3 Eki sabah — prod açıkları kapandı, gün kaydı, PLAN-DUZELTME (en yeni)
+- **PR #41 + #42 canlı** (dev `20687e6`, paket `c5738b51`, health 200): `/health` `select 1` (DB yoksa 503) · `GET /api/wearable?source=` + test · Settings dışa aktarma `toLocalDate()` · `npm audit fix` 14→10 · compose `backup` sidecar (ZimaOS'ta cron daemon yok) günlük pg_dump 7 gün → `backups/wellness-2026-10-03-auto.sql.gz` 24.5 KB, 12 tablo, `backup ok` logu · 009 `schema_migrations`'a kaydedildi (9). Testler: tsc temiz, web 423, api 72 (ZimaOS geçici postgres:16 `wtest-pg` + `ssh -L 5433:127.0.0.1:5440 zima`; PC'de PG ikilisi yok, konteyner silindi).
+- `health_connect` 23 Eyl–3 Eki boş (source filtresiyle kanıt) → saat senkronu hâlâ yok.
+- **3 Eki kayıt (GET):** kahvaltı `1003a0e2-1003-4a11-9c00-000000000001` 09:30 24 g / 420 kcal (2 haşlanmış yumurta, sucuk ~2.5 dilim — Dean düzeltti, 4 değil; peynir, zeytin, sebze) · daily kilo 107.05 · OKOK 10 metrik (OKOK ekranı 1 Eki ile birebir aynı değerler; Dean "dün yükseldi, bugün normal" dedi, kabul).
+- Bel: API'de 23 Eyl ve 28 Eyl 117. Sonraki bel Pzt 5 Eki. (Ben "21 Eyl" dedim, yanlıştı — önce API'ye bak.)
+- **`docs/PLAN-DUZELTME.md`** (`ea781f4`): Dean isteği "düzeltme ve günlük ekleme uygulamadan da yapılabilsin". Boşluklar: uygulama yalnız bugün (`App.tsx:66`), sunucu silmesi telefona inmiyor (`pullRange` yalnız bulkPut), OKOK elle giriş yok, sunucudan gelen ölçüm daily_log'u güncellemiyor, SessionLog server setlerini okumuyor, set silinemiyor, wearable yerel id `date:metric`. Adımlar D1 gün seçici → D2 reconcile silme (TDD) → D3 tartı ekranı → D4 tutarlılık. Kod YAZILMADI, Dean "yap" bekleniyor.
+
+### Next — tek adım
+Dean "yap" derse `feature/gun-secici` (D1). Gün içinde öğün/seans geldikçe POST + GET. Bugün Cuma A′ günü.
