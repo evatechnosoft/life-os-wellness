@@ -285,6 +285,23 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(Number(list.json()[0].value), 12000)
   })
 
+  test('wearable: source filter returns only that source', async () => {
+    await app.inject({
+      method: 'POST', url: '/api/wearable', headers: auth,
+      payload: { records: [
+        { date: '2099-01-07', source: 'okok', metric: 'weight_kg', value: 100 },
+        { date: '2099-01-07', source: 'health_connect', metric: 'steps', value: 5000 },
+      ] },
+    })
+    const base = '/api/wearable?start=2099-01-07&end=2099-01-07'
+    const all = await app.inject({ method: 'GET', url: base, headers: auth })
+    assert.equal(all.json().length, 2)
+    const okok = await app.inject({ method: 'GET', url: `${base}&source=okok`, headers: auth })
+    assert.deepEqual(okok.json().map((r: { source: string }) => r.source), ['okok'])
+    const none = await app.inject({ method: 'GET', url: `${base}&source=cuff`, headers: auth })
+    assert.equal(none.json().length, 0)
+  })
+
   test('rejects a wearable record with a bad date', async () => {
     const res = await app.inject({
       method: 'POST', url: '/api/wearable', headers: auth,

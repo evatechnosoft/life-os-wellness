@@ -39,3 +39,6 @@ apps/web/android/debug.keystore
 
 # Secici gorselleri: upstream CDN de duruyor, build.mjs indirir.
 tools/secici/img/
+
+# Gunluk pg_dump ciktisi (compose backup servisi, ZimaOS)
+backups/
