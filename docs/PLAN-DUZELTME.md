@@ -1,6 +1,6 @@
 # PLAN — Uygulamadan düzeltme ve geçmiş güne ekleme
 
-> 2026-10-03 · Durum: TASARI, kod yazılmadı · Sahip: Dean
+> 2026-10-03 · Durum: D1–D4 CANLIDA (PR #43 #44 #46 #47 #48, paket `8d8e326a`), telefonda DOĞRULANMADI · Sahip: Dean
 > Tetik: Dean, 3 Eki — "Uygulama sadece server ve buradan değişimlerle şekilleniyor. Düzeltme ve günlük ekleme uygulamadan da yapılabilsin."
 
 ## Sorun

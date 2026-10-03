@@ -303,3 +303,21 @@ Dean "deploy" derse ZimaOS: `cd /DATA/AppData/life-os-wellness && git pull && do
 
 ### Next — tek adım
 Dean "yap" derse `feature/gun-secici` (D1). Gün içinde öğün/seans geldikçe POST + GET. Bugün Cuma A′ günü.
+
+## 3 Eki öğleden sonra — PLAN-DUZELTME D1–D4 + Eva bağlamı canlıda (en yeni)
+- **Canlı paket `8d8e326a`**, health 200, dev `2888652`. Her deploy öncesi predeploy yedeği alındı.
+- **#43 D1 gün seçici:** başlıkta ‹ ›, Hafta'da güne dokun → o gün; "Geçmiş gün · Bugüne dön" şeridi; ölçüm/öğün formunda saat; Today `key={date}`; SessionLog sunucu setlerini kendi id'leriyle açar (`fromServer`).
+- **#44 D2:** `pullRange` aralıkta sunucuda olmayan seans/öğün/ölçüm/wearable'ı siler, outbox'ta bekleyeni korur (`pendingIds`/`staleIds`).
+- **#45 Eva:** bağlam 4000 karakterde kesiliyordu, günler eskiden yeniye → kesilen BUGÜN'dü ("kahvaltı kaydın yok"). Sıra artık profil, koç, günler (yeni önce, "(bugün)"), sık yenenler, ürünler; öğün notu 120 karakter. Headless canlı: Eva 24 g kahvaltıyı görüyor. Not: telefon 12:50'de hiç `/api/chat` atmamıştı; Dean'in "Eva yok"u telefonda DOĞRULANMADI.
+- **#46 D3 tartı:** Ölçüm sekmesi → Vücut kompozisyonu → "Tartı gir" (9 alan, tarih, satıra dokun = düzenle, Sil). `DELETE /api/wearable?date=&source=`. Wearable yerel id `date:source:metric` (Dexie v9 göçü — telefonda göç DOĞRULANMADI, kritik: açılışta veri görünüyor mu bak).
+- **#47 D4:** `dailyPatch` (ölçüm → daily kilo/TA; pull'da yalnız boş alan — 26 Eyl akşam 119/71 sabah 114/74'ü ezmesin diye, canlı veriyle simüle). POST /api/workouts `sets` verilirse TAM LİSTE (eksik set silinir), verilmezse dokunulmaz. `fromServer` done_at boş seti yapılmış sayar (25 Eyl 12 set). Retro kartında "Günün notu" = daily_log.notes.
+- **#48:** geçmiş günde "Seçili gün" etiketi, tartı formu kiloyu daily'den doldurur.
+- Testler: web 440, api 73 (ZimaOS geçici postgres), tsc/build temiz. Headless canlı: 2 Eki açıldı, öğünler göründü, form 9 değerle doldu. Kayıt YAZILMADI (prod).
+
+### Don't repeat (3 Eki)
+- Sohbetten seans POST'unda artık `sets` TAM liste — eksik gönderilen set silinir. Düzeltmede önce GET, tüm seti gönder.
+- Python heredoc içinde `'\n'` → gerçek satır sonu; TS düzenlemesinde Edit aracı.
+- Headless test betikleri: scratchpad `eva_check.mjs` / `ui_check.mjs` (CDP, Chrome, token localStorage).
+
+### Next — tek adım
+Dean telefonda: uygulamayı kapat-aç → veri duruyor mu (Dexie v9), ‹ ile dün, Ölçüm → Tartı gir, Koç'a soru. Sunucu logundan izle.
