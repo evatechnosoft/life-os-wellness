@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { Measurement } from './db'
-import { dayValue, summary } from './measurements'
+import { dailyPatch, dayValue, summary } from './measurements'
 
 const m = (time: string, sys: number | null, dia: number | null, extra: Partial<Measurement> = {}): Measurement => ({
   id: time,
@@ -55,5 +55,27 @@ describe('summary', () => {
   test('tansiyon, nabiz ve kilo tek satirda', () => {
     const value = dayValue([m('07:50', 128, 78, { pulse: 66, weight_kg: 107.8 })])
     expect(summary(value)).toBe('128/78 · 66 bpm · 107.8 kg (1 sabah ölçümü)')
+  })
+})
+
+describe('dailyPatch', () => {
+  test('a measurement written elsewhere fills the empty day', () => {
+    expect(dailyPatch([m('08:10', 124, 76, { weight_kg: 107.4 })], undefined))
+      .toEqual({ bp_systolic: 124, bp_diastolic: 76, weight_kg: 107.4 })
+  })
+
+  test('only changed fields are patched (server numerics may arrive as strings)', () => {
+    const log = { bp_systolic: 124, bp_diastolic: 76, weight_kg: '107.4' as unknown as number }
+    expect(dailyPatch([m('08:10', 124, 76, { weight_kg: 107.4 })], log)).toEqual({})
+    expect(dailyPatch([m('08:10', 120, 76)], log)).toEqual({ bp_systolic: 120 })
+  })
+
+  test('onlyEmpty never overwrites an existing day value', () => {
+    const log = { bp_systolic: 114, bp_diastolic: 74, weight_kg: null }
+    expect(dailyPatch([m('20:30', 119, 71, { weight_kg: 107.4 })], log, true)).toEqual({ weight_kg: 107.4 })
+  })
+
+  test('no measurements, no patch', () => {
+    expect(dailyPatch([], { weight_kg: 107 })).toEqual({})
   })
 })

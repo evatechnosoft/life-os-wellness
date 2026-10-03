@@ -426,6 +426,15 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
         ],
       )
       const { inserted, ...workout } = rows[0]
+      // `sets` gonderildiyse seansin tam listesidir: listede olmayan set silinir (yanlis
+      // hareket / geri alinan isaret). Gonderilmediyse (saat, tip/sure duzeltmesi) setlere
+      // dokunulmaz. PLAN-DUZELTME D4.
+      if (Array.isArray(b.sets)) {
+        await client.query(
+          'delete from exercise_set where workout_id = $1 and not (id = any($2::uuid[]))',
+          [workout.id, sets.map((s) => s.id)],
+        )
+      }
       for (const set of sets) {
         await client.query(
           `insert into exercise_set (id, workout_id, exercise_id, set_no, weight_kg, reps, done_at)

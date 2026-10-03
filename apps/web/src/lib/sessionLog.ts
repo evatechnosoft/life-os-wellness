@@ -143,7 +143,12 @@ export function fromServer(
     const i = plan.findIndex((p) => p.id === id)
     return i === -1 ? plan.length : i
   }
-  const kept = saved.slice().sort((a, b) => order(a.exercise_id) - order(b.exercise_id) || a.set_no - b.set_no)
+  // Sunucuda kayitli set yapilmis sayilir (sohbetten yazilanlarda done_at bos olabiliyor,
+  // 25 Eyl). Isaretsiz gorunse, tek bir isaret seansi o setle yeniden yazar ve POST tam
+  // liste oldugu icin digerleri silinirdi.
+  const kept = saved
+    .map((s) => (s.done_at ? s : { ...s, done_at: `${date}T12:00:00.000Z` }))
+    .sort((a, b) => order(a.exercise_id) - order(b.exercise_id) || a.set_no - b.set_no)
   const missing = plan.filter((p) => !done.has(p.id))
   return [...kept, ...prefill(missing, workouts, date, newId)]
 }

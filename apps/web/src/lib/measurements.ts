@@ -1,4 +1,4 @@
-import type { Measurement } from './db'
+import type { DailyLog, Measurement } from './db'
 
 /**
  * Gun ici coklu olcumden gunun tek degerini cikarir.
@@ -55,4 +55,31 @@ export function summary(value: DayValue | null): string {
   if (value.weight_kg != null) parts.push(`${value.weight_kg} kg`)
   const kind = value.morning ? 'sabah' : 'gün içi'
   return parts.length === 0 ? 'ölçüm yok' : `${parts.join(' · ')} (${value.count} ${kind} ölçümü)`
+}
+
+type DailyFields = Pick<DailyLog, 'bp_systolic' | 'bp_diastolic' | 'weight_kg'>
+
+/**
+ * Gunun olcumlerinden daily_log'a yazilacak fark. Trend ve 7 gun ortalamasi daily_log'u
+ * okur; olcum nereden gelirse gelsin (uygulama, sohbet) gunun degeri burada tek kurala
+ * baglanir. Degismeyen alan yazilmaz, olcum yoksa daily_log'a dokunulmaz.
+ * `onlyEmpty`: sunucudan cekerken yalniz bos alan doldurulur. 26 Eyl'de gunun tek olcumu
+ * aksamdi (119/71); tam kural sohbetten yazilan sabah kolluk degerini (114/74) ezerdi.
+ */
+export function dailyPatch(
+  rows: Measurement[],
+  log: Partial<DailyFields> | undefined,
+  onlyEmpty = false,
+): Partial<DailyFields> {
+  const value = dayValue(rows)
+  if (value === null) return {}
+  const next: Partial<DailyFields> = {}
+  if (value.bp_systolic != null) next.bp_systolic = Math.round(value.bp_systolic)
+  if (value.bp_diastolic != null) next.bp_diastolic = Math.round(value.bp_diastolic)
+  if (value.weight_kg != null) next.weight_kg = value.weight_kg
+  const patch: Partial<DailyFields> = {}
+  for (const [k, v] of Object.entries(next) as [keyof DailyFields, number][]) {
+    if (log?.[k] == null || (!onlyEmpty && Number(log[k]) !== v)) patch[k] = v
+  }
+  return patch
 }
