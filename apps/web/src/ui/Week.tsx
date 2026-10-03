@@ -28,7 +28,8 @@ function trailingAverage(values: (number | null | undefined)[], window: number):
 
 const nf1 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 
-export function Week() {
+/** onPickDay: bir gune dokununca o gun Bugun ekraninda acilir (duzeltme/ekleme). */
+export function Week({ onPickDay }: { onPickDay?: (date: string) => void } = {}) {
   const goals = useGoals()
   const split = useSplit()
   const dates = lastDates(7)
@@ -79,12 +80,13 @@ export function Week() {
           const hit = (byDate.get(d)?.protein_g ?? 0) >= goals.protein_g
           const fill = hit ? 'bg-work text-solid' : d === today ? 'border border-a1 text-a1' : 'bg-glass-inset text-ink-dim'
           return (
-            <div key={d} className="flex flex-col items-center gap-1">
+            <button type="button" key={d} aria-label={`${d} gününü aç`} onClick={() => onPickDay?.(d)}
+              className="flex min-h-11 flex-col items-center gap-1">
               <span className="text-[9px] text-ink-faint">{abbr}</span>
               <span className={`flex h-[26px] w-[26px] items-center justify-center rounded-full text-[10px] tabular-nums ${fill}`}>
                 {dom}
               </span>
-            </div>
+            </button>
           )
         })}
       </div>
@@ -128,12 +130,13 @@ export function Week() {
             groups.length > 0 ? [...new Set(groups)].join(', ') : null,
           ].filter((p): p is string => p != null)
           return (
-            <div key={d} className="flex justify-between px-3 py-1.5 text-[11px]">
+            <button type="button" key={d} onClick={() => onPickDay?.(d)}
+              className="flex min-h-9 w-full justify-between px-3 py-1.5 text-left text-[11px] active:bg-glass">
               <span className={d === today ? 'text-a1' : 'text-ink-dim'}>
                 {abbr} {dom}
               </span>
               <span className="tabular-nums text-ink-dim">{parts.length === 0 ? '—' : parts.join(' · ')}</span>
-            </div>
+            </button>
           )
         })}
       </div>

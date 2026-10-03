@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Workout } from './db'
-import { buildWorkout, bump, musclesFor, prefill, type LogRow } from './sessionLog'
+import { buildWorkout, bump, fromServer, musclesFor, prefill, type LogRow } from './sessionLog'
 
 let n = 0
 const id = () => `id-${++n}`
@@ -120,5 +120,31 @@ describe('isinma / rampa setleri', () => {
     const w = buildWorkout('w', '2026-09-25', rows, undefined)
     expect(w.sets_total).toBe(1)
     expect(w.sets?.every((s) => !('warmup' in s))).toBe(true)
+  })
+})
+
+describe('fromServer', () => {
+  const plan = [{ id: 'Leg_Press', sets: 2 }, { id: 'Butterfly', sets: 2 }]
+  const saved = [
+    { id: 's2', exercise_id: 'Leg_Press', set_no: 2, weight_kg: 35, reps: 12, done_at: '2026-10-02T09:10:00Z' },
+    { id: 's1', exercise_id: 'Leg_Press', set_no: 1, weight_kg: 35, reps: 12, done_at: '2026-10-02T09:05:00Z' },
+  ]
+  let n = 0
+  const rows = fromServer(plan, saved, [], '2026-10-02', () => `new${++n}`)
+
+  it('keeps saved sets with their own ids, in set order', () => {
+    expect(rows.slice(0, 2).map((r) => r.id)).toEqual(['s1', 's2'])
+  })
+
+  it('prefills only the plan exercises that have no saved set', () => {
+    const rest = rows.slice(2)
+    expect(rest.every((r) => r.exercise_id === 'Butterfly' && r.done_at === null)).toBe(true)
+    expect(rest).toHaveLength(2)
+  })
+
+  it('keeps a saved exercise that is not in the plan', () => {
+    const extra = fromServer(plan, [{ ...saved[0]!, exercise_id: 'Calf' }], [], '2026-10-02', () => 'x')
+    expect(extra[0]?.exercise_id).toBe('Calf')
+    expect(extra).toHaveLength(5)
   })
 })

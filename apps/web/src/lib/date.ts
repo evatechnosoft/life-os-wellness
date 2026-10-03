@@ -27,3 +27,9 @@ export function daysBetween(from: string, to: string): number {
   }
   return Math.round((at(to) - at(from)) / 86400000)
 }
+
+/** YYYY-MM-DD moved by `days` local calendar days (negative = back). DST-safe: built from parts. */
+export function shiftDate(date: string, days: number): string {
+  const [year, month, day] = date.split('-').map(Number)
+  return toLocalDate(new Date(year!, month! - 1, day! + days))
+}

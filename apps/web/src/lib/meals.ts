@@ -67,15 +67,18 @@ export async function saveMeal(
     hunger?: number | null
     source?: Meal['source']
     barcode?: string | null
+    /** HH:MM; gecmis gune eklerken elle verilir, yoksa simdi. */
+    time?: string
   },
   date = toLocalDate(),
 ): Promise<Meal> {
+  const { time, ...rest } = input
   const meal: Meal = {
     id: crypto.randomUUID(),
     date,
-    time: nowTime(),
+    time: time ?? nowTime(),
     source: input.photo ? 'photo' : 'manual',
-    ...input,
+    ...rest,
   }
   await db.meal.put(meal)
   await queueMeal(meal)
@@ -96,7 +99,7 @@ export async function saveMeal(
 /** Rewrites a meal under the same id; the day's protein total moves by the difference. */
 export async function updateMeal(
   meal: Meal,
-  patch: Pick<Meal, 'protein_g' | 'kcal' | 'note'> & { hunger?: number | null },
+  patch: Pick<Meal, 'protein_g' | 'kcal' | 'note'> & { hunger?: number | null; time?: string },
 ): Promise<void> {
   const next: Meal = { ...meal, ...patch }
   await db.meal.put(next)

@@ -125,3 +125,25 @@ export function buildWorkout(id: string, date: string, rows: LogRow[], base: Wor
     needs_review: false,
   }
 }
+
+/**
+ * Sunucuda (sohbetten ya da baska cihazdan) setleri olan seansi ekrana acar: kayitli
+ * setler kendi id'leriyle gelir, plandaki ama hic kaydedilmemis hareketler prefill olur.
+ * Yeni id uretilseydi isaretleme ayni seti ikinci kez yazardi (POST set id ile upsert).
+ */
+export function fromServer(
+  plan: PlanExercise[],
+  saved: ExerciseSet[],
+  workouts: Workout[],
+  date: string,
+  newId: () => string,
+): LogRow[] {
+  const done = new Set(saved.map((s) => s.exercise_id))
+  const order = (id: string) => {
+    const i = plan.findIndex((p) => p.id === id)
+    return i === -1 ? plan.length : i
+  }
+  const kept = saved.slice().sort((a, b) => order(a.exercise_id) - order(b.exercise_id) || a.set_no - b.set_no)
+  const missing = plan.filter((p) => !done.has(p.id))
+  return [...kept, ...prefill(missing, workouts, date, newId)]
+}
