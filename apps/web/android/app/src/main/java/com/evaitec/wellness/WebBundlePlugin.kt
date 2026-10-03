@@ -40,20 +40,25 @@ class WebBundlePlugin : Plugin() {
         }
 
         thread(name = "web-bundle") {
-            try {
+            // Tek kurulum: iki cagri ayni .part dizinine paralel yaziyor, biri digerinin
+            // bitmis (ve belki calisan) dizinini siliyordu.
+            synchronized(LOCK) { try {
                 val root = File(context.filesDir, "web").apply { mkdirs() }
                 val dir = File(root, version)
                 val part = File(root, "$version.part")
-                part.deleteRecursively()
-                for (name in files) {
-                    val target = File(part, name)
-                    target.parentFile?.mkdirs()
-                    OtaUpdater.fetchTo(base + name, target, "evaitec-web") {}
+                // Ayni surum zaten tam inmisse yeniden indirme: yalniz tercihi yaz.
+                if (!File(dir, "index.html").isFile) {
+                    part.deleteRecursively()
+                    for (name in files) {
+                        val target = File(part, name)
+                        target.parentFile?.mkdirs()
+                        OtaUpdater.fetchTo(base + name, target, "evaitec-web") {}
+                    }
+                    // Yarim paket acilirsa beyaz ekran: index yoksa eski paket yerinde kalir.
+                    if (!File(part, "index.html").isFile) error("index.html inmedi")
+                    dir.deleteRecursively()
+                    if (!part.renameTo(dir)) error("paket yerine konamadi")
                 }
-                // Yarim paket acilirsa beyaz ekran: index yoksa eski paket yerinde kalir.
-                if (!File(part, "index.html").isFile) error("index.html inmedi")
-                dir.deleteRecursively()
-                if (!part.renameTo(dir)) error("paket yerine konamadi")
 
                 context.getSharedPreferences(WebView.WEBVIEW_PREFS_NAME, Activity.MODE_PRIVATE)
                     .edit().putString(WebView.CAP_SERVER_PATH, dir.absolutePath).apply()
@@ -65,7 +70,11 @@ class WebBundlePlugin : Plugin() {
                 call.resolve(JSObject().put("path", dir.absolutePath))
             } catch (e: Exception) {
                 call.reject(e.message ?: "paket indirilemedi")
-            }
+            } }
         }
+    }
+
+    private companion object {
+        val LOCK = Any()
     }
 }
