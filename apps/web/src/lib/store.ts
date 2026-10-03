@@ -8,6 +8,7 @@ import {
   type Retro,
   type WearableRecord,
   type Workout,
+  wearableId,
 } from './db'
 import { dayValue } from './measurements'
 
@@ -254,6 +255,9 @@ export function pendingIds(outbox: Pick<OutboxEntry, 'method' | 'path' | 'body'>
   for (const e of outbox) {
     const bodyId = (e.body as { id?: unknown } | undefined)?.id
     if (e.method === 'POST' && typeof bodyId === 'string') ids.add(bodyId)
+    // Wearable toplu yazimi: satir basina id yok, yerel anahtar turetilir.
+    const records = (e.body as { records?: { date: string; source: string; metric: string }[] } | undefined)?.records
+    if (e.method === 'POST' && Array.isArray(records)) for (const r of records) ids.add(wearableId(r.date, r.source, r.metric))
     if (e.method === 'DELETE') ids.add(e.path.slice(e.path.lastIndexOf('/') + 1))
   }
   return ids
@@ -290,9 +294,11 @@ export async function pullRange(start: string, end: string): Promise<void> {
     await db.daily_log.bulkPut(withMealProtein(daily.map((d) => ({ ...d, updated_at: d.updated_at ?? stamp })), meals, stamp))
     await db.workout.bulkPut(workouts)
     await db.retro.bulkPut(retros.map((r) => ({ ...r, updated_at: r.updated_at ?? now() })))
-    // Sunucu kendi uuid'sini veriyor; yerel anahtar date+metric oldugu icin
+    // Sunucu kendi uuid'sini veriyor; yerel anahtar (gun, kaynak, metrik) oldugu icin
     // yeniden cekmek satiri cogaltmasin diye id burada turetiliyor.
-    await db.wearable.bulkPut(wearable.map((w) => ({ ...w, id: `${w.date}:${w.metric}` })))
+    const pulledWearable = wearable.map((w) => ({ ...w, id: wearableId(w.date, w.source, w.metric) }))
+    await db.wearable.bulkDelete(staleIds(await db.wearable.where('date').between(...span).toArray(), pulledWearable, pending))
+    await db.wearable.bulkPut(pulledWearable)
     // Fotograf sunucuda yok; cekilen kopya yerel fotografi silmesin.
     const local = await db.meal.bulkGet(meals.map((m) => m.id))
     await db.meal.bulkPut(meals.map((m, i) => (local[i]?.photo ? { ...m, photo: local[i]!.photo } : m)))
@@ -316,7 +322,7 @@ export async function recordMetrics(
   const synced_at = new Date().toISOString()
   const records: WearableRecord[] = Object.entries(metrics)
     .filter(([, value]) => Number.isFinite(value))
-    .map(([metric, value]) => ({ id: `${date}:${metric}`, date, metric, value, source, synced_at }))
+    .map(([metric, value]) => ({ id: wearableId(date, source, metric), date, metric, value, source, synced_at }))
   if (records.length === 0) return []
 
   await db.wearable.bulkPut(records)
@@ -329,6 +335,12 @@ export async function recordMetrics(
     body: { records: records.map(({ date: d, source: s, metric, value }) => ({ date: d, source: s, metric, value })) },
   })
   return records
+}
+
+/** Bir gunun bir kaynaktan gelen tum degerlerini siler (yanlis tarti girisi). */
+export async function deleteWearable(date: string, source: string): Promise<void> {
+  await db.wearable.where('date').equals(date).filter((r) => r.source === source).delete()
+  await queue({ method: 'DELETE', path: `/api/wearable?date=${date}&source=${encodeURIComponent(source)}` })
 }
 
 export function startSyncLoop(): () => void {

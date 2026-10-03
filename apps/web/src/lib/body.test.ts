@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { bodySeries, bodySummary, bodyText } from './body'
+import { bodySeries, bodySummary, bodyText, parseScale } from './body'
 import type { WearableRecord } from './db'
 
 const row = (date: string, metric: string, value: number, source = 'okok'): WearableRecord =>
@@ -105,5 +105,19 @@ describe('bodyText', () => {
 
   test('no window yet', () => {
     expect(bodyText({ ...summary(0, 0), change: null })).toBe('Değişim için 28 gün içinde ikinci bir tartı gerekiyor.')
+  })
+})
+
+describe('parseScale', () => {
+  test('reads comma decimals and skips empty fields', () => {
+    const { metrics, errors } = parseScale({ weight_kg: '107,05', body_fat_pct: '34.5', visceral_fat: '' })
+    expect(metrics).toEqual({ weight_kg: 107.05, body_fat_pct: 34.5 })
+    expect(errors).toEqual([])
+  })
+
+  test('rejects a value outside the field range instead of saving it', () => {
+    const { metrics, errors } = parseScale({ bmr_kcal: '107', bone_kg: '3.14' })
+    expect(metrics).toEqual({ bone_kg: 3.14 })
+    expect(errors).toHaveLength(1)
   })
 })

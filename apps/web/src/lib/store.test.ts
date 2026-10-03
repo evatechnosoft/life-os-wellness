@@ -69,6 +69,13 @@ describe('pendingIds', () => {
     ])
     expect([...ids].sort()).toEqual(['m1', 'w9'])
   })
+
+  test('wearable batch rows count as pending under their local key', () => {
+    const ids = pendingIds([
+      { method: 'POST', path: '/api/wearable', body: { records: [{ date: '2026-10-03', source: 'okok', metric: 'visceral_fat', value: 25 }] } },
+    ])
+    expect([...ids]).toEqual(['2026-10-03:okok:visceral_fat'])
+  })
 })
 
 describe('staleIds', () => {

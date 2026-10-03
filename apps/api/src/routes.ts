@@ -529,6 +529,21 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     return rows
   })
 
+  // Yanlis tarti girisi: bir gunun bir kaynaktan gelen tum degerleri (PLAN-DUZELTME D3).
+  app.delete('/api/wearable', {
+    schema: {
+      querystring: {
+        type: 'object',
+        required: ['date', 'source'],
+        properties: { date: DATE, source: { type: 'string', minLength: 1, maxLength: 40 } },
+      },
+    },
+  }, async (req) => {
+    const { date, source } = req.query as { date: string; source: string }
+    const { rowCount } = await pool.query('delete from wearable_sync where date = $1 and source = $2', [date, source])
+    return { deleted: rowCount ?? 0 }
+  })
+
   // Batch upsert from the phone. (date, source, metric) is unique, so replaying a sync
   // window overwrites rather than duplicating.
   app.post('/api/wearable', { schema: { body: WEARABLE_BODY } }, async (req) => {
