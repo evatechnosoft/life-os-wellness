@@ -117,6 +117,13 @@ export function Today({ date }: { date: string }) {
         }}
         className="mt-2 w-full rounded-field bg-glass-inset p-3 text-sm outline-none focus:ring-2 focus:ring-a1"
       />
+      <button
+        type="button"
+        onClick={() => (document.activeElement as HTMLElement | null)?.blur()}
+        className="mt-2 w-full rounded-field bg-glass-strong py-2 text-sm"
+      >
+        Kaydet
+      </button>
     </Card>
   )
 

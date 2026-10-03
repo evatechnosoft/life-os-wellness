@@ -57,6 +57,13 @@ function hourOf(time: string): number {
   return Number(time.slice(0, 2))
 }
 
+export const SLOT_TR: Record<MealSlot, string> = {
+  morning: 'sabah',
+  noon: 'öğle',
+  evening: 'akşam',
+  snack: 'ara öğün',
+}
+
 export function mealSlot(time: string): MealSlot {
   const hour = hourOf(time)
   for (const slot of MAIN_SLOTS) {
