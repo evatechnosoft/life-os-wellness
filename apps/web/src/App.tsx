@@ -16,11 +16,17 @@ import { syncBadge } from './lib/syncStatus'
 import { applyWebBundle, checkWebBundle } from './lib/webBundle'
 
 /** Indirilen yeni paket varsa hemen ona gecer (ayni origin: yerel veri kaybolmaz). */
-async function updateScreens(): Promise<void> {
+// Tek ucus: acilis ve visibilitychange ayni anda tetikleyince ayni paket iki kez,
+// ayni .part dizinine paralel iniyordu (3 Eki sunucu logu: her dosya ikiser kez).
+let updating: Promise<void> | null = null
+function updateScreens(): Promise<void> {
   // ponytail: form doldururken arka plandan donulurse sayfa yenilenir; sorun olursa
   // yalniz soguk acilista uygula.
-  const path = await checkWebBundle().catch(() => null)
-  if (path) await applyWebBundle(path).catch(() => {})
+  updating ??= (async () => {
+    const path = await checkWebBundle().catch(() => null)
+    if (path) await applyWebBundle(path).catch(() => {})
+  })().finally(() => { updating = null })
+  return updating
 }
 import { pullWorkoutPlan } from './lib/workoutPlan'
 import { Drawer, type DrawerPage } from './ui/Drawer'
