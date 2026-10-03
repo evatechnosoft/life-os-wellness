@@ -160,6 +160,10 @@ export async function recentLeanMass(end: string): Promise<number | null> {
   return leanMassKg(fat, Object.fromEntries(logs.map((l) => [l.date, l.weight_kg])))
 }
 
+/** Tek ogun notu baglamda en fazla bu kadar: bir uzun not haftanin geri kalanini itmesin. */
+const NOTE_CHARS = 120
+const clip = (text: string): string => (text.length > NOTE_CHARS ? `${text.slice(0, NOTE_CHARS - 1)}…` : text)
+
 /** Baglam bir kez toplanir: modele metin olarak, offline Eva'ya yapilandirilmis olarak gider. */
 async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; known: FoodMemory[] }> {
   const dates = lastDates(7, now)
@@ -186,7 +190,10 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
   const lines: string[] = []
   const profile: Profile = { ...EMPTY_PROFILE, ...((profileRow?.value as Partial<Profile> | undefined) ?? {}) }
 
-  for (const date of dates) {
+  // Yeni gun once: baglam MAX_CONTEXT'te kesilir. Eskiden eski gun basta, bugun sondaydi;
+  // uzun ogun notlari siniri doldurunca kesilen BUGUN oluyordu ve Eva "bugun kahvalti kaydin
+  // yok" diyordu (3 Eki). Kesilecekse en eski gun kesilsin.
+  for (const date of [...dates].reverse()) {
     const log = logs.find((l) => l.date === date)
     const day: string[] = []
     if (log?.weight_kg != null) day.push(`${log.weight_kg} kg`)
@@ -197,7 +204,9 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
       day.push(`${w.type}${w.sets_total ? ` ${w.sets_total} set` : ''}${w.duration_min ? ` ${w.duration_min} dk` : ''}`)
     }
     const dayMeals = meals.filter((m) => m.date === date && m.note)
-    if (dayMeals.length > 0) day.push(`yedikleri: ${dayMeals.map((m) => m.note).join(', ')}`)
+    if (dayMeals.length > 0) {
+      day.push(`yedikleri: ${dayMeals.map((m) => `${m.time} ${clip(m.note!)}${m.protein_g != null ? ` (${m.protein_g} g P)` : ''}`).join('; ')}`)
+    }
     for (const r of wearable.filter((w) => w.date === date && w.metric === 'snore_min')) {
       day.push(`horlama ~${Math.round(r.value)} dk`)
     }
@@ -213,17 +222,19 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
     if (hrv) day.push(`HRV ${Math.round(hrv.value)} ms`)
     const sleep = wearable.find((w) => w.date === date && w.metric === 'sleep_min')
     if (sleep) day.push(`uyku ${Math.floor(sleep.value / 60)} sa ${Math.round(sleep.value % 60)} dk`)
-    if (day.length > 0) lines.push(`${date}: ${day.join(' · ')}`)
+    if (day.length > 0) lines.push(`${date === end ? `${date} (bugün)` : date}: ${day.join(' · ')}`)
   }
-  // Ambalajli urunler: etiketten okunmus sabit degerler, kullanicinin gecmisinden
-  // bagimsiz. "Helva yedim" duyulunca Eva 600 kcal'i buradan alir, uydurmaz.
-  lines.push(...productLines())
+  const dayLines = lines.splice(0)
   // Sik yediklerinin gecmisteki degerleri: Eva "tavuk yedim" duyunca porsiyonu sormasin.
   const known = foodMemory(recentMeals)
   if (known.length > 0) {
     const parts = known.map((f) => `${f.name} ~${f.protein_g} g protein${f.kcal != null ? ` / ${Math.round(f.kcal)} kcal` : ''}`)
     lines.push(`sık yedikleri (kendi geçmiş kayıtlarından): ${parts.join(' · ')}`)
   }
+  // Ambalajli urunler: etiketten okunmus sabit degerler, kullanicinin gecmisinden
+  // bagimsiz. "Helva yedim" duyulunca Eva 600 kcal'i buradan alir, uydurmaz. En sonda:
+  // baglam tasarsa ilk kesilen bunlar.
+  lines.push(...productLines())
 
   // Koc katmani: ekranda gosterilen onerilerin aynisi. Eva ayni sayilari konussun.
   const split = (splitRow?.value as Split | undefined) ?? {}
@@ -241,10 +252,11 @@ async function gather(now: Date): Promise<{ text: string; ctx: CoachContext; kno
     foods: suggestFoods(recentMeals, slot, { recentMeals: meals, limit: MAX_FOODS }),
     trend: weightTrend(weightsOf(dates14.slice(0, 7)), weightsOf(dates14.slice(7)), goals),
   }
-  lines.push(...coachLines(ctx))
-  // Profil satirlari listenin basina: model once kiminle konustugunu bilsin. Yine de
-  // burada ekleniyorlar, cunku protein araligi 7 gun kilo ortalamasina dayaniyor.
-  lines.unshift(...profileLines(profile, avgWeight, now))
+  // Oncelik sirasi (kesilme sondan): profil, koc, gunler (yeni once), sik yenenler, urunler.
+  // `lines` burada urunler + sik yenenler; sira icin yeniden kurulur. Profil protein
+  // araligi icin 7 gun kilo ortalamasini istedigi icin en sonda hesaplanir.
+  const extras = lines.splice(0)
+  lines.push(...profileLines(profile, avgWeight, now), ...coachLines(ctx), ...dayLines, ...extras)
   return { text: lines.join('\n').slice(0, MAX_CONTEXT), ctx, known }
 }
 
