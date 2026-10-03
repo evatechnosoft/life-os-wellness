@@ -5,7 +5,7 @@ import { lastDates } from '../lib/date'
 import { db, type Meal } from '../lib/db'
 import { capturePhoto, deleteMeal, estimateFromPhoto, saveMeal, updateMeal, type Estimate } from '../lib/meals'
 import { movingAverage } from '../lib/metrics'
-import { slotGaps, suggestMenus, type MenuSet } from '../lib/nutrition'
+import { mealSlot, SLOT_TR, slotGaps, suggestMenus, type MenuSet } from '../lib/nutrition'
 import { useGoals } from '../lib/settings'
 import { saveDaily } from '../lib/store'
 import { Card } from './Field'
@@ -33,7 +33,7 @@ function PhotoThumb({ photo }: { photo?: Blob }) {
 }
 
 export function Meals({ date }: { date: string }) {
-  const meals = useLiveQuery(() => db.meal.where('date').equals(date).toArray(), [date]) ?? []
+  const meals = useLiveQuery(() => db.meal.where('date').equals(date).sortBy('time'), [date]) ?? []
   const [photo, setPhoto] = useState<Blob | null>(null)
   const [estimate, setEstimate] = useState<Estimate | null>(null)
   const [protein, setProtein] = useState('')
@@ -171,7 +171,7 @@ export function Meals({ date }: { date: string }) {
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm">{m.note || 'öğün'}</div>
                   <div className="text-xs text-ink-faint">
-                    {m.time}
+                    {m.time} {SLOT_TR[mealSlot(m.time)]}
                     {m.protein_g ? ` · ${m.protein_g} g protein` : ''}
                     {m.kcal ? ` · ${m.kcal} kcal` : ''}
                     {m.estimated ? ' · tahmin' : ''}

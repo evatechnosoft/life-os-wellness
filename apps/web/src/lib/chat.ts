@@ -7,11 +7,11 @@ import {
   leanMassKg,
   mealSlot,
   proteinTarget,
+  SLOT_TR,
   slotGaps,
   suggestFoods,
   weightTrend,
   type FoodSuggestion,
-  type MealSlot,
   type ProteinTarget,
   type SlotGap,
   type WeightTrend,
@@ -50,13 +50,6 @@ const MAX_TIPS = 4
 const MAX_FOODS = 3
 /** API semasindaki `context` siniri (apps/api/src/chat.ts); asilirsa istek 400 doner. */
 const MAX_CONTEXT = 4000
-
-const SLOT_TR: Record<MealSlot, string> = {
-  morning: 'sabah',
-  noon: 'öğle',
-  evening: 'akşam',
-  snack: 'ara öğün',
-}
 
 const TREND_TR = {
   on_track: 'hedefte',
