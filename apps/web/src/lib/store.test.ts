@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { ApiError } from './api'
-import { verdictFor, withMealProtein } from './store'
+import { pendingIds, staleIds, verdictFor, withMealProtein } from './store'
 
 // The drain stops at the first entry it cannot send, so this verdict decides whether a
 // single bad write freezes every write queued after it. That is the failure mode the
@@ -57,5 +57,30 @@ describe('withMealProtein', () => {
 
   test('gunluk satiri olmayan ogun gunu de satir alir', () => {
     expect(withMealProtein([], [meal('2026-09-30', 60), meal('2026-09-30', null)], at)).toEqual([{ date: '2026-09-30', protein_g: 60, updated_at: at }])
+  })
+})
+
+describe('pendingIds', () => {
+  test('collects POST body ids and DELETE path ids, ignores PUT', () => {
+    const ids = pendingIds([
+      { method: 'POST', path: '/api/meals', body: { id: 'm1' } },
+      { method: 'DELETE', path: '/api/workouts/w9' },
+      { method: 'PUT', path: '/api/daily/2026-10-03', body: { weight_kg: 107 } },
+    ])
+    expect([...ids].sort()).toEqual(['m1', 'w9'])
+  })
+})
+
+describe('staleIds', () => {
+  test('local rows missing on the server are stale', () => {
+    expect(staleIds([{ id: 'a' }, { id: 'b' }], [{ id: 'a' }], new Set())).toEqual(['b'])
+  })
+
+  test('a row still waiting in the outbox is kept', () => {
+    expect(staleIds([{ id: 'a' }, { id: 'b' }], [{ id: 'a' }], new Set(['b']))).toEqual([])
+  })
+
+  test('nothing is stale when the server has everything', () => {
+    expect(staleIds([{ id: 'a' }], [{ id: 'a' }, { id: 'z' }], new Set())).toEqual([])
   })
 })
