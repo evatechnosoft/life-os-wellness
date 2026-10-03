@@ -10,6 +10,13 @@ const RANGE = {
   properties: { start: DATE, end: DATE },
 } as const
 
+// Kaynak filtresi (okok / samsung / health_connect ...): senkronun gercekten geldigini ayirmak icin.
+const WEARABLE_QUERY = {
+  type: 'object',
+  required: ['start', 'end'],
+  properties: { start: DATE, end: DATE, source: { type: 'string', minLength: 1, maxLength: 40 } },
+} as const
+
 const DAILY_BODY = {
   type: 'object',
   additionalProperties: false,
@@ -263,7 +270,15 @@ function upsert(table: string, fields: readonly string[], date: string, body: Re
 }
 
 export function registerRoutes(app: FastifyInstance, pool: Pool): void {
-  app.get('/health', async () => ({ ok: true }))
+  // DB'ye dokunur: konteyner ayakta ama Postgres yoksa 503, tunel/izleyici gercegi gorur.
+  app.get('/health', async (_req, reply) => {
+    try {
+      await pool.query('select 1')
+      return { ok: true }
+    } catch {
+      return reply.code(503).send({ ok: false })
+    }
+  })
 
   app.get('/api/daily', { schema: { querystring: RANGE } }, async (req) => {
     const { start, end } = req.query as { start: string; end: string }
@@ -504,11 +519,12 @@ export function registerRoutes(app: FastifyInstance, pool: Pool): void {
     return rows[0]
   })
 
-  app.get('/api/wearable', { schema: { querystring: RANGE } }, async (req) => {
-    const { start, end } = req.query as { start: string; end: string }
+  app.get('/api/wearable', { schema: { querystring: WEARABLE_QUERY } }, async (req) => {
+    const { start, end, source } = req.query as { start: string; end: string; source?: string }
     const { rows } = await pool.query(
-      'select * from wearable_sync where date between $1 and $2 order by date, metric',
-      [start, end],
+      `select * from wearable_sync where date between $1 and $2
+         and ($3::text is null or source = $3) order by date, metric`,
+      [start, end, source ?? null],
     )
     return rows
   })

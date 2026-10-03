@@ -17,6 +17,27 @@ services:
       interval: 5s
       retries: 10
 
+  # Gunluk pg_dump. ZimaOS'ta cron daemon'u yok (crontab var, calisan servis yok), bu yuzden
+  # yedek de bir konteyner: acilista bir kez, sonra 24 saatte bir; 7 gunden eskiyi siler.
+  # Elle alinan *-predeploy.sql.gz dosyalarina dokunmaz (ad deseni ayri).
+  # ponytail: sleep dongusu saat kaymasina acik; sabit saat gerekirse host timer'a tasi.
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-wellness}
+    volumes:
+      - ./backups:/backups
+    command: >
+      sh -c 'while true; do
+        pg_dump -h db -U wellness wellness | gzip > /backups/wellness-$(date +%F)-auto.sql.gz
+        && find /backups -name "wellness-*-auto.sql.gz" -mtime +7 -delete
+        && echo "backup ok $(date +%FT%T)";
+        sleep 86400; done'
+    depends_on:
+      db:
+        condition: service_healthy
+
   api:
     restart: unless-stopped
     build:

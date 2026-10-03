@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Fragment, useEffect, useState } from 'react'
 
 import { getApiBase, getToken, setToken } from '../lib/api'
+import { toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import {
   downloadLocalModel,
@@ -447,7 +448,7 @@ export function Settings() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `wellness-${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `wellness-${toLocalDate()}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
