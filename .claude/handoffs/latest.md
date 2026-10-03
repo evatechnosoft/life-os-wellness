@@ -321,3 +321,12 @@ Dean "yap" derse `feature/gun-secici` (D1). Gün içinde öğün/seans geldikçe
 
 ### Next — tek adım
 Dean telefonda: uygulamayı kapat-aç → veri duruyor mu (Dexie v9), ‹ ile dün, Ölçüm → Tartı gir, Koç'a soru. Sunucu logundan izle.
+
+## 3 Eki 14:00+ — telefon eski ekranda, 0.40.0 çıktı (EN YENİ, üstteki Next'i geçersiz kılar)
+- Dean: "kapadım açtım, sunucu cevap yok, 0.39, hâlâ elle sunucu girme var". Api logu: telefon 11:04Z/11:06Z'de /bundle/ paketini her dosyayı İKİ KEZ indirdi (updateScreens açılış + visibilitychange paralel), sonra hiç /api isteği yok → telefon APK assets'teki 27 Eyl 0.39 ekranıyla açılıyor, büyük olasılıkla token BOŞ. Token boşluğu DOĞRULANMADI, Dean'e soruldu.
+- Sunucu Eva sağlam: headless canlı /api/chat 200.
+- PR #49 (`cead48f`) + tag v0.40.0: updateScreens tek uçuş; WebBundlePlugin.install `synchronized` + aynı sürüm tam inmişse yeniden indirmez. CI yeşil, `publish_ota.mjs 0.40.0` → katalog 0.40.0 (4000), `/ota/wellness-0.40.0.apk` 206. Sunucu paket `2954c8b1`, min_native 4000 (0.39 artık yeni paket almaz).
+- Dean'e: üstüne kur (kaldırma = token+yerel veri gider), Ayar > Veri ve sunucu > API token dolu mu söyle. Boşsa token'ı SendUserFile ile gönder (sohbete düz yazma).
+
+### Next — tek adım
+Dean 0.40 kurup token durumunu söyleyince: boşsa token dosyası gönder; doluysa Koç'a soru → `docker logs life-os-wellness-api-1 | grep /api/chat`. Sonra telefonda Dexie v9 göçü, ‹ dün, Tartı gir.
