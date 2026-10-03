@@ -82,9 +82,13 @@ function ScaleEntry({ initialDate, onDone }: { initialDate: string; onDone: () =
   const [busy, setBusy] = useState(false)
   const existing =
     useLiveQuery(() => db.wearable.where('date').equals(date).filter((r) => r.source === 'okok').toArray(), [date]) ?? []
+  // Tartida kilo satiri yoksa gunun kilosu (daily_log) forma gelir.
+  const dayWeight = useLiveQuery(() => db.daily_log.get(date), [date])?.weight_kg
   // Gun degisince o gunun kayitli degerleri forma dolar; kullanici yazdiysa onunki kalir.
   const shown = (metric: string): string =>
-    values[metric] ?? (existing.find((r) => r.metric === metric)?.value.toString() ?? '')
+    values[metric] ??
+    existing.find((r) => r.metric === metric)?.value.toString() ??
+    (metric === 'weight_kg' && dayWeight != null ? String(dayWeight) : '')
 
   const save = async () => {
     const input = Object.fromEntries(SCALE_FIELDS.map((f) => [f.metric, shown(f.metric)]))

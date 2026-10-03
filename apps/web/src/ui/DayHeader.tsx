@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 
-import { lastDates } from '../lib/date'
+import { lastDates, toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import { dayAverage, movingAverage, weightDelta } from '../lib/metrics'
 import { useGoals } from '../lib/settings'
@@ -74,7 +74,7 @@ export function DayHeader({ date }: { date: string }) {
         </div>
 
         <div className="min-w-0 text-right">
-          <div className="text-[10px] uppercase tracking-wide text-ink-faint">Bugün</div>
+          <div className="text-[10px] uppercase tracking-wide text-ink-faint">{date === toLocalDate() ? 'Bugün' : 'Seçili gün'}</div>
           <div className="truncate text-[13px] font-bold">{planned.length > 0 ? planned.join(', ') : 'Dinlenme'}</div>
           <div className="text-[10px] tabular-nums text-ink-faint">{logged} kayıt</div>
         </div>
