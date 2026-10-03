@@ -28,12 +28,16 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD:-wellness}
     volumes:
       - ./backups:/backups
-    command: >
-      sh -c 'while true; do
-        pg_dump -h db -U wellness wellness | gzip > /backups/wellness-$(date +%F)-auto.sql.gz
-        && find /backups -name "wellness-*-auto.sql.gz" -mtime +7 -delete
-        && echo "backup ok $(date +%FT%T)";
-        sleep 86400; done'
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          pg_dump -h db -U wellness wellness | gzip > "/backups/wellness-$(date +%F)-auto.sql.gz" &&
+            find /backups -name 'wellness-*-auto.sql.gz' -mtime +7 -delete &&
+            echo "backup ok $(date +%FT%T)"
+          sleep 86400
+        done
     depends_on:
       db:
         condition: service_healthy
