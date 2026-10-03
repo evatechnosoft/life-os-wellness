@@ -52,7 +52,8 @@ export function Diet({ date }: { date: string }) {
       date,
       logs,
       meals,
-      protein_target_g: target?.recommended_g ?? goals.protein_g,
+      // Kayitli hedef etkili araliktaysa o gecerli; oneri yalniz araligin disinda devreye girer.
+      protein_target_g: target?.severity === 'warn' ? target.recommended_g : goals.protein_g,
       avg_steps: avgSteps == null ? null : Math.round(avgSteps),
       support_shown: (supportShown?.value as string | undefined) === month,
       free_meal_planned: weekday === (goals.free_meal_day ?? DEFAULT_GOALS.free_meal_day),
