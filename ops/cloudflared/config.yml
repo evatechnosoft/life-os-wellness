@@ -6,5 +6,8 @@ credentials-file: /etc/cloudflared/creds.json
 ingress:
   - hostname: fit.evaitec.com
     service: http://api:3011
+  # Evaitec CRM (Twenty) on ZimaOS; repo evatechnosoft/evaitec-crm.
+  - hostname: crm.evaitec.com
+    service: http://192.168.1.186:3020
   # Eslesmeyen her istek: tunel acik diye baska bir sey servis etmeyelim.
   - service: http_status:404
