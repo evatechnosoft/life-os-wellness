@@ -41,7 +41,10 @@ export function Today({ date }: { date: string }) {
   const recentMeals = useLiveQuery(() => db.meal.reverse().limit(60).toArray(), []) ?? []
   const dayMeals = useLiveQuery(() => db.meal.where('date').equals(date).toArray(), [date]) ?? []
   // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
-  const watchProtein = useLiveQuery(() => db.wearable.get(`${date}:protein_g`), [date])
+  const watchProtein = useLiveQuery(
+    () => db.wearable.where('date').equals(date).filter((r) => r.metric === 'protein_g').first(),
+    [date],
+  )
   const [draft, setDraft] = useState<WorkoutDraft>(emptyDraft)
   // Swipe-right edit: the entry form above is reused, saved under the same id.
   const [editing, setEditing] = useState<Workout | null>(null)

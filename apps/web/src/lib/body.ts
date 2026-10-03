@@ -34,9 +34,7 @@ const round1 = (n: number): number => Math.round(n * 10) / 10
 
 /**
  * OKOK tartisindan tarih basina bir nokta. Yalniz `source === 'okok'` satirlari:
- * Samsung da ayni gune body_fat_kg/skeletal_muscle_kg yaziyor, id `${date}:${metric}`
- * cakistigi icin son sync digerini eziyor ve Samsung BIA 3-4 kg farkli okuyor. Id'den
- * kaynak secilemez; eldeki satirin kaynagina bakilir, Samsung'un ezdigi gun duser.
+ * Samsung da ayni gune body_fat_kg/skeletal_muscle_kg yaziyor ve 3-4 kg farkli okuyor.
  * Tartida kilo yoksa daily_log kilosu kullanilir.
  */
 export function bodySeries(
@@ -109,4 +107,35 @@ export function bodyText(s: BodySummary): string {
   const muscle = s.change.skeletal_kg ?? s.change.lean_kg
   if (muscle != null) parts.push(Math.abs(muscle) < 0.5 ? 'kas korunuyor' : `kas ${signed(muscle)} kg`)
   return parts.length === 0 ? 'Karşılaştırılacak ölçüm yok.' : `${s.days} günde ${parts.join(', ')}.`
+}
+
+/** Tarti ekranindaki alanlar (OKOK ekranindaki sirayla) ve makul araliklari. */
+export const SCALE_FIELDS = [
+  { metric: 'weight_kg', label: 'Kilo', unit: 'kg', min: 30, max: 300 },
+  { metric: 'body_fat_pct', label: 'Yağ', unit: '%', min: 3, max: 70 },
+  { metric: 'body_fat_kg', label: 'Yağ', unit: 'kg', min: 1, max: 200 },
+  { metric: 'skeletal_muscle_kg', label: 'İskelet kası', unit: 'kg', min: 5, max: 100 },
+  { metric: 'muscle_kg', label: 'Kas', unit: 'kg', min: 10, max: 150 },
+  { metric: 'water_pct', label: 'Su', unit: '%', min: 20, max: 80 },
+  { metric: 'visceral_fat', label: 'Viseral', unit: '', min: 1, max: 60 },
+  { metric: 'bone_kg', label: 'Kemik', unit: 'kg', min: 0.5, max: 10 },
+  { metric: 'bmr_kcal', label: 'BMR', unit: 'kcal', min: 800, max: 4000 },
+] as const
+
+/**
+ * Formdaki metinleri metrik degerlerine cevirir. Bos alan yazilmaz; virgul ondalik kabul
+ * edilir. Aralik disi deger hata: yanlis alana yazilmis sayi (ör. BMR'ye kilo) sessizce
+ * kaydedilmesin.
+ */
+export function parseScale(input: Record<string, string>): { metrics: Record<string, number>; errors: string[] } {
+  const metrics: Record<string, number> = {}
+  const errors: string[] = []
+  for (const f of SCALE_FIELDS) {
+    const text = (input[f.metric] ?? '').trim().replace(',', '.')
+    if (text === '') continue
+    const n = Number(text)
+    if (!Number.isFinite(n) || n < f.min || n > f.max) errors.push(`${f.label}${f.unit ? ` (${f.unit})` : ''}: ${f.min}–${f.max}`)
+    else metrics[f.metric] = n
+  }
+  return { metrics, errors }
 }

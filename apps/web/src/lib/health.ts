@@ -3,7 +3,7 @@ import { Health, type HealthPermission } from 'capacitor-health'
 
 import { api, getApiBase, getToken } from './api'
 import { lastDates, toLocalDate } from './date'
-import { db, type Workout } from './db'
+import { db, wearableId, type Workout } from './db'
 import type { WearableRecord } from './db'
 import { activityIntervals, planHrWindows } from './activity'
 import { detectedExercise, isAnswered, segmentMusclesOf } from './watchExercise'
@@ -218,7 +218,7 @@ export async function syncHealth(days = 7): Promise<number> {
       for (const row of res.aggregatedData) {
         if (row.value == null) continue
         const date = toLocalDate(new Date(row.startDate))
-        records.push({ id: `${date}:${metric}`, date, metric, value: row.value, source: SOURCE, synced_at })
+        records.push({ id: wearableId(date, SOURCE, metric), date, metric, value: row.value, source: SOURCE, synced_at })
       }
     } catch {
       // A single unsupported metric must not abandon the whole sync.
@@ -231,7 +231,7 @@ export async function syncHealth(days = 7): Promise<number> {
     const byDay = new Map<string, number>()
     for (const r of res.records) byDay.set(toLocalDate(new Date(r.startDate)), r.value)
     for (const [date, value] of byDay) {
-      records.push({ id: `${date}:weight_kg`, date, metric: 'weight_kg', value, source: SOURCE, synced_at })
+      records.push({ id: wearableId(date, SOURCE, 'weight_kg'), date, metric: 'weight_kg', value, source: SOURCE, synced_at })
     }
   } catch {
     // no weight permission or no scale data
@@ -251,7 +251,7 @@ export async function syncHealth(days = 7): Promise<number> {
       for (const metric of metrics) {
         const value = day[metric]
         if (value == null) continue
-        records.push({ id: `${day.date}:${metric}`, date: day.date, metric, value, source: SOURCE, synced_at })
+        records.push({ id: wearableId(day.date, SOURCE, metric), date: day.date, metric, value, source: SOURCE, synced_at })
       }
     }
     hrWindows = extra.windows ?? []

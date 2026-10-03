@@ -63,9 +63,15 @@ export interface OutboxEntry {
   queued_at: string
 }
 
+/**
+ * Yerel anahtar sunucunun tekilligiyle ayni: (gun, kaynak, metrik). Eskiden `date:metric`
+ * idi; OKOK ve Samsung ayni gune yag yazinca biri digerini eziyordu (PLAN-DUZELTME D3).
+ */
+export const wearableId = (date: string, source: string, metric: string): string => `${date}:${source}:${metric}`
+
 /** One aggregated value per day+metric, read from the watch via Health Connect. */
 export interface WearableRecord {
-  /** `${date}:${metric}` - one row per day and metric, so a re-sync overwrites. */
+  /** `wearableId(date, source, metric)` - sunucudaki (date, source, metric) tekilligiyle ayni. */
   id: string
   date: string
   metric: string
@@ -210,4 +216,14 @@ db.version(7).stores({
 // olculuyor ve ikisi de saklaniyor.
 db.version(8).stores({
   measurement: 'id, date',
+})
+
+// Wearable anahtari kaynak icerir: eski satirlar yeni id ile yeniden yazilir.
+db.version(9).stores({
+  wearable: 'id, date, metric',
+}).upgrade(async (tx) => {
+  const table = tx.table<WearableRecord, string>('wearable')
+  const rows = await table.toArray()
+  await table.clear()
+  await table.bulkPut(rows.map((r) => ({ ...r, id: wearableId(r.date, r.source, r.metric) })))
 })

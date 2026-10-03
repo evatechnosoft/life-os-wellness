@@ -285,6 +285,21 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     assert.equal(Number(list.json()[0].value), 12000)
   })
 
+  test('wearable: delete removes one source of one day only', async () => {
+    await app.inject({
+      method: 'POST', url: '/api/wearable', headers: auth,
+      payload: { records: [
+        { date: '2099-01-08', source: 'okok', metric: 'body_fat_pct', value: 34 },
+        { date: '2099-01-08', source: 'okok', metric: 'visceral_fat', value: 25 },
+        { date: '2099-01-08', source: 'samsung', metric: 'body_fat_pct', value: 32 },
+      ] },
+    })
+    const del = await app.inject({ method: 'DELETE', url: '/api/wearable?date=2099-01-08&source=okok', headers: auth })
+    assert.equal(del.json().deleted, 2)
+    const left = await app.inject({ method: 'GET', url: '/api/wearable?start=2099-01-08&end=2099-01-08', headers: auth })
+    assert.deepEqual(left.json().map((r: { source: string }) => r.source), ['samsung'])
+  })
+
   test('wearable: source filter returns only that source', async () => {
     await app.inject({
       method: 'POST', url: '/api/wearable', headers: auth,
