@@ -119,6 +119,16 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
     const workout = (range.json() as { id: string; sets: unknown[] }[]).find((w) => w.id === workoutId)
     assert.equal(workout?.sets.length, 2)
 
+    // Tip/sure duzeltmesi `sets` gondermez: setlere dokunulmaz.
+    await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload: { id: workoutId, date: '2099-03-01', type: 'resistance', duration_min: 40 } })
+    const kept = await pool.query('select count(*)::int as n from exercise_set where workout_id = $1', [workoutId])
+    assert.equal(kept.rows[0].n, 2)
+
+    // `sets` tam listedir: listede olmayan set silinir (yanlis hareket duzeltmesi).
+    await app.inject({ method: 'POST', url: '/api/workouts', headers: auth, payload: { ...body, sets: [body.sets[0]] } })
+    const trimmed = await pool.query('select id from exercise_set where workout_id = $1', [workoutId])
+    assert.deepEqual(trimmed.rows.map((r: { id: string }) => r.id), [setId])
+
     // Seans silinince setleri de gider (cascade).
     await app.inject({ method: 'DELETE', url: `/api/workouts/${workoutId}`, headers: auth })
     const left = await pool.query('select count(*)::int as n from exercise_set where workout_id = $1', [workoutId])

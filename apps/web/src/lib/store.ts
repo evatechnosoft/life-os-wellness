@@ -10,7 +10,7 @@ import {
   type Workout,
   wearableId,
 } from './db'
-import { dayValue } from './measurements'
+import { dailyPatch } from './measurements'
 
 const now = () => new Date().toISOString()
 
@@ -137,18 +137,21 @@ export async function queueMealDelete(id: string): Promise<void> {
 export async function saveMeasurement(row: Measurement): Promise<void> {
   await db.measurement.put(row)
   await queue({ method: 'POST', path: '/api/measurements', body: row })
-  const value = dayValue(await db.measurement.where('date').equals(row.date).toArray())
-  if (value === null) return
-  const patch: Partial<DailyLog> = {}
-  if (value.bp_systolic != null) patch.bp_systolic = Math.round(value.bp_systolic)
-  if (value.bp_diastolic != null) patch.bp_diastolic = Math.round(value.bp_diastolic)
-  if (value.weight_kg != null) patch.weight_kg = value.weight_kg
-  if (Object.keys(patch).length > 0) await saveDaily(row.date, patch)
+  await syncDayFromMeasurements(row.date)
 }
 
 export async function deleteMeasurement(id: string): Promise<void> {
+  const row = await db.measurement.get(id)
   await db.measurement.delete(id)
   await queue({ method: 'DELETE', path: `/api/measurements/${id}` })
+  // Kalan olcumler gunun degerini yeniden belirler; hic kalmadiysa daily_log'a dokunulmaz.
+  if (row) await syncDayFromMeasurements(row.date)
+}
+
+/** Gunun olcumlerinden daily_log kilo/tansiyonu (yalniz degisen alan, outbox'la sunucuya). */
+async function syncDayFromMeasurements(date: string, onlyEmpty = false): Promise<void> {
+  const patch = dailyPatch(await db.measurement.where('date').equals(date).toArray(), await db.daily_log.get(date), onlyEmpty)
+  if (Object.keys(patch).length > 0) await saveDaily(date, patch)
 }
 
 export async function saveRetro(date: string, patch: Partial<Retro>): Promise<void> {
@@ -304,6 +307,9 @@ export async function pullRange(start: string, end: string): Promise<void> {
     await db.meal.bulkPut(meals.map((m, i) => (local[i]?.photo ? { ...m, photo: local[i]!.photo } : m)))
     await db.measurement.bulkPut(measurements)
   })
+  // Sohbetten/baska cihazdan yazilan olcum de trende girsin (PLAN-DUZELTME D4).
+  // Yalniz bos alan: sunucudaki gun degeri baska kaynaktan (kolluk, sohbet) gelmis olabilir.
+  for (const date of new Set(measurements.map((m) => m.date))) await syncDayFromMeasurements(date, true)
   // Sunucu tek gercek: bildirimler ancak cekilen veriye gore kurulur. Sohbetten
   // API'ye yazilan kilo/ogun telefona inmeden "girmedin" bildirimi kurulmasin.
   refreshReminders()

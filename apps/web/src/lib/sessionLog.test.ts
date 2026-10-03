@@ -142,6 +142,12 @@ describe('fromServer', () => {
     expect(rest).toHaveLength(2)
   })
 
+  it('a saved set without done_at still counts as done (so a later save keeps it)', () => {
+    const r = fromServer(plan, [{ ...saved[0]!, done_at: null }], [], '2026-09-25', () => 'x')
+    expect(r[0]?.done_at).not.toBeNull()
+    expect(buildWorkout('w', '2026-09-25', r, undefined).sets).toHaveLength(1)
+  })
+
   it('keeps a saved exercise that is not in the plan', () => {
     const extra = fromServer(plan, [{ ...saved[0]!, exercise_id: 'Calf' }], [], '2026-10-02', () => 'x')
     expect(extra[0]?.exercise_id).toBe('Calf')

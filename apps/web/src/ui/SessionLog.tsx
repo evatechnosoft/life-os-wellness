@@ -23,10 +23,14 @@ export function SessionLog({ date, today }: { date: string; today: Workout[] }) 
 
   if (day?.day_type !== 'lift' || !day.exercises?.length) return null
 
-  const state = stored?.value as Stored | undefined
   // Saatin bugun buldugu direnc seansi varsa setler ona yazilir - ayni antrenman iki satir olmaz.
   const base = today.find((w) => w.type === 'resistance')
-  // Bu cihazda taslak yoksa sunucudaki setler esas: sohbetten yazilan seans da gorunur.
+  // Taslak, sunucuda onda olmayan set varsa bayattir (sohbetten/baska cihazdan eklenmis):
+  // POST tam liste oldugu icin bayat taslakla kaydetmek o setleri silerdi.
+  const draft = stored?.value as Stored | undefined
+  const draftIds = new Set(draft?.rows.map((r) => r.id))
+  const state = draft && !(base?.sets ?? []).some((s) => !draftIds.has(s.id)) ? draft : undefined
+  // Gecerli taslak yoksa sunucudaki setler esas: sohbetten yazilan seans da gorunur.
   const current: Stored = state ?? {
     workoutId: base?.id ?? crypto.randomUUID(),
     rows: base?.sets?.length

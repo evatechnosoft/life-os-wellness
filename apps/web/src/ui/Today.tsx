@@ -105,6 +105,18 @@ export function Today({ date }: { date: string }) {
           className="mt-2 w-full rounded-field bg-glass-inset p-3 text-sm outline-none focus:ring-2 focus:ring-a1"
         />
       ))}
+      {/* Gunun notu sunucuda daily_log.notes: sohbetten yazilan not da burada gorunur. */}
+      <textarea
+        key={`${date}:notes:${log?.notes ?? ''}`}
+        rows={2}
+        defaultValue={log?.notes ?? ''}
+        placeholder="Günün notu (uyku, ağrı, özel durum…)"
+        onBlur={(e) => {
+          const notes = e.target.value.trim() || null
+          if (notes !== (log?.notes ?? null)) void saveDaily(date, { notes })
+        }}
+        className="mt-2 w-full rounded-field bg-glass-inset p-3 text-sm outline-none focus:ring-2 focus:ring-a1"
+      />
     </Card>
   )
 
