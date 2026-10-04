@@ -510,7 +510,7 @@ export function Settings() {
           </p>
         </Card>
 
-        <Card title="Hatırlatmalar" collapsible summary={`${reminders.weigh_at} · ${reminders.retro_at}`}>
+        <Card title="Hatırlatmalar" collapsible summary={reminders.weigh_at}>
           <label className="flex min-h-11 items-center justify-between text-sm text-ink-dim">
             <span>Eksik girişleri hatırlat</span>
             <input
@@ -521,7 +521,7 @@ export function Settings() {
             />
           </label>
           <div className="mt-3 flex gap-3">
-            {([['weigh_at', 'Sabah tartısı'], ['retro_at', 'Akşam yemeği']] as const).map(([key, label]) => (
+            {([['weigh_at', 'Sabah tartısı']] as const).map(([key, label]) => (
               <label key={key} className="flex-1 text-xs text-ink-faint">
                 {label}
                 <input

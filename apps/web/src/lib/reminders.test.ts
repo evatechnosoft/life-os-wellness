@@ -99,38 +99,22 @@ describe('bel hatirlatmasi', () => {
   })
 })
 
-describe('aksam yemegi hatirlatmasi', () => {
-  const at = (now: string, meal_times: string[]) =>
-    pendingReminders({ log: log({ weight_kg: 100 }), now, settings: times, meal_times }).map((r) => r.id)
-
-  test('21:00 olmus ve 17:00 sonrasi ogun yoksa hatirlatir', () => {
-    expect(at('21:00', ['09:00', '11:30', '15:15'])).toEqual(['dinner'])
-  })
-
-  test('16:00 sonrasi ogun aksam sayilir (2 Eki: palamut 16:21, bildirim yine sordu)', () => {
-    expect(at('22:00', ['08:15', '11:56', '16:21'])).toEqual([])
-  })
-
-  test('aksam ogunu girilmisse ya da saat gelmemisse susar', () => {
-    expect(at('21:30', ['09:00', '19:30'])).toEqual([])
-    expect(at('20:59', ['09:00'])).toEqual([])
-  })
-
-  test('ogun listesi verilmezse sorulmaz', () => {
+describe('aksam hatirlatmasi yok (4 Eki: ogunler sohbetten)', () => {
+  test('gece de yalniz eksik tarti sorulur', () => {
     expect(pendingReminders({ log: log({ weight_kg: 100 }), now: '22:00', settings: times })).toEqual([])
   })
 })
 
 describe('gecilen hatirlatma', () => {
   test('bugun gecilen kart bir daha gosterilmez', () => {
-    const due = pendingReminders({ log: undefined, now: '21:30', settings: times, meal_times: [], skipped: ['dinner'] })
-    expect(due.map((r) => r.id)).toEqual(['weigh'])
+    const due = pendingReminders({ log: undefined, now: '21:30', settings: times, skipped: ['weigh'] })
+    expect(due).toEqual([])
   })
 })
 
 describe('notificationsFor', () => {
   const now = new Date(2026, 8, 29, 20, 50)
-  const none = { weigh: false, dinner: false }
+  const none = { weigh: false }
 
   // Eklenti `at` + repeats'te araligi `at - simdi` alir: 20:50'de kurulunca 21:00
   // bildirimi 10 dakikada bir, 09:00'da kurulunca aksam bildirimi sabah da calar.
@@ -143,17 +127,16 @@ describe('notificationsFor', () => {
   test('bildirimde Cevapla / Gec dugmeleri; hangi hatirlatma oldugu ekte (Dean 2 Eki)', () => {
     for (const n of notificationsFor(times, none, now)) {
       expect(n.actionTypeId).toBe(REMINDER_ACTIONS)
-      expect(['weigh', 'dinner']).toContain(n.extra.id)
+      expect(n.extra.id).toBe('weigh')
     }
   })
 
   test('yapilan ya da gecilen bugun calmaz, yarina kurulur', () => {
-    const [weigh, dinner] = notificationsFor(times, { weigh: true, dinner: false }, now)
+    const [weigh] = notificationsFor(times, { weigh: true }, now)
     expect(weigh?.schedule.at).toEqual(new Date(2026, 8, 30, 9, 0))
-    expect(dinner?.schedule.at).toEqual(new Date(2026, 8, 29, 21, 0))
   })
 
-  test('retro bildirimi kurulmaz', () => {
-    expect(notificationsFor(times, none, now).map((n) => n.extra.id)).toEqual(['weigh', 'dinner'])
+  test('yalniz sabah tartisi kurulur - retro ve aksam yemegi yok', () => {
+    expect(notificationsFor(times, none, now).map((n) => n.extra.id)).toEqual(['weigh'])
   })
 })
