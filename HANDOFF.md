@@ -11,16 +11,19 @@ Uygulamayı gerçek kullanıma çekmek. Giriş kanalı **sohbet**, uygulama izle
 - Testler (#53 anı): web 440/440, `npm run typecheck --workspaces` temiz, web build temiz.
 - Veri: 27 Eyl pasta/börek `515be6b6…` 1220→620 kcal. 4 Eki: 4 öğün 154 g / 2020 kcal (16:07 içilmeden yazılmış shake silindi; 18:30 kahveli whey shake 200 g süzmeyle 44 g / 250).
 - Kararlar (Dean 4 Eki): kalori 7-gün ort. ≤1900 · program sabit (A/B/A′, 2×12 RIR 1–2) · 19:00 kuralı ve bulantı izlemi YOK · tansiyon ölçülmüyor · dondurma yerine **toplu teslim** (oturum sonu tek test + tek deploy).
+- Samsung zip (4 Eki 17:54) `--from 2026-10-01 --no-workouts` aktarıldı: daily adım 3 Eki 5376, 4 Eki 6382 (GET). Kısıt: import daily'de yalnız BOŞ alanı doldurur → 2 Eki 7374 kaldı (zipte 7543), 4 Eki akşam adımı sonraki importta güncellenmez.
 - Bekleyen Dean cevabı: adım/saat için diğer telefona APK + token (G2.2 a) — "olur" denmedi. Telefondaki LLM (madde 5) duruma göre.
 
 ## Next (sonraki oturum, sırayla — §7.6)
 1. Ayar > Veri ve sunucu > API token: token doluysa alanı gizle, "Bağlı · değiştir" satırı (`apps/web/src/ui/Settings.tsx:573-583`). Alan hiç kaldırılmamıştı; #37 yalnız elle sunucu adresini kaldırdı.
 2. Wear OS saat uygulaması — Seans / Özet / Teknik ekranları: tasarım `docs/PLAN-WEAR.md` en alt "S-next tasarımı (4 Eki)". Kod `apps/web/android/wear/src/main/java/com/evaitec/wellness/wear/MainActivity.kt` (bugün 6 TextView). Özet ekranı G2.2'ye bağlı.
+2b. `ops/import_samsung.mjs:153` `put`: `steps` için mevcut değerden büyükse yaz (max), diğer alanlar boşsa-doldur kalsın; `import_samsung.test.mjs`'e test.
 3. İzleme sayfası adayı: 7-gün kilo/kcal/protein/seans tek ekran (Pazartesi kartı G1.2).
 4. Toplu test (vitest + headless 390 px + Kotlin unit + Wear emülatör görüntüsü) → tek ZimaOS deploy + tek saat OTA → Dean'e tek telefon/saat kontrol listesi.
 Gün içi: Dean öğün söyledikçe POST + GET.
 
 ## Don't repeat
+- Samsung zip: PowerShell `Expand-Archive` ile aç (Bash `tar` açamaz), `--no-workouts` ile seansları dışarıda bırak, önce `--dry-run`.
 - Öğünü Dean "yedim/içiyorum" demeden yazma; yazmadan önce günü GET et (16:07 shake çift sayıldı). Toplu verilen listede `created_at` < öğün saati normal.
 - `meal.time` çoğu zaman giriş saati — yeme saati çıkarımı yapma (19:00 kuralı bu yüzden yanlış kuruldu).
 - Bash'te Türkçe JSON'u `curl -d` ile POST etme → 400; node `fetch` kullan.
@@ -48,7 +51,7 @@ npx vitest run --root apps/web                 # 440 pass
 ```
 life-os-wellness, dev dalı. 4 Eki'de gerçekçilik 2. turu yapıldı: Hafta'da 7-gün kcal kartı (sınır 1900), retro/akşam yemeği hatırlatması/Günün notu kaldırıldı — canlı, telefonda doğrulanmadı. Giriş kanalı sohbet; uygulama izleme. Çalışma biçimi: oturum boyunca biriktir, sonda tek toplu test + tek deploy.
 Önce HANDOFF.md oku, Verify bloğunu çalıştır. wellness-pi skill'i personadır.
-Sıra: (1) Ayar'da token doluysa alanı gizle (2) Wear OS saat uygulaması Seans/Özet/Teknik — docs/PLAN-WEAR.md S-next (3) izleme sayfası adayı (4) toplu test + deploy + Dean'e kontrol listesi.
+Sıra: (1) Ayar'da token doluysa alanı gizle (2) Wear OS saat uygulaması Seans/Özet/Teknik — docs/PLAN-WEAR.md S-next (2b) import_samsung adımda max al (3) izleme sayfası adayı (4) toplu test + deploy + Dean'e kontrol listesi.
 Gün içinde Dean öğün söylerse: önce günü GET, sonra POST (node fetch). Yeni iş açma; diğer telefona APK kararı Dean'den bekleniyor.
 ops/cloudflared/config.yml commit etme.
 ```
