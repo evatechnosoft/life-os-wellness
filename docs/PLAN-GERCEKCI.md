@@ -178,3 +178,76 @@ kayıt günü (kilo+öğün) ≥ 6/7 · direnç seansı 3/3 set kayıtlı · pro
 2. 2 haftalık özellik dondurma kabul mü?
 3. Retro kartı: tek soruya indir mi, direkt kaldır mı?
 4. Sohbet köprüsünde ajan kaydı **onaysız** mı yazsın (şimdiki gibi), **onay kartıyla** mı?
+
+---
+
+## 7. 2. tur — 4 Eki (persona artık skill: `~/.claude/skills/wellness-pi`)
+
+> Kaynak: canlı API GET 24 Eyl–4 Eki (11 gün), git log (130 commit, PR #22–#51), son devir.
+> Persona §1 aynen geçerli; kurallara iki ek: **telefonda görülmeyen = yok**, **karara girmeyen metrik = kirlilik**.
+
+### 7.1 Teşhis — ne değişti
+
+| Alan | 10–23 Eyl | 24 Eyl–4 Eki | Yorum |
+|---|---|---|---|
+| Öğün kaydı | 4/14 gün | **11/11 gün** | Sohbet köprüsü fiilen çalışıyor (ajan yazıyor). Çözüldü. |
+| Protein | çoğu gün ölçülmüyor | ort. **167 g/gün**, en düşük 143 | Hedef 150 (3 Eki). Çözüldü — artık kaldıraç değil. |
+| Kalori (öğün toplamı) | — | ort. 2437; 24–27 Eyl **2867**, 28 Eyl–4 Eki **2191** | 29 Eyl menüsünden sonra düştü. Haftalık ortalama **hiçbir ekranda yok** (`Week.tsx` yalnız saat kcal'ı, `Meals.tsx:189` yalnız bugün). Kilitli karar birimi görünmüyor. |
+| Kilo 7-gün ort. | 109.1 → 107.8 | 107.63 → 107.41 (**−0.22 kg/hafta**) | Hedef %0.6 ≈ −0.64 kg/hafta. Plato başlangıcı; 3–4 Eki aynı 107.05 (taşınmış değer olabilir, doğrulanmadı). |
+| Bel | 1 kayıt | 23 Eyl 117 · 28 Eyl 117 | Değişim yok; 5 Eki Pzt ölçümü kritik. |
+| Direnç seansı | 0/3 set kayıtlı | 4 seans, hepsinde set satırı (12–18) | Çözüldü. Ama `sets_total` 3/4 seansta null — türetilmiyor. |
+| Adım | 12/12 gün | 9/11 gün, ort. ~8.000, düşüş eğilimi | 3–4 Eki boş: otomatik kaynak yok. Health Connect **12 gündür** sessiz. |
+| Tansiyon | 6/14 | daily 8/11 dolu, ama kolluk ölçümü 27 Eyl sonrası yalnız 30 Eyl | 27 Eyl sonrası daily TA büyük olasılıkla `import_samsung.mjs:177-187` (Samsung TA tablosu) — saat ≈ +13 sistolik saptığı için 7-gün TA ortalaması kirli. Kaynak doğrulanmadı. |
+| Retro | 0 | 1/11 ("Yürüyüş") | Kart ölü. |
+| Uyku | — | 2 kayıt | Kart ölü. |
+| Telefon | — | 3 Eki 14:00 telefon eski 0.39 paketinde, token boş olabilir | Son 11 günün neredeyse her teslimi "telefonda DOĞRULANMADI". |
+
+**Ana bulgu:** 1. turun darboğazı (kayıt) çözüldü — ama kayıt sohbetten geldiği için. Yeni darboğaz üç tane:
+1. **Teslim zinciri körleşti.** 30 PR çıktı, telefonda hangisinin göründüğünü kimse bilmiyor. Ajan "telefon hangi paketle, en son ne zaman bağlandı" sorusunu tek komutla cevaplayamıyor.
+2. **Karar yok.** Veri var, haftalık karar yok: kilo hedefin üçte biri hızında iniyor ve bunu gösteren ekran yok (kcal 7-gün ort. yok, Pazartesi kartı yok).
+3. **Yapım temposu yine kullanımı geçti.** 2 haftalık dondurma tutulmadı; cihaz-içi LLM üç katman (Gemma → Nano → Firebase) yapıldı, kullanımı ölçülmedi.
+
+### 7.2 Plan — öncelik sırasıyla
+
+**G0 — Bugün/yarın, kod gerektirmez**
+- **G0.1 İlk haftalık karar 5 Eki Pzt (ajan, sohbetten).** Bel + 7-gün kilo + 7-gün kcal + seans sayısı → `PROGRAM-2026-09.md` §6 kuralı.
+  Mevcut veriyle beklenen: kilo −0.22 kg/hafta < hedef → **kalori tarafı**: son 7 gün 2191 kcal; menü 29 Eyl'den beri ~2000 hedefliyor, sapma akşam (bulantı izlemiyle aynı yer: 19:00 sonrası yeme yok denemesi zaten başladı).
+  Karar: program değişmez, 7 gün daha 19:00 kuralı + akşam nişastasız; 12 Eki'de kilo 7-gün farkı < −0.4 değilse kcal hedefi ~1850'ye.
+  Kabul: daily_log 5 Eki notes'ta karar satırı.
+- **G0.2 Telefon zinciri.** Dean 0.40 + token durumu (devirde açık). Kabul: api logunda telefondan `/api/*` 200 + bundle `6cb423a3` (ya da yenisi).
+
+**G1 — Görünürlük (1 hafta, TDD hesaplama katmanı)**
+- **G1.1 İstemci izi.** İstemci her isteğe `X-Bundle: <sürüm>` başlığı ekler; api son yetkili isteğin zamanı + sürümünü bellekte tutar, `/health` döner.
+  Ajan tek `curl /health` ile "telefon şu paketle, X dk önce bağlandı" der. Yeni tablo yok.
+  Kabul: `/health` çıktısında `client: { bundle, last_seen }`.
+- **G1.2 Pazartesi kartı (eski P2.2).** Hafta sekmesinin en üstü: 7-gün kilo farkı · **7-gün kcal ort. (öğünlerden)** · kayıtlı gün sayısı · bel · TA (yalnız kolluk) · seans/set.
+  Altında tek kural cümlesi (`PROGRAM` §6). Hesap `lib/metrics.ts`'e saf fonksiyon, test önce.
+  Kabul: telefonda 12 Eki Pazartesi kararı karttan okunur.
+- **G1.3 `sets_total` türet.** Sunucu `POST /api/workouts` set listesi geldiyse `sets_total = sets.length` (tamamlanan). Kabul: 4 seansın hepsinde dolu.
+
+**G2 — Veri temizliği (2. hafta)**
+- **G2.1 Tansiyon kaynağı.** `import_samsung.mjs` TA'yı `wearable`'a yazmaya devam eder ama `daily`'ye **yazmaz**; daily TA yalnız kolluk (`measurements` sabah ortalaması).
+  Önce 27 Eyl–4 Eki daily TA'nın kaynağı doğrulanır (Samsung TA tablosu saat mi elle giriş mi). Kabul: 7-gün TA yalnız kolluk günlerinden; protokollü gün sayısı kartta.
+- **G2.2 Adım: hangi telefon asıl?** Saat diğer telefona eşli (HANDOFF 2 Eki #6). Karar Dean'in: (a) o telefona APK + token, (b) saati bu telefona eşle, (c) haftalık Samsung CSV kabul.
+  Karar gelene kadar eksik gün kartta "veri yok" yazar, ortalamaya 0 girmez.
+
+**G3 — Dondur ve sadeleştir (sürekli)**
+- **2 hafta yeni özellik yok (5–19 Eki).** Yalnız G0–G2 ve hata. Ölçüt: kayıt günü + karar, commit değil.
+- **Retro kartı → kaldır**, yerine zaten var olan "Günün notu" kalır (1/11 kullanım). **Uyku kartı** veri yoksa gizli.
+- **Cihaz-içi LLM:** 2 hafta `/api/chat` + yerel model kullanımını say (api logu). Dean uygulama içi Eva'yı haftada < 2 kez açıyorsa Nano/Gemma indirmesi rafa, yalnız sunucu + Firebase yedeği kalır.
+- Saat uygulaması OTA'sı (appkit) G2.2 kararı çıkmadan büyütülmez.
+
+**G4 — Klinik çıktı (12. hafta)**
+- Hekim özeti (eski P2.3) 13 Ara'ya: kilo-bel eğrisi, kolluk TA ortalamaları, adım, seans sıklığı, haftalık kcal/protein. Yorum yok.
+- Bulantı denemesi ~10 Eki sorulur; sürüyorsa hekime giden listeye.
+
+### 7.3 Kuzey yıldızı (Pazartesi kartında, haftalık)
+kilo 7-gün farkı −0.4…−0.8 kg · bel ayda −2 cm · 7-gün kcal ort. ≤ 2100 · protein ≥ 150 g gün 6/7 ·
+direnç 3/3 set kayıtlı · kolluk TA günü ≥ 5/7 · telefon son bağlantı < 24 sa.
+
+### 7.4 Dean onay masası
+1. G0.1 kararı: program sabit + 19:00 kuralı 7 gün, 12 Eki'de gerekirse ~1850 kcal — uygun mu?
+2. 5–19 Eki özellik dondurma — bu sefer bağlayıcı mı?
+3. Retro kartı kaldırılsın mı?
+4. Adım için hangi telefon asıl (G2.2 a/b/c)?
+5. Cihaz-içi LLM kullanım ölçümüne göre rafa kaldırma — kabul mü?
