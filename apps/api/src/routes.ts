@@ -250,6 +250,7 @@ const GOALS_BODY = {
     weekly_weight_loss_kg: { type: 'number', minimum: 0, maximum: 5 },
     nudge: { type: 'string', enum: ['soft', 'push'] },
     free_meal_day: { type: 'integer', minimum: 0, maximum: 6 },
+    kcal_week_max: { type: 'integer', minimum: 1000, maximum: 5000 },
   },
 } as const
 

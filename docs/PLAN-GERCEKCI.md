@@ -251,3 +251,11 @@ direnç 3/3 set kayıtlı · kolluk TA günü ≥ 5/7 · telefon son bağlantı 
 3. Retro kartı kaldırılsın mı?
 4. Adım için hangi telefon asıl (G2.2 a/b/c)?
 5. Cihaz-içi LLM kullanım ölçümüne göre rafa kaldırma — kabul mü?
+
+### 7.5 Kararlar (Dean, 4 Eki)
+- **Kalori:** 12 Eki beklenmeden şimdiden 7-gün ort. ≤ 1900 kcal; aşınca Hafta ekranında uyarı (`feature/kcal-uyari`). 1850 değil 1900: programın kendi ≤500 kcal açık kuralı.
+- **Program sabit:** A/B/A′ split, her hareket 2×12 RIR 1–2, haftada 3 direnç + yürüyüş; 4 hafta değişmez.
+- **Retro kartı kaldırıldı:** yerine "Günün notu" kartı; 22:00 retro bildirimi kalktı (akşam yemeği hatırlatması aynı saatte kalır); sesle söylenen retro günün notuna eklenir.
+- **Tansiyon:** normale döndü, ölçülmüyor. G2.1 iptal; TA kuzey yıldızından ve Pazartesi kartından çıktı.
+- **Adım (G2.2):** Dean karar veremedi → öneri (a) diğer telefona APK + token: saat yeniden eşleşmez (Galaxy Watch telefon değiştirince sıfırlanır), tek kurulum. Dean "olur" derse uygulanır.
+- **Dondurma:** 5–19 Eki yeni özellik yok, yalnız hata + G1 görünürlük. **Cihaz-içi LLM (5):** duruma göre, kullanım sayılır.

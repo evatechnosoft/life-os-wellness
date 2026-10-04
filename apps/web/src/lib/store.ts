@@ -154,13 +154,6 @@ async function syncDayFromMeasurements(date: string, onlyEmpty = false): Promise
   if (Object.keys(patch).length > 0) await saveDaily(date, patch)
 }
 
-export async function saveRetro(date: string, patch: Partial<Retro>): Promise<void> {
-  const existing = await db.retro.get(date)
-  await db.retro.put({ ...existing, ...patch, date, updated_at: now() })
-  await queue({ method: 'PUT', path: `/api/retro/${date}`, body: patch })
-  refreshReminders()
-}
-
 let syncing = false
 
 /** Entries the server refused for good. Kept so the rejection can be shown, not guessed at. */

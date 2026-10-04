@@ -31,6 +31,12 @@ export interface Goals {
    * doldurur; opsiyonel isaret yalniz eski kayitlar ve testler icin.
    */
   free_meal_day?: number
+  /**
+   * 7 gunluk ogun kcal ortalamasinin ust siniri. Gunluk hedef degil (AGENTS.md):
+   * yalniz haftalik ortalama asinca uyari. 1900: 28 Eyl-4 Eki kayitlarinda 2191 kcal
+   * ile -0.22 kg/hafta, acik ~500 kcal (PROGRAM: >500 yagsiz kutleyi siler). Dean, 4 Eki.
+   */
+  kcal_week_max?: number
 }
 
 export const DEFAULT_GOALS: Goals = {
@@ -39,6 +45,7 @@ export const DEFAULT_GOALS: Goals = {
   sets_per_group: 10,
   // Cumartesi aksam (Dean, 2026-09-17).
   free_meal_day: 6,
+  kcal_week_max: 1900,
 }
 
 export function useGoals(): Goals {

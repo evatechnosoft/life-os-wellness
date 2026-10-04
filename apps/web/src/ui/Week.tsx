@@ -4,7 +4,7 @@ import { lastDates, toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import { volumeTips } from '../lib/coach'
 import { tipText } from '../lib/coachText'
-import { adherencePct, dayAverage, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
+import { adherencePct, dayAverage, kcalDayAverage, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
 import { useGoals } from '../lib/settings'
 import { useSplit } from '../lib/split'
 import { BodyReport } from './Body'
@@ -46,6 +46,14 @@ export function Week({ onPickDay }: { onPickDay?: (date: string) => void } = {})
   const workouts = useLiveQuery(() => db.workout.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
   const wearable = useLiveQuery(() => db.wearable.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
   const meals = useLiveQuery(() => db.meal.where('date').between(start, end, true, true).toArray(), [start, end]) ?? []
+  // Kalori ortalamasi bugunu almaz: yarim gun ortalamayi asagi ceker, uyari gec gelir.
+  const kcalDates = lastDates(8).slice(0, -1)
+  const kcalStart = kcalDates[0]!
+  const kcalEnd = kcalDates[kcalDates.length - 1]!
+  const kcalMeals = useLiveQuery(() => db.meal.where('date').between(kcalStart, kcalEnd, true, true).toArray(), [kcalStart, kcalEnd]) ?? []
+  const kcalAvg = kcalDayAverage(kcalMeals)
+  const kcalMax = goals.kcal_week_max
+  const kcalOver = kcalAvg != null && kcalMax != null && kcalAvg > kcalMax
 
   const byDate = new Map(logs.map((l) => [l.date, l]))
   const trendByDate = new Map(trendLogs.map((l) => [l.date, l]))
@@ -102,6 +110,21 @@ export function Week({ onPickDay }: { onPickDay?: (date: string) => void } = {})
           )}
         </div>
         <Sparkline points={trend} label="Kilo eğrisi" />
+      </section>
+
+      <section className="glass-card mt-2 p-3">
+        <h2 className="text-[10px] uppercase tracking-wide text-ink-faint">Kalori · son 7 gün ortalaması</h2>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className={`text-lg font-bold tabular-nums ${kcalOver ? 'text-a3' : ''}`}>
+            {kcalAvg == null ? '—' : kcalAvg.toLocaleString('tr-TR')}
+          </span>
+          {kcalMax != null && <span className="text-[11px] text-ink-faint">sınır {kcalMax.toLocaleString('tr-TR')}</span>}
+        </div>
+        {kcalOver && (
+          <p className="mt-1 text-[11px] text-a3">
+            Haftalık ortalama sınırın {(kcalAvg - kcalMax).toLocaleString('tr-TR')} kcal üstünde.
+          </p>
+        )}
       </section>
 
       <div className="mt-2 grid grid-cols-2 gap-2">

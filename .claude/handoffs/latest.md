@@ -349,3 +349,15 @@ Telefon (0.40 token durumu) üstteki bölümden devam. Gün kaydı: shake içild
 
 ### Next — tek adım
 Dean saatte evaitecOTA → kendi kartında Güncelle (0.1.21) → Wellness Saat Güncelle; ekranda "Wi-Fi isteniyor… / İndiriliyor %N" mi bak. Telefonda öğün sırası + Kaydet + 150 g uyarısız mı.
+
+## 4 Eki — bu oturum FİNANS işi yaptı (wellness'ta değişiklik YOK)
+Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasında; devamı orada:
+- Tarama: `finance/evidence/2026-09-18-spk-iptal/TARAMA-2026-10-04.md` (forum DH s3174/ekşi s664 + web + birincil kaynak). Sonuç: SPK 28.09 → 17.09 talimatları öncelik YOK, pay oranında; ara ödeme PPF'den başlar, TÜFE/tarih resmî değil.
+- Hazır (imzasız, Dean'e gönderildi): `gonderim/ISBANKASI-EK-2026-10-05.pdf` (2 sayfa). 01.10 PDF'i değişmedi (SHA `0507ff5b…`); `build_isbank_pdf.py <stem>` artık argüman alır.
+- Taslak: `gonderim/SPK-CIMER-EK-2026-10-05.txt` (madde 3 yumuşatıldı, talep sırası net yatırım önce). Kayıt: `GONDERIM-KAYDI.md` sonu.
+- Finans Next: 05.10 Dean dilekçeyi şubeye verir + kaşeli suret; 05.10 10:00 TÜFE → `tufe.yaml`; 06.10 akşamı SPK CİMER eki (QNB + ISBN26100214958 süreleri dolunca).
+
+## 4 Eki öğleden sonra — koçluk oturumu (kod yok, yalnız API kayıtları)
+- **Keto kararı: ② dengeli liste ile DEVAM, ① "ketojenik 5 gün" uygulanmıyor.** Kanıt: DIETFITS 12 ay fark yok; keto+direnç meta-analizi FFM SMD −0.35; ① liste ~1000–1200 kcal / ~80–100 g protein, 150 g hedefle ve haftada 3 salonla uyumsuz. Dean'e verilen diyetisyen sorusu: "① zorunlu mu, ② ile başlayıp protein 150'ye çıkabilir miyiz?" Cevap bekleniyor.
+- **4 Eki API (PUT/POST + GET kanıtlı):** daily 107.05 kg + BIA notu (yağ %34.5, iskelet kas 35.0, yağsız 70.07, visseral 25.5). Öğünler id `1004a0e2-1004-4a11-9c00-00000000000{1..4}`: kahvaltı 36/650 · öğle 50/800 · akşam 24/320 (kıymalı nohut ince tabaka) · shake 38/220. **Gün 148 g / 1990 kcal.**
+- Trend: 7-gün ort 107.53, önceki 107.64 → plato 2. hafta; neden kalori (bakım 2600 ölçüldü, 3 Eki öğle pide 1000 kcal), karb türü değil. PROGRAM §6 "too_slow 3 hafta" kuralı gelecek hafta tetiklenebilir.

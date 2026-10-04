@@ -42,7 +42,11 @@ Böbrek sorunu veya potasyum tutan ilaç varsa §3 potasyum hedefi hekime sorulu
 | Adım | 7-gün ort 5.250 → 4. hafta 6.500 → 8. hafta 7.500 | haftalık +%7–8 |
 | Su | 2.5–3 L, çay/kahve şekersiz | |
 | Serbest gün | **Cumartesi** (ayar `free_meal_day=6`) — tatlı/helva kotası buraya bağlı | telafi planı o gün çıkmaz |
-Kalori hedefi yok (kilit). Karar birimi 7-gün kilo ortalaması.
+Günlük kalori hedefi yok (kilit). Karar birimi 7-gün kilo ortalaması.
+**Haftalık kalori sınırı (Dean, 4 Eki):** öğünlerden 7-gün ortalaması ≤ **1900 kcal** (`goals.kcal_week_max`),
+aşınca Hafta ekranında uyarı. Gerekçe: 28 Eyl–4 Eki 2191 kcal ile −0.22 kg/hafta → açık ~500 kcal
+(§8 Murphy & Koehler: >500 yağsız kütleyi siler). **19:00 kuralı:** 19:00'dan sonra yemek/meyve/çorba yok,
+çay 19:00'a kadar (bulantı denemesi 3 Eki, ~10 Eki değerlendirilir).
 
 ## 4. Beslenme — mevcut alışkanlığın üstüne ekleme
 Her öğün: 1 protein + 1–2 sebze/baklagil + bulgur/baklagil/tam tahıl (beyaz ekmek/pilav yerine) + zeytinyağı.
@@ -119,7 +123,7 @@ Tansiyon ölçümü sabah aç karnına, 2 ölçüm ortalaması; antrenman sonras
 - `weightTrend` too_fast → antrenman günü karbonhidrat porsiyonunu artır; too_slow 3 hafta → adım + tuz/serbest gün kontrolü; 8+ hafta → diyet molası (S5).
 - Leg press / lat pulldown / göğüs press toplam tekrar 2 hafta üst üste düşerse → kayıp 0.5 kg/haftaya, protein ve uyku kontrol.
 - "Abarttım" → ertesi gün rutine dönüş, öğün atlama yok (S1).
-- Tansiyon 7-gün ort 4 hafta sonra ≥135/85 → hekim notu tekrar. Glukoz: takip alanı yok, hekim konusu (haftada 2 ölçüm, notes'a).
+- Tansiyon: normale döndü, rutin ölçüm bırakıldı (Dean, 4 Eki). Şikâyet olursa ya da hekim isterse kollukla yeniden. Glukoz: takip alanı yok, hekim konusu (haftada 2 ölçüm, notes'a).
 - Kayıt yükü: ilk 4 hafta zorunlu = kilo + protein + sebze sayacı; öğün detayı isteğe bağlı, "Alışık" seti tek dokunuş.
 
 ## 7. Uygulamaya yazılanlar (20 Eyl)
