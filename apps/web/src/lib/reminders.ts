@@ -25,7 +25,7 @@ export const DEFAULT_REMINDERS: ReminderSettings = {
 }
 
 export interface Reminder {
-  id: 'weigh' | 'waist' | 'dinner'
+  id: 'weigh' | 'waist'
   title: string
   body: string
 }
@@ -33,15 +33,6 @@ export interface Reminder {
 const TEXT: Record<Reminder['id'], Omit<Reminder, 'id'>> = {
   weigh: { title: 'Sabah tartısı', body: 'Aç karnına tartıldın mı? Kiloyu gir.' },
   waist: { title: 'Bel ölçüsü', body: 'Haftalık ölçüm: göbek deliği hizasından, nefes verirken.' },
-  dinner: { title: 'Akşam yemeği', body: 'Akşam öğünü kayıtlı değil. Ne yediğini yaz, gün boş kalmasın.' },
-}
-
-/** Bu saatten sonraki ogun aksam yemegi sayilir. Dean erken yiyor (2 Eki 16:21). */
-const DINNER_FROM = '16:00'
-
-/** Bugunun ogun saatlerinde aksam ogunu var mi. */
-export function hasDinner(mealTimes: string[]): boolean {
-  return mealTimes.some((t) => minutesOf(t) >= minutesOf(DINNER_FROM))
 }
 
 /** "9:05" -> 545. Metin karsilastirmasi "9:05" > "21:00" derdi, dakikaya cevirmek sart. */
@@ -63,8 +54,6 @@ export function pendingReminders(input: {
   weekday?: number
   /** Son 7 gunde bel olculdu mu - olculduyse gun gelse de sorulmaz. */
   waist_logged_this_week?: boolean
-  /** Bugunun ogun saatleri (HH:MM). Verilmezse aksam yemegi sorulmaz. */
-  meal_times?: string[]
   /** Bugun "Gec" denenler - o gun bir daha sorulmaz. */
   skipped?: string[]
 }): Reminder[] {
@@ -77,10 +66,6 @@ function dueReminders(input: Parameters<typeof pendingReminders>[0]): Reminder[]
   const due: Reminder[] = []
   if (now >= minutesOf(input.settings.weigh_at) && input.log?.weight_kg == null) {
     due.push({ id: 'weigh', ...TEXT.weigh })
-  }
-  // Aksam yemegi aksam saatinde (retro_at) sorulur: 24 Eyl'de kayit hic gelmedi, gun yarim kaldi.
-  if (input.meal_times && now >= minutesOf(input.settings.retro_at) && !hasDinner(input.meal_times)) {
-    due.push({ id: 'dinner', ...TEXT.dinner })
   }
   // Bel haftada bir: gunu geldiyse ve o hafta hic olculmediyse. Sabah tartisiyla
   // ayni saatte sorulur - ikisi de ac karnina, tek ayaga kalkis.
@@ -134,11 +119,11 @@ export async function saveReminderSettings(settings: ReminderSettings): Promise<
  * ponytail: haftalik bildirim isteniyorsa Capacitor `on: { weekday }` alani
  * eklenir - once o alanin gun numaralandirmasi cihazda dogrulanmali.
  */
-type ScheduledReminder = 'weigh' | 'dinner'
+type ScheduledReminder = 'weigh'
 
-const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1, dinner: 3 }
-/** Kaldirilan aksam retrosu (4 Eki); eski kurulumlarda kurulu kalmissa iptal edilir. */
-const LEGACY_RETRO_ID = 2
+const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1 }
+/** Kaldirilan aksam retrosu (2) ve aksam yemegi (3), 4 Eki: ogunler sohbetten giriliyor. Eski kurulumlar iptal edilir. */
+const LEGACY_IDS = [2, 3]
 
 /**
  * Bildirimdeki dugmeler (Dean 2 Eki: kaydirinca ertesi acilista geri geliyordu).
@@ -146,7 +131,7 @@ const LEGACY_RETRO_ID = 2
  */
 export const REMINDER_ACTIONS = 'reminder'
 
-const isScheduled = (id: unknown): id is ScheduledReminder => id === 'weigh' || id === 'dinner'
+const isScheduled = (id: unknown): id is ScheduledReminder => id === 'weigh'
 
 /** Uygulama acilisinda bir kez: dugme tiplerini kaydeder, "Gec"i dinler. */
 export async function listenReminderActions(): Promise<void> {
@@ -195,21 +180,16 @@ export async function refreshNotifications(): Promise<void> {
 export async function scheduleNotifications(settings: ReminderSettings, now: Date = new Date()): Promise<void> {
   if (!isNative()) return
   const { LocalNotifications } = await import('@capacitor/local-notifications')
-  await LocalNotifications.cancel({ notifications: [...Object.values(NOTIFICATION_IDS), LEGACY_RETRO_ID].map((id) => ({ id })) })
+  await LocalNotifications.cancel({ notifications: [...Object.values(NOTIFICATION_IDS), ...LEGACY_IDS].map((id) => ({ id })) })
   if (!settings.enabled) return
 
   const granted = await LocalNotifications.requestPermissions()
   if (granted.display !== 'granted') return
 
   const today = toLocalDate(now)
-  const [log, meals, skipped] = await Promise.all([
-    db.daily_log.get(today),
-    db.meal.where('date').equals(today).toArray(),
-    skippedToday(today),
-  ])
+  const [log, skipped] = await Promise.all([db.daily_log.get(today), skippedToday(today)])
   const done: Record<ScheduledReminder, boolean> = {
     weigh: log?.weight_kg != null || skipped.includes('weigh'),
-    dinner: hasDinner(meals.map((m) => m.time)) || skipped.includes('dinner'),
   }
 
   await LocalNotifications.schedule({ notifications: notificationsFor(settings, done, now) })
@@ -223,14 +203,14 @@ export async function scheduleNotifications(settings: ReminderSettings, now: Dat
  * gerekirse `on: { hour, minute }` + ertesi gunun kaydina gore iptal.
  */
 export function notificationsFor(settings: ReminderSettings, done: Record<ScheduledReminder, boolean>, now: Date) {
-  return (['weigh', 'dinner'] as const).map((key) => ({
+  return (['weigh'] as const).map((key) => ({
     id: NOTIFICATION_IDS[key],
     title: TEXT[key].title,
     body: TEXT[key].body,
     actionTypeId: REMINDER_ACTIONS,
     extra: { id: key },
     schedule: {
-      at: nextFireAt(key === 'weigh' ? settings.weigh_at : settings.retro_at, done[key], now),
+      at: nextFireAt(settings.weigh_at, done[key], now),
       allowWhileIdle: true,
     },
   }))

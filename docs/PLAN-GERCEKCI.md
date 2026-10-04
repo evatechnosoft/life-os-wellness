@@ -261,3 +261,12 @@ direnç 3/3 set kayıtlı · kolluk TA günü ≥ 5/7 · telefon son bağlantı 
 - **19:00 kuralı ve bulantı izlemi kalktı** (bulantı geçici). `meal.time` çoğu zaman giriş saati: "akşam geç yeme" çıkarımı geçersiz, saat bazlı analiz yapılmaz.
 - **27 Eyl (serbest gün) düzeltildi:** pasta/börek kaydı 1220 → 620 kcal (Dean: gün ~2800). Gün 3417 → 2817 kcal.
 - **Dondurma:** 5–19 Eki yeni özellik yok, yalnız hata + G1 görünürlük. **Cihaz-içi LLM (5):** duruma göre, kullanım sayılır.
+
+### 7.6 Çalışma biçimi değişti + sonraki oturum (Dean, 4 Eki gece)
+- **Giriş kanalı sohbet.** Uygulama izleme/ayna. Akşam yemeği hatırlatması ve Günün notu kartı kaldırıldı (`feature/sade-bildirim`); tek bildirim sabah tartısı. Notlar sohbetten `daily_log.notes`'a yazılmaya devam eder.
+- **Dondurma yerine toplu teslim:** yeni özellik (izleme sayfası gibi) eklenebilir ama oturum boyunca biriktirilir, oturum sonunda **tek toplu test** (vitest + headless 390 px tur + canlı API) ve **tek deploy**; Dean telefonda tek listeyle kontrol eder. PR başına deploy yok.
+- **Sonraki oturum işleri:**
+  1. Ayar > Veri ve sunucu > **API token alanı**: hiç kaldırılmadı (10 Eyl'den beri); #37 yalnız elle sunucu adresini kaldırdı. Token doluysa alanı gizle → "Bağlı · değiştir" satırı; boşsa alan görünür (yeni telefon kurulumu için gerekli).
+  2. **Saat düzenleme — görsel düzeltme** (kapsam Dean'le netleşecek: öğün/ölçüm formundaki saat alanı mı, Wellness Saat uygulamasının ekranları mı — `docs/PLAN-WEAR.md`).
+  3. İzleme sayfası (aday): tek ekranda 7-gün kilo/kcal/protein/seans — Pazartesi kartı (G1.2) ile birleşir.
+  4. Toplu test + deploy + telefon kontrol listesi.

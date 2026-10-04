@@ -30,7 +30,6 @@ const SECTIONS = [
   { id: 'ogunler', label: 'Öğünler' },
   { id: 'olcum', label: 'Ölçüm' },
   { id: 'antrenman', label: 'Antrenman' },
-  { id: 'not', label: 'Not' },
 ] as const
 
 export function Today({ date }: { date: string }) {
@@ -38,7 +37,6 @@ export function Today({ date }: { date: string }) {
   const workouts = useLiveQuery(() => db.workout.where('date').equals(date).toArray(), [date]) ?? []
   // Son iki haftanin ogunleri: hizli dugmeler gercek aliskanliktan turiyor.
   const recentMeals = useLiveQuery(() => db.meal.reverse().limit(60).toArray(), []) ?? []
-  const dayMeals = useLiveQuery(() => db.meal.where('date').equals(date).toArray(), [date]) ?? []
   // Saatten gelen protein yalniz bilgi: manuel toplami ezmez, yaninda durur.
   const watchProtein = useLiveQuery(
     () => db.wearable.where('date').equals(date).filter((r) => r.metric === 'protein_g').first(),
@@ -58,7 +56,6 @@ export function Today({ date }: { date: string }) {
   const pulses = frequentPortions(recentMeals.map((m) => m.protein_g))
   const protein = log?.protein_g ?? 0
   const now = new Date()
-  const eveningFirst = now.getHours() >= 20
   // Hatirlatma yalniz bugun icin: gecmis bir gune bakarken "tartilmadin" demek anlamsiz.
   const reminders = useReminderSettings()
   const today = toLocalDate(now)
@@ -70,7 +67,6 @@ export function Today({ date }: { date: string }) {
         settings: reminders,
         weekday: now.getDay(),
         waist_logged_this_week: weekLogs.some((l) => l.waist_cm != null),
-        meal_times: dayMeals.map((m) => m.time),
         skipped,
       })
     : []
@@ -82,35 +78,6 @@ export function Today({ date }: { date: string }) {
     setEditing(null)
   }
 
-  const noteCard = (
-    <Card
-      id="not"
-      title="Günün notu"
-      collapsible
-      defaultOpen={eveningFirst}
-      summary={log?.notes ? 'yazıldı' : 'boş'}
-    >
-      {/* Gunun notu sunucuda daily_log.notes: sohbetten yazilan not da burada gorunur. */}
-      <textarea
-        key={`${date}:notes:${log?.notes ?? ''}`}
-        rows={2}
-        defaultValue={log?.notes ?? ''}
-        placeholder="Günün notu (uyku, ağrı, özel durum…)"
-        onBlur={(e) => {
-          const notes = e.target.value.trim() || null
-          if (notes !== (log?.notes ?? null)) void saveDaily(date, { notes })
-        }}
-        className="mt-2 w-full rounded-field bg-glass-inset p-3 text-sm outline-none focus:ring-2 focus:ring-a1"
-      />
-      <button
-        type="button"
-        onClick={() => (document.activeElement as HTMLElement | null)?.blur()}
-        className="mt-2 w-full rounded-field bg-glass-strong py-2 text-sm"
-      >
-        Kaydet
-      </button>
-    </Card>
-  )
 
   return (
     <div className="space-y-3">
@@ -145,8 +112,6 @@ export function Today({ date }: { date: string }) {
       <Diet date={date} />
 
       <Eva compact />
-
-      {eveningFirst && noteCard}
 
       <Card
         id="protein"
@@ -287,7 +252,6 @@ export function Today({ date }: { date: string }) {
 
       {native && <Sleep date={date} />}
 
-      {!eveningFirst && noteCard}
     </div>
   )
 }
