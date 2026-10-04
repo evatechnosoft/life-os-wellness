@@ -361,3 +361,10 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 - **Keto kararı: ② dengeli liste ile DEVAM, ① "ketojenik 5 gün" uygulanmıyor.** Kanıt: DIETFITS 12 ay fark yok; keto+direnç meta-analizi FFM SMD −0.35; ① liste ~1000–1200 kcal / ~80–100 g protein, 150 g hedefle ve haftada 3 salonla uyumsuz. Dean'e verilen diyetisyen sorusu: "① zorunlu mu, ② ile başlayıp protein 150'ye çıkabilir miyiz?" Cevap bekleniyor.
 - **4 Eki API (PUT/POST + GET kanıtlı):** daily 107.05 kg + BIA notu (yağ %34.5, iskelet kas 35.0, yağsız 70.07, visseral 25.5). Öğünler id `1004a0e2-1004-4a11-9c00-00000000000{1..4}`: kahvaltı 36/650 · öğle 50/800 · akşam 24/320 (kıymalı nohut ince tabaka) · shake 38/220. **Gün 148 g / 1990 kcal.**
 - Trend: 7-gün ort 107.53, önceki 107.64 → plato 2. hafta; neden kalori (bakım 2600 ölçüldü, 3 Eki öğle pide 1000 kcal), karb türü değil. PROGRAM §6 "too_slow 3 hafta" kuralı gelecek hafta tetiklenebilir.
+
+## 4 Eki akşam — gerçekçilik 2. tur, PR #52 canlı (EN YENİ)
+- Persona skill `~/.claude/skills/wellness-pi`; plan `docs/PLAN-GERCEKCI.md` §7 (kararlar §7.5).
+- PR #52 canlı (bundle `481ff5e5`, health 200, predeploy yedeği `wellness-2026-10-04-1633-predeploy.sql.gz`): Hafta'da 7-gün kcal ort. kartı, `goals.kcal_week_max=1900` (PUT GET kanıtlı); retro kartı → "Günün notu", 22:00 retro bildirimi yok. Telefonda DOĞRULANMADI.
+- 19:00 kuralı + bulantı izlemi KALKTI (Dean): ~10 Eki SORMA. `meal.time` çoğu zaman giriş saati.
+- 27 Eyl pasta/börek `515be6b6` 1220 → 620 kcal (gün 2817). Tansiyon artık ölçülmüyor, isteme.
+- Açık: adım için diğer telefona APK + token (öneri, Dean "olur" bekleniyor).

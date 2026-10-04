@@ -45,8 +45,8 @@ Böbrek sorunu veya potasyum tutan ilaç varsa §3 potasyum hedefi hekime sorulu
 Günlük kalori hedefi yok (kilit). Karar birimi 7-gün kilo ortalaması.
 **Haftalık kalori sınırı (Dean, 4 Eki):** öğünlerden 7-gün ortalaması ≤ **1900 kcal** (`goals.kcal_week_max`),
 aşınca Hafta ekranında uyarı. Gerekçe: 28 Eyl–4 Eki 2191 kcal ile −0.22 kg/hafta → açık ~500 kcal
-(§8 Murphy & Koehler: >500 yağsız kütleyi siler). **19:00 kuralı:** 19:00'dan sonra yemek/meyve/çorba yok,
-çay 19:00'a kadar (bulantı denemesi 3 Eki, ~10 Eki değerlendirilir).
+(§8 Murphy & Koehler: >500 yağsız kütleyi siler). 19:00 kuralı yok (Dean 4 Eki: bulantı geçici, akşam
+geç saatli öğünlerin çoğu geç girilmiş kayıt — `meal.time` yeme saati değil).
 
 ## 4. Beslenme — mevcut alışkanlığın üstüne ekleme
 Her öğün: 1 protein + 1–2 sebze/baklagil + bulgur/baklagil/tam tahıl (beyaz ekmek/pilav yerine) + zeytinyağı.

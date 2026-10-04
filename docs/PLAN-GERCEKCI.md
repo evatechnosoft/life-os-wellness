@@ -258,4 +258,6 @@ direnç 3/3 set kayıtlı · kolluk TA günü ≥ 5/7 · telefon son bağlantı 
 - **Retro kartı kaldırıldı:** yerine "Günün notu" kartı; 22:00 retro bildirimi kalktı (akşam yemeği hatırlatması aynı saatte kalır); sesle söylenen retro günün notuna eklenir.
 - **Tansiyon:** normale döndü, ölçülmüyor. G2.1 iptal; TA kuzey yıldızından ve Pazartesi kartından çıktı.
 - **Adım (G2.2):** Dean karar veremedi → öneri (a) diğer telefona APK + token: saat yeniden eşleşmez (Galaxy Watch telefon değiştirince sıfırlanır), tek kurulum. Dean "olur" derse uygulanır.
+- **19:00 kuralı ve bulantı izlemi kalktı** (bulantı geçici). `meal.time` çoğu zaman giriş saati: "akşam geç yeme" çıkarımı geçersiz, saat bazlı analiz yapılmaz.
+- **27 Eyl (serbest gün) düzeltildi:** pasta/börek kaydı 1220 → 620 kcal (Dean: gün ~2800). Gün 3417 → 2817 kcal.
 - **Dondurma:** 5–19 Eki yeni özellik yok, yalnız hata + G1 görünürlük. **Cihaz-içi LLM (5):** duruma göre, kullanım sayılır.
