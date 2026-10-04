@@ -370,3 +370,6 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 - 27 Eyl pasta/börek `515be6b6` 1220 → 620 kcal (gün 2817). Tansiyon artık ölçülmüyor, isteme.
 - Açık: adım için diğer telefona APK + token (öneri, Dean "olur" bekleniyor).
 - PR #53 canlı (bundle `2c8723e1`): akşam yemeği hatırlatması + Günün notu kartı kalktı, tek bildirim sabah tartısı. Sonraki oturum: PLAN-GERCEKCI §7.6 (token alanı gizle, saat düzenleme görsel, izleme sayfası, toplu test+deploy).
+- 4 Eki gece: öğün düzeltmesi — 16:07 shake içilmeden yazılmıştı, silindi; 18:30 kahveli whey shake (200 g süzme) 44 g / 250. Gün 4 öğün 154 g / 2020 kcal (GET). Öğle 13:00 doğru (Dean).
+- Saat (Wear OS) yeniden tasarımı planlandı: `docs/PLAN-WEAR.md` son bölüm (Seans/Özet/Teknik). Kod yok.
+- **Tek sonraki adım:** `HANDOFF.md` Next #1 — Ayar'da token doluysa alanı gizle (`apps/web/src/ui/Settings.tsx:573-583`). Kanonik devir `HANDOFF.md` (`24f357b`).
