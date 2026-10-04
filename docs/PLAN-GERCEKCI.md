@@ -267,6 +267,6 @@ direnç 3/3 set kayıtlı · kolluk TA günü ≥ 5/7 · telefon son bağlantı 
 - **Dondurma yerine toplu teslim:** yeni özellik (izleme sayfası gibi) eklenebilir ama oturum boyunca biriktirilir, oturum sonunda **tek toplu test** (vitest + headless 390 px tur + canlı API) ve **tek deploy**; Dean telefonda tek listeyle kontrol eder. PR başına deploy yok.
 - **Sonraki oturum işleri:**
   1. Ayar > Veri ve sunucu > **API token alanı**: hiç kaldırılmadı (10 Eyl'den beri); #37 yalnız elle sunucu adresini kaldırdı. Token doluysa alanı gizle → "Bağlı · değiştir" satırı; boşsa alan görünür (yeni telefon kurulumu için gerekli).
-  2. **Saat düzenleme — görsel düzeltme** (kapsam Dean'le netleşecek: öğün/ölçüm formundaki saat alanı mı, Wellness Saat uygulamasının ekranları mı — `docs/PLAN-WEAR.md`).
+  2. **Wear OS saat uygulaması — görsel + kullanım** (Dean: "birkaç yazıdan ibaret"): Seans / Özet / Teknik ekranları, tasarım `docs/PLAN-WEAR.md` S-next. Ön koşul G2.2 (a).
   3. İzleme sayfası (aday): tek ekranda 7-gün kilo/kcal/protein/seans — Pazartesi kartı (G1.2) ile birleşir.
   4. Toplu test + deploy + telefon kontrol listesi.

@@ -462,3 +462,25 @@ sanılıyor) → titreşim + "Gönderildi" mesajı; PLAN-UI:176 "hoş bir görse
 
 Ajana giriş: bu dosya + `docs/SAAT-RUTIN.md` + `apps/wear` (varsa) + 26 Eyl devir notu. Kabul: Dean saatte görür.
 Başlangıç: seans sırasında set sayacı + nabız + "gönder" geri bildirimi; ana ekran widget'ı ikinci.
+
+### S-next tasarımı (4 Eki, wellness-pi) — sonraki oturum
+**Bugün:** saat uygulaması tek ekran, 6 düz `TextView` satırı (`MainActivity.kt`): ham bpm, ölçüm durumu, örnek aralığı,
+"gönder" sonucu, yetenek dökümü, OTA. Hepsi geliştirici teşhisi; Dean için karar ya da eylem yok. Veri yönü yalnız saat → telefon
+(`WearSender`, DataClient); telefon → saat yolu yok.
+
+**Ön koşul (bloklayıcı):** saat diğer telefona eşli. Telefondan saate özet gelmesi için o telefonda wellness APK + token olmalı
+(PLAN-GERCEKCI G2.2 a). Bu yoksa yalnız 1. ekran (seans, saat içi) çalışır.
+
+**Ekranlar** (yuvarlak ekran, büyük rakam, tek ekranda ≤ 3 bilgi; döner çerçeve/kaydırma ile geçiş; Compose yok, mevcut View yığını):
+1. **Seans** (açılışta, direnç günü): hareket adı · `set 1/2` · hedef `kg × tekrar` (plan + geçen sefer) · büyük nabız.
+   Tek büyük düğme "Set bitti" → titreşim + 90 sn dinlenme geri sayımı (bitince titreşim). Setler DataClient ile telefona →
+   outbox → `/api/workouts` `sets[]`. Sohbetten set yazma yükünü kaldırır.
+2. **Özet** (diğer günler açılış): bugün protein `x / 150 g` halkası · 7-gün kcal ort. (1900 üstü renkli) · 7-gün kilo farkı · adım.
+   Telefon her senkronda küçük JSON'u DataClient `/wellness/summary` yoluna yazar.
+3. **Teknik** (en sonda): bugünkü 6 satır (yetenek, örnek aralığı, OTA) — silinmez, buraya taşınır.
+
+**Rafta:** Tile/komplikasyon (protolayout bağımlılığı, APK BT vekiliyle büyür) — 1–2 Dean kullanırsa sonra.
+
+**Kabul / toplu test:** saf mantık (set sayacı, dinlenme sayacı, özet JSON ayrıştırma) Kotlin unit test; Wear emülatörü 454 px yuvarlak
+ekran görüntüsü her ekran için; telefon tarafı özet yazıcısı vitest; sonra tek OTA (saat) + tek bundle. Dean saatte: seans ekranında
+bir set → telefonda/sunucuda set görünür (GET).
