@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 
 import { toLocalDate } from './date'
-import { db, type DailyLog, type Retro } from './db'
+import { db, type DailyLog } from './db'
 import { isNative } from './health'
 
 export interface ReminderSettings {
@@ -25,14 +25,13 @@ export const DEFAULT_REMINDERS: ReminderSettings = {
 }
 
 export interface Reminder {
-  id: 'weigh' | 'retro' | 'waist' | 'dinner'
+  id: 'weigh' | 'waist' | 'dinner'
   title: string
   body: string
 }
 
 const TEXT: Record<Reminder['id'], Omit<Reminder, 'id'>> = {
   weigh: { title: 'Sabah tartısı', body: 'Aç karnına tartıldın mı? Kiloyu gir.' },
-  retro: { title: 'Akşam retrosu', body: 'Bugün ne iyi gitti, nerede zorlandın?' },
   waist: { title: 'Bel ölçüsü', body: 'Haftalık ölçüm: göbek deliği hizasından, nefes verirken.' },
   dinner: { title: 'Akşam yemeği', body: 'Akşam öğünü kayıtlı değil. Ne yediğini yaz, gün boş kalmasın.' },
 }
@@ -51,17 +50,12 @@ export function minutesOf(time: string): number {
   return Number(h) * 60 + Number(m ?? 0)
 }
 
-function isBlank(retro: Retro | undefined): boolean {
-  return !([retro?.went_well, retro?.resistance, retro?.experiment].some((v) => (v ?? '').trim() !== ''))
-}
-
 /**
  * Bugun eksik kalan ve saati gelmis girisler. Gun bittiginde susmuyor: aksam
  * hala tarti yoksa iki hatirlatma birden acik kalir - girilmeyen sey unutulan seydir.
  */
 export function pendingReminders(input: {
   log: DailyLog | undefined
-  retro: Retro | undefined
   /** HH:MM, local. */
   now: string
   settings: ReminderSettings
@@ -84,10 +78,7 @@ function dueReminders(input: Parameters<typeof pendingReminders>[0]): Reminder[]
   if (now >= minutesOf(input.settings.weigh_at) && input.log?.weight_kg == null) {
     due.push({ id: 'weigh', ...TEXT.weigh })
   }
-  if (now >= minutesOf(input.settings.retro_at) && isBlank(input.retro)) {
-    due.push({ id: 'retro', ...TEXT.retro })
-  }
-  // Aksam yemegi retro saatinde sorulur: 24 Eyl'de kayit hic gelmedi, gun yarim kaldi.
+  // Aksam yemegi aksam saatinde (retro_at) sorulur: 24 Eyl'de kayit hic gelmedi, gun yarim kaldi.
   if (input.meal_times && now >= minutesOf(input.settings.retro_at) && !hasDinner(input.meal_times)) {
     due.push({ id: 'dinner', ...TEXT.dinner })
   }
@@ -143,9 +134,11 @@ export async function saveReminderSettings(settings: ReminderSettings): Promise<
  * ponytail: haftalik bildirim isteniyorsa Capacitor `on: { weekday }` alani
  * eklenir - once o alanin gun numaralandirmasi cihazda dogrulanmali.
  */
-type ScheduledReminder = 'weigh' | 'retro' | 'dinner'
+type ScheduledReminder = 'weigh' | 'dinner'
 
-const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1, retro: 2, dinner: 3 }
+const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1, dinner: 3 }
+/** Kaldirilan aksam retrosu (4 Eki); eski kurulumlarda kurulu kalmissa iptal edilir. */
+const LEGACY_RETRO_ID = 2
 
 /**
  * Bildirimdeki dugmeler (Dean 2 Eki: kaydirinca ertesi acilista geri geliyordu).
@@ -153,7 +146,7 @@ const NOTIFICATION_IDS: Record<ScheduledReminder, number> = { weigh: 1, retro: 2
  */
 export const REMINDER_ACTIONS = 'reminder'
 
-const isScheduled = (id: unknown): id is ScheduledReminder => id === 'weigh' || id === 'retro' || id === 'dinner'
+const isScheduled = (id: unknown): id is ScheduledReminder => id === 'weigh' || id === 'dinner'
 
 /** Uygulama acilisinda bir kez: dugme tiplerini kaydeder, "Gec"i dinler. */
 export async function listenReminderActions(): Promise<void> {
@@ -193,7 +186,7 @@ export async function refreshNotifications(): Promise<void> {
  * kartla yetinir (ui/Today).
  *
  * O gun veri girilmisse bugunun bildirimi atlanir ve zincir yarindan devam eder;
- * giris anindan sonra store.saveDaily/saveRetro burayi yeniden cagirir.
+ * giris anindan sonra store.saveDaily burayi yeniden cagirir.
  *
  * ponytail: gun atlama yalnizca yeniden kurulum anindaki veriye bakar. Uygulama
  * gunlerce hic acilmazsa (veri sunucudan gelse bile) o gunler yine calar;
@@ -202,22 +195,20 @@ export async function refreshNotifications(): Promise<void> {
 export async function scheduleNotifications(settings: ReminderSettings, now: Date = new Date()): Promise<void> {
   if (!isNative()) return
   const { LocalNotifications } = await import('@capacitor/local-notifications')
-  await LocalNotifications.cancel({ notifications: Object.values(NOTIFICATION_IDS).map((id) => ({ id })) })
+  await LocalNotifications.cancel({ notifications: [...Object.values(NOTIFICATION_IDS), LEGACY_RETRO_ID].map((id) => ({ id })) })
   if (!settings.enabled) return
 
   const granted = await LocalNotifications.requestPermissions()
   if (granted.display !== 'granted') return
 
   const today = toLocalDate(now)
-  const [log, retro, meals, skipped] = await Promise.all([
+  const [log, meals, skipped] = await Promise.all([
     db.daily_log.get(today),
-    db.retro.get(today),
     db.meal.where('date').equals(today).toArray(),
     skippedToday(today),
   ])
   const done: Record<ScheduledReminder, boolean> = {
     weigh: log?.weight_kg != null || skipped.includes('weigh'),
-    retro: !isBlank(retro) || skipped.includes('retro'),
     dinner: hasDinner(meals.map((m) => m.time)) || skipped.includes('dinner'),
   }
 
@@ -232,7 +223,7 @@ export async function scheduleNotifications(settings: ReminderSettings, now: Dat
  * gerekirse `on: { hour, minute }` + ertesi gunun kaydina gore iptal.
  */
 export function notificationsFor(settings: ReminderSettings, done: Record<ScheduledReminder, boolean>, now: Date) {
-  return (['weigh', 'retro', 'dinner'] as const).map((key) => ({
+  return (['weigh', 'dinner'] as const).map((key) => ({
     id: NOTIFICATION_IDS[key],
     title: TEXT[key].title,
     body: TEXT[key].body,

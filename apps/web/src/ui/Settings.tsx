@@ -521,7 +521,7 @@ export function Settings() {
             />
           </label>
           <div className="mt-3 flex gap-3">
-            {([['weigh_at', 'Sabah tartısı'], ['retro_at', 'Akşam retrosu']] as const).map(([key, label]) => (
+            {([['weigh_at', 'Sabah tartısı'], ['retro_at', 'Akşam yemeği']] as const).map(([key, label]) => (
               <label key={key} className="flex-1 text-xs text-ink-faint">
                 {label}
                 <input

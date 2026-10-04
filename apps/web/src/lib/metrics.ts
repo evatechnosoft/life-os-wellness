@@ -93,6 +93,19 @@ export function foodMemory(meals: Meal[], limit = 8): FoodMemory[] {
     .slice(0, limit)
 }
 
+/**
+ * Ogunlerden gunluk kcal toplamlarinin ortalamasi. Karar birimi haftalik
+ * ortalama (AGENTS.md); kcal girilmemis gun 0 sayilmaz, atlanir.
+ */
+export function kcalDayAverage(meals: Meal[]): number | null {
+  const byDate = new Map<string, number>()
+  for (const m of meals) {
+    if (typeof m.kcal === 'number') byDate.set(m.date, (byDate.get(m.date) ?? 0) + m.kcal)
+  }
+  const totals = [...byDate.values()].filter((v) => v > 0)
+  return totals.length === 0 ? null : Math.round(totals.reduce((s, v) => s + v, 0) / totals.length)
+}
+
 /** Share of days in the window that reached the protein goal, 0-100. */
 export function adherencePct(logs: DailyLog[], dates: string[], goalG: number): number {
   if (dates.length === 0) return 0

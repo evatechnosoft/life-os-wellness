@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, Meal, WearableRecord, Workout } from './db'
-import { adherencePct, dayAverage, estimateKcal, foodMemory, frequentPortions, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import { adherencePct, dayAverage, estimateKcal, foodMemory, frequentPortions, kcalDayAverage, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -162,5 +162,24 @@ describe('foodMemory', () => {
 
   test('kcal hic girilmemisse null kalir, sifira dusmez', () => {
     expect(foodMemory([meal({ kcal: null })])[0]?.kcal).toBeNull()
+  })
+})
+
+describe('kcalDayAverage', () => {
+  const meal = (date: string, kcal: number | null): Meal =>
+    ({ id: `${date}:${kcal}`, date, time: '12:00', protein_g: null, kcal, note: null, estimated: false })
+
+  test('gunluk toplamlarin ortalamasi - ogun sayisi degil gun sayisi', () => {
+    const meals = [meal('2026-10-01', 500), meal('2026-10-01', 1500), meal('2026-10-02', 2400)]
+    expect(kcalDayAverage(meals)).toBe(2200)
+  })
+
+  test('kcal girilmemis gun ortalamaya 0 olarak girmez', () => {
+    expect(kcalDayAverage([meal('2026-10-01', 2000), meal('2026-10-02', null)])).toBe(2000)
+  })
+
+  test('hic kcal yoksa null', () => {
+    expect(kcalDayAverage([])).toBeNull()
+    expect(kcalDayAverage([meal('2026-10-01', null)])).toBeNull()
   })
 })

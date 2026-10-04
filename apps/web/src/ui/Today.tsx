@@ -7,7 +7,7 @@ import { isNative } from '../lib/health'
 import { estimateKcal, frequentPortions } from '../lib/metrics'
 import { pendingReminders, skipReminder, useReminderSettings, useSkippedToday } from '../lib/reminders'
 import { useGoals } from '../lib/settings'
-import { addProtein, addWorkout, deleteWorkout, saveDaily, saveRetro, upsertWorkout } from '../lib/store'
+import { addProtein, addWorkout, deleteWorkout, saveDaily, upsertWorkout } from '../lib/store'
 import { Diet } from './Diet'
 import { Eva } from './Eva'
 import { Card, NumberField } from './Field'
@@ -30,13 +30,12 @@ const SECTIONS = [
   { id: 'ogunler', label: 'Öğünler' },
   { id: 'olcum', label: 'Ölçüm' },
   { id: 'antrenman', label: 'Antrenman' },
-  { id: 'retro', label: 'Retro' },
+  { id: 'not', label: 'Not' },
 ] as const
 
 export function Today({ date }: { date: string }) {
   const log = useLiveQuery(() => db.daily_log.get(date), [date])
   const workouts = useLiveQuery(() => db.workout.where('date').equals(date).toArray(), [date]) ?? []
-  const retro = useLiveQuery(() => db.retro.get(date), [date])
   // Son iki haftanin ogunleri: hizli dugmeler gercek aliskanliktan turiyor.
   const recentMeals = useLiveQuery(() => db.meal.reverse().limit(60).toArray(), []) ?? []
   const dayMeals = useLiveQuery(() => db.meal.where('date').equals(date).toArray(), [date]) ?? []
@@ -67,7 +66,6 @@ export function Today({ date }: { date: string }) {
   const due = date === today
     ? pendingReminders({
         log,
-        retro,
         now: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
         settings: reminders,
         weekday: now.getDay(),
@@ -84,27 +82,14 @@ export function Today({ date }: { date: string }) {
     setEditing(null)
   }
 
-  const retroFilled = (['went_well', 'resistance', 'experiment'] as const).filter((f) => retro?.[f]).length
-  const retroCard = (
+  const noteCard = (
     <Card
-      id="retro"
-      title="Akşam retrosu"
+      id="not"
+      title="Günün notu"
       collapsible
       defaultOpen={eveningFirst}
-      summary={retroFilled > 0 ? `${retroFilled}/3 yanıt` : eveningFirst ? 'yanıt yok' : "20:00'de"}
+      summary={log?.notes ? 'yazıldı' : 'boş'}
     >
-      {(['went_well', 'resistance', 'experiment'] as const).map((field, i) => (
-        <textarea
-          // Gun ya da sunucudan gelen retro degisince kutu yeniden kurulur (defaultValue
-          // yalniz ilk cizimde okunur; yoksa gecmis gune gecince eski metin kalirdi).
-          key={`${date}:${field}:${retro?.[field] ?? ''}`}
-          rows={2}
-          defaultValue={retro?.[field] ?? ''}
-          placeholder={['Bugün ne iyi gitti?', 'Nerede zorlandım?', 'Yarın küçük deney?'][i]}
-          onBlur={(e) => void saveRetro(date, { [field]: e.target.value || null })}
-          className="mt-2 w-full rounded-field bg-glass-inset p-3 text-sm outline-none focus:ring-2 focus:ring-a1"
-        />
-      ))}
       {/* Gunun notu sunucuda daily_log.notes: sohbetten yazilan not da burada gorunur. */}
       <textarea
         key={`${date}:notes:${log?.notes ?? ''}`}
@@ -161,7 +146,7 @@ export function Today({ date }: { date: string }) {
 
       <Eva compact />
 
-      {eveningFirst && retroCard}
+      {eveningFirst && noteCard}
 
       <Card
         id="protein"
@@ -302,7 +287,7 @@ export function Today({ date }: { date: string }) {
 
       {native && <Sleep date={date} />}
 
-      {!eveningFirst && retroCard}
+      {!eveningFirst && noteCard}
     </div>
   )
 }

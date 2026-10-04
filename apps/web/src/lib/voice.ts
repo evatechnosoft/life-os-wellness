@@ -4,7 +4,7 @@ import { toLocalDate } from './date'
 import { db, type NoteEntry, type WorkoutType } from './db'
 import { isNative } from './health'
 import { saveMeal } from './meals'
-import { addWorkout, saveDaily, saveRetro } from './store'
+import { addWorkout, saveDaily } from './store'
 
 export interface NoteDraft {
   weight_kg?: number | null
@@ -151,7 +151,7 @@ export function draftLines(draft: NoteDraft): string[] {
   if (draft.meal_note) lines.push(`Öğün: ${draft.meal_note}`)
   if (draft.retro) {
     const filled = Object.values(draft.retro).filter(Boolean).length
-    if (filled > 0) lines.push('Akşam retrosu güncellenecek')
+    if (filled > 0) lines.push('Günün notuna eklenecek')
   }
   return lines
 }
@@ -208,8 +208,12 @@ export async function applyDraft(draft: NoteDraft, date = toLocalDate()): Promis
     })
   }
 
+  // Retro karti kalkti (4 Eki): sesle soylenen retro gunun notuna eklenir, gorunmez tabloya yazilmaz.
   if (draft.retro) {
-    const retro = Object.fromEntries(Object.entries(draft.retro).filter(([, v]) => v))
-    if (Object.keys(retro).length > 0) await saveRetro(date, retro)
+    const text = Object.values(draft.retro).filter(Boolean).join(' · ')
+    if (text) {
+      const prev = (await db.daily_log.get(date))?.notes
+      await saveDaily(date, { notes: prev ? `${prev} · ${text}` : text })
+    }
   }
 }
