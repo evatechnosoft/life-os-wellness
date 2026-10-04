@@ -368,3 +368,4 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 - 19:00 kuralı + bulantı izlemi KALKTI (Dean): ~10 Eki SORMA. `meal.time` çoğu zaman giriş saati.
 - 27 Eyl pasta/börek `515be6b6` 1220 → 620 kcal (gün 2817). Tansiyon artık ölçülmüyor, isteme.
 - Açık: adım için diğer telefona APK + token (öneri, Dean "olur" bekleniyor).
+- PR #53 canlı (bundle `2c8723e1`): akşam yemeği hatırlatması + Günün notu kartı kalktı, tek bildirim sabah tartısı. Sonraki oturum: PLAN-GERCEKCI §7.6 (token alanı gizle, saat düzenleme görsel, izleme sayfası, toplu test+deploy).
