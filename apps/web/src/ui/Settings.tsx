@@ -427,6 +427,7 @@ export function Settings() {
   const split = useSplit()
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
   const [token, setLocalToken] = useState(getToken())
+  const [editingToken, setEditingToken] = useState(getToken() === '')
   const [status, setStatus] = useState('')
 
   const exportJson = async () => {
@@ -573,14 +574,28 @@ export function Settings() {
       <Card id="ayar-veri" title="Veri ve sunucu" summary={dataSummary} collapsible>
         <Card title="Sunucu">
           <label className="block text-sm text-ink-dim">API token</label>
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => setLocalToken(e.target.value)}
-            onBlur={() => { setToken(token); void scheduleBackgroundSync() }}
-            placeholder=".env icindeki API_TOKEN"
-            className="mt-2 min-h-11 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
-          />
+          {editingToken ? (
+            <input
+              type="password"
+              value={token}
+              autoFocus={token !== ''}
+              onChange={(e) => setLocalToken(e.target.value)}
+              onBlur={() => { setToken(token); setEditingToken(token === ''); void scheduleBackgroundSync() }}
+              placeholder=".env icindeki API_TOKEN"
+              className="mt-2 min-h-11 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
+            />
+          ) : (
+            <div className="mt-2 flex min-h-11 items-center justify-between text-sm">
+              <span className="text-ink-dim">Bağlı</span>
+              <button
+                type="button"
+                onClick={() => setEditingToken(true)}
+                className="min-h-11 rounded-field bg-glass-strong px-3 py-2 text-xs text-ink-dim"
+              >
+                Değiştir
+              </button>
+            </div>
+          )}
           <div className="mt-3 flex items-center justify-between text-xs text-ink-faint">
             <span>{pending === 0 ? 'kuyruk boş' : `${pending} kayıt gönderilmeyi bekliyor`}</span>
             <button

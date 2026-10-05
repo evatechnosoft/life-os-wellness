@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 
-import { collect, localDay, parseCsv } from './import_samsung.mjs'
+import { collect, dailyPatch, localDay, parseCsv } from './import_samsung.mjs'
 
 test('localDay: ofset eklenir, gun geri atilmaz', () => {
   // 21:30 UTC + 03:00 = ertesi gun 00:30 yerel. Ham toISOString bir gun geri atardi.
@@ -104,4 +104,12 @@ test('collect: gunluk adim uce katlanmaz, kilo yuvarlanir, bozuk tansiyon elenir
   assert.equal(days['2026-09-20'].bp_systolic, 132)
   assert.equal(days['2026-09-20'].bp_diastolic, 89)
   assert.equal(wearable.filter((r) => r.metric === 'bp_systolic').length, 1)
+})
+
+test('dailyPatch: bos alan dolar, adim yalniz buyukse yazilir, digerleri ezilmez', () => {
+  const row = { steps: 6382, weight_kg: 107.05, bp_systolic: null }
+  const values = { steps: 7543, weight_kg: 107.9, bp_systolic: 120, bp_diastolic: 80 }
+  assert.deepEqual(dailyPatch(row, values), { steps: 7543, bp_systolic: 120, bp_diastolic: 80 })
+  assert.deepEqual(dailyPatch({ steps: 7543 }, { steps: 7000 }), {})
+  assert.deepEqual(dailyPatch({}, { steps: 100 }), { steps: 100 })
 })

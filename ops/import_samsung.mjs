@@ -12,8 +12,8 @@
 // listesi Samsung'dan gelmez, seans "bu neydi?" karti olarak onaya duser.
 //
 // Tekrar calistirmaya dayanikli: wearable (date,source,metric) uzerine yazar,
-// daily_log'a ise YALNIZ bos alanlar doldurulur - Health Connect'in ya da elle
-// girilen degerin uzerine yazilmaz (arsiv eski, canli kayit daha guvenilir).
+// daily_log'a ise YALNIZ bos alanlar doldurulur (adim haric: buyukse yazilir) -
+// Health Connect'in ya da elle girilen deger ezilmez (arsiv eski, canli kayit guvenilir).
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -144,6 +144,15 @@ const EXERCISE_IDS = {
   10026: 'Machine_Bicep_Curl',
   10027: 'Machine_Triceps_Extension',
   15003: 'Recumbent_Bike',
+}
+
+// Gunluk satir yamasi: bos alan doldurulur; adim ise gun ici importta artar,
+// bu yuzden mevcut degerden buyukse de yazilir (4 Eki: aksam adimi 6382'de kaldi).
+export function dailyPatch(row, values) {
+  return Object.fromEntries(
+    Object.entries(values).filter(([k, v]) =>
+      row[k] === undefined || row[k] === null || (k === 'steps' && Number(v) > Number(row[k]))),
+  )
 }
 
 export function collect(dir, from = null) {
@@ -353,10 +362,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   let written = 0
   let skipped = 0
   for (const [date, values] of daily) {
-    const row = existing.get(date) ?? {}
-    const patch = Object.fromEntries(
-      Object.entries(values).filter(([k]) => row[k] === undefined || row[k] === null),
-    )
+    const patch = dailyPatch(existing.get(date) ?? {}, values)
     if (Object.keys(patch).length === 0) { skipped++; continue }
     await send(api, token, 'PUT', `/api/daily/${date}`, patch)
     written++

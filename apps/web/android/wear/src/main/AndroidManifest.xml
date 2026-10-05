@@ -12,6 +12,7 @@
     <!-- OTA: manifest + APK indirmek icin ag, kurulum istemini acmak icin kurulum izni.
          Kurulum yine sistem yukleyicisinin onayindan geciyor; sessiz kurulum yalniz
          device-owner'da mumkun. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 

@@ -8,6 +8,8 @@ import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.evaitec.ota.OtaManifest
 import com.evaitec.wellness.ota.WellnessOta
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -104,12 +106,30 @@ class WearBridgePlugin : Plugin() {
         }
     }
 
+    /**
+     * Telefon -> saat ozeti (watchSummary.ts uretir). Tek yol, son hali gecerli; saat onResume'de okur.
+     * Ag yok, Data Layer yerel kalici kayit - saat uzaktaysa baglaninca duser.
+     */
+    @PluginMethod
+    fun pushSummary(call: PluginCall) {
+        val json = call.getString("json") ?: return call.reject("json gerekli")
+        thread(isDaemon = true) {
+            runCatching {
+                val request = PutDataMapRequest.create(WearBridgeService.PATH_SUMMARY).apply {
+                    dataMap.putString(WearBridgeService.KEY_SUMMARY, json)
+                    dataMap.putLong(WearBridgeService.KEY_TS, System.currentTimeMillis())
+                }
+                Tasks.await(Wearable.getDataClient(context).putDataItem(request.asPutDataRequest().setUrgent()), 10, TimeUnit.SECONDS)
+            }.fold({ call.resolve() }, { call.reject("Saate yazılamadı: ${it.message}") })
+        }
+    }
+
     /** Eslesmis bir saat var mi - "gonderiyorum ama gelmiyor" durumunu ayirt etmek icin. */
     @PluginMethod
     fun status(call: PluginCall) {
         val nodes = runCatching {
             Wearable.getNodeClient(context).connectedNodes.let {
-                com.google.android.gms.tasks.Tasks.await(it, 5, TimeUnit.SECONDS)
+                Tasks.await(it, 5, TimeUnit.SECONDS)
             }
         }
         call.resolve(

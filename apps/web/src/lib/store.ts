@@ -306,6 +306,8 @@ export async function pullRange(start: string, end: string): Promise<void> {
   // Sunucu tek gercek: bildirimler ancak cekilen veriye gore kurulur. Sohbetten
   // API'ye yazilan kilo/ogun telefona inmeden "girmedin" bildirimi kurulmasin.
   refreshReminders()
+  // Saat ozeti (Ozet ekrani). Dinamik import: watchSummary -> workoutPlan -> store dongusu.
+  void import('./watchSummary').then((m) => m.pushWatchSummary()).catch(() => {})
 }
 
 /**
