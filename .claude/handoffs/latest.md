@@ -373,3 +373,9 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 - 4 Eki gece: öğün düzeltmesi — 16:07 shake içilmeden yazılmıştı, silindi; 18:30 kahveli whey shake (200 g süzme) 44 g / 250. Gün 4 öğün 154 g / 2020 kcal (GET). Öğle 13:00 doğru (Dean).
 - Saat (Wear OS) yeniden tasarımı planlandı: `docs/PLAN-WEAR.md` son bölüm (Seans/Özet/Teknik). Kod yok.
 - **Tek sonraki adım:** `HANDOFF.md` Next #1 — Ayar'da token doluysa alanı gizle (`apps/web/src/ui/Settings.tsx:573-583`). Kanonik devir `HANDOFF.md` (`24f357b`).
+
+## 5 Eki öğle — saat ekranları dalda, plan takası, gün kaydı (EN YENİ)
+- `feature/wear-seans` `d1ee0b6` push (PR yok, deploy yok): saat Seans/Özet/Teknik, telefon set kuyruğu + pushSummary, web watchSummary, Ayar token gizli, import adım max. Testler: web 444, wear 30, app 49, tsc 0, assemble 0. Ayrıntı HANDOFF.md.
+- Plan Pzt/Çar takası (Dean "yapılanla yer değiştir, set sayısı aynı"): Pzt = bugün yapılan 8 hareket (dar tutuş lat pulldown), Çar = hip thrust, RDL, makine row, Smith bench, Pallof.
+- 5 Eki: kahvaltı 23/380 + whey 24/120 = 47 g / 500; salon 36 dk 22 set; yüzme 12 dk 175 m; adım 2/4/5 Eki Samsung'dan (max).
+- Next: HANDOFF.md Next 1 (toplu teslim 0.41.0).
