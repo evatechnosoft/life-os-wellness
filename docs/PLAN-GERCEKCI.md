@@ -33,7 +33,7 @@ düşürme olasılığını artırıyor mu — yoksa sadece uygulamayı zenginle
 | Kilo | 7/14 gün (tamamı 19 Eyl sonrası düzenli) | 109.1 → 107.8. Trend doğru yönde; ilk hafta boşluklu. |
 | Adım | 12/12 gün | 3.642 → 9.388. **En büyük başarı.** Ama 22–23 Eyl elle düzeltildi. |
 | Tansiyon | 6/14 gün | Tek ölçüm/gün; 2'li sabah protokolü yok, kalibrasyon belirsiz → 28 Eyl kararı bu yüzden askıda. |
-| Öğün | **4/14 gün** (19, 21, 22, 23 Eyl) | Protein hedefi (180 g) çoğu gün ölçülmüyor. |
+| Öğün | **4/14 gün** (19, 21, 22, 23 Eyl) | Protein hedefi (150 g) çoğu gün ölçülmüyor. |
 | Antrenman seti | **0 / 3 direnç seansı** (`sets_total` hep null) | 21 Eyl'de 18 asıl set yapıldı — sohbette var, uygulamada yok. İlerleme kuralı veri bekliyor. |
 | Retro | **0 kayıt** | Akşam retro kartı hiç kullanılmamış. |
 | Bel | 1 kayıt | Protokol yeni (Pazartesi). |

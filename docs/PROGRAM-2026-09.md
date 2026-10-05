@@ -130,7 +130,7 @@ Tansiyon ölçümü sabah aç karnına, 2 ölçüm ortalaması; antrenman sonras
 1. Profil (Ayar ekranı → `profile`): birth_year, height_cm, sex, goal=cut, target_weight_kg=100, days_per_week=3, session_min=50,
    cuisine='türk ev yemeği', birth_year=1983, sex=male, height_cm=175, equipment=[gym,machine,cable,dumbbell,barbell], medications=[] — sunucu `profile` satırı API ile yazıldı, telefon `pullProfile` ile alır.
    conditions: ['prediyabet bandı (HbA1c 5.9, 04.09.2026)', 'hipertrigliseridemi (302)', 'tansiyon izlemi'] — Eva kırmızı bayrak kuralları buradan okur.
-2. Ayarlar → goals: protein_g **180**, weekly_loss_pct **0.6**, free_meal_day 6 — bu ayar telefonda (IndexedDB) yaşar, **Dean Ayarlar ekranından girer**.
+2. Ayarlar → goals: protein_g **150** (3 Eki; sunucu `/api/goals`), weekly_loss_pct **0.6**, free_meal_day 6 — bu ayar telefonda (IndexedDB) yaşar, **Dean Ayarlar ekranından girer**.
 3. Bu dosya. `training_split` Çarşamba → sırt, omuz, bacak (leg press + hip thrust).
 4. Eva sistem istemi (`persona.ts`): profilde tansiyon/glukoz/trigliserid izlemi varsa tuz-potasyum-lif önceliği satırı.
 5. **Kod bulgusu (ayrı PR, `fix/protein-target-obese`):** `proteinTarget` kesimde 2.2 g/kg × gerçek kilo = 238 g öneriyor; obezde referans hedef/yağsız kütle olmalı. Öneri: `min(avgWeight, target_weight_kg)` üzerinden hesap → 220 tavan. Bu PR onay sonrası.
@@ -182,7 +182,7 @@ Yağ düşüp kas sabitken tartının durması bununla uyumlu. **5 Eki'ye kadar 
 | Palamut kızartma, galeta unlu | 2× (22, 26 Eyl) | Fırın/ızgara — omega-3 aynı kalır, galeta + kızartma yağı gider. Balık kotası §4 aynen |
 | Tatlı (pasta, kek, kurabiye) | Pazar 27 Eyl | Serbest gün Cumartesi; Pazar'a taşarsa bir sonraki Cumartesi kotası o hafta kullanılmış sayılır, telafi yok |
 | Tekila-tonik | 26 Eyl | Tonik şekerli (TG 302) → soda + limon. Alkol ≤2 birim/hafta aynen |
-Protein 167 g: hedef 180 aynen, ama 165–180 bandı yeterli (yağsız kütle ~70 kg × 2.4). Eksik gün akşama 100 g lor (§4).
+Protein 167 g: hedef **150** (3 Eki, §3); 167 g fazlası sorun değil. Eksik gün akşama 100 g lor (§4).
 
 **Adım.** 8. hafta hedefi (7.500) aşıldı. Yeni taban **8.500** (7-gün ort), üst sınır koyma; yükseltme yok — NEAT'i sürdürülebilir tut.
 

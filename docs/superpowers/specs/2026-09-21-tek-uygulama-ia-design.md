@@ -41,7 +41,7 @@ Drawer sayfalarının markdown içeriği build'de `docs/*.md`'den `apps/web/src/
 - Slotlar PROGRAM §4'ten: Sabah · Öğle · Ara · Akşam · Antrenman sonrası (son slot yalnız lift/swim günü görünür).
 - Her slot: "+" → **sık yenenler** ızgarası: `foods.json` (seçicideki 30 kalem, grup çipleri) + son 14 günün `meal.note` kalemleri önde. Dokun = ekle, adet ± . Altta "sadece gram" Quick Add (protein g, isteğe kcal).
 - Kaydet → tek `meal` satırı: `note` = "Kuru fasulye ×1 · Bulgur ×1 · Salata", `protein_g`/`kcal` toplam, `source: 'manual'`, `time` slot saatinden. Mevcut `queueMeal` kullanılır, yeni tablo yok.
-- Protein çubuğu: gün toplamı / `goals.protein_g` (mevcut ayar, PROGRAM 180). Slot saatleri sabit tablo, planda belirlenir (ör. 08:00/13:00/16:30/19:30/21:00). Kalori yalnız bilgi, hedef çubuğu yok (kilit).
+- Protein çubuğu: gün toplamı / `goals.protein_g` (mevcut ayar, değer PROGRAM §3). Slot saatleri sabit tablo, planda belirlenir (ör. 08:00/13:00/16:30/19:30/21:00). Kalori yalnız bilgi, hedef çubuğu yok (kilit).
 - Fotoğraf/barkod girişi `Meals.tsx`'te kalır, slot "+" menüsünden ulaşılır.
 
 ### 3.3 DayStrip

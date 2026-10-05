@@ -93,7 +93,7 @@ kan şekerini ve tansiyonu iki yönde etkileyebiliyor. Her ikisinin de belirsiz 
 Takviye, eksiği kapatır; programın yerini tutmaz. Şu an elinde **işe yarayan tek net ürün
 magnezyum**, **hekimle konuşulacak tek ürün berberin**, **geri kalanı ya nötr ya riskli**.
 
-Haftada ~0.9 kg düşüş, protein 150–180 g ve haftada 3 direnç + 2 yüzme — tabloyu değiştiren bu.
+Haftada ~0.9 kg düşüş, protein 150 g ve haftada 3 direnç + 2 yüzme — tabloyu değiştiren bu.
 
 ## Ek — 25 Eylül 2026: BCAA / whey sepeti
 
@@ -101,7 +101,7 @@ Dean'in baktığı 7 ürün (ürün sayfası görüntülerinden, etiket arkası 
 
 | Ürün | Karar | Neden |
 |---|---|---|
-| High Nutrition Whey (24 g protein/ölçek) | **Al** (etiket arkası okunmadı) | Günlük 180 g protein hedefinin açığını kapatan tek ürün; bir ölçek ~5.5 g BCAA zaten içerir |
+| High Nutrition Whey (24 g protein/ölçek) | **Al** (etiket arkası okunmadı) | Günlük 150 g protein hedefinin açığını kapatan tek ürün; bir ölçek ~5.5 g BCAA zaten içerir |
 | Hardline BCAA Glutamine 115 g (313 TL, 10 servis) | **Hayır** | ~31 TL/servis; protein 150+ g/gün iken BCAA ek fayda vermez, glutamin sağlıklı yetişkinde etkisiz |
 | Hardline BCAA Matrix 4:1:1 | **Hayır** | 17 g "amino asit"in çoğu taurin/glutamin/arginin; kas için tam protein yerini tutmaz |
 | Run BCAA 4:1:1 · XPRO BCAA+Glutamine · Proteinocean BCAA+ | **Gereksiz** | Zararsız (0 kcal, sukraloz), ama whey varken para israfı |
