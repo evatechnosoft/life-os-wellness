@@ -39,7 +39,7 @@ class Session(val plan: List<PlanItem>) {
                 "Leg_Press" to "Leg press",
                 "Seated_Leg_Curl" to "Oturarak leg curl (makine)",
                 "Leverage_Incline_Chest_Press" to "Eğimli göğüs presi (makine)",
-                "Seated_Cable_Rows" to "Oturarak kablo çekiş (row)",
+                "Close-Grip_Front_Lat_Pulldown" to "Lat pulldown (dar/nötr tutuş)",
                 "Side_Lateral_Raise" to "Dambıl yan kaldırış",
                 "Leverage_Shoulder_Press" to "Omuz presi (makine)",
                 "Machine_Triceps_Extension" to "Triceps (makine)",
@@ -48,7 +48,7 @@ class Session(val plan: List<PlanItem>) {
             DayOfWeek.WEDNESDAY -> listOf(
                 "Barbell_Hip_Thrust" to "Hip thrust",
                 "Romanian_Deadlift" to "Romanian deadlift",
-                "Close-Grip_Front_Lat_Pulldown" to "Lat pulldown (dar/nötr tutuş)",
+                "Leverage_Iso_Row" to "Makine row",
                 "Smith_Machine_Bench_Press" to "Smith makinesinde bench press (düz)",
                 "Pallof_Press" to "Pallof press",
             )
