@@ -383,4 +383,5 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 ## 5 Eki akşam — gün kaydı kapandı, protein 180 izleri silindi (EN YENİ)
 - Öğünler 5 Eki (GET): 09:30 23 · 10:16 24 · 12:25 55/760 · 18:06 35/350 · 19:00 çorba 12/180 → **149 g / 1790 kcal**.
 - Bayat 180 g: PROGRAM §7/§8, TAKVIYELER, PLAN-GERCEKCI, IA spec → 150 (`e3d9c9c`). `dean-pt` skill hedefi API'den okur.
+- Bel 5 Eki: göbek 116 / kemer 112 (−1 cm, gerçek). Kural: ölçüm şüphesi simetrik (`dean-pt` Tuzaklar, `~/.claude` `a1de837`).
 - Next değişmedi: HANDOFF.md Next 1 (toplu teslim 0.41.0).
