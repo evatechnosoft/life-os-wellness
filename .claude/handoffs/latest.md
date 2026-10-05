@@ -379,3 +379,8 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 - Plan Pzt/Çar takası (Dean "yapılanla yer değiştir, set sayısı aynı"): Pzt = bugün yapılan 8 hareket (dar tutuş lat pulldown), Çar = hip thrust, RDL, makine row, Smith bench, Pallof.
 - 5 Eki: kahvaltı 23/380 + whey 24/120 = 47 g / 500; salon 36 dk 22 set; yüzme 12 dk 175 m; adım 2/4/5 Eki Samsung'dan (max).
 - Next: HANDOFF.md Next 1 (toplu teslim 0.41.0).
+
+## 5 Eki akşam — gün kaydı kapandı, protein 180 izleri silindi (EN YENİ)
+- Öğünler 5 Eki (GET): 09:30 23 · 10:16 24 · 12:25 55/760 · 18:06 35/350 · 19:00 çorba 12/180 → **149 g / 1790 kcal**.
+- Bayat 180 g: PROGRAM §7/§8, TAKVIYELER, PLAN-GERCEKCI, IA spec → 150 (`e3d9c9c`). `dean-pt` skill hedefi API'den okur.
+- Next değişmedi: HANDOFF.md Next 1 (toplu teslim 0.41.0).

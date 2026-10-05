@@ -1,6 +1,6 @@
 # Handoff: saat Seans/Özet/Teknik kodlandı — sıradaki toplu teslim (0.41.0)
 
-> 2026-10-05 öğle · `dev` @ bu devir commit'i · kod dalı `feature/wear-seans` @ `d1ee0b6` (push edildi, PR AÇILMADI) · dirty: `ops/cloudflared/config.yml` (CRM tüneli, COMMIT ETME) + untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/`
+> 2026-10-05 akşam (gün kaydı kapandı) · `dev` @ bu devir commit'i · kod dalı `feature/wear-seans` @ `d1ee0b6` (push edildi, PR AÇILMADI) · dirty: `ops/cloudflared/config.yml` (CRM tüneli, COMMIT ETME) + untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/`
 > Geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
@@ -15,7 +15,8 @@ Uygulamayı gerçek kullanıma çekmek. Giriş kanalı **sohbet**, uygulama + sa
   - `ops/import_samsung.mjs` `dailyPatch`: adım mevcut değerden büyükse yazılır.
   - Kanıt: tsc 0 · web vitest 444/444 · wear unit 30/30 · app unit 49/49 · `:wear:lintDebug` 0 hata · `:wear:assembleDebug :app:assembleDebug` exit 0 · import test 7/7. Wear emülatör görüntüsü ALINMADI.
 - **Plan (PUT 200 + GET):** Pzt A = Leg_Press, Seated_Leg_Curl, Leverage_Incline_Chest_Press, Close-Grip_Front_Lat_Pulldown, Side_Lateral_Raise, Leverage_Shoulder_Press, Machine_Triceps_Extension, Dead_Bug · Çar B = Barbell_Hip_Thrust, Romanian_Deadlift, Leverage_Iso_Row, Smith_Machine_Bench_Press, Pallof_Press · Cum A′ değişmedi. Hepsi 2 set.
-- **5 Eki API (GET kanıtlı):** kahvaltı 09:30 23 g/380 (2 yumurta + lor + tam buğday 1 dilim) · whey 10:16 24 g/120 (suyla VARSAYIM) → 47 g / 500 kcal. Salon `1005a0e2-1005-4a11-9d00-000000000001` 36 dk 22 set (2×12, makineler 35/40, yana açma 10, bacak curl teyitli; dead bug/cat stretch/plank/göğüs gerdirme; "kuş" bird dog katalogda yok, notta). Yüzme `...0002` 12 dk 175 m HR 104 129 kcal.
+- **5 Eki API (GET kanıtlı):** öğünler id `1005a0e2-1005-4a11-9c00-00000000000{1..5}`: kahvaltı 09:30 23/380 · whey 10:16 24/120 · öğle 12:25 55/760 (sulu köfte ~18 + patates + yoğurt ~150 g + yağsız salata, fotoğraf) · akşam 18:06 35/350 (zeytinyağlı taze fasulye ~250 g + ton 1 kutu, porsiyon varsayım) · tavuklu çorba 19:00 12/180 (Dean saati). **Gün 149 g / 1790 kcal.** Salon `1005a0e2-1005-4a11-9d00-000000000001` 36 dk 22 set; yüzme `...0002` 12 dk 175 m.
+- Protein hedefi 150 her yerde: bayat 180 dokümanlardan silindi (`e3d9c9c`; yalnız tarihli `GUNLUK-2026-09-21.md` bırakıldı). `dean-pt` skill hedefi artık `GET /api/goals`'tan okur.
 - Samsung 5 Eki 10:06 zip: adım 2 Eki 7543, 4 Eki 8117, 5 Eki 2881 (PUT + GET). Saat TA ve seansları yazılmadı (bilerek).
 
 ## Next (sırayla)
@@ -23,7 +24,7 @@ Uygulamayı gerçek kullanıma çekmek. Giriş kanalı **sohbet**, uygulama + sa
 2. Dean'e kontrol listesi: telefona 0.41 kur (üstüne) → Ayar'da token "Bağlı" → saat OTA güncelle → saatte Özet görünüyor mu, Seans'ta bir "Set bitti" → telefonu aç → GET `/api/workouts` bugün saat seansı.
 3. Kataloğa `Bird_Dog` (kuş) ekle — Dean bugün yaptı, yok.
 4. İzleme sayfası adayı (§7.6 madde 3) — Dean "yap" demedi.
-Gün içi: Dean öğün söyledikçe önce GET, sonra POST (node fetch). Hedef 150 g; bugün kalan ~100 g, kalori payı ~1400.
+Gün içi: Dean öğün söyledikçe önce GET, sonra POST. Hedef 150 g (`/api/goals`). 5 Eki gün kaydı kapandı.
 
 ## Don't repeat
 - Öğünü/seansı Dean "yedim/yaptım" demeden yazma; önce günü GET.
