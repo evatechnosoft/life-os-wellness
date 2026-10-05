@@ -39,7 +39,7 @@ class Session(val plan: List<PlanItem>) {
                 "Leg_Press" to "Leg press",
                 "Seated_Leg_Curl" to "Oturarak leg curl (makine)",
                 "Leverage_Incline_Chest_Press" to "Eğimli göğüs presi (makine)",
-                "Leverage_Iso_Row" to "Makine row",
+                "Seated_Cable_Rows" to "Oturarak kablo çekiş (row)",
                 "Side_Lateral_Raise" to "Dambıl yan kaldırış",
                 "Leverage_Shoulder_Press" to "Omuz presi (makine)",
                 "Machine_Triceps_Extension" to "Triceps (makine)",
