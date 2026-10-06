@@ -20,7 +20,7 @@ Uygulamayı gerçek kullanıma çekmek. Giriş kanalı **sohbet**, uygulama + sa
 - Samsung 5 Eki 10:06 zip: adım 2 Eki 7543, 4 Eki 8117, 5 Eki 2881 (PUT + GET). Saat TA ve seansları yazılmadı (bilerek).
 
 ## Next (sırayla)
-1. **Toplu teslim:** `feature/wear-seans` PR → squash-merge dev → `variables.gradle` wellnessVersion 0.41.0 + tag v0.41.0 → CI APK yeşil → `node ops/publish_ota.mjs 0.41.0` → ZimaOS deploy (aşağıdaki sıra) → bundle version değişti mi. Native değişti: min_native artar, 0.40 eski paketi tutar.
+1. **Toplu teslim YAPILDI (6 Eki):** PR #54 → dev `2ab2dd5`, 0.41.0 `3e5f208` + tag v0.41.0, CI Build APK yeşil, `publish_ota.mjs` katalog 0.41.0 (4100), `/ota/wellness-0.41.0.apk` 200. ZimaOS predeploy yedeği `wellness-2026-10-06-0840-predeploy.sql.gz`, api rebuild, health 200, bundle `2c8723e1` → `b28ef044`, min_native 4100. Telefonda DOĞRULANMADI.
 2. Dean'e kontrol listesi: telefona 0.41 kur (üstüne) → Ayar'da token "Bağlı" → saat OTA güncelle → saatte Özet görünüyor mu, Seans'ta bir "Set bitti" → telefonu aç → GET `/api/workouts` bugün saat seansı.
 3. Kataloğa `Bird_Dog` (kuş) ekle — Dean bugün yaptı, yok.
 4. İzleme sayfası adayı (§7.6 madde 3) — Dean "yap" demedi.
