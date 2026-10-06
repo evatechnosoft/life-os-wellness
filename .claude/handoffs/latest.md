@@ -385,3 +385,12 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 - Bayat 180 g: PROGRAM §7/§8, TAKVIYELER, PLAN-GERCEKCI, IA spec → 150 (`e3d9c9c`). `dean-pt` skill hedefi API'den okur.
 - Bel 5 Eki: göbek 116 / kemer 112 (−1 cm, gerçek). Kural: ölçüm şüphesi simetrik (`dean-pt` Tuzaklar, `~/.claude` `a1de837`).
 - Next değişmedi: HANDOFF.md Next 1 (toplu teslim 0.41.0).
+
+## 6 Eki — 0.41.0 canlı, sabah ölçüm + 2 öğün (EN YENİ)
+- **Toplu teslim bitti:** PR #54 → dev `2ab2dd5`, 0.41.0 `3e5f208` + tag v0.41.0, CI Build APK success (run 37419323478), `publish_ota.mjs` katalog 0.41.0 (4100), ZimaOS ota/ iki APK, `/ota/wellness-0.41.0.apk` 200. ZimaOS predeploy yedeği `wellness-2026-10-06-0840-predeploy.sql.gz`, api rebuild, health 200, bundle `2c8723e1` → `b28ef044`, min_native 4100. HANDOFF.md Next 1 kapandı (`9a71c27`). Telefonda/saatte DOĞRULANMADI.
+- **6 Eki API (POST/PUT + GET):** daily 107.0 kg · OKOK 10 metrik (yağ %34.5 / 36.9 kg, iskelet 35.0, visseral 25.5, bmr 2013) · kahvaltı `1006a0e2-1006-4a11-9c00-000000000001` 28/470 (2.5 haşlanmış yumurta, sucuk ~3 dilim, kaşar, zeytin; tahmin) · öğle `...0002` 42/630 (sulu köfte ~14 + patates TAMAMI VARSAYIM, yoğurt ~60 g, salata; makarna yenmedi). Gün 70 g / 1100 kcal.
+- 7-gün kilo ort 107.24 (önceki hafta 107.41) → plato kırılıyor.
+- Not: `git worktree` `.claude/worktrees/wear-seans` (dal `release/0.41.0`, origin/dev'e reset) — silinebilir.
+
+### Next — tek adım
+Dean akşam yemeğini söyleyince önce GET, sonra POST (kalan ~80 g P: tavuk/balık 150–200 g + süzme / whey). Dean 0.41 kurulum geri bildirimi → HANDOFF.md Next 2 kontrol listesi. Sonra Bird_Dog kataloğa.
