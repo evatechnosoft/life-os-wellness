@@ -11,6 +11,14 @@ package com.evaitec.wellness.wear
 object WearMetrics {
     const val PATH_PREFIX = "/wellness/metrics"
 
+    /** Seans setleri, "$PATH_SETS/<ts>". Govde KEY_SET: {date, exercise_id, set_no, reps, weight_kg, done_at}. */
+    const val PATH_SETS = "/wellness/sets"
+    const val KEY_SET = "set"
+
+    /** Telefon -> saat ozeti; tek yol, son hali gecerli. Govde KEY_SUMMARY: Summary.parse JSON'u. */
+    const val PATH_SUMMARY = "/wellness/summary"
+    const val KEY_SUMMARY = "summary"
+
     /** YYYY-MM-DD, saatin yerel takvimi. */
     const val KEY_DATE = "date"
 

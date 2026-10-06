@@ -23,20 +23,38 @@ class WearBridgeService : WearableListenerService() {
     override fun onDataChanged(events: DataEventBuffer) {
         val incoming = events.mapNotNull { event ->
             if (event.type != DataEvent.TYPE_CHANGED) return@mapNotNull null
-            if (event.dataItem.uri.path?.startsWith(PATH_PREFIX) != true) return@mapNotNull null
+            val path = event.dataItem.uri.path ?: return@mapNotNull null
             val map = DataMapItem.fromDataItem(event.dataItem).dataMap
-            val date = map.getString(KEY_DATE) ?: return@mapNotNull null
-            val metrics = map.getString(KEY_METRICS) ?: return@mapNotNull null
-            JSONObject()
-                .put(KEY_DATE, date)
-                .put(KEY_METRICS, metrics)
-                .put(KEY_TS, map.getLong(KEY_TS))
+            when {
+                path.startsWith(PATH_PREFIX) -> {
+                    val date = map.getString(KEY_DATE) ?: return@mapNotNull null
+                    val metrics = map.getString(KEY_METRICS) ?: return@mapNotNull null
+                    JSONObject()
+                        .put(KEY_DATE, date)
+                        .put(KEY_METRICS, metrics)
+                        .put(KEY_TS, map.getLong(KEY_TS))
+                }
+                // Seans seti: saatin JSON'u oldugu gibi, "kind":"set" ile ayrilir (watch.ts parseWatchSets).
+                path.startsWith(PATH_SETS) -> {
+                    val set = map.getString(KEY_SET) ?: return@mapNotNull null
+                    runCatching { JSONObject(set) }.getOrNull()
+                        ?.put(KEY_KIND, KIND_SET)
+                        ?.put(KEY_TS, map.getLong(KEY_TS))
+                }
+                else -> null
+            }
         }
         if (incoming.isNotEmpty()) enqueue(this, incoming)
     }
 
     companion object {
         const val PATH_PREFIX = "/wellness/metrics"
+        const val PATH_SETS = "/wellness/sets"
+        const val KEY_SET = "set"
+        const val KEY_KIND = "kind"
+        const val KIND_SET = "set"
+        const val PATH_SUMMARY = "/wellness/summary"
+        const val KEY_SUMMARY = "summary"
         const val KEY_DATE = "date"
         const val KEY_METRICS = "metrics"
         const val KEY_TS = "ts"

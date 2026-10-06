@@ -109,3 +109,19 @@ describe('autoCheckPhoneUpdate', () => {
     expect(await autoCheckPhoneUpdate()).toEqual({ state: 'upToDate' })
   })
 })
+
+describe('parseWatchSets / ids', () => {
+  it('keeps only valid set records and ignores metric lines', async () => {
+    const { parseWatchSets, watchSetId, watchWorkoutId } = await import('./watch')
+    const good = JSON.stringify({ kind: 'set', date: '2026-10-05', exercise_id: 'Leg_Press', set_no: 1, reps: 12, weight_kg: 35, done_at: '2026-10-05T07:00:00Z', ts: 1 })
+    const bad = [line('2026-10-05', { watch_hr_bpm: 70 }, 1), 'x', JSON.stringify({ kind: 'set', date: '2026-10-05', set_no: 1 }), JSON.stringify({ kind: 'set', date: 'bad', exercise_id: 'a', set_no: 0 })]
+    expect(parseWatchSets([good, ...bad])).toEqual([
+      { date: '2026-10-05', exercise_id: 'Leg_Press', set_no: 1, reps: 12, weight_kg: 35, done_at: '2026-10-05T07:00:00Z' },
+    ])
+    const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    expect(watchWorkoutId('2026-10-05')).toMatch(UUID)
+    expect(watchSetId('2026-10-05', 'Leg_Press', 1)).toMatch(UUID)
+    expect(watchSetId('2026-10-05', 'Leg_Press', 1)).not.toBe(watchSetId('2026-10-05', 'Leg_Press', 2))
+    expect(watchSetId('2026-10-05', 'Leg_Press', 1)).not.toBe(watchSetId('2026-10-05', 'Butterfly', 1))
+  })
+})

@@ -1,6 +1,7 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core'
 
-import { recordMetrics } from './store'
+import { db, type ExerciseSet, type Workout } from './db'
+import { recordMetrics, upsertWorkout } from './store'
 
 /** Saat sadece yeni bir kaynak: yeni tablo/sema yok, recordMetrics ayni yoldan yaziyor. */
 export const SOURCE_WATCH = 'watch_app'
@@ -86,12 +87,87 @@ export function parseWatchRecords(raw: string[]): WatchRecord[] {
     .sort((a, b) => a.date.localeCompare(b.date))
 }
 
-/** Kuyrugu bosaltir ve gunluk kayitlara yazar. Yazilan gun sayisini doner. */
+/** Saatin "Set bitti" kaydi (wear/.../WearSender.sendSet). Kuyrukta "kind":"set" ile gelir. */
+export interface WatchSet {
+  date: string
+  exercise_id: string
+  set_no: number
+  reps: number | null
+  weight_kg: number | null
+  done_at: string | null
+}
+
+/** Set satirlari; bozuk/eksik alanli satir atilir. Metrik satirlari parseWatchRecords'un isi. */
+export function parseWatchSets(raw: string[]): WatchSet[] {
+  const out: WatchSet[] = []
+  for (const entry of raw) {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(entry)
+    } catch {
+      continue
+    }
+    if (typeof parsed !== 'object' || parsed === null) continue
+    const r = parsed as Record<string, unknown>
+    if (r['kind'] !== 'set') continue
+    if (typeof r['date'] !== 'string' || !DATE.test(r['date'])) continue
+    if (typeof r['exercise_id'] !== 'string' || r['exercise_id'] === '') continue
+    if (typeof r['set_no'] !== 'number' || !Number.isInteger(r['set_no']) || r['set_no'] < 1) continue
+    out.push({
+      date: r['date'],
+      exercise_id: r['exercise_id'],
+      set_no: r['set_no'],
+      reps: typeof r['reps'] === 'number' ? r['reps'] : null,
+      weight_kg: typeof r['weight_kg'] === 'number' ? r['weight_kg'] : null,
+      done_at: typeof r['done_at'] === 'string' ? r['done_at'] : null,
+    })
+  }
+  return out
+}
+
+/** Gunun saat seansi: tarihten turetilen sabit uuid - ayni gun ikinci kez ikinci seans olmasin. */
+export function watchWorkoutId(date: string): string {
+  const d = date.replaceAll('-', '')
+  return `${d}-5a61-4a11-9d00-000000000000`
+}
+
+/** Set id'si tarih + hareket + set no'dan: ayni set iki kez gelirse ustune yazar, cogalmaz. */
+export function watchSetId(date: string, exerciseId: string, setNo: number): string {
+  let h = 5381
+  for (const ch of exerciseId) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0
+  return `${date.replaceAll('-', '')}-5a61-4a11-9d00-${h.toString(16).padStart(8, '0')}${setNo.toString(16).padStart(4, '0')}`
+}
+
+/**
+ * Setleri gunun seansina ekler. POST /api/workouts `sets` TAM liste (eksik set silinir),
+ * o yuzden once yerel seansin setleri okunur, uzerine yazilir, hepsi birden gider.
+ */
+export async function recordWatchSets(sets: WatchSet[]): Promise<void> {
+  const byDate = new Map<string, WatchSet[]>()
+  for (const s of sets) byDate.set(s.date, [...(byDate.get(s.date) ?? []), s])
+  for (const [date, daySets] of byDate) {
+    const id = watchWorkoutId(date)
+    const existing = await db.workout.get(id)
+    const merged = new Map<string, ExerciseSet>((existing?.sets ?? []).map((s) => [s.id, s]))
+    for (const s of daySets) {
+      const setId = watchSetId(date, s.exercise_id, s.set_no)
+      merged.set(setId, { id: setId, exercise_id: s.exercise_id, set_no: s.set_no, weight_kg: s.weight_kg, reps: s.reps, done_at: s.done_at })
+    }
+    const workout: Workout = {
+      ...(existing ?? { id, date, type: 'resistance', muscle_groups: [], notes: 'Saatten', needs_review: true }),
+      sets: [...merged.values()],
+    }
+    await upsertWorkout(workout)
+  }
+}
+
+/** Kuyrugu bosaltir: olcumler gunluk kayitlara, setler gunun seansina. Yazilan gun sayisini doner. */
 export async function drainWatch(): Promise<number> {
   if (!isNative()) return 0
   const { records } = await WearBridge.drain()
   const days = parseWatchRecords(records)
   for (const day of days) await recordMetrics(SOURCE_WATCH, day.date, day.metrics)
+  await recordWatchSets(parseWatchSets(records))
   return days.length
 }
 
