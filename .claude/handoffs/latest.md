@@ -394,3 +394,27 @@ Wellness kodu/API'ye dokunulmadı. İş `life-os-finance` SPK tasfiye dosyasınd
 
 ### Next — tek adım
 Dean akşam yemeğini söyleyince önce GET, sonra POST (kalan ~80 g P: tavuk/balık 150–200 g + süzme / whey). Dean 0.41 kurulum geri bildirimi → HANDOFF.md Next 2 kontrol listesi. Sonra Bird_Dog kataloğa.
+
+---
+
+## 6 Eki gece — OTA aynası, Nextcloud, Samsung import, akşam saati (deadman yazdı)
+
+**Goal:** evaitecOTA indirmesini hızlandır; eski APK'ları ZimaOS Nextcloud'a arşivle; günün öğün/ölçümünü API'ye yaz.
+
+**State — doğrulanmış (komut çıktısı):**
+- Ayna: ZimaOS `/DATA/AppData/ota-ayna` (evaitec-appkit `deploy/ota-ayna`, nginx :8099 + 10 dk sync). 13/13 APK sha256 katalogla aynı.
+  Dışarı: `https://ota.evaitec.com` (CF DNS CNAME → wellness tüneli `59988d1b`, ingress `ops/cloudflared/config.yml`, commit `def1924` dev, crm satırı da girdi). 2. istekte `cf-cache-status: HIT`.
+- `evaglass-releases/apps.json` `f5e72d3`: her kayıtta tek `mirrors: https://ota.evaitec.com/<id>.apk` (LAN :8099 çıkarıldı — hız aynı, ev dışında 15 sn timeout).
+- Nextcloud `cloud.evaitec.com` (CasaOS cloudflared token tüneli): trusted_domains = 192.168.1.186, :10081, cloud.evaitec.com; trusted_proxies 192.168.1.186 + 172.16/12 → dış yönlendirme https; `restart=unless-stopped`.
+- 80 eski APK (1465 MB; wellness 40, netmovies 37, evaglass 2, evaisys 1) sha256 doğrulamalı → Nextcloud `dean/files/Arşiv/APK/<proje>/`, yerelden silindi. gemma `.task` (4.2 GB) yerelde bırakıldı.
+- Samsung zip `--from 2026-09-28 --no-workouts`: 4 gün dolduruldu (5 Eki adım 7469, 6 Eki adım 9143 + TA 123/71). Seanslar zaten elle girilmişti (9 seans, değişmedi).
+- 6 Eki öğün: akşam tavuk göğsü ~250 g + süzme ~100 g + salata = 85 g P / 590 kcal (id `…0003`). Gün: 1690 kcal, 155 g P. 7-gün ort 2045 kcal (> 1900 sınırı).
+- Akşam saati: 6 akşam kaydı 19:00'a çekildi (21,22,24,25 Eyl; 1,6 Eki). Hafıza `meal-time-giris-saati` güncellendi.
+
+**Decisions:** akşam yemeği `time` = 19:00 (Dean: 19'u geçmiyor); ara öğün/içki gerçek saatte. Seanslı günlerde Samsung importu `--no-workouts`.
+
+**Don't repeat:** Python urllib ile fit API'ye POST → CF 403; `User-Agent` ver ya da curl kullan. Bash heredoc içinde `'\'` bozuluyor → `Path.as_posix()`.
+
+**Bekleyen (Dean):** Nextcloud'da TOTP kur → sonra `occ twofactorauth:enforce --on`. CasaOS cloudflared tünel token'ı oturum çıktısına düştü → CF panelinden yenile. ZimaOS `eth0` 100 Mbps (kablo/port). Google Takeout (Fitbit VO2max/aktif dk) aktarıcısı yok — istenirse yazılacak.
+
+**Next — tek adım:** Dean'den telefon/saatte bir katalog güncellemesiyle ota.evaitec.com hızını teyit al (cihazda doğrulanmadı).

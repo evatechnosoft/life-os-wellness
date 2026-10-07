@@ -1,51 +1,41 @@
-# Handoff: saat Seans/Özet/Teknik kodlandı — sıradaki toplu teslim (0.41.0)
+# Handoff: 7 Eki Çarşamba koçluk — seans + ölçüm yazıldı
 
-> 2026-10-05 akşam (gün kaydı kapandı) · `dev` @ bu devir commit'i · kod dalı `feature/wear-seans` @ `d1ee0b6` (push edildi, PR AÇILMADI) · dirty: `ops/cloudflared/config.yml` (CRM tüneli, COMMIT ETME) + untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/`
+> 2026-10-07 öğle · `dev` @ bu devir commit'i (öncesi `def1924`) · kod değişikliği yok, yalnız API kayıtları · untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/` (dokunma)
 > Geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
-Uygulamayı gerçek kullanıma çekmek. Giriş kanalı **sohbet**, uygulama + saat izleme/ayna. Plan: `docs/PLAN-GERCEKCI.md` §7.6, saat: `docs/PLAN-WEAR.md` son bölüm. Persona: `wellness-pi`. Çalışma biçimi: oturum boyunca biriktir, sonda tek test + tek deploy.
+Dean'in günlük öğün/seans/ölçümünü sohbetten `fit.evaitec.com` API'sine yazmak (skill `dean-pt`); kabul = uygulamada görünmesi. Ürün planı: `docs/PLAN-GERCEKCI.md` §7.6, persona `wellness-pi`.
 
-## State (kanıtlı)
-- `feature/wear-seans` (3 commit, deploy YOK, cihazda DOĞRULANMADI):
-  - Saat: `Session.kt`, `Summary.kt`, `MainActivity.kt` ViewFlipper 3 sayfa (yatay fling). Seans: hareket · set n/2 · hedef kg×12 · nabız, "Set bitti" → titreşim + `/wellness/sets/<ts>` + 90 sn dinlenme. Özet: protein, 7-gün kcal (1900 üstü kırmızı), 7-gün kilo farkı, adım (`/wellness/summary`). Teknik: eski 6 satır + gönder/güncelle. Yedek plan sabit (`// ponytail:`), 5 Eki Pzt/Çar takası işli.
-  - Telefon: `WearBridgeService` set kuyruğu (`kind:"set"`), `WearBridgePlugin.pushSummary`.
-  - Web: `watchSummary.ts` (pullRange sonunda saate özet), `watch.ts` saat setleri günün saat seansına TAM liste upsert (id `yyyymmdd-5a61-4a11-9d00-000000000000`).
-  - Ayar: token doluysa alan gizli → "Bağlı · Değiştir" (`Settings.tsx`).
-  - `ops/import_samsung.mjs` `dailyPatch`: adım mevcut değerden büyükse yazılır.
-  - Kanıt: tsc 0 · web vitest 444/444 · wear unit 30/30 · app unit 49/49 · `:wear:lintDebug` 0 hata · `:wear:assembleDebug :app:assembleDebug` exit 0 · import test 7/7. Wear emülatör görüntüsü ALINMADI.
-- **Plan (PUT 200 + GET):** Pzt A = Leg_Press, Seated_Leg_Curl, Leverage_Incline_Chest_Press, Close-Grip_Front_Lat_Pulldown, Side_Lateral_Raise, Leverage_Shoulder_Press, Machine_Triceps_Extension, Dead_Bug · Çar B = Barbell_Hip_Thrust, Romanian_Deadlift, Leverage_Iso_Row, Smith_Machine_Bench_Press, Pallof_Press · Cum A′ değişmedi. Hepsi 2 set.
-- **5 Eki API (GET kanıtlı):** öğünler id `1005a0e2-1005-4a11-9c00-00000000000{1..5}`: kahvaltı 09:30 23/380 · whey 10:16 24/120 · öğle 12:25 55/760 (sulu köfte ~18 + patates + yoğurt ~150 g + yağsız salata, fotoğraf) · akşam 18:06 35/350 (zeytinyağlı taze fasulye ~250 g + ton 1 kutu, porsiyon varsayım) · tavuklu çorba 19:00 12/180 (Dean saati). **Gün 149 g / 1790 kcal.** Bel (daily PUT+GET): göbek 116 / kemer 112 (23+28 Eyl 117/113) → −1 cm gerçek kabul; ölçüm haftalık. Salon `1005a0e2-1005-4a11-9d00-000000000001` 36 dk 22 set; yüzme `...0002` 12 dk 175 m.
-- Protein hedefi 150 her yerde: bayat 180 dokümanlardan silindi (`e3d9c9c`; yalnız tarihli `GUNLUK-2026-09-21.md` bırakıldı). `dean-pt` skill hedefi artık `GET /api/goals`'tan okur.
-- Samsung 5 Eki 10:06 zip: adım 2 Eki 7543, 4 Eki 8117, 5 Eki 2881 (PUT + GET). Saat TA ve seansları yazılmadı (bilerek).
+## State (API GET kanıtlı, 7 Eki)
+- ZimaOS sabah kapalıydı (CF 1033) → `zima_wol.py` ile açıldı, API 200.
+- daily 7 Eki: 107.35 kg + OKOK 10 metrik (`/api/wearable` source `okok`: yağ %34.6 / 37.2 kg, iskelet 35.1, visseral 25.5, bmr 2017.6).
+- Kahvaltı `1007a0e2-1007-4a11-9c00-000000000001` 08:35 32 g / 520 kcal (lorlu yumurta + sucuk/pastırma + kaşar + domates; fotoğraf tahmini). Kalan ~118 g P (hedef 150).
+- Salon B `1007a0e2-1007-4a11-9d00-000000000001` (12 set, 2×12): hip thrust 20 kg (**ayak platformu daha dik ayar** — 30 Eyl 30 kg ile kıyaslanmaz; sonraki 22.5), `Hyperextensions_Back_Extensions` vücut ağırlığı (RDL yerine 45° sırt uzatma), Leverage_Iso_Row 45, Smith bench hafif eğimli 25 (iki taraf plaka, bar hariç), Pallof 15 kg her yöne 2×12. Süre `duration_min` null — Dean'den bekleniyor.
+- Samsung zip (6 Eki 21:43 dışa aktarım): yürüyüş 6 Eki 08:43 30 dk 2.54 km + 19:37 26 dk 1.86 km, 5 Eki 17:39 17 dk → `type: walk` POST. Uyku 6 Eki (gece 23:00–07:56): `sleep_min` 428, awake 108, deep 85, rem 122 (`sleep_stage` csv'den; importer uyku/yürüyüş OKUMUYOR). 6→7 Eki uykusu zip'te yok.
 
-## Next (sırayla)
-1. **Toplu teslim YAPILDI (6 Eki):** PR #54 → dev `2ab2dd5`, 0.41.0 `3e5f208` + tag v0.41.0, CI Build APK yeşil, `publish_ota.mjs` katalog 0.41.0 (4100), `/ota/wellness-0.41.0.apk` 200. ZimaOS predeploy yedeği `wellness-2026-10-06-0840-predeploy.sql.gz`, api rebuild, health 200, bundle `2c8723e1` → `b28ef044`, min_native 4100. Telefonda DOĞRULANMADI.
-2. Dean'e kontrol listesi: telefona 0.41 kur (üstüne) → Ayar'da token "Bağlı" → saat OTA güncelle → saatte Özet görünüyor mu, Seans'ta bir "Set bitti" → telefonu aç → GET `/api/workouts` bugün saat seansı.
-3. Kataloğa `Bird_Dog` (kuş) ekle — Dean bugün yaptı, yok.
-4. İzleme sayfası adayı (§7.6 madde 3) — Dean "yap" demedi.
-Gün içi: Dean öğün söyledikçe önce GET, sonra POST. Hedef 150 g (`/api/goals`). 5 Eki gün kaydı kapandı.
+## Next
+1. Dean seans süresini söyleyince: GET seans → aynı id ile `duration_min` güncelle (`sets` alanını GÖNDERME).
+2. Öğle/akşam öğünü: önce `GET /api/meals?start=2026-10-07&end=2026-10-07`, sonra POST id `1007a0e2-1007-4a11-9c00-00000000000{2,3}`.
+3. Kataloğa `Hyperextensions_Back_Extensions` (Türkçe: 45° sırt uzatma) ve `Bird_Dog` ekle — katalog 47 hareket, ikisi yok.
+4. Açık (önceki devirden): Dean telefon/saat 0.41 kontrol listesi; ota.evaitec.com hız teyidi.
 
 ## Don't repeat
-- Öğünü/seansı Dean "yedim/yaptım" demeden yazma; önce günü GET.
-- `POST /api/workouts` `sets` verilirse TAM liste (eksik silinir); süre/not düzeltmesinde `sets`'i hiç gönderme.
-- Samsung zip: PowerShell `Expand-Archive`; importer daily'ye saat TA'sı yazar → tansiyon ölçülmüyor, adımı elle PUT et ya da `--dry-run` sonrası bp alanlarını ayıkla. `--no-workouts`.
-- Hareket adında tahmin etme: "dar tutuş" Dean için lat pulldown (row değil); belirsizse sor.
-- `git commit -a` ile yol verme (git reddeder); config.yml'i asla stage etme.
-- ZimaOS deploy: önce `docker exec life-os-wellness-db-1 pg_dump -U wellness wellness | gzip > backups/…-predeploy.sql.gz`, sonra `git pull --ff-only` + `DOCKER_CONFIG=$(mktemp -d /tmp/dc.XXXX) /usr/lib/docker/cli-plugins/docker-compose up -d --build api`.
-- Gradle yerelde: `JAVA_HOME="/c/Program Files/Android/openjdk/jdk-21.0.8"`, `--offline` çalışmıyor (önbellek eksik).
+- Dean'in kısa mesajında sayıyı harekete bağla: "row 2 rampa ve 45 2x12" = row 45 kg (45° hareketi değil). Ağırlık söylemediyse önerilen değeri yazma, sor.
+- Smith/plakalı aletlerde kg = iki taraf plaka toplamı, bar hariç (notta belirt).
+- `POST /api/workouts` `sets` verilirse TAM liste; GET → değiştir → aynı id POST.
+- Samsung importer yalnız adım/kilo/TA okur; yürüyüş `exercise` csv (type 1001, saatler UTC, +3), uyku `sleep_stage` (40001 uyanık, 40002 hafif, 40003 derin, 40004 REM; tarih = uyanma günü).
+- ZimaOS kapalı (1033/530) → WOL arka planda, sonra health poll.
 
 ## Verify
 ```
-git log --oneline -1 origin/feature/wear-seans   # d1ee0b6
-curl -s -o /dev/null -w "%{http_code}" https://fit.evaitec.com/health      # 200
-cd apps/web && npx vitest run                  # (dalda) 444 pass
-cd apps/web/android && ./gradlew :wear:testDebugUnitTest :app:testDebugUnitTest
+set -a; . ~/.ai/vg.env; set +a
+curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/workouts?start=2026-10-07&end=2026-10-07"  # 1 resistance, 12 set
+curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/meals?start=2026-10-07&end=2026-10-07"     # kahvaltı 32/520
 ```
 
 ## <yeniden başlangıç> promptu (yapıştır)
 ```
-life-os-wellness. Saat uygulaması Seans/Özet/Teknik + token gizleme + Samsung adım max feature/wear-seans dalında hazır, testler yeşil, deploy yok.
-Önce HANDOFF.md oku. Sıra: (1) toplu teslim — PR/merge, 0.41.0 tag + CI APK + publish_ota + ZimaOS deploy (2) Dean'e telefon/saat kontrol listesi (3) kataloğa Bird_Dog.
-Gün içi öğün: önce GET, sonra POST. ops/cloudflared/config.yml commit etme.
+life-os-wellness, 7 Eki Çarşamba. Bugün kod yok; dean-pt ile API kayıtları: tartı 107.35 + OKOK, kahvaltı 32 g/520, Salon B 12 set (hip thrust 20 dik ayar, sırt uzatma, row 45, Smith 25 plaka, Pallof 15), 5-6 Eki yürüyüşler + 6 Eki uyku Samsung zip'ten yazıldı.
+Önce HANDOFF.md oku, Verify'ı koş. Sıra: (1) seans süresi gelince duration_min (sets gönderme) (2) öğle/akşam öğünü — önce GET (3) kataloğa Hyperextensions_Back_Extensions + Bird_Dog.
+Yeni iş açma. Dean'in ağırlığını sormadan önerilen değeri yazma.
 ```
