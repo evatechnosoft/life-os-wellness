@@ -1,6 +1,6 @@
 # Handoff: 7 Eki Çarşamba koçluk — seans + ölçüm yazıldı
 
-> 2026-10-07 öğle · `dev` @ bu devir commit'i (öncesi `def1924`) · kod değişikliği yok, yalnız API kayıtları · untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/` (dokunma)
+> 2026-10-07 14:10 · `dev` @ bu devir commit'i (öncesi `def1924`) · kod değişikliği yok, yalnız API kayıtları · untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/` (dokunma)
 > Geçmiş: `.claude/handoffs/latest.md` (en yeni bölüm en altta)
 
 ## Goal
@@ -15,7 +15,7 @@ Dean'in günlük öğün/seans/ölçümünü sohbetten `fit.evaitec.com` API'sin
 
 ## Next
 1. Dean seans süresini söyleyince: GET seans → aynı id ile `duration_min` güncelle (`sets` alanını GÖNDERME).
-2. Öğle/akşam öğünü: önce `GET /api/meals?start=2026-10-07&end=2026-10-07`, sonra POST id `1007a0e2-1007-4a11-9c00-00000000000{2,3}`.
+2. Akşam öğünü: önce `GET /api/meals?start=2026-10-07&end=2026-10-07`, sonra POST id `1007a0e2-1007-4a11-9c00-000000000003`, `time` 19:00 (öğle yazıldı).
 3. Kataloğa `Hyperextensions_Back_Extensions` (Türkçe: 45° sırt uzatma) ve `Bird_Dog` ekle — katalog 47 hareket, ikisi yok.
 4. Açık (önceki devirden): Dean telefon/saat 0.41 kontrol listesi; ota.evaitec.com hız teyidi.
 
@@ -30,12 +30,12 @@ Dean'in günlük öğün/seans/ölçümünü sohbetten `fit.evaitec.com` API'sin
 ```
 set -a; . ~/.ai/vg.env; set +a
 curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/workouts?start=2026-10-07&end=2026-10-07"  # 1 resistance, 12 set
-curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/meals?start=2026-10-07&end=2026-10-07"     # kahvaltı 32/520
+curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/meals?start=2026-10-07&end=2026-10-07"     # kahvaltı 32/520 + öğle 58/770
 ```
 
 ## <yeniden başlangıç> promptu (yapıştır)
 ```
-life-os-wellness, 7 Eki Çarşamba. Bugün kod yok; dean-pt ile API kayıtları: tartı 107.35 + OKOK, kahvaltı 32 g/520, Salon B 12 set (hip thrust 20 dik ayar, sırt uzatma, row 45, Smith 25 plaka, Pallof 15), 5-6 Eki yürüyüşler + 6 Eki uyku Samsung zip'ten yazıldı.
-Önce HANDOFF.md oku, Verify'ı koş. Sıra: (1) seans süresi gelince duration_min (sets gönderme) (2) öğle/akşam öğünü — önce GET (3) kataloğa Hyperextensions_Back_Extensions + Bird_Dog.
+life-os-wellness, 7 Eki Çarşamba. Bugün kod yok; dean-pt ile API kayıtları: tartı 107.35 + OKOK, kahvaltı 32 g/520, öğle bonfile 58 g/770, Salon B 12 set (hip thrust 20 dik ayar, sırt uzatma, row 45, Smith 25 plaka, Pallof 15), 5-6 Eki yürüyüşler + 6 Eki uyku Samsung zip'ten yazıldı.
+Önce HANDOFF.md oku, Verify'ı koş. Sıra: (1) seans süresi gelince duration_min (sets gönderme) (2) akşam öğünü 19:00 — önce GET (3) kataloğa Hyperextensions_Back_Extensions + Bird_Dog.
 Yeni iş açma. Dean'in ağırlığını sormadan önerilen değeri yazma.
 ```
