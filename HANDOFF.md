@@ -34,7 +34,7 @@ curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/m
 
 ## <yeniden başlangıç> promptu (yapıştır)
 ```
-life-os-wellness, 7 Eki Çarşamba. Bugün kod yok; dean-pt ile API kayıtları: tartı 107.35 + OKOK, kahvaltı 32 g/520, öğle bonfile 58 g/770, Salon B 12 set (hip thrust 20 dik ayar, sırt uzatma, row 45, Smith 25 plaka, Pallof 15), 5-6 Eki yürüyüşler + 6 Eki uyku Samsung zip'ten yazıldı.
+life-os-wellness, 7 Eki Çarşamba. Bugün kod yok; dean-pt ile API kayıtları: tartı 107.35 + OKOK, kahvaltı 32 g/520, öğle bonfile 58 g/770, Salon B 12 set (hip thrust 20 dik ayar, çakı, row 45, Smith 25 plaka, Pallof 15), 5-6 Eki yürüyüşler + 6 Eki uyku Samsung zip'ten yazıldı.
 Önce HANDOFF.md oku, Verify'ı koş. Sıra: (2) akşam öğünü 19:00 — önce GET (3) kataloğa Jackknife_Sit-Up (çakı) + Bird_Dog.
 Yeni iş açma. Dean'in ağırlığını sormadan önerilen değeri yazma.
 ```
