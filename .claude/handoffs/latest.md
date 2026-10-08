@@ -418,3 +418,15 @@ Dean akşam yemeğini söyleyince önce GET, sonra POST (kalan ~80 g P: tavuk/ba
 **Bekleyen (Dean):** Nextcloud'da TOTP kur → sonra `occ twofactorauth:enforce --on`. CasaOS cloudflared tünel token'ı oturum çıktısına düştü → CF panelinden yenile. ZimaOS `eth0` 100 Mbps (kablo/port). Google Takeout (Fitbit VO2max/aktif dk) aktarıcısı yok — istenirse yazılacak.
 
 **Next — tek adım:** Dean'den telefon/saatte bir katalog güncellemesiyle ota.evaitec.com hızını teyit al (cihazda doğrulanmadı).
+
+## 8 Eki Perşembe — hız 1 kg/hafta (dean-pt, kod yok)
+
+**Goal:** Dean'in öğün/seans/ölçümünü sohbetten API'ye yazmak; kabul = uygulamada görünmesi. Tam paket: kök `HANDOFF.md` (`dev` push'lu).
+
+**State (API GET kanıtlı):** goals `kcal_week_max` 1700, `weekly_loss_pct` 0.9 (Dean onayı; kural + frenler `docs/PROGRAM-2026-09.md` "Hız artışı — 8 Eki", commit `78af5e7`; adım tabanı 8.500; değerlendirme 19 Eki). daily 8 Eki 106.6 kg + BIA/bulantı bitti/uyku notu; 7 Eki adım 5377. Öğünler 8 Eki: 42/700 + 82/780 + 60/560 (palamut) = **184 g / 2040**. 7-gün kilo ort 107.16 (en düşük). İnanılan (doğrulanmadı): telefonda görünüyor.
+
+**Decisions & why:** hız artışı yarı yemek (−300 kcal) yarı hareket (+250) — güç iyi, yağ kütlesi yüksek; frenler: ana 3 harekette tekrar 2 hafta düşerse / uyku skoru hafta <50 / halsizlik / bel 2 hafta sabit → 0.7'ye dön.
+
+**Don't repeat:** işlenmiş et ≤1/hafta (bu hafta aşıldı), "3. set ekle" deme (2 Eki şablonu 2×12, eksik yalnız RIR kaydı); `PUT /api/daily` notunda `·` Git Bash'te sessizce düşüyor → `|`.
+
+**Next — tek adım:** 9 Eki öğün/salon A kayıtları (önce GET; son sette RIR iste), sonra 8 Eki OKOK → `/api/wearable` source `okok`.
