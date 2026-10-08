@@ -10,12 +10,11 @@ Dean'in günlük öğün/seans/ölçümünü sohbetten `fit.evaitec.com` API'sin
 - **Hedef değişti (Dean onayı):** `/api/goals` → `weekly_loss_pct` 0.9 (≈0.96 kg/hafta), `kcal_week_max` 1700. Kural + fren listesi: `docs/PROGRAM-2026-09.md` § "Hız artışı — 8 Eki" (commit `78af5e7`). Adım tabanı 8.500. İlk değerlendirme **19 Eki Pazar**.
 - daily 8 Eki: 106.6 kg; notes = BIA (yağ 36.7 kg, iskelet 35.0) + "bulantı bitti, 19:00 sonrası yemek yok, yalnız çay" + 7→8 Eki uyku parçalı ~5 sa (skor 19–36). OKOK `/api/wearable` source `okok` **yazılmadı** (7 Eki'de yazılmıştı).
 - daily 7 Eki: adım 5377 (Samsung zip 8 Eki 09:17'den).
-- Öğün 8 Eki: kahvaltı `1008a0e2-1008-4a11-9c00-000000000001` 08:19 42 g/700 (sucuklu yumurta) · öğle `…000000000002` 12:58 82 g/780 (tavuk ~180 g, kıymalı mercimek, ıspanak, yoğurt). Toplam 124 g / 1480.
-- Akşam planı (yazılmadı — önce ye sonra kaydet): palamut fırın 3–4 halka + salata (yağ ≤1 tk), su.
+- Öğün 8 Eki: kahvaltı `1008a0e2-1008-4a11-9c00-000000000001` 08:19 42 g/700 (sucuklu yumurta) · öğle `…000000000002` 12:58 82 g/780 (tavuk ~180 g, kıymalı mercimek, ıspanak, yoğurt). akşam `…000000000003` 16:43 60 g/560 (palamut 5 halka + salata). Gün toplamı **184 g / 2040**.
 - 7-gün kilo ort 2–8 Eki **107.16** (en düşük); son hafta −0.4 kg.
 
 ## Next
-1. Akşam öğünü: Dean bildirince `GET /api/meals?start=2026-10-08&end=2026-10-08`, sonra POST id `1008a0e2-1008-4a11-9c00-000000000003`, `time` = giriş saati. Palamut ince 4 halka ≈ 45 g/420 + salata ~80.
+1. 9 Eki öğünleri: her kayıttan önce günü GET et; id deseni `1009a0e2-1009-4a11-9c00-00000000000N`. Hedef gün ~1.700 kcal, protein 150.
 2. Cuma 9 Eki salon A: şablon 2×12 RIR 1–2 (3. set yalnız 2. set 15'i geçince) — **son sette RIR kaydı iste** (fren kuralı buna bağlı).
 3. 8 Eki OKOK metriklerini `/api/wearable` source `okok`'a yaz (7 Eki örneğini GET edip kopyala).
 4. Açık (7 Eki devrinden, doğrulanmadı): kataloğa `Jackknife_Sit-Up` (çakı) + `Bird_Dog`.
@@ -31,12 +30,12 @@ Dean'in günlük öğün/seans/ölçümünü sohbetten `fit.evaitec.com` API'sin
 ```
 set -a; . ~/.ai/vg.env; set +a
 curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/goals"   # kcal_week_max 1700, weekly_loss_pct 0.9
-curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/meals?start=2026-10-08&end=2026-10-08"   # 42/700 + 82/780
+curl -s -H "Authorization: Bearer $WELLNESS_API_TOKEN" "$WELLNESS_API_BASE/api/meals?start=2026-10-08&end=2026-10-08"   # 42/700 + 82/780 + 60/560
 ```
 
 ## <yeniden başlangıç> promptu (yapıştır)
 ```
-life-os-wellness, 8 Eki Perşembe. Kod yok; dean-pt ile API kayıtları. Dean hızı ~1 kg/hafta'ya çıkardı: goals kcal_week_max 1700, weekly_loss_pct 0.9, adım tabanı 8.500, fren kuralları PROGRAM-2026-09.md "Hız artışı — 8 Eki"; değerlendirme 19 Eki. Bugün tartı 106.6 (7-gün ort 107.16), kahvaltı 42/700 + öğle 82/780 yazıldı; akşam palamut + salata henüz yazılmadı.
-Önce HANDOFF.md oku, Verify'ı koş. Sıra: (1) akşam öğünü — önce GET (2) Cuma salon A, son sette RIR iste (3) 8 Eki OKOK wearable.
+life-os-wellness, 8 Eki Perşembe. Kod yok; dean-pt ile API kayıtları. Dean hızı ~1 kg/hafta'ya çıkardı: goals kcal_week_max 1700, weekly_loss_pct 0.9, adım tabanı 8.500, fren kuralları PROGRAM-2026-09.md "Hız artışı — 8 Eki"; değerlendirme 19 Eki. Bugün tartı 106.6 (7-gün ort 107.16), üç öğün yazıldı, gün 184 g / 2040 kcal.
+Önce HANDOFF.md oku, Verify'ı koş. Sıra: (1) 9 Eki öğünleri — önce GET (2) Cuma salon A, son sette RIR iste (3) 8 Eki OKOK wearable.
 Yeni iş açma. İşlenmiş et bu hafta doldu.
 ```
