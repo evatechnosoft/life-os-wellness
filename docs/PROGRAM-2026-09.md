@@ -226,3 +226,21 @@ Günlük adım **hedef değil, taban: 6.000** (7-gün ort). Kış geliyor; 9.000
 (bacak itiş, bacak çekiş/kalça, göğüs, sırt yatay, sırt dikey, omuz, kol/core dönüşümlü),
 14 set/seans, ~45 dk. Kas başı haftada 6 ana + 2–4 dolaylı set. 3. set yalnız ikinci set
 15'i geçince eklenir. Sal/Per yüzme ya da yürüyüş değişmez.
+
+## Hız artışı — 8 Eki (Dean)
+Hedef 0.6 → **~1 kg/hafta** (`weekly_loss_pct` 0.9 → 107 kg'da 0.96 kg). Gerekçe: 7-gün ort 107.7 → 107.2,
+−0.4 kg/hafta; bel 117 → 116; BIA 4→8 Eki yağ 37.0 → 36.7 kg, iskelet kas 35.0 sabit; güç artıyor.
+Tahmini harcama ~2.450 kcal (ort. ~2.000 alım ile −0.4 kg/hafta). Ek ~550 kcal açık yarı yemekten, yarı hareketten:
+
+- **Haftalık kalori sınırı 1900 → 1700** (`goals.kcal_week_max`, 7-gün ort).
+  Kahvaltı ~450 kcal (tek peynir, yağ 1 tk, protein 35–40 g); öğle tahıl yarım kase, boşluk salata/baklagil;
+  yağ öğün başı 1 yk; cumartesi serbest **öğün**, gün değil. İşlenmiş et ≤1/hafta (§3) aynen.
+- **Adım tabanı 6.000 → 8.500** (7-gün ort; 30 Eyl standardı bununla değişti). Öğle + akşam sonrası 15'er dk.
+- Değişmez: protein 150 g taban, antrenman şablonu (2 Eki: 2×12, RIR 1–2, 3. set yalnız 2. set 15'i geçince) —
+  açık büyüdüğünde kası koruyan kaldıraç bu; son sette RIR kaydı zorunlu.
+- Murphy & Koehler 2022 (>500 kcal açık yağsız kütleyi siler) zayıf/antrenmanlı örneklemde; yüksek yağ
+  kütlesinde (36.7 kg) daha büyük açık tolere edilir — yine de aşağıdaki frenler bağlayıcı.
+
+**Fren (biri olursa → 0.7'ye dön):** leg press / lat pulldown / göğüs press toplam tekrar 2 hafta üst üste düşer ·
+uyku skoru bir hafta <50 · baş dönmesi / salonda halsizlik / sürekli açlık · bel 2 hafta inmez (önce kayıt doğruluğu).
+İlk değerlendirme **19 Eki Pazar**: 7-gün ort + bel + BIA yönü.
