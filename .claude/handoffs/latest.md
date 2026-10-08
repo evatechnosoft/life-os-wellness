@@ -423,7 +423,7 @@ Dean akşam yemeğini söyleyince önce GET, sonra POST (kalan ~80 g P: tavuk/ba
 
 **Goal:** Dean'in öğün/seans/ölçümünü sohbetten API'ye yazmak; kabul = uygulamada görünmesi. Tam paket: kök `HANDOFF.md` (`dev` push'lu).
 
-**State (API GET kanıtlı):** goals `kcal_week_max` 1700, `weekly_loss_pct` 0.9 (Dean onayı; kural + frenler `docs/PROGRAM-2026-09.md` "Hız artışı — 8 Eki", commit `78af5e7`; adım tabanı 8.500; değerlendirme 19 Eki). daily 8 Eki 106.6 kg + BIA/bulantı bitti/uyku notu; 7 Eki adım 5377. Öğünler 8 Eki: 42/700 + 82/780 + 60/560 (palamut) = **184 g / 2040**. 7-gün kilo ort 107.16 (en düşük). İnanılan (doğrulanmadı): telefonda görünüyor.
+**State (API GET kanıtlı):** goals `kcal_week_max` 1700, `weekly_loss_pct` 0.9 (Dean onayı; kural + frenler `docs/PROGRAM-2026-09.md` "Hız artışı — 8 Eki", commit `78af5e7`; adım tabanı 8.500; değerlendirme 19 Eki). daily 8 Eki 106.6 kg + BIA/bulantı bitti/uyku notu; 7 Eki adım 5377. Öğünler 8 Eki: 42/700 + 82/780 + 45/430 (palamut, düzeltildi) = **169 g / 1910**. 7-gün kilo ort 107.16 (en düşük). İnanılan (doğrulanmadı): telefonda görünüyor.
 
 **Decisions & why:** hız artışı yarı yemek (−300 kcal) yarı hareket (+250) — güç iyi, yağ kütlesi yüksek; frenler: ana 3 harekette tekrar 2 hafta düşerse / uyku skoru hafta <50 / halsizlik / bel 2 hafta sabit → 0.7'ye dön.
 
