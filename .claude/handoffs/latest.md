@@ -430,3 +430,21 @@ Dean akşam yemeğini söyleyince önce GET, sonra POST (kalan ~80 g P: tavuk/ba
 **Don't repeat:** işlenmiş et ≤1/hafta (bu hafta aşıldı), "3. set ekle" deme (2 Eki şablonu 2×12, eksik yalnız RIR kaydı); `PUT /api/daily` notunda `·` Git Bash'te sessizce düşüyor → `|`.
 
 **Next — tek adım:** 9 Eki öğün/salon A kayıtları (önce GET; son sette RIR iste), sonra 8 Eki OKOK → `/api/wearable` source `okok`.
+
+## 9 Eki Cuma öğle — öğün kaydı (dean-pt, kod yok)
+
+**State (API GET kanıtlı):** 9 Eki öğünler: kahvaltı `1009a0e2-1009-4a11-9c00-000000000001` 38/490 · öğle `…0002` 51/770 (11:41; airfryer yağsız: hamburger köftesi 2 adet 220 g çiğ ağırlık varsayımı, cheddar 2 ince dilim, patates ~100 g, sos ~25 g — Dean'in düzeltmeleriyle 1350→950→770). Gün şimdilik **89 g P / 1260 kcal**.
+
+**Don't repeat:** fotoğraftan "kaşar/kızartma" varsayma — Dean airfryer yağsız pişiriyor; porsiyonu (gram) sor, sosları abartma.
+
+**Yan iş (finance projesi, bu repoya ait değil):** Kablonet taahhüt yenileme formu (KKK20260322, 24 ay, 200/20 + Temel TV + Gümüş Sinema + Bulut 25 GB, cihazsız = 529 TL) Playwright Chromium'da (CDP :9555, profil `~/.pw-profiles/kisisel`) dolduruldu; **onay kutusu Dean'de**, gönderildiği DOĞRULANMADI. Fiber teklifi hâlâ yok.
+
+**Next — tek adım:** Dean akşam yemeğini (19:00) atınca önce `GET /api/meals?start=2026-10-09&end=2026-10-09`, sonra POST `…0003`; 9 Eki seans/adım varsa ekle. Ardından 8 Eki OKOK → `/api/wearable` source `okok`.
+
+## <yeniden başlangıç> promptu (yapıştır)
+
+```
+life-os-wellness (dal dev) — dean-pt günlük kayıt modu, kod işi yok. 9 Eki: kahvaltı 38/490 + öğle 51/770 API'de (gün 89 g P / 1260 kcal). Önce .claude/handoffs/latest.md'nin EN ALT bölümünü oku, `GET /api/meals?start=2026-10-09&end=2026-10-09` ile doğrula (token ~/.ai/vg.env).
+Sıra: (1) Dean'in akşam yemeği → POST id 1009a0e2-1009-4a11-9c00-000000000003, time 19:00 (2) 9 Eki seans/adım varsa ekle (3) 8 Eki OKOK → /api/wearable source okok.
+Kablonet formu finance projesine ait; Dean onaylayacak, dokunma. Yeni iş açma.
+```
