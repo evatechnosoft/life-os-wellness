@@ -486,7 +486,7 @@ Forum özeti (alt ajan, kaynaklar scratchpad `forum/`): e-posta ~1 ay cevap, dö
 
 ## 10 Eki akşam — öğün + Kablonet GPON fiyatları (dean-pt, kod yok)
 
-**Öğün (GET kanıtlı):** akşam `1010a0e2-1010-4a11-9c00-000000000003` 19:00 54/690 (Dean düzeltti: kemikli tavuk pirzola 2 + göğüs ~130 g et, patates ~13 çubuk ~70 g, kıymalı yeşil mercimek ~200 g, havuç tarator ~50 g). 10 Eki toplam **95 g / 1030**. Öğle kaydı yok (yenmediyse sorun değil, sorulmadı).
+**Öğün (GET kanıtlı):** akşam `1010a0e2-1010-4a11-9c00-000000000003` 19:00 54/690 (Dean düzeltti: kemikli tavuk pirzola 2 + göğüs ~130 g et, patates ~13 çubuk ~70 g, kıymalı yeşil mercimek ~200 g, havuç tarator ~50 g). Öğle `…0002` 13:00 (saat varsayım) 45/565 (fırın tavuk but 1 ~150 g et, patates ~150 g, tarator ~50 g). Dean "kaydı vardı" dedi; API'de ve önceki oturumlarda iz yok — telefonda outbox'ta takılıysa çift kayıt olur, kontrol et. 10 Eki toplam **140 g / 1595**.
 
 **Kablonet (finance yan işi):** Gmail'de Türksat'a giden tek mail 7 Eki GPON talebi; 3 taslak hâlâ gönderilmedi. Portal formu (1900) gönderilmedi.
 Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 tarifesi tüm 18 kampanyada HTML yorumuyla GİZLİ → satışta yok. Mevcut müşteri 4'ü Bir Arada 24 ay (1901) cihazlı: 200 629/729, 500 679/779, 1000 729/829 (cihazsız −100 → 1000 Mbps 629/729). Portal Dean'e yalnız ≤200 gösteriyor (hat DOCSIS, `sebekeTuruId=1`). Yeni müşteriye 4'ü Bir Arada yok; GPON Hepsi Bir Arada 24 ay 1000/100 999/1099 → yeni abonelik ~370–470 TL/ay pahalı + aynı soyad engeli riski (doğrulanmadı).
