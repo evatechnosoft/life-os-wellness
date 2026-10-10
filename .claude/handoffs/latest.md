@@ -3,6 +3,23 @@
 > 2026-09-30 son güncelleme · dal `dev` temiz (`c4e1c06`), untracked yalnız `.claude/plan-backup-2026-09-29.json` + `.claude/worktrees/` · en yeni bölümler EN ALTTA (29 Eyl akşam → 30 Eyl)
 > Sıra: (1) BUG bildirim senkron (aşağıda) → (2) Dean'in 30 Eyl seans/öğün rakamları API'ye → (3) `feature/protokol` (PLAN-PROTOKOL.md) → (4) `feature/wear-ux` ayrı ajan
 
+## ⚠ 9 Eki oturumu = EV saha arızası (wellness işi DEĞİL, bu repoda kod değişmedi)
+- **EV'ye devam için asıl devir: `C:\projects\ev\evaisys\.claude\handoffs\latest.md` (commit `6c067ee`, 20 commit push YOK).** Aşağısı tarihçe.
+- Asıl kayıt: `C:\projects\ev\evaisys\docs\dogrudan-baglama-2026-10.md` §0a/§0b, son commit `0d04a0e` (dal `feature/modular-vehicle-node`, 7 commit push YOK). EV devri: `C:\projects\ev\evaisys\.claude\handoffs\latest.md` (bu oturumda güncellenmedi).
+- **Doğrulanan (Dean ölçümü):** UMEV 60–72→12 V 30 A izolasyonsuz DC-DC sağlam (giriş 490 kΩ, çıkış MΩ); 12 V tesisatta kısa devre yok. Konvertör girişi kontak soketinin **sarı** telinden geliyor (kırmızı = sabit +79 V); kırmızı↔sarı köprülenince konvertör 13 V verdi. Kablolu start/stop düğmesi JC-818 rölesini tıklatıyor. Hepsi dokümanda.
+- **Kontrolcü = Fardriver ND72450** (yerel kılavuz `C:/projects/ev/_archive/EvAiCaRDaSH/docs/inputs/fardriver-controllers-main/MANUAL.md` §5.2.3–5.2.4). Etiketler Lens'le teyitli: 高刹 yüksek fren ← el freni mavi-beyaz (+13 V frende); 低刹 düşük fren boş kalır (12 V verme); 倒车 geri ← geri vites anahtarı sarı (yeşil=GND, kılavuz "RE GND=geri"). Vites modu 0 ise ileri için FW de GND ister. Dokümanda.
+- XT 25-03 potted modül = arka kamera besleme filtresi (tahmin). Dokümanda.
+- Not: python heredoc'ta `\f` form-feed bozdu → yol `sed` ile düzeltildi; Windows yolunu python string'ine ham yazma.
+- **Açık:** kumandanın uzaktan çalıştırması çalışmıyor. Dean'e soruldu: kilitle/aç tuşları çalışıyor mu? (çalışıyorsa tanıtma gerekmez → kilitle+3 sn basılı sırası, c3-key telleri kumandada lehimli mi, pil). Tanıtma prosedürü (kart "learn" butonu → 10 sn içinde kilit tuşu) genel, JC-818 için belge bulunamadı.
+- Uyarı verildi: test köprüsü takılı kalırsa paket boşalır, sökülmeli.
+- **Yeni (Dean):** kumanda kilitle/aç ÇALIŞIYOR → eşleşme sağlam, tanıtma gerekmez. Vites N'de gaz verince araç gidiyor; vites anahtarında sarı-beyaz + mavi-beyaz tel (D/R tahmini). Öneri verildi: Ω ile D/N/R'de teller → D teli FW (前进), R teli 倒车, Fardriver vites modu 0. Dokümanda, commit `f184742` (8 commit push YOK, Dean'e soruldu).
+- ev/sides taraması: bu aracın vites tesisatı dosyası yok (sides = spor kulübü). İşe yarar: Fardriver MANUAL.md, `evamania/docs/votol-em150/02-pin-haritasi.md`.
+- **Sonra (9 Eki akşam):** yeni `docs/kablo-haritasi-2026-10.md` (güç zinciri, Fardriver 30 pin renkleri + araç karşılığı, vites/S, kulakçık+boost, S = kulakçık kilidi Dean kararı, fren/rejenerasyon, XH çift görev → ölçümle tek hat gösterge teyitli, ESP bağlantı güvenliği). Son commit `docs: XH tek hat...` (≈13 commit push YOK). Artifact (özel): https://claude.ai/artifact/NDZSR5uaPP9g4rzx8sUk5v — kaynak `scratchpad/ev2-kablo/index.html` (sürüm 3; XH ölçümü ve ESP notu sayfada henüz YOK).
+- **Açık riskler:** el freni mavi-beyaz (+13 V) Fardriver SDL (3,3 V) rengiyle aynı → 25. pin süreklilik ölçülmeli. Vites anahtarı sarı-beyaz/mavi-beyaz = SDH/SDL renkleri → D/R değil S anahtarı olabilir.
+- **Sonra eklenen (sayfa v7, kaynak repoda `docs/kablo-haritasi-2026-10.html`, son commit `0bcf289`, ~18 commit push YOK):** Ayarlar sekmesi (EN ad + bizim değer), yokuş kalkış (Incline braking + HDC 3), ayak freni → BL (GND tipi), iki kademeli rejenerasyon (Follow=Throttle brake dene; Brake current 5 A gaz bırakma, Max 7–8 A fren — hangi akımın hangisine gittiği DOĞRULANMADI).
+- Dean: araç tarafı renkler farklı, ön tarafta da sarı-beyaz var → **yarın sahada bakılacak.**
+- **Yarın kontrol listesi:** (1) ayak freni teli kontrolcü 20. pin (sarı-yeşil) mi 24. pin (sarı-beyaz, SDH) mi — uygulamada pedala basınca fren mi kademe mi; (2) ön taraftaki sarı-beyaz nereye gidiyor; (3) el freni mavi-beyaz ↔ pin 25 süreklilik; (4) vites D/N/R Ω; (5) kumanda kilitle/aç köprüsüz (M5); (6) push onayı. Sonuçlar → `docs/kablo-haritasi-2026-10.md` + `.html` + artifact republish (aynı scratchpad yolu yoksa `url` ile).
+
 ## Goal
 1. (açık) Yapılan her şey **telefondaki uygulamada** görünsün; sonra salon verisi uygulamaya girsin (uzaktan kabuk `server.url`, salon S1 — başlanmadı).
 2. (açık) Uygulamayı "gerçekçi" yap: tartı (OKOK BIA) verisini doğru kullan, protein hedefini obez vücuda göre düzelt.
@@ -441,10 +458,43 @@ Dean akşam yemeğini söyleyince önce GET, sonra POST (kalan ~80 g P: tavuk/ba
 
 **Next — tek adım:** Dean akşam yemeğini (19:00) atınca önce `GET /api/meals?start=2026-10-09&end=2026-10-09`, sonra POST `…0003`; 9 Eki seans/adım varsa ekle. Ardından 8 Eki OKOK → `/api/wearable` source `okok`.
 
+## 10 Eki Cumartesi sabah — kayıtlar + Kablonet tekrar (dean-pt, kod yok)
+
+**State (API GET kanıtlı):**
+- 10 Eki kahvaltı `1010a0e2-1010-4a11-9c00-000000000001` 17/220 (2 haşlanmış yumurta, beyaz peynir ~25 g, zeytin, "turuncu top" cinsi SORULDU, cevap yok). daily 10 Eki 106.6 kg + BIA notu + "saat pili bitti, 9–10 Eki uyku kaydı eksik".
+- Whey geriye dönük: 6–9 Eki her güne 11:00 24 g/120 kcal (id `10{06..09}a0e2-10{06..09}-4a11-9c00-0000000000e1`; saat/sıvı varsayım). Dean: her gün whey içiyor → bundan sonra her gün sor/yaz.
+- 9 Eki akşam `1009a0e2-…0003` 19:00 92/590 (tavuk ~200 g + palamut 3 halka ~130 g; arkadaki yoğurtlu havuç DAHİL DEĞİL, sorulu). 9 Eki toplam 205 g / 1970.
+- Samsung zip (10 Eki 09:32): adım 6 Eki 9515, 8 Eki 7806, 9 Eki 7369; TA 9 Eki 129/79. 7-gün adım ort (3–9 Eki) 7290. Samsung'da son kilo 8 Eki.
+
+**Decisions:** OKOK 3 gün aynı 106.6 / BIA birebir — Dean: saatsiz tartıldı, gerçek, ortalamada kalsın (9 ve 10 Eki tutuldu). Akşam yemeği hafif/yok; protein öğle + whey'e yüklenir (sabah "akşama yükle" dendi, yanlıştı, düzeltildi).
+
+**Kablonet (finance yan işi):** site 10 Eki taraması: mevcut müşteri en ucuz yine 4'ü Bir Arada 24 ay (kampanya 1901, son başvuru 04.02.2027) → cihazsız 200/20 = 529 TL (ilk yıl), 100 Mbps = 479. Kişisel Chromium CDP :9555 açıldı, online.turksatkablo.com.tr giriş sayfasında. **Bekleyen:** Dean e-Devlet girişi + 200/20 mi 100 mü. Sonra KampanyaTeklif formu (alanlar: internet `drpTarife$45621`, TV Temel, Gümüş Sinema ZORUNLU, ek paketler "Hizmeti İstemiyor"); `#chkOnay` Dean işaretler. 9 Eki notundaki "dolduruldu" gönderildiği anlamına gelmiyor; başvuru kaydı yok. Taahhüt ~21.10 bitiyor. Yardımcı: scratchpad `cdp.py` (goto/text/links/click).
+
+**Kablonet güncel (10 Eki öğle, portal girişli, CDP :9555):** mevcut 4'ü Bir Arada 24 ay 475 TL, 100/20, son ödeme 20.10, "taahhüde 11 gün". Portal 8 kampanya, max 200/20, GPON yok. Cihazsız 200/20: **24 ay 529 (2. yıl 629)** kampanya 1901, **12 ay 579** kampanya 1900 (alan id'leri 1900'de 4560x, 1901'de 4562x). Pencerede şu an 1900 (12 ay) formu dolu, `chkOnay` boş, GÖNDERİLMEDİ. GPON maili 7 Eki 23:36 gönderildi (Gmail SENT), cevap yok.
+Forum özeti (alt ajan, kaynaklar scratchpad `forum/`): e-posta ~1 ay cevap, dönüşüm ~1,5 ay; bölge müdürlüğü + toplu (yönetim) başvuru etkili; arayıp ısrar/şikâyetle 200 Mbps daha ucuz alan var (rakam yok); GPON dönüşümü taahhüdü bozmaz (forum beyanı, doğrulanmadı); aynı soyadla yeni abonelik yasak; Vodafone toptan 200 Mbps 799 TL.
+**Öneri Dean'e verildi (karar bekliyor):** formu gönderme → 20.10 öncesi 0850 ara (GPON + <529 iste) + bölge müdürlüğü/yönetim toplu talep + 7 Eki mailine hatırlatma; teklif çıkmazsa 20.10'da 24 ay 529. Takip maili/bölge müdürlüğü/yönetici metinlerini taslak yazmayı teklif ettim (gönderme Dean'de).
+
+**Gmail taslakları (gönderilmedi):** Türksat hatırlatma (7 Eki thread'ine cevap) `r3801462267616432153`; il müdürlüğü dilekçesi (alıcısız, elden; adres Ritim İstanbul AVM Cevizli doğrulanmadı) `r7460499633501596665`; yönetici/WhatsApp metni `r9021524486228788516`.
+
+**Öğün güncel (GET):** 10 Eki kahvaltı (turuncu top = yeşil zeytin) 17/220 + whey 12:36 `1010a0e2-1010-4a11-9c00-0000000000e1` 24/120 → 41 g / 340. 9 Eki akşam `…0003` 127/855 (tavuk ~300 g = kase×1.5 Dean, palamut, havuç tarator ~100 g) → 9 Eki **240 g / 2235**.
+**Yeni kural (hafıza `foto-tabak-yenen-pay`):** fotoğraftaki tabak = Dean'in yediği pay; arkadaki servis kabından 1 porsiyon say, pay sorma.
+
+**Pazarlık araştırması (alt ajan, döküm scratchpad `forum/dh_3380_3424.md`, `eksi_kablonet12.md`):** 13 vakadan 3'ünde iyileşme; iptal birimiyle indirim alan güncel vaka YOK; "20 yıllık abone"/rakip/kopma argümanı fiyat düşürmemiş; telefon teklifleri online'dan pahalı (100 Mbps 539/639, 649) → online 24 ay 529 zaten iyi. Riskler: iptal → 45/90 gün kampanya yasağı + yüksek cayma; taahhüt boşluğunda liste fiyatı; Eyl–Eki sistem arızası vakaları. Doğru numara 0850 804 44 44 / 126 (0850 802 44 44 doğrulanmadı; taslaklar düzeltildi).
+**Öneri Dean'e:** bir kez senaryo ile ara (GPON talep no + ≤500 iste), <529 yoksa en geç **17 Eki** online 24 ay 529 gönder.
+
+**Açık:** Dean'in arama sonucu / form gönderimi; bugünün öğle/akşamı.
+
+## 10 Eki akşam — öğün + Kablonet GPON fiyatları (dean-pt, kod yok)
+
+**Öğün (GET kanıtlı):** akşam `1010a0e2-1010-4a11-9c00-000000000003` 19:00 85/970 (fırın tavuk 2 baget + göğüs ~220 g et, fırın patates ~120 g, kıymalı yeşil mercimek 1 pors ~200 g, havuç tarator 1 pors ~100 g; fotoğraftan). 10 Eki toplam **126 g / 1310**. Öğle kaydı yok (yenmediyse sorun değil, sorulmadı).
+
+**Kablonet (finance yan işi):** Gmail'de Türksat'a giden tek mail 7 Eki GPON talebi; 3 taslak hâlâ gönderilmedi. Portal formu (1900) gönderilmedi.
+Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 tarifesi tüm 18 kampanyada HTML yorumuyla GİZLİ → satışta yok. Mevcut müşteri 4'ü Bir Arada 24 ay (1901) cihazlı: 200 629/729, 500 679/779, 1000 729/829 (cihazsız −100 → 1000 Mbps 629/729). Portal Dean'e yalnız ≤200 gösteriyor (hat DOCSIS, `sebekeTuruId=1`). Yeni müşteriye 4'ü Bir Arada yok; GPON Hepsi Bir Arada 24 ay 1000/100 999/1099 → yeni abonelik ~370–470 TL/ay pahalı + aynı soyad engeli riski (doğrulanmadı).
+**Öneri Dean'e:** ara, mevcut hattı GPON'a çevir + 1901 içinde 1000 Mbps iste; yetişmezse 20.10 öncesi 200/529 al, GPON gelince yükselt.
+
 ## <yeniden başlangıç> promptu (yapıştır)
 
 ```
-life-os-wellness (dal dev) — dean-pt günlük kayıt modu, kod işi yok. 9 Eki: kahvaltı 38/490 + öğle 51/770 API'de (gün 89 g P / 1260 kcal). Önce .claude/handoffs/latest.md'nin EN ALT bölümünü oku, `GET /api/meals?start=2026-10-09&end=2026-10-09` ile doğrula (token ~/.ai/vg.env).
-Sıra: (1) Dean'in akşam yemeği → POST id 1009a0e2-1009-4a11-9c00-000000000003, time 19:00 (2) 9 Eki seans/adım varsa ekle (3) 8 Eki OKOK → /api/wearable source okok.
-Kablonet formu finance projesine ait; Dean onaylayacak, dokunma. Yeni iş açma.
+life-os-wellness (dal dev) — dean-pt günlük kayıt modu, kod işi yok. Önce .claude/handoffs/latest.md'nin EN ALT bölümünü (10 Eki) oku, `GET /api/meals?start=2026-10-10&end=2026-10-10` ile doğrula (token ~/.ai/vg.env).
+Sıra: (1) 11 Eki öğünler + whey (önce GET) (2) Kablonet: Dean'in arama sonucu (GPON dönüşümü / 1000 Mbps 1901) — form gönderimi Dean'de, onay kutusuna dokunma.
 ```
