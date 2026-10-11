@@ -509,7 +509,9 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 - Bu telefonda yalnız `watchmanagerstub` → saat bu telefona eşli DEĞİL (inanç). Mi Box 192.168.1.105:5555 mdns'te görünüyor, telefon değil.
 - Öğün 11 Eki (GET): 08:30 menemen 22/420 (`…000000000000`, 3 yumurta+sucuk/kaşar varsayım) · 10:00 whey 24/120 (`…0000000000e1`) · 11:29 mantar-havuç + salata + süzme 16/310 (`…000000000001`). Toplam 62 g / 850.
 
-**Next — tek adım:** Dean'in cevabı: saat hangi telefona eşli? O telefonda aynı kurulum (pair → install 0.42 → token push → appops → başlat → HC izinleri Dean) → `source=health_connect` GET. Saat S24'e eşliyse yalnız HC izinleri + pull-to-refresh. Menemen içeriği teyidi bekleniyor.
+**12:00 sonrası:** Dean token txt'yi istedi (SendUserFile ile verildi), saatli telefona kendisi koyup evaitecOTA'dan 0.42 kurdu. Sunucu logu (25 dk): o telefondan `/ota/wellness-0.42.0.apk` 1× + `wellness-wear-0.42.0.apk` 2× indi, ama HİÇ `/api` isteği yok (401 de yok) → uygulama token bulamadı (izin verilmedi ya da dosya adı/yolu yanlış — doğrulanmadı). `health_connect` satırı hâlâ yok.
+
+**Next — tek adım:** Dean'in Ayarlar > Veri ve sunucu durumu: "Bağlı" mı / boş + "dosya erişimi ver" düğmesi mi? Yol `Dahili depolama/evaitec/wellness-token.txt` (adında `(1)` / `.txt.txt` olmamalı); son çare token'ı alana bir kez yapıştırmak (uygulama dosyaya yazar). Sonra `ssh zima 'docker logs --since 10m life-os-wellness-api-1 | grep /api/'` + `source=health_connect` GET. Menemen içeriği teyidi hâlâ bekleniyor.
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
