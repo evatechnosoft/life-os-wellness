@@ -129,3 +129,21 @@ export function segmentMusclesOf(types: number[]): string[] {
 export function isAnswered(existing: Pick<Workout, 'needs_review'> | undefined): boolean {
   return existing !== undefined && existing.needs_review !== true
 }
+
+/** Saatin "yuruyus"/tanimsiz dedigi bu sureden uzun seans, direnc gununde salondur (Dean, 11 Eki). */
+const LIFT_DAY_MIN_MINUTES = 30
+
+/**
+ * Dean direnc gunlerinde (plan `lift`: Pzt/Car/Cum) salonda saati "yuruyus" ya da
+ * OTHER olarak kaydediyor. O gunlerde 30 dk'yi asan yuruyus/tanimsiz seans salondur.
+ * Yuzme ve bisiklet tipi kalir: salon sonrasi sogutma, ayri seans.
+ */
+export function watchSessionType(
+  known: { type: WorkoutType } | null,
+  minutes: number,
+  liftDay: boolean,
+): WorkoutType {
+  const base = known?.type ?? 'cardio'
+  const ambiguous = known === null || known.type === 'walk'
+  return liftDay && ambiguous && minutes > LIFT_DAY_MIN_MINUTES ? 'resistance' : base
+}
