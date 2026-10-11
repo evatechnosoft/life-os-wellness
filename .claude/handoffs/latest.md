@@ -511,7 +511,16 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 
 **12:00 sonrası:** Dean token txt'yi istedi (SendUserFile ile verildi), saatli telefona kendisi koyup evaitecOTA'dan 0.42 kurdu. Sunucu logu (25 dk): o telefondan `/ota/wellness-0.42.0.apk` 1× + `wellness-wear-0.42.0.apk` 2× indi, ama HİÇ `/api` isteği yok (401 de yok) → uygulama token bulamadı (izin verilmedi ya da dosya adı/yolu yanlış — doğrulanmadı). `health_connect` satırı hâlâ yok.
 
-**Next — tek adım:** Dean'in Ayarlar > Veri ve sunucu durumu: "Bağlı" mı / boş + "dosya erişimi ver" düğmesi mi? Yol `Dahili depolama/evaitec/wellness-token.txt` (adında `(1)` / `.txt.txt` olmamalı); son çare token'ı alana bir kez yapıştırmak (uygulama dosyaya yazar). Sonra `ssh zima 'docker logs --since 10m life-os-wellness-api-1 | grep /api/'` + `source=health_connect` GET. Menemen içeriği teyidi hâlâ bekleniyor.
+**15:30 — saat senkronu KÖK NEDEN çözüldü (kanıtlı):**
+- Saat Fold 8'e (SM-F971B, R5GL80T4FBZ, 192.168.1.111, laptopla eşli; `adb mdns services` → `_adb-tls-connect` portu) bağlı. Wellness 0.42, token dosyası + dosya izni OK.
+- Fold'da Wellness'ın 11 HC READ izni kapalıydı → `pm grant` ile açıldı.
+- Asıl hata: capacitor-health Android `checkHealthPermissions` dizi değil NESNE döndürüyor; `healthStatus` `.some` → TypeError → `syncHealth` catch'te yutuyor → hep 0. CDP (WebView devtools, `adb forward tcp:9333 localabstract:webview_devtools_remote_<pid>`, scratchpad `cdp.mjs`) ile kanıtlandı. PR #56 (`e0f46ff`) `healthPermissions.ts anyGranted` + test, web 447/447. ZimaOS bundle `c16a4539` (min_native 4200, APK gerekmez).
+- Sonuç: API'de `health_connect` 47 satır (5–11 Eki: adım, total_kcal, resting_hr, uyku, kilo). Saat seansı yalnız 1 geldi (5 Eki yürüyüş 14 dk) — HC'de 7 günde 17 seans var; neden az geldiği DOĞRULANMADI (dismissed/isAnswered ya da outbox).
+- 22 Eyl öncesi `health_connect` satırları büyük olasılıkla `ops/import_health.mjs`'ten (uygulama senkronu muhtemelen hiç çalışmadı) — doğrulanmadı. `HealthSyncWorker` (native 8 sa) de satır üretmemiş — incelenmedi.
+
+**Açık:** evaitecOTA (appkit) düzeltmesi onay bekliyor: gönderimi foreground service'e taşı (kapansa sürsün) + ADB `Ulasilamadi` → Data Layer'a otomatik düş. Good Lock'ta Dean'in kapattığı modül adı bilinmiyor.
+
+**Next — tek adım:** 17 HC seansından neden 1'i API'ye düştü (CDP ile `db.workout` + outbox bak); sonra zip'ten elle girilen seanslarla kopya temizliği (7 Eki yüzme `ef3f1e2e…`).
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
