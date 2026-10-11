@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { detectedExercise, isAnswered, segmentMuscles, segmentMusclesOf } from './watchExercise'
+import { detectedExercise, isAnswered, segmentMuscles, segmentMusclesOf, watchSessionType } from './watchExercise'
 
 describe('detectedExercise', () => {
   it('kuvvet antrenmanini direnc kovasina koyar', () => {
@@ -84,5 +84,22 @@ describe('isAnswered', () => {
     expect(isAnswered({ needs_review: false })).toBe(true)
     // needs_review alani olmayan eski kayit da kullanicinindir
     expect(isAnswered({})).toBe(true)
+  })
+})
+
+describe('watchSessionType', () => {
+  const walk = { type: 'walk' as const }
+  const swim = { type: 'cardio' as const }
+
+  it('long walk or unknown session on a lift day is the gym', () => {
+    expect(watchSessionType(walk, 38, true)).toBe('resistance')
+    expect(watchSessionType(null, 36, true)).toBe('resistance')
+  })
+
+  it('keeps the watch type otherwise', () => {
+    expect(watchSessionType(walk, 30, true)).toBe('walk')
+    expect(watchSessionType(walk, 79, false)).toBe('walk')
+    expect(watchSessionType(swim, 45, true)).toBe('cardio')
+    expect(watchSessionType(null, 20, false)).toBe('cardio')
   })
 })

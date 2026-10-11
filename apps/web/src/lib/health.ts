@@ -7,7 +7,8 @@ import { db, wearableId, type Workout } from './db'
 import type { WearableRecord } from './db'
 import { activityIntervals, planHrWindows } from './activity'
 import { anyGranted } from './healthPermissions'
-import { detectedExercise, isAnswered, segmentMusclesOf } from './watchExercise'
+import { detectedExercise, isAnswered, segmentMusclesOf, watchSessionType } from './watchExercise'
+import type { WorkoutPlan } from './workoutPlan'
 import { dismissedWorkouts, hasServer, saveDaily, upsertWorkout } from './store'
 
 export const SOURCE = 'health_connect'
@@ -270,6 +271,7 @@ export async function syncHealth(days = 7): Promise<number> {
   // repeated sync updates the same row instead of duplicating the session.
   // Cihaz tipi biliyorsa (yuzme, kosu...) soru sorulmaz, kayit onaya dusurulur.
   const sessions: { from: number; to: number }[] = []
+  const plan = ((await db.settings.get('workout_plan'))?.value as WorkoutPlan | undefined) ?? {}
   try {
     const res = await Health.queryWorkouts({ startDate, endDate, includeHeartRate: false, includeRoute: false, includeSteps: false })
     for (const w of res.workouts) {
@@ -281,16 +283,24 @@ export async function syncHealth(days = 7): Promise<number> {
       const existing = await db.workout.get(id)
       if (isAnswered(existing)) continue // onaylanmis: set/agirlik/tip kullanicinin
       const known = detectedExercise(w.workoutType ?? '')
+      const date = toLocalDate(start)
+      const type = watchSessionType(known, minutes, plan[start.getDay()]?.day_type === 'lift')
+      // Salon sohbetten/elle zaten girildiyse saatin kopyasi ikinci seans olurdu.
+      if (type === 'resistance') {
+        const sameDay = await db.workout.where('date').equals(date).toArray()
+        if (sameDay.some((x) => x.type === 'resistance' && !(x.notes ?? '').startsWith('saat:'))) continue
+      }
       // Saat seansi segmentlediyse tekrar sayisi ve kas grubu bedava gelir. Ikisi de
       // kullanicinin girdigini **ezmez**: dolu olan kalir (AGENTS "manuel giris kalici").
       const seg = segmentsByStart.get(start.getTime())
       const segMuscles = seg ? segmentMusclesOf(seg.types) : []
       const entry: Workout = {
         id,
-        date: toLocalDate(start),
+        date,
         // Tanimadigimiz tip icin uydurulmuyor: kova kardiyoya dusuruluyor ama
-        // kayit needs_review kaliyor, dogru tipi kullanici secer.
-        type: known?.type ?? 'cardio',
+        // kayit needs_review kaliyor, dogru tipi kullanici secer. Direnc gunundeki
+        // uzun yuruyus/tanimsiz seans salondur (watchSessionType).
+        type,
         duration_min: minutes > 0 ? minutes : null,
         sets_total: null,
         muscle_groups: existing?.muscle_groups?.length ? existing.muscle_groups : segMuscles,
