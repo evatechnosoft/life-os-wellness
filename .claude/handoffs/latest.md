@@ -520,7 +520,11 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 
 **Açık:** evaitecOTA (appkit) düzeltmesi onay bekliyor: gönderimi foreground service'e taşı (kapansa sürsün) + ADB `Ulasilamadi` → Data Layer'a otomatik düş. Good Lock'ta Dean'in kapattığı modül adı bilinmiyor.
 
-**Next — tek adım:** 17 HC seansından neden 1'i API'ye düştü (CDP ile `db.workout` + outbox bak); sonra zip'ten elle girilen seanslarla kopya temizliği (7 Eki yüzme `ef3f1e2e…`).
+**16:00 sonrası (kanıtlı):** 17 seans aslında geldi (önceki GET outbox boşalmadan). Kopya temizliği (Dean "yap bitir"): yedek scratchpad `workouts-backup-1005-1007.json`; DELETE 204: 1005a0e2…0002 (yüzme sohbet), 1005b0e2…0013, 1006b0e2…0011/0012 (zip yürüyüş), ef3f1e2e (zip yüzme), 24cb5fd6 + cb751db6 (saat OTHER = salon kopyası). Saat kayıtları kaldı (6 Eki yürüyüş 79/63 dk saat süresi).
+- PR #57 (`6d3c001`): `watchSessionType` — plan lift gününde >30 dk yürüyüş/tanımsız = resistance; aynı gün elle salon varsa saat seansı yazılmaz. Web 449/449, bundle `4aa1a381`. Hafıza `salon-gunu-uzun-seans`.
+- evaitecOTA: appkit dal `fix/saate-gonder-arka-plan` `5613481` (ota-mobile 0.1.23: foreground service + ADB ulaşılamazsa Data Layer). Fold'a adb ile kuruldu (Success, 0.1.23). Yayın YOK, cihazda denenmedi.
+
+**Next — tek adım:** Fold'da Wellness iki kez açılınca yeni bundle (`4aa1a381`) yüklensin; eski bundle önce senkron yaparsa 24cb5fd6/cb751db6 geri gelir → `GET /api/workouts?start=2026-10-05&end=2026-10-07` ile kontrol, varsa yeniden DELETE. Sonra Dean evaitecOTA 0.1.23 denemesi → olursa release (ota-mobile-v0.1.23 + evaglass-releases + apps.json).
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
