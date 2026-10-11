@@ -16,6 +16,7 @@ import { saveReminderSettings, useReminderSettings } from '../lib/reminders'
 import { saveGoals, useGoals } from '../lib/settings'
 import { saveSplit, saveSplitNote, useSplit, useSplitNotes, WEEKDAYS } from '../lib/split'
 import { syncOutbox } from '../lib/store'
+import { requestTokenFileAccess, restoreToken, saveTokenFile } from '../lib/tokenFile'
 import {
   appVersion,
   autoCheckPhoneUpdate,
@@ -428,6 +429,18 @@ export function Settings() {
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0
   const [token, setLocalToken] = useState(getToken())
   const [editingToken, setEditingToken] = useState(getToken() === '')
+  const [tokenFileAccess, setTokenFileAccess] = useState(true)
+  // Izin ekranindan donunce (focus) dosya yeniden okunur; bos token oradan dolar.
+  useEffect(() => {
+    const check = () =>
+      void restoreToken().then((access) => {
+        setTokenFileAccess(access)
+        if (getToken()) { setLocalToken(getToken()); setEditingToken(false) }
+      })
+    check()
+    window.addEventListener('focus', check)
+    return () => window.removeEventListener('focus', check)
+  }, [])
   const [status, setStatus] = useState('')
 
   const exportJson = async () => {
@@ -580,7 +593,7 @@ export function Settings() {
               value={token}
               autoFocus={token !== ''}
               onChange={(e) => setLocalToken(e.target.value)}
-              onBlur={() => { setToken(token); setEditingToken(token === ''); void scheduleBackgroundSync() }}
+              onBlur={() => { setToken(token); setEditingToken(token === ''); void saveTokenFile(token); void scheduleBackgroundSync() }}
               placeholder=".env icindeki API_TOKEN"
               className="mt-2 min-h-11 w-full rounded-field bg-glass-inset px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-a1"
             />
@@ -595,6 +608,15 @@ export function Settings() {
                 Değiştir
               </button>
             </div>
+          )}
+          {isNative() && !tokenFileAccess && (
+            <button
+              type="button"
+              onClick={() => void requestTokenFileAccess()}
+              className="mt-2 min-h-11 w-full rounded-field bg-glass-strong px-3 py-2 text-xs text-ink-dim"
+            >
+              Token kaldır-kur'da kalsın: dosya erişimi ver
+            </button>
           )}
           <div className="mt-3 flex items-center justify-between text-xs text-ink-faint">
             <span>{pending === 0 ? 'kuyruk boş' : `${pending} kayıt gönderilmeyi bekliyor`}</span>

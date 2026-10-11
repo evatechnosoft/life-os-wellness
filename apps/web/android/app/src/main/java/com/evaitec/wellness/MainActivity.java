@@ -19,6 +19,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(LocalLlmPlugin.class);
         // Canli web paketi: ekranlar APK'siz fit.evaitec.com/bundle/'dan guncellenir.
         registerPlugin(WebBundlePlugin.class);
+        // API token'in kaldir-kur'dan kurtulan kopyasi (/sdcard/evaitec).
+        registerPlugin(TokenFilePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }
