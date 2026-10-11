@@ -492,6 +492,20 @@ Forum özeti (alt ajan, kaynaklar scratchpad `forum/`): e-posta ~1 ay cevap, dö
 Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 tarifesi tüm 18 kampanyada HTML yorumuyla GİZLİ → satışta yok. Mevcut müşteri 4'ü Bir Arada 24 ay (1901) cihazlı: 200 629/729, 500 679/779, 1000 729/829 (cihazsız −100 → 1000 Mbps 629/729). Portal Dean'e yalnız ≤200 gösteriyor (hat DOCSIS, `sebekeTuruId=1`). Yeni müşteriye 4'ü Bir Arada yok; GPON Hepsi Bir Arada 24 ay 1000/100 999/1099 → yeni abonelik ~370–470 TL/ay pahalı + aynı soyad engeli riski (doğrulanmadı).
 **Öneri Dean'e:** ara, mevcut hattı GPON'a çevir + 1901 içinde 1000 Mbps iste; yetişmezse 20.10 öncesi 200/529 al, GPON gelince yükselt.
 
+## 11 Eki sabah — Samsung zip + token dosyası (0.42.0 canlı)
+
+**Samsung zip (11 Eki 07:49)** `--from 2026-10-07 --no-workouts` işlendi: daily 10 Eki adım 7847, 11 Eki kilo 107.0 + adım 134 (GET kanıtlı). 7 Eki yüzme 9 dk elle POST (id `ef3f1e2e-39f3-40bd-85c3-8d83164d160d`, needs_review); salon kopyası yazılmadı (sohbetten girilmiş vardı). 7-gün kilo 5–11 Eki 106.86 (n=6). Uyku yalnız rapor: 10→11 Eki 23:43–06:59 436 dk skor 66.
+- Git Bash POST gövdesinde `ü` → 400; ASCII ile 201.
+
+**Teşhis:** `health_connect` kaynağı API'ye son 22 Eyl 20:16Z yazdı. Saat Dean'in DİĞER telefonuna eşli → HC verisi orada; APK bu telefonda yok. Dean: token her kaldır-kur'da siliniyor, "dosyaya yaz, oradan okusun".
+
+**Yapıldı (kanıtlı):** PR #55 (`4e1e4af`) `TokenFilePlugin.kt` + `lib/tokenFile.ts`: token `/sdcard/evaitec/wellness-token.txt`; açılışta boş token dosyadan dolar (`main.tsx` restoreToken), Ayarlar'da girilince dosyaya yazılır, izin yoksa "dosya erişimi ver" düğmesi. İzin = MANAGE_EXTERNAL_STORAGE (LocalLlm ile aynı; temiz kurulumda sıfırlanır). Web 444/444, typecheck temiz; api.test.ts 2 hata dev'de de var (DB). 0.42.0 `dbe949a` tag, CI Build APK success (run 38120443691), `publish_ota` katalog 0.42.0 (4200) — "release not found" uyarısı (incelenmedi), `/ota/wellness-0.42.0.apk` 206. ZimaOS: git pull + `sudo -n env DOCKER_CONFIG=/DATA/.docker docker compose up -d --build api`, health 200, bundle `c180a840` min_native 4200.
+- ZimaOS `ops/cloudflared/config.yml` git'e işlenmemiş canlı edit (crm/ota/eva/teach hostları) — pull çakıştı, sunucudaki sürüm geri kondu (5 hostname). **Commit edilmeli**, yoksa her pull çakışır.
+- Telefonda HİÇBİR ŞEY doğrulanmadı.
+
+**Next — tek adım:** Dean kablosuz hata ayıklama eşleştirme `IP:port` + 6 haneli kod + bağlantı `IP:port` verince:
+`adb pair <ip:port> <kod>` → `adb connect <ip:port>` → `adb install -r` 0.42.0 APK (`/ota/wellness-0.42.0.apk` indir) → `adb shell mkdir -p /sdcard/evaitec` + `adb push <token> /sdcard/evaitec/wellness-token.txt` (token `~/.ai/vg.env` WELLNESS_API_TOKEN; sohbete düz yazma) → `adb shell appops set --uid com.evaitec.wellness MANAGE_EXTERNAL_STORAGE allow` → uygulamayı başlat, HC izinleri Dean verir → API'de `source=health_connect` yeni satır GET. Sonra zip'ten girilen seansların saat kopyalarını temizle.
+
 ## <yeniden başlangıç> promptu (yapıştır)
 
 ```
