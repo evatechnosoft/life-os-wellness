@@ -6,6 +6,7 @@ import { lastDates, toLocalDate } from './date'
 import { db, wearableId, type Workout } from './db'
 import type { WearableRecord } from './db'
 import { activityIntervals, planHrWindows } from './activity'
+import { anyGranted } from './healthPermissions'
 import { detectedExercise, isAnswered, segmentMusclesOf } from './watchExercise'
 import { dismissedWorkouts, hasServer, saveDaily, upsertWorkout } from './store'
 
@@ -165,7 +166,7 @@ export async function healthStatus(): Promise<HealthStatus> {
   const { available } = await Health.isHealthAvailable()
   if (!available) return { supported: true, available: false, granted: false }
   const res = await Health.checkHealthPermissions({ permissions: PERMISSIONS })
-  const granted = res.permissions.some((entry) => Object.values(entry).some(Boolean))
+  const granted = anyGranted(res.permissions)
   return { supported: true, available: true, granted }
 }
 
@@ -175,7 +176,7 @@ export async function requestHealthPermissions(): Promise<boolean> {
   // Kan oksijeni ve HRV ayri bir onay ekrani: capacitor-health bu ikisini isteyemiyor.
   // Reddedilmesi digerlerini gecersiz kilmaz, o yuzden sonucu yutuyoruz.
   await requestExtraPermissions()
-  return res.permissions.some((entry) => Object.values(entry).some(Boolean))
+  return anyGranted(res.permissions)
 }
 
 export function openHealthConnect(): Promise<void> {
