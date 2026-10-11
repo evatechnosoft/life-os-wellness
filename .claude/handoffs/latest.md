@@ -503,8 +503,13 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 - ZimaOS `ops/cloudflared/config.yml` git'e işlenmemiş canlı edit (crm/ota/eva/teach hostları) — pull çakıştı, sunucudaki sürüm geri kondu (5 hostname). **Commit edilmeli**, yoksa her pull çakışır.
 - Telefonda HİÇBİR ŞEY doğrulanmadı.
 
-**Next — tek adım:** Dean kablosuz hata ayıklama eşleştirme `IP:port` + 6 haneli kod + bağlantı `IP:port` verince:
-`adb pair <ip:port> <kod>` → `adb connect <ip:port>` → `adb install -r` 0.42.0 APK (`/ota/wellness-0.42.0.apk` indir) → `adb shell mkdir -p /sdcard/evaitec` + `adb push <token> /sdcard/evaitec/wellness-token.txt` (token `~/.ai/vg.env` WELLNESS_API_TOKEN; sohbete düz yazma) → `adb shell appops set --uid com.evaitec.wellness MANAGE_EXTERNAL_STORAGE allow` → uygulamayı başlat, HC izinleri Dean verir → API'de `source=health_connect` yeni satır GET. Sonra zip'ten girilen seansların saat kopyalarını temizle.
+**11:30 sonrası (kanıtlı):**
+- ADB: S24 Ultra (SM-S928B, Android 16) `adb pair 192.168.1.187:<pairport>` ile eşlendi, bağlantı `192.168.1.187:41867` (port her açılışta değişir; `adb mdns services` ile bul). Git Bash'te `/sdcard` yolu için `MSYS_NO_PATHCONV=1` şart.
+- 0.42.0 `install -r` Success (0.41 üstüne), token dosyası push (32 B), `appops ... MANAGE_EXTERNAL_STORAGE allow`. Açılışta 30 gün GET'leri 200, 401 yok → token çalışıyor. `POST /api/wearable` 200 ama `health_connect` satırı YOK.
+- Bu telefonda yalnız `watchmanagerstub` → saat bu telefona eşli DEĞİL (inanç). Mi Box 192.168.1.105:5555 mdns'te görünüyor, telefon değil.
+- Öğün 11 Eki (GET): 08:30 menemen 22/420 (`…000000000000`, 3 yumurta+sucuk/kaşar varsayım) · 10:00 whey 24/120 (`…0000000000e1`) · 11:29 mantar-havuç + salata + süzme 16/310 (`…000000000001`). Toplam 62 g / 850.
+
+**Next — tek adım:** Dean'in cevabı: saat hangi telefona eşli? O telefonda aynı kurulum (pair → install 0.42 → token push → appops → başlat → HC izinleri Dean) → `source=health_connect` GET. Saat S24'e eşliyse yalnız HC izinleri + pull-to-refresh. Menemen içeriği teyidi bekleniyor.
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
