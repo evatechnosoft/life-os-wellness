@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { setToken } from './lib/api'
 import { loadCatalog } from './lib/catalog'
+import { restoreToken } from './lib/tokenFile'
 import './index.css'
 
 // The launcher hands the phone a ?token=... link so the token never has to be typed in.
@@ -20,7 +21,8 @@ if (!root) throw new Error('#root is missing from index.html')
 
 // Katalog once yerine otursun: ekran acildiktan sonra degisirse listeler eski kalir.
 // Basarisizlik acilisi durdurmaz - `loadCatalog` zaten gomulu kopyaya duser.
-void loadCatalog().finally(() => {
+// Token da ilk istekten once: kaldir-kur sonrasi kalici dosyadan geri gelir.
+void Promise.allSettled([loadCatalog(), restoreToken()]).finally(() => {
   createRoot(root).render(
     <StrictMode>
       <App />
