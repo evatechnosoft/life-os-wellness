@@ -4,13 +4,18 @@ import OpenAI from 'openai'
  * Everything model-shaped goes through the home AI gateway (ZimaOS yz-litellm, netmovies
  * repo infra/yz), never straight to a vendor. The gateway owns the provider keys; this app
  * holds only its own virtual key, an OpenAI-compatible base URL and a model name:
- *   gemini-flash   conversation, vision, web search (falls back to gemini -> yerel)
+ *   claude         conversation + vision (default); claude-fable selectable per request
+ *   gemini-flash   web search: LiteLLM returns Gemini grounding sources, Anthropic's
+ *                  web_search citations do not come through (12 Eki live check)
  */
 export interface LlmConfig {
   baseUrl: string
   apiKey: string
   chatModel: string
+  /** Aliases the phone may pick from; always starts with chatModel. */
+  chatModels: string[]
   visionModel: string
+  searchModel: string
 }
 
 export type Llm = { client: OpenAI; config: LlmConfig }
@@ -19,12 +24,15 @@ export type Llm = { client: OpenAI; config: LlmConfig }
 export function createLlm(env: NodeJS.ProcessEnv = process.env): Llm | null {
   const baseUrl = env.LLM_BASE_URL
   if (!baseUrl) return null
+  const chatModel = env.LLM_CHAT_MODEL ?? 'claude'
   const config: LlmConfig = {
     baseUrl,
     // This app's virtual key on the gateway.
     apiKey: env.LLM_API_KEY ?? '',
-    chatModel: env.LLM_CHAT_MODEL ?? 'gemini-flash',
-    visionModel: env.LLM_VISION_MODEL ?? env.LLM_CHAT_MODEL ?? 'gemini-flash',
+    chatModel,
+    chatModels: [...new Set([chatModel, ...(env.LLM_CHAT_MODELS ?? '').split(',').map((m) => m.trim()).filter(Boolean)])],
+    visionModel: env.LLM_VISION_MODEL ?? chatModel,
+    searchModel: env.LLM_SEARCH_MODEL ?? chatModel,
   }
   return {
     // maxRetries: 0 - 429'un sebebi dakikalik saglayici kotasi; SDK'nin otomatik

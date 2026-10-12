@@ -303,6 +303,16 @@ async function remember(entry: Omit<ChatMessage, 'id' | 'date' | 'at'>): Promise
   return message
 }
 
+/** Which gateway alias the phone asks for; empty = server default. Per device, not synced. */
+export const MODEL_KEY = 'eva.model'
+export function chosenModel(): string {
+  try {
+    return localStorage.getItem(MODEL_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
 /** Sends a turn and stores both sides. Returns the assistant's message. */
 export async function ask(
   text: string,
@@ -350,6 +360,8 @@ ${LOCAL_NOTE} ${r.text}` })
 
   const body: Record<string, unknown> = { messages: history, context }
   if (opts.image) body.image = await toBase64(opts.image)
+  const model = chosenModel()
+  if (model) body.model = model
 
   try {
     // Ulasilamayan LAN adresi TCP zaman asimina kadar asar; offline cevap o kadar beklemesin.
