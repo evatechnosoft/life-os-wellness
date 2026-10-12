@@ -4,7 +4,7 @@ import { lastDates, toLocalDate } from '../lib/date'
 import { db } from '../lib/db'
 import { volumeTips } from '../lib/coach'
 import { tipText } from '../lib/coachText'
-import { adherencePct, dayAverage, kcalDayAverage, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
+import { adherencePct, dayAverage, kcalDayAverage, sleepSummary, movingAverage, setsByMuscle, streak, weightDelta } from '../lib/metrics'
 import { useGoals } from '../lib/settings'
 import { useSplit } from '../lib/split'
 import { BodyReport } from './Body'
@@ -78,6 +78,7 @@ export function Week({ onPickDay }: { onPickDay?: (date: string) => void } = {})
   const vegAvg = movingAverage(logs.map((l) => l.veg_servings))
   const highHunger = meals.filter((m) => (m.hunger ?? 0) >= 8).length
   const restingHr = dayAverage(wearable, 'resting_hr')
+  const sleep = sleepSummary(wearable)
   const kcal = dayAverage(wearable, 'total_kcal')
 
   return (
@@ -126,6 +127,18 @@ export function Week({ onPickDay }: { onPickDay?: (date: string) => void } = {})
           </p>
         )}
       </section>
+
+      {sleep && (
+        <section className="glass-card mt-2 p-3">
+          <h2 className="text-[10px] uppercase tracking-wide text-ink-faint">Uyku · son 7 gece</h2>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className={`text-lg font-bold tabular-nums ${sleep.avgHours < 6.5 ? 'text-a3' : ''}`}>{nf1.format(sleep.avgHours)} sa</span>
+            <span className={`text-[11px] tabular-nums ${sleep.shortNights > 0 ? 'text-a3' : 'text-ink-faint'}`}>
+              {sleep.shortNights}/{sleep.nights} gece 6 saatin altında
+            </span>
+          </div>
+        </section>
+      )}
 
       <div className="mt-2 grid grid-cols-2 gap-2">
         <div className="glass-card p-3">

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import type { DailyLog, Meal, WearableRecord, Workout } from './db'
-import { adherencePct, dayAverage, estimateKcal, foodMemory, frequentPortions, kcalDayAverage, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
+import { adherencePct, dayAverage, sleepSummary, estimateKcal, foodMemory, frequentPortions, kcalDayAverage, movingAverage, setsByMuscle, streak, weightDelta } from './metrics'
 
 const log = (date: string, fields: Partial<DailyLog> = {}): DailyLog =>
   ({ date, updated_at: '', ...fields })
@@ -181,5 +181,24 @@ describe('kcalDayAverage', () => {
   test('hic kcal yoksa null', () => {
     expect(kcalDayAverage([])).toBeNull()
     expect(kcalDayAverage([meal('2026-10-01', null)])).toBeNull()
+  })
+})
+
+describe('sleepSummary', () => {
+  const rec = (date: string, value: number, source = 'health_connect'): WearableRecord =>
+    ({ id: `${date}:${source}`, date, metric: 'sleep_min', value, source, synced_at: '' })
+
+  test('averages nights in hours and counts nights under 6 h', () => {
+    const r = sleepSummary([rec('2026-10-08', 304), rec('2026-10-09', 293), rec('2026-10-11', 436), rec('2026-10-12', 450)])
+    expect(r).toEqual({ avgHours: 6.2, shortNights: 2, nights: 4 })
+  })
+
+  test('takes one value per night when two sources report it', () => {
+    const r = sleepSummary([rec('2026-10-12', 450), rec('2026-10-12', 300, 'samsung')])
+    expect(r).toEqual({ avgHours: 7.5, shortNights: 0, nights: 1 })
+  })
+
+  test('returns null without sleep data', () => {
+    expect(sleepSummary([{ ...rec('2026-10-12', 5000), metric: 'steps' }])).toBeNull()
   })
 })

@@ -17,6 +17,25 @@ export function dayAverage(records: WearableRecord[], metric: string): number | 
   return Math.round(values.reduce((sum, v) => sum + v, 0) / values.length)
 }
 
+/** Nights shorter than this count as short (PLAN-GERCEKCI K1). */
+const SHORT_NIGHT_MIN = 360
+
+/**
+ * Weekly sleep line: mean hours per night and how many nights were under 6 h.
+ * One value per night - when two sources report the same date the longer one
+ * wins (a partial source never adds to the other).
+ */
+export function sleepSummary(records: WearableRecord[]): { avgHours: number; shortNights: number; nights: number } | null {
+  const byDate = new Map<string, number>()
+  for (const r of records) {
+    if (r.metric === 'sleep_min' && r.value > 0) byDate.set(r.date, Math.max(byDate.get(r.date) ?? 0, r.value))
+  }
+  const nights = [...byDate.values()]
+  if (nights.length === 0) return null
+  const avg = nights.reduce((sum, v) => sum + v, 0) / nights.length / 60
+  return { avgHours: Math.round(avg * 10) / 10, shortNights: nights.filter((v) => v < SHORT_NIGHT_MIN).length, nights: nights.length }
+}
+
 /**
  * MET degerleri (Compendium of Physical Activities): direnc antrenmani 5.0,
  * kardiyo 7.0, yuruyus 3.5. Kaldirilan agirlik MET'i degistirmez - yuk artinca
