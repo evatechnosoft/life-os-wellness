@@ -55,8 +55,11 @@ services:
       # burada yalniz bu uygulamanin sanal anahtari. Gecit yoksa Eva telefonda bulut/Nano'ya duser.
       LLM_BASE_URL: ${LLM_BASE_URL:-http://yz.evaitec.com:4000/v1}
       LLM_API_KEY: ${LLM_API_KEY:?YZ gecidinin wellness sanal anahtari}
-      LLM_CHAT_MODEL: gemini-flash
-      LLM_VISION_MODEL: gemini-flash
+      LLM_CHAT_MODEL: ${LLM_CHAT_MODEL:-claude}
+      LLM_CHAT_MODELS: ${LLM_CHAT_MODELS:-claude,claude-fable}
+      LLM_VISION_MODEL: ${LLM_VISION_MODEL:-claude}
+      # Tarif aramasi: Gemini grounding kaynaklari gelir, Anthropic web_search'unki gelmiyor.
+      LLM_SEARCH_MODEL: ${LLM_SEARCH_MODEL:-gemini-flash}
       OTA_DIR: /app/ota
       # Egzersiz katalogu: repodaki dosya dogrudan servis edilir (APK'siz guncelleme).
       EXERCISES_FILE: /app/data/exercises.json

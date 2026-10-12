@@ -1,10 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
 
-import { acceptDraft, ask, chatLog } from '../lib/chat'
+import { api } from '../lib/api'
+import { acceptDraft, ask, chatLog, chosenModel, MODEL_KEY } from '../lib/chat'
 import type { ChatMessage } from '../lib/db'
 import { isNative } from '../lib/health'
 import { capturePhoto } from '../lib/meals'
+import { hasServer } from '../lib/store'
 import { draftLines, listenOnce, stopListening, voiceAvailable, type NoteDraft } from '../lib/voice'
 import { toLocalDate } from '../lib/date'
 import { Avatar } from './Avatar'
@@ -22,7 +24,25 @@ export function Eva({ compact = false }: { compact?: boolean }) {
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
   const [canSpeak, setCanSpeak] = useState(false)
+  const [models, setModels] = useState<string[]>([])
+  const [model, setModel] = useState(chosenModel)
   const bottom = useRef<HTMLDivElement>(null)
+
+  // Model secimi yalniz tam ekranda ve sunucu varken; tek alias varsa secici gorunmez.
+  useEffect(() => {
+    if (compact || !hasServer()) return
+    api<{ models: string[] }>('/api/chat/models').then((r) => setModels(r.models)).catch(() => setModels([]))
+  }, [compact])
+
+  const pickModel = (value: string) => {
+    setModel(value)
+    try {
+      if (value) localStorage.setItem(MODEL_KEY, value)
+      else localStorage.removeItem(MODEL_KEY)
+    } catch {
+      // depolama kapali: secim bu oturum icin gecerli kalir
+    }
+  }
 
   useEffect(() => {
     void voiceAvailable().then(setCanSpeak).catch(() => setCanSpeak(false))
@@ -200,6 +220,17 @@ export function Eva({ compact = false }: { compact?: boolean }) {
           </button>
         )}
       </div>
+      {models.length > 1 && (
+        <label className="mt-2 flex items-center gap-2 self-end text-xs text-muted">
+          Model
+          <select value={model} onChange={(e) => pickModel(e.target.value)} className="rounded-pill bg-glass px-2 py-1 text-xs">
+            <option value="">varsayılan ({models[0]})</option>
+            {models.slice(1).map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
+        </label>
+      )}
     </div>
   )
 }

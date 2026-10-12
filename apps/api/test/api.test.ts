@@ -6,7 +6,7 @@ import { after, before, describe, test } from 'node:test'
 
 import { parseEstimate } from '../src/estimate.ts'
 import { splitReply, SYSTEM } from '../src/chat.ts'
-import { collectSources, groundingSources } from '../src/llm.ts'
+import { collectSources, createLlm, groundingSources } from '../src/llm.ts'
 import { wantsRecipes } from '../src/chat.ts'
 import { buildServer } from '../src/server.ts'
 
@@ -357,6 +357,11 @@ describe('api', { skip: databaseUrl ? false : 'DATABASE_URL not set' }, () => {
       payload: { messages: [{ role: 'user', content: 'bugun 82 kilo' }] },
     })
     assert.equal(res.statusCode, 503)
+  })
+
+  test('chat models: proxy yokken liste bos, varsayilan null', async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/chat/models', headers: auth })
+    assert.deepEqual(res.json(), { models: [], default: null })
   })
 
   test('chat rejects an empty message list', async () => {
@@ -779,5 +784,29 @@ describe('plan araclari', () => {
     const tatli = await app.inject({ method: 'GET', url: '/plan/tatli' })
     assert.equal(tatli.statusCode, 200)
     assert.match(tatli.body, /Shake ve Dondurma/)
+  })
+})
+
+describe('createLlm', () => {
+  test('model listesi: varsayilan basta, tekrarlar atilir, arama/gorsel ayri', () => {
+    const llm = createLlm({ LLM_BASE_URL: 'http://x', LLM_API_KEY: 'k', LLM_CHAT_MODEL: 'claude', LLM_CHAT_MODELS: 'claude-fable, claude', LLM_SEARCH_MODEL: 'gemini-flash' })
+    assert.deepEqual(llm?.config.chatModels, ['claude', 'claude-fable'])
+    assert.equal(llm?.config.visionModel, 'claude')
+    assert.equal(llm?.config.searchModel, 'gemini-flash')
+  })
+
+  test('LLM_CHAT_MODELS yoksa yalniz varsayilan secilebilir', () => {
+    assert.deepEqual(createLlm({ LLM_BASE_URL: 'http://x', LLM_API_KEY: 'k' })?.config.chatModels, ['claude'])
+  })
+
+  test('bilinmeyen model 400, ust akima gidilmez', async () => {
+    const llm = createLlm({ LLM_BASE_URL: 'http://127.0.0.1:9', LLM_API_KEY: 'k', LLM_CHAT_MODELS: 'claude-fable' })
+    const { app } = buildServer({ databaseUrl: databaseUrl ?? 'postgres://x', apiToken: TOKEN, llm })
+    const res = await app.inject({
+      method: 'POST', url: '/api/chat', headers: auth,
+      payload: { messages: [{ role: 'user', content: 'selam' }], model: 'gpt' },
+    })
+    assert.equal(res.statusCode, 400)
+    await app.close()
   })
 })
