@@ -538,11 +538,21 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 
 **Don't repeat:** `ssh dean@192.168.1.186` → Permission denied (config anahtarı eşleşmez); **`ssh dean` / `ssh zima` alias kullan.** "Çöktü" deme — önce `journalctl -b -1` ile kapanış nedenine bak. `/DATA/.docker/config.json` permission uyarısı zararsız.
 
-**Next — tek adım:** Dean Fold'da Wellness'ı açınca `GET /api/wearable?start=2026-10-12&end=2026-10-12` ile `health_connect` satırlarını doğrula; ardından 12 Eki öğünler (önce GET).
+**12 Eki gün içi (GET kanıtlı):**
+- Fold senkronu geldi (health_connect 12 Eki 8 satır, synced 11:25): uyku 450 dk, RHR 62. OKOK 12 Eki 11 metrik (106.6, yağ 36.7 kg, kas 66.8, iskelet 35.0).
+- Öğünler 12 Eki: kahvaltı `…0001` **08:00** 36/490 · whey `…00e1` 11:25 24/120 · öğle `…0002` 12:04 61/600 (tavuk ~150 g, süzme ~200 g, ayran 250 ml) → **121 g / 1210**. Akşam yok henüz.
+- Salon A `c7501754` 53 dk (saat OTHER → resistance): setler 2×12 — leg press 40, seated leg curl 35, Smith bench (incline makine doluydu) 30 = 10+10 + bar ~10 kg tahmini, dar pulldown 35, yana açma 7.5/10, Arnold 10 (omuz presi yerine), triceps 25/30. RIR yok. Dar çekiş/triceps/yana açma geçen Pzt'den düşük — neden sorulu.
+- 12 dk "OTHER" kardiyo `885c1735` = elektrikli motorla dönüş → DELETE 204. Senkronla geri gelebilir; Dean'e Samsung Health'te "diğer egzersiz" oto-algılamayı kapat dendi.
+- Plan (PUT + GET): **Çar B** = Leg_Extensions, Thigh_Abductor, Iso Row, Smith bench, Pallof (hip thrust + RDL çıktı, bel ağrısı). **Cum A'** Leg_Extensions → Seated_Leg_Curl. Leg curl Pzt+Cum. Leg press duruşu Pzt dar / Cum geniş-yüksek. Hepsi PROGRAM §5 tarihli (`0117ace`, `61dc65d`, `4900255`).
+- Hafıza: kahvaltı `time` = 08:00 sabit; yeni `whey-her-gun` (salon dönüşü + off gün, seans görünce sormadan yaz).
+- İdrar tahlili 07.09 (e-Nabız PDF) gösterildi: yorum yok; yalnız pH 7.5 referans dışı (4.8–7.4) belirtildi, hekime yönlendirildi. Uygulamada tahlil alanı yok.
+- Probis/cips sorusu: Probis 1 adet 138 kcal / 4.5 g P (protein kaynağı değil); cips serbest günde (Cmt) ~30 g tabakta. Yenmedi, kayıt yok.
+
+**Next — tek adım:** 12 Eki akşam yemeği (19:00, önce GET); motor kaydı 885c1735 geri geldiyse yeniden DELETE.
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
 ```
 life-os-wellness (dal dev) — dean-pt günlük kayıt modu. Önce .claude/handoffs/latest.md'nin '12 Eki sabah' bölümünü oku. ZimaOS SSH: `ssh dean` alias'ı.
-Sıra: (1) Fold senkronu sonrası 12 Eki health_connect GET (2) 12 Eki öğünler + whey (önce GET) (3) Kablonet: Dean'in arama sonucu — form gönderimi Dean'de.
+Sıra: (1) 12 Eki akşam (19:00) + motor kaydı geri geldi mi (2) 13 Eki kahvaltı 08:00, whey her gün (3) Kablonet: Dean'in arama sonucu — form gönderimi Dean'de.
 ```
