@@ -548,7 +548,13 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 - İdrar tahlili 07.09 (e-Nabız PDF) gösterildi: yorum yok; yalnız pH 7.5 referans dışı (4.8–7.4) belirtildi, hekime yönlendirildi. Uygulamada tahlil alanı yok.
 - Probis/cips sorusu: Probis 1 adet 138 kcal / 4.5 g P (protein kaynağı değil); cips serbest günde (Cmt) ~30 g tabakta. Yenmedi, kayıt yok.
 
-**Next — tek adım:** 12 Eki akşam yemeği (19:00, önce GET); motor kaydı 885c1735 geri geldiyse yeniden DELETE.
+**12 Eki 15:30 — PLAN-GERCEKCI 3. tur cevapları (Dean "1 2'yi yap"):**
+- K1 yapıldı: PR #59 (`36a9cc2`) `sleepSummary` + Hafta sekmesinde "Uyku · son 7 gece" (ort. sa, <6 sa gece sayısı; ort. <6.5 kırmızı). Web 452/452, tsc temiz. ZimaOS pull + `compose up -d --build api`, API 200, canlı bundle `index-0ubkU8DY.js` metni içeriyor. Telefonda görülmedi.
+- K3: Dean bu hafta 3 sabah kolluk TA ölçecek (onay). Bel: Dean yazacak.
+- Uyku: Dean "8, 10, 11 Eki 7 sa üstü uyudum" diyor; HC 8 Eki 304, 9 Eki 293, 10 Eki 206 (pil bitti) — 8–9 Eki çelişkili, hangi gece kastedildi SORULU. Saat ölçümü eksik olabilir (simetrik şüphe); uyku satırı bu haftayı olduğundan kötü gösterebilir.
+- Motor kaydı `885c1735` senkronla GERİ GELDİ. Sunucu DELETE yetmez — `dismissWorkout` telefonda yerel; Dean Fold'da kartta "Ben değildim"e basınca sunucudan silinecek.
+
+**Next — tek adım:** Dean "Ben değildim"e basınca `DELETE /api/workouts/885c1735-…`; sonra 12 Eki akşam (19:00) ve bel.
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
