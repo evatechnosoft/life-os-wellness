@@ -526,9 +526,23 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 
 **Next — tek adım:** Fold'da Wellness iki kez açılınca yeni bundle (`4aa1a381`) yüklensin; eski bundle önce senkron yaparsa 24cb5fd6/cb751db6 geri gelir → `GET /api/workouts?start=2026-10-05&end=2026-10-07` ile kontrol, varsa yeniden DELETE. Sonra Dean evaitecOTA 0.1.23 denemesi → olursa release (ota-mobile-v0.1.23 + evaglass-releases + apps.json).
 
+## 12 Eki sabah — ZimaOS kapalıydı + Samsung zip (dean-pt, kod yok)
+
+**Goal:** saat verisi uygulamaya gelsin; günlük kayıt.
+
+**Kanıtlı:**
+- "Saat çekmedi" kök nedeni: ZimaOS 11 Eki 23:22'de **bilerek kapatıldı** — netmovies oturumu Dean'in "zima'yı kapa" isteğiyle `ssh zima "sudo nohup sh -c 'sleep 3; poweroff'"` (journal `-b -1` + netmovies jsonl). Kapalıyken `fit.evaitec.com` CF 1033 / HTTP 530.
+- WOL (`zima_wol.py`) → UP 40 sn; `/api/goals` 200. Konteynerler Up: life-os-wellness api/db/backup, wellness-tunnel, cloudflared, finance, flexcrm.
+- Samsung zip 12 Eki 09:02 `--from 2026-10-09 --no-workouts` yazıldı (2 gün dolduruldu, 2 dolu): 11 Eki adım 10006 kilo 107.0; 12 Eki adım 1066 (sabah), kilo 106.6, TA 130/78 (yalnız wearable). 7-gün kilo ort 6–12 Eki **106.82** (n=7).
+- `health_connect` wearable son tarih 11 Eki; 12 Eki henüz gelmedi (Fold'da uygulama açılmadı).
+
+**Don't repeat:** `ssh dean@192.168.1.186` → Permission denied (config anahtarı eşleşmez); **`ssh dean` / `ssh zima` alias kullan.** "Çöktü" deme — önce `journalctl -b -1` ile kapanış nedenine bak. `/DATA/.docker/config.json` permission uyarısı zararsız.
+
+**Next — tek adım:** Dean Fold'da Wellness'ı açınca `GET /api/wearable?start=2026-10-12&end=2026-10-12` ile `health_connect` satırlarını doğrula; ardından 12 Eki öğünler (önce GET).
+
 ## <yeniden başlangıç> promptu (yapıştır)
 
 ```
-life-os-wellness (dal dev) — dean-pt günlük kayıt modu, kod işi yok. Önce .claude/handoffs/latest.md'nin EN ALT bölümünü (10 Eki) oku, `GET /api/meals?start=2026-10-10&end=2026-10-10` ile doğrula (token ~/.ai/vg.env).
-Sıra: (1) 11 Eki öğünler + whey (önce GET) (2) Kablonet: Dean'in arama sonucu (GPON dönüşümü / 1000 Mbps 1901) — form gönderimi Dean'de, onay kutusuna dokunma.
+life-os-wellness (dal dev) — dean-pt günlük kayıt modu. Önce .claude/handoffs/latest.md'nin '12 Eki sabah' bölümünü oku. ZimaOS SSH: `ssh dean` alias'ı.
+Sıra: (1) Fold senkronu sonrası 12 Eki health_connect GET (2) 12 Eki öğünler + whey (önce GET) (3) Kablonet: Dean'in arama sonucu — form gönderimi Dean'de.
 ```
