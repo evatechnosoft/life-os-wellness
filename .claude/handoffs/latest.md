@@ -554,7 +554,10 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 - Uyku: Dean "8, 10, 11 Eki 7 sa üstü uyudum" diyor; HC 8 Eki 304, 9 Eki 293, 10 Eki 206 (pil bitti) — 8–9 Eki çelişkili, hangi gece kastedildi SORULU. Saat ölçümü eksik olabilir (simetrik şüphe); uyku satırı bu haftayı olduğundan kötü gösterebilir.
 - Motor kaydı `885c1735` senkronla GERİ GELDİ. Sunucu DELETE yetmez — `dismissWorkout` telefonda yerel; Dean Fold'da kartta "Ben değildim"e basınca sunucudan silinecek.
 
-**Next — tek adım:** Dean "Ben değildim"e basınca `DELETE /api/workouts/885c1735-…`; sonra 12 Eki akşam (19:00) ve bel.
+- Uyku düzeltme: Dean "hayır az uyuduk" → HC 8–10 Eki kısa geceler DOĞRU, değer değiştirilmedi. Hedef verildi: bu hafta 23:00 yatak.
+- 12 Eki akşam `…0003` 19:00 59/630 (dana sote ~150 g, mantar-havuç kase, süzme ~60 g, marul salatası 1 pors) → 12 Eki **180 g / 1840** (GET).
+
+**Next — tek adım:** bel ölçüsü (Dean yazacak) → `PUT /api/daily/2026-10-12` waist_cm; Dean "Ben değildim"e basınca `DELETE /api/workouts/885c1735-…`; 13 Eki kahvaltı 08:00 + kolluk TA (3 sabahtan 1.).
 
 ## <yeniden başlangıç> promptu (yapıştır)
 
