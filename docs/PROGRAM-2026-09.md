@@ -98,6 +98,8 @@ Rampa: 1–2. hafta 2 set / RIR 3, yüzme 30–45 dk; 3. haftadan 3 set / RIR 2.
 | Per | **Yürüyüş** (Sal ile aynı) + 10 dk mobilite | — |
 | Cum (A′) | Chest press/eğik dambıl 3 · Kablo çekiş/pulldown nötr 3 · **Leg press 3 + calf 2** · Omuz yan 1 · **Biceps 2 + triceps 2** · Dead bug 1 | 2 |
 | Cmt | **Yürüyüş 6.000+ adım** (serbest öğün günü) | — |
+
+**Bel ağrısı — 12 Eki (Dean):** Çarşamba hip thrust + Romanian deadlift beli ağrıtıyor → ikisi de çıktı. Yerine sırt yükü olmayan, destekli makineler: seated leg curl 2 (hamstring) + thigh abductor 2 (kalça yan). Kalça/bacak hacmi Pzt/Cum leg press ile sürer. Ağrı 2 hafta yoksa hip thrust hafif yükle (kaburga aşağı, belde kavis yok) yeniden denenir; bacağa vuran ağrı, uyuşma ya da güç kaybı → hekime.
 | Paz | **Yürüyüş 6.000+ adım**, tempolu 30–40 dk | — |
 Seans başı 15–17 set, 50–60 dk.
 **Kol hacmi düzeltmesi (22 Eyl):** A′'de biceps ve triceps 1'er setti; haftalık doğrudan kol
