@@ -31,6 +31,8 @@ const CHAT_BODY = {
     date: DATE,
     /** Recent days, so answers land on this person's numbers rather than generic advice. */
     context: { type: 'string', maxLength: 4000 },
+    /** One of GET /api/chat/models; omitted = server default. */
+    model: { type: 'string', maxLength: 40 },
     /** Base64 photo attached to the last user message (a plate, a label, a scale). */
     image: {
       type: 'object',
@@ -71,12 +73,21 @@ export const RECIPE_HINT = `Kullanici elindeki malzemelerle ne yapabilecegini so
  * shows the draft and the user confirms it.
  */
 export function registerChat(app: FastifyInstance, llm: Llm | null): void {
+  app.get('/api/chat/models', async () => ({
+    models: llm?.config.chatModels ?? [],
+    default: llm?.config.chatModel ?? null,
+  }))
+
   app.post('/api/chat', { schema: { body: CHAT_BODY } }, async (req, reply) => {
     if (!llm) return reply.code(503).send({ error: 'LLM_BASE_URL tanimli degil (LiteLLM proxy kapali)' })
-    const { messages, context, image } = req.body as {
+    const { messages, context, image, model } = req.body as {
       messages: { role: 'user' | 'assistant'; content: string }[]
       context?: string
       image?: { media_type: string; data: string }
+      model?: string
+    }
+    if (model && !llm.config.chatModels.includes(model)) {
+      return reply.code(400).send({ error: `Bilinmeyen model: ${model}` })
     }
 
     const turns: ChatTurn[] = [{ role: 'system', content: SYSTEM }]
@@ -87,8 +98,9 @@ ${context}` })
     if (recipes) turns.splice(1, 0, { role: 'system', content: RECIPE_HINT })
 
     try {
+      // Recipes need grounded sources, so they go to the search model whatever was picked.
       const ask = () => complete(llm, turns, {
-        model: image ? llm.config.visionModel : llm.config.chatModel,
+        model: recipes ? llm.config.searchModel : model ?? (image ? llm.config.visionModel : llm.config.chatModel),
         image,
         maxTokens: 1500,
         // A photo is read, not researched - unless it is a pantry shot asking for recipes.
