@@ -270,3 +270,66 @@ direnç 3/3 set kayıtlı · kolluk TA günü ≥ 5/7 · telefon son bağlantı 
   2. **Wear OS saat uygulaması — görsel + kullanım** (Dean: "birkaç yazıdan ibaret"): Seans / Özet / Teknik ekranları, tasarım `docs/PLAN-WEAR.md` S-next. Ön koşul G2.2 (a).
   3. İzleme sayfası (aday): tek ekranda 7-gün kilo/kcal/protein/seans — Pazartesi kartı (G1.2) ile birleşir.
   4. Toplu test + deploy + telefon kontrol listesi.
+
+## 8. 3. tur — 12 Eki (Claude Fable ile tüm verinin yeniden değerlendirmesi)
+
+> Kaynak: canlı `GET /api/export` 12 Eki 14:00 (daily_log 31 gün, meal 97, workout 47, exercise_set 129,
+> wearable_sync 433) + `docs/assets/2026-09-17` fotoğrafları + `PROGRAM-2026-09.md` §1b tahlil tablosu
+> (04.09.2026; PDF'in kendisi repoda yok, yalnız değerleri). Model: `claude-fable-5-1` (uygulama 12 Eki'den
+> itibaren Claude'da, PR #58). İstatistik betiği: oturum scratchpad `stats.py` (export üzerinde saf hesap).
+> Persona §1, §7 kuralları aynen; teşhis/ilaç yorumu yok.
+
+### 8.1 Protokol nerede (30 Eyl → 12 Eki, 2. hafta sonu)
+
+| Ölçüt | Hedef (`PROTOKOL-12-HAFTA`) | Gerçek | Hüküm |
+|---|---|---|---|
+| Kilo 7-gün ort. | −0.7…−0.8 kg/hafta | ISO 39→40→41: 107.69 → 107.41 → **106.86** (−0.28, sonra **−0.55**) · 12 Eyl 109.1 → 12 Eki 106.6 (−2.5 kg / 4 hafta, ilk hafta su dahil) | Hedefin altında ama **hızlanıyor**; 27 Eki (hafta 4) kuralı: <0.4 ise −100 kcal. Şimdi dokunma. |
+| 7-gün kcal (öğün) | ≤ 1900 (Dean, 4 Eki) | hafta 40: 2196 · hafta 41: **1878** (7/7 gün kayıtlı) | Kural ilk kez tutuldu. 95/97 öğün tahmini (foto 33, elle 34) → ±%15–20 belirsizlik; sayı "1878" değil "1700–2100 bandı" okunmalı. |
+| Protein | 150–165 g, 6/7 gün | hafta 40: 170 · hafta 41: 169 · en düşük gün 10 Eki 140, 11 Eki 120 | Tutuyor; 10–11 Eki düşüş serbest gün + menemen kahvaltısı. Hedef 150 doğru: yağsız kütle 70 kg × 2.0–2.4 = 140–168. |
+| Bel | Pazartesi, ayda −2 cm | 23 Eyl 117 · 28 Eyl 117 · 5 Eki **116** · 12 Eki **ölçülmedi** | Protokol kayması. Bugün ölçülsün. |
+| Direnç | 3/3 hafta, set kayıtlı | hafta 39: 4 · 40: 3 · **41: 2** (Cum 9 Eki A′ yok) · 42: Pzt tamam | Uyum 2/3; set satırları tam (129). |
+| Kuvvet | korunur/artar | Leg press 35→40→40 · Iso row 30→45 · Smith bench 25→30 ↑ · dar pulldown 40→35 · leg curl 40→35 · triceps 40→30 **↓ (12 Eki)** | Karışık. 12 Eki düşüşü, öncesindeki 3 gece 206–304 dk uykuyla örtüşüyor (aşağıda). Açık fazla demek için erken. |
+| Uyku | 7–8 sa, 23:00 | Health Connect 5–12 Eki: 273·536·495·304·293·**206**·436·450 dk → ort. **6.2 sa**, 3 gece <5 sa | **En büyük açık.** Nedeltcheva 2010: 5.5 sa uyku yağ kaybını %55 azaltıp kas kaybını %60 artırıyor. |
+| Dinlenme nabzı | — | Eyl (12–22) ort. **59** · Eki (5–12) ort. **65** | +6 bpm; kaynak/saat aynı. Uyku açığıyla uyumlu; yorum hekimin değil, uyku düzelince tekrar bak. |
+| Adım | ≥ 6.000 taban, 7.000 iyi | samsung_csv 5–11 Eki ort. **7.860**; Health Connect aynı günler ~1.500 düşük | Tutuyor. Kaynak samsung_csv kalır (karar 4 Eki). |
+| BIA (OKOK, 28 gün) | yalnız yön | 12 Eyl → 12 Eki: yağ **38.2 → 36.7 kg** (−1.5), iskelet kası 35.3 → 35.0 (−0.3, gürültü içinde), su 53.2 → 52.3, visseral 25.5 sabit | Kaybın büyük payı yağ + su; kas korunuyor. Samsung BIA (yağ 35.3 / kas 38.4) **ayrı cihaz, karıştırılmaz**. |
+| Tansiyon | "normal" (4 Eki kararı) | daily'ye yazılan Samsung TA 18 Eyl 141/88 → Eki ~130/78; **kolluk yalnız 30 Eyl 127/77** (tek ölçüm). Saat +13 sistolik sapıyordu (25 Eyl). | "Normal" hükmü 1 kolluk ölçümüne dayanıyor. Protokol "kolluk Ekim ortasına kadar" diyordu. |
+| Tahlil | 22 Ara paketi | 04.09: HbA1c 5.9, glukoz 112, TG 302, LDL 126, HDL 67, kreatinin 0.91. İdrar 07.09: pH 7.5 (ref 4.8–7.4), gerisi normal (12 Eki sohbet; dosya yok). | Yeni veri yok. −2.5 kg + şeker/alkol 0 → TG'nin düşmesi beklenir; kanıt 22 Ara. |
+
+**Ana bulgu:** Beslenme ve kayıt artık kaldıraç değil — 1878 kcal / 169 g protein / 7/7 gün. Hızı sınırlayan iki şey veri
+içinde açık: **uyku 6.2 saat** (3 gece <5 sa) ve **3. direnç gününün düşmesi** (Cuma). İkisi de kalori kesmeden düzeltilir;
+27 Eki'den önce kcal'a dokunmak protokolün kendi kuralına aykırı.
+
+### 8.2 Fotoğraflar (17 Eyl, `docs/assets`)
+Uygulama ekranı 17 Eyl: protein 0/140, "adım kaydı yok", koç kartı jenerik 43 g açık ×3, Eva "Yanıt alamadım" ×2 — o günkü
+uygulama ölüydü; bugünkü canlı veriyle (7/7 kayıt, Claude cevap veriyor) kıyas, 2. turun "sohbet köprüsü çözdü" hükmünü
+doğruluyor. Tabaklar (haşlanmış didik tavuk ~150 g, bulgur pilavı ~200 g): kayıtlı öğünlerle tutarlı, porsiyon tahmini
+cam/seramik kapta ±%25 — kap darası hafızası (`kap-daralari`) bu yüzden gerekli. Destek ürünleri (kreatin, L-karnitin
+içeceği, CLA/aspir yağı) `TAKVIYELER.md`'de zaten hükme bağlı: kreatin devam, diğerleri hayır. Yeni bulgu yok.
+
+### 8.3 Kararlar — öncelik sırasıyla (ikiden fazla açılmaz)
+
+- **K1 Uyku haftalık karara girer.** 4 Eki'de "uyku kartı veri yoksa gizli" dendi; veri 5 Eki'den beri her gün geliyor.
+  Pazartesi kartına **7-gün uyku ort. (saat) + <6 sa gece sayısı** eklenir; kural: ort. <6.5 sa ise o hafta kcal
+  kesilmez, yatış saati konuşulur. Yüzey: telefon · İş: `lib/metrics.ts` saf fonksiyon (TDD) + `Week.tsx` tek satır ·
+  Kabul: 19 Eki kartında uyku satırı. Kod dışı bugün: Dean'e tek soru — 8–10 Eki geceleri ne oldu (işte/yolda/EV sahası)?
+- **K2 Cuma A′ geri gelir, program değişmez.** 4 hafta sabit kuralı sürer (27 Eki'ye kadar). Cuma kaçarsa Cmt'ye kayar,
+  haftaya 2'de kalmaz. Yüzey: sohbet · Kabul: hafta 42–43'te 3/3 `resistance`.
+- **K3 Tansiyon sorusu 3 ölçümle kapanır.** Bu hafta 3 sabah kolluk (protokollü: 5 dk oturuş, 2 ölçüm ort.) →
+  `wearable_sync source=cuff`. Üçü de <130/80 ise "normal" hükmü kanıtlı olur ve konu kapanır; değilse hekime giden
+  listeye girer. Saat TA'sı daily'ye yazılmaya devam etmez (G2.1'i 4 Eki'de iptal etmiştik; bu 3 ölçüm tek seferlik).
+- **K4 Bel bugün + her Pazartesi.** Kaçan hafta sohbette ajan sorar (hafıza: Pazartesi bel).
+- **K5 Kcal hedefi 1900'de kalır, 27 Eki'de bakılır** (hafta 4 kuralı). 1800'e inme teklifi reddedilir: uyku açığıyla
+  birlikte kesmek kas kaybı riskini artırır (Nedeltcheva).
+- **K6 22 Ara tahlil paketine ekle:** 25-OH D vitamini, açlık insülin (HOMA-IR), lipid, HbA1c, ALT, ferritin; kreatin
+  kullanımı ve omega-3 (reçeteli 4 g) sorusu hekime. İdrar pH 7.5 tek başına anlam taşımaz, tekrar istenmez.
+
+**Kaldır/dondur:** Samsung BIA metrikleri (`source=samsung body_fat_*`, `skeletal_muscle_kg`) hiçbir hesapta kullanılmaz,
+importta dışarıda bırakılır (iki cihaz karışması). Saat "OTHER" otomatik seanslar (motor, kısa yürüyüş ×12/hafta) gürültü:
+Samsung Health'te "diğer egzersiz" oto-algılama kapalı (Dean'e söylendi, doğrulanmadı).
+
+### 8.4 Dean onay masası
+1. K1 uyku satırı Pazartesi kartına — kod işi (küçük), onay?
+2. K3 üç sabah kolluk — yapılır mı? (Yapılmazsa "normal" hükmü "doğrulanmadı" etiketiyle kalır.)
+3. K5: kcal 1900 sabit, 27 Eki'ye kadar — kabul?
+4. Bugün bel ölçümü + 8–10 Eki uyku kısalığının nedeni.
