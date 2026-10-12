@@ -556,3 +556,15 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 life-os-wellness (dal dev) — dean-pt günlük kayıt modu. Önce .claude/handoffs/latest.md'nin '12 Eki sabah' bölümünü oku. ZimaOS SSH: `ssh dean` alias'ı.
 Sıra: (1) 12 Eki akşam (19:00) + motor kaydı geri geldi mi (2) 13 Eki kahvaltı 08:00, whey her gün (3) Kablonet: Dean'in arama sonucu — form gönderimi Dean'de.
 ```
+
+## 12 Eki öğleden sonra — uygulama modeli Claude (PR #58 merged, canlı)
+
+**Kanıtlı:** geçit `yz-litellm` config'e `claude-fable` (anthropic/claude-fable-5-1, rpm 10, fallback claude→claude-hizli) eklendi; wellness sanal anahtarına `claude-fable` izni (`/key/update`); `docker restart yz-litellm`. ZimaOS wellness `.env`: `LLM_CHAT_MODEL=claude`, `LLM_VISION_MODEL=claude`, `LLM_CHAT_MODELS=claude,claude-fable`, `LLM_SEARCH_MODEL=gemini-flash`. API yeniden kuruldu; `GET /api/chat/models` → `{"models":["claude","claude-fable"],"default":"claude"}`; `model:"claude-fable"` sohbet 200; `/api/estimate` tavuk fotoğrafı Claude ile 35 g/220 kcal; `model:"gpt"` → 400. Bundle `99938c3e` fit.evaitec.com'da.
+- Eva ekranında (tam görünüm) "Model" seçici: varsayılan (claude) / claude-fable; `localStorage eva.model`, cihaz başına.
+- Tarif araması Gemini'de kaldı: LiteLLM Anthropic `web_search_options` kaynaklarını annotations'a çevirmiyor (canlı deneme, annotations None).
+- netmovies `infra/yz/config.yaml` canlıyla eşitlendi, dal `feat/yz-claude-fable` push'landı (PR yok).
+- Bütçe: wellness anahtarı $20/30 gün (`max_budget`), fable $10/$50 MTok — çok fotoğraf+uzun bağlamda bütçeye dikkat.
+
+**Don't repeat:** ZimaOS'ta ssh ile compose → `sudo -n env DOCKER_CONFIG=/DATA/.docker docker compose up -d --build api` (düz `docker compose` plugin'i görmez, sudo'suz `/root/.docker` read-only). LiteLLM config bind-mount: `docker restart yz-litellm` yeter. Karmaşık uzaktan betik = scp + `sh /tmp/x.sh` (heredoc tırnak kırılıyor).
+
+**Açık (Dean):** "DB + fotoğraf + PDF'leri hepsi tekrar değerlendirsin" — kapsam/çıktı yeri ve PDF konumu netleşmedi; "ortamlara ilet" ne demek?
