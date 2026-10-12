@@ -557,6 +557,9 @@ Site taraması (10 Eki, kaynak turksatkablo.com.tr kampanya detayları): 300/30 
 - Uyku düzeltme: Dean "hayır az uyuduk" → HC 8–10 Eki kısa geceler DOĞRU, değer değiştirilmedi. Hedef verildi: bu hafta 23:00 yatak.
 - 12 Eki akşam `…0003` 19:00 59/630 (dana sote ~150 g, mantar-havuç kase, süzme ~60 g, marul salatası 1 pors) → 12 Eki **180 g / 1840** (GET).
 
+**Kablonet (finance yan işi) — 12 Eki akşam:** form 1901 (4'ü Bir Arada 24 ay, 200/20 cihazsız, Temel+Gümüş, ek hizmet yok) CDP ile dolduruldu, toplam 529 TL; **Dean onay kutusunu işaretleyip gönderdi ("geçiş yaptım")** — sayfa onayı görülmedi (sekme kapanmıştı), Gmail'de onay maili yok → başvuru kaydı DOĞRULANMADI. Şu an hız 94 (100 paketin tavanı). Dean'e: modemi kapat-aç, kablolu test; 21 Eki sonrası hâlâ 94 → 0850 804 44 44. Forum özeti (alt ajan, scratchpad `forum/dh_3426_3444.md`): 200/20 gerçek ~195–200 indirme, upload akşam düşük; eski Netmaster'a "desteklemiyor" denebiliyor ama çalışıyor; GPON dönüşümü taahhüdü bozmuyor (forum, doğrulanmadı).
+- Not: kişisel profil Chromium artık **CDP :9444** (chromium-1243), :9555 değil — aynı profil kilitli olduğu için ikinci kopya açılmaz.
+
 **Next — tek adım:** bel ölçüsü (Dean yazacak) → `PUT /api/daily/2026-10-12` waist_cm; Dean "Ben değildim"e basınca `DELETE /api/workouts/885c1735-…`; 13 Eki kahvaltı 08:00 + kolluk TA (3 sabahtan 1.).
 
 ## <yeniden başlangıç> promptu (yapıştır)
