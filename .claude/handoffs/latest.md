@@ -602,3 +602,7 @@ Sıra: (1) 12 Eki akşam (19:00) + motor kaydı geri geldi mi (2) 13 Eki kahvalt
 
 **13 Eki akşam:** Samsung zip `--from 2026-10-12 --no-workouts` yazıldı (12 Eki adım 8851, 13 Eki 9421, TA 127/77 07:47). Öğle 15:00 beyran `…0002` 42/750. Seans notlarına Samsung kcal eklendi (salon 456, yüzme 104, motor 70, yürüyüşler 220/284/145).
 - **KAZA + KURTARMA:** `POST /api/workouts` `sets: []` ile gönderilince API setleri SİLİYOR (`routes.ts:435`, PLAN-DUZELTME D4) — c7501754'ün 14 seti silindi, `backups/wellness-2026-10-13-auto.sql.gz`'den `COPY` ile geri yüklendi (count 14, teyitli). **Not güncellemek için `sets` alanını HİÇ gönderme.** Eski "POST setleri silmez" notu YANLIŞ.
+- 13 Eki öğünler kapandı (GET): 08:00 19/260 · 12:30 `…0005` 76/840 (tavuk salata, dana sote+patates, penne, **ayran** 250 ml) · 15:00 `…0002` 38/600 (beyran **200 ml**, et bol — Dean düzeltmesi) · 19:00 `…0003` 28/420 (kıymalı karnabahar + havuçlu süzme) → **161 g / 2120**. Whey yazılmadı (Dean bildirmedi).
+- Açık: "uygulamadan bir 18 bir 15 geldi" anlaşılmadı (sunucuda yeni ölçüm yok) — sorulu. Bel ve kolluk TA hâlâ yok. Visseral 25.0/25.5 teyidi bekliyor.
+
+**Next — tek adım (14 Eki Çar, salon B):** sabah OKOK + kolluk/saat eşli TA → kaydet; kahvaltı 08:00; salon seansı gelince setleri sor (son sette RIR), whey sormadan yaz.
