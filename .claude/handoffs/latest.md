@@ -606,3 +606,11 @@ Sıra: (1) 12 Eki akşam (19:00) + motor kaydı geri geldi mi (2) 13 Eki kahvalt
 - Açık: "uygulamadan bir 18 bir 15 geldi" anlaşılmadı (sunucuda yeni ölçüm yok) — sorulu. Bel ve kolluk TA hâlâ yok. Visseral 25.0/25.5 teyidi bekliyor.
 
 **Next — tek adım (14 Eki Çar, salon B):** sabah OKOK + kolluk/saat eşli TA → kaydet; kahvaltı 08:00; salon seansı gelince setleri sor (son sette RIR), whey sormadan yaz.
+- Beyran 38/600 kaldı (Dean "neyse" — et ~100 g varsayımı; ~150 g ise 50/720).
+
+## <yeniden başlangıç> promptu (14 Eki)
+```
+life-os-wellness (dal dev) — dean-pt günlük kayıt. Önce .claude/handoffs/latest.md'nin '13 Eki' bölümlerini oku.
+Sıra: (1) 14 Eki sabah OKOK + kolluk/saat eşli TA + bel (2) kahvaltı 08:00 (3) Çar salon B setleri + whey.
+Uyarı: workouts POST'ta `sets` alanını not güncellerken GÖNDERME (siler). ZimaOS kapalıysa WOL; fit 530 + api yerelde ayaktaysa `docker restart wellness-tunnel`.
+```
