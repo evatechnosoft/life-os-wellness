@@ -599,3 +599,6 @@ Sıra: (1) 12 Eki akşam (19:00) + motor kaydı geri geldi mi (2) 13 Eki kahvalt
 **Don't repeat:** python urllib ile API → `User-Agent` başlığı şart (yoksa CF 403). `/tmp` Windows python'da yok → scratchpad. ZimaOS'ta `ping` yok, `curl` ile dışarı test.
 
 **Next — tek adım:** Dean'den kolluk + saat TA eşli ölçümü ve bel → `PUT /api/daily/2026-10-13` (bp, waist_cm) + `wearable source=cuff`; öğle öğünü (protein açığı: kahvaltı 19 g); visseral 25.0/25.5 teyidi.
+
+**13 Eki akşam:** Samsung zip `--from 2026-10-12 --no-workouts` yazıldı (12 Eki adım 8851, 13 Eki 9421, TA 127/77 07:47). Öğle 15:00 beyran `…0002` 42/750. Seans notlarına Samsung kcal eklendi (salon 456, yüzme 104, motor 70, yürüyüşler 220/284/145).
+- **KAZA + KURTARMA:** `POST /api/workouts` `sets: []` ile gönderilince API setleri SİLİYOR (`routes.ts:435`, PLAN-DUZELTME D4) — c7501754'ün 14 seti silindi, `backups/wellness-2026-10-13-auto.sql.gz`'den `COPY` ile geri yüklendi (count 14, teyitli). **Not güncellemek için `sets` alanını HİÇ gönderme.** Eski "POST setleri silmez" notu YANLIŞ.
