@@ -580,3 +580,22 @@ Sıra: (1) 12 Eki akşam (19:00) + motor kaydı geri geldi mi (2) 13 Eki kahvalt
 **Don't repeat:** ZimaOS'ta ssh ile compose → `sudo -n env DOCKER_CONFIG=/DATA/.docker docker compose up -d --build api` (düz `docker compose` plugin'i görmez, sudo'suz `/root/.docker` read-only). LiteLLM config bind-mount: `docker restart yz-litellm` yeter. Karmaşık uzaktan betik = scp + `sh /tmp/x.sh` (heredoc tırnak kırılıyor).
 
 **Açık (Dean):** "DB + fotoğraf + PDF'leri hepsi tekrar değerlendirsin" — kapsam/çıktı yeri ve PDF konumu netleşmedi; "ortamlara ilet" ne demek?
+
+## 13 Eki sabah — dean-pt kayıt + tünel kopması (kod yok)
+
+**Goal:** günlük kayıt (dean-pt); saat verisi kendiliğinden aksın.
+
+**Kanıtlı (API GET):**
+- ZimaOS kapalıydı (CF 1033) → WOL, UP 40 sn. 08:39'da sunucu ağı kısa koptu (`cloudflared` log "network is unreachable"); **wellness-tunnel yeniden bağlanmadı** (fit 530/1033, api yerelde 401=ayakta) → `docker restart wellness-tunnel` → 4 bağlantı, fit 200. Tekrarlarsa ilk bakılacak yer bu.
+- OKOK 13 Eki 11 metrik (106.0, yağ 36.3 kg/%34.3, iskelet 34.9, kas 66.5, su 52.1, bmr 1999.8, visseral **25.0 varsayım** — ekranda son hane kesikti, 25.5 olabilir, Dean'e soruldu) + daily weight 106.0.
+- Kahvaltı `1013a0e2-1013-4a11-9c00-000000000001` 08:00 19 g/260 (2 rafadan yumurta, beyaz peynir ~35 g, 2 zeytin; ekmek görünmüyor).
+- HC senkronları 08:37/08:59/09:22: uyku 13 Eki 439 dk, RHR 58→60, 12 Eki adım 6133, 13 Eki adım 3559 (daily'ye yazıldı).
+- 12 Eki seanslar (4, hiçbiri silinmedi): salon `c7501754` 53 dk · `5c88d567` 31 dk yürüyüş 193 kcal **resistance→walk** düzeltildi (sonraki senkronda walk kaldı, teyitli) · `824a28bf` yüzme 10 dk · `885c1735` motor OTHER 12 dk.
+- 13 Eki yürüyüş `62cf758e` 35 dk: saat 46 kcal (eksik okuma) → not'a tahmin ~230 kcal (Ekim yürüyüş ort. 6.5 kcal/dk) yazıldı; telefon senkronu notu ezebilir.
+
+**Decisions (Dean):** saat seanslarını SİLME — yalnız birebir çift (aynı tür+süre) silinir; kural resistance yaptıysa walk'a çevir; yüzme/motor dahil kalori yakan her şey kalır. Hafıza `salon-gunu-uzun-seans` güncellendi. PDF/tahlil yeniden değerlendirmesi zaten `PLAN-GERCEKCI.md` §8'de — kapandı.
+- Tansiyon: saat TA'sı HC'den gelmez, yalnız Samsung zip (samsung_csv). Ekim saat ort. ~129/78; tek eşli ölçüm (25 Eyl) saat sistolik +13–15 → düzeltilmiş ~115/78. Dean'e: bugün kolluk + 2 dk içinde saat → 2. eşli nokta.
+
+**Don't repeat:** python urllib ile API → `User-Agent` başlığı şart (yoksa CF 403). `/tmp` Windows python'da yok → scratchpad. ZimaOS'ta `ping` yok, `curl` ile dışarı test.
+
+**Next — tek adım:** Dean'den kolluk + saat TA eşli ölçümü ve bel → `PUT /api/daily/2026-10-13` (bp, waist_cm) + `wearable source=cuff`; öğle öğünü (protein açığı: kahvaltı 19 g); visseral 25.0/25.5 teyidi.
