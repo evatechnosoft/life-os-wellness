@@ -675,14 +675,15 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 
 **Don't repeat:** workouts POST `sets` = TAM liste (eksik gönderilen silinir; not güncellerken `sets` hiç gönderme) · bash `curl -d` Türkçe → 400, Python urllib kullan · ZimaOS açılışı → konteyner başlat + tünel restart (hafıza `zima-compose-sudo`) · Samsung zip klasörünün İÇİNDEKİ `samsunghealth_*` dizinini ver, `--no-workouts` (saat seansları HC'den zaten geliyor).
 
-**Next — tek adım:** Dean'den saat güncelleme sonucu (süre, "Wi-Fi/telefon" yazısı, yeni giriş ekranı) → sorun varsa logcat/ekran fotoğrafı. Sonra öğle/akşam öğünleri (protein açığı ~90 g), bel yarın sabah.
+**Next — tek adım:** 15 Eki sabah OKOK + bel → yaz. Saat 0.46 güncelleme sonucu hâlâ bekleniyor (süre, "Wi-Fi/telefon" yazısı, giriş ekranı); sorun varsa logcat/ekran fotoğrafı.
 Temizlik: `.claude/worktrees/wear-ux` worktree'si + `rel*` yerel dallar silinebilir; ana checkout `dev` origin'den geride → `git pull --rebase`.
 
 ### <yeniden başlangıç> promptu (14 Eki öğleden sonra)
 ```
 life-os-wellness (dal dev) — önce .claude/handoffs/latest.md '★ 14 Eki KAPANIŞ DEVRİ' bölümünü oku.
-Sıra: (1) Dean saat 0.46 güncellemesini denedi mi (süre, Wi-Fi/telefon, giriş ekranı) (2) öğle/akşam öğünleri (3) 15 Eki sabah OKOK + bel.
+Sıra: (1) 15 Eki sabah OKOK + bel (2) Dean saat 0.46 güncellemesini denedi mi (süre, Wi-Fi/telefon, giriş ekranı).
 Uyarı: workouts POST'ta sets TAM liste; Türkçe gövde Python ile; ZimaOS açılışta konteyner + tünel.
 ```
-- **14 Eki akşam:** `1014a0e2-…-000000000003` 19:00 palamut/torik 3 dilim (~270 g, 6 pişmiş dilimden Dean payı VARSAYIM) + marul → 68 g/630. Gün: **130 g / 1275 kcal**, öğle öğünü bildirilmedi (yenmediyse gün böyle kapanır). Sorulu: kaç dilim yedi, öğle var mı.
+- **14 Eki öğünler (GET):** öğle `…0002` 13:00 airfryer hamburger köfte 200 g + airfryer patates 100 g → 43/620 · akşam `…0003` 19:00 palamut/torik **6 dilimin hepsi** (Dean: toplam en fazla 800 g; ~540 g pişmiş) + marul → 135/1140. Gün kapanışı: **240 g / 2405 kcal** (tahmini yakım 2700–2900, ölçülmedi). Dean'e öneri: balık 3–4 dilim yeter.
+- Yeni hafıza `airfryer-varsayilan`: köfte/patates airfryer, kızartma sayma, sorma.
 - Not: hafıza dizini artık `~/.claude-team/projects/.../memory/` (ortam değişti).
