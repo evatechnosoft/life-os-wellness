@@ -13,6 +13,9 @@ import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -55,7 +58,8 @@ import kotlin.math.abs
 /**
  * Giris ekrani + uc sayfa (docs/PLAN-WEAR.md S-next, Dean 14 Eki):
  *  0 Giris   - yuvarlak dugmeler: Seans · Gun · Yuruyus · ayarlar (alttan cekmece). Acilis hep burasi.
- *  1 Seans   - hareket · set · hedef kg x 12 · nabiz · "Set bitti" (titresim + 90 sn dinlenme, set telefona)
+ *  1 Seans   - hareket · rampa · set n/N · hedef kg x 12 · toplam set · nabiz · Gec / Set bitti / Dur
+ *             (sola kaydir = sonraki hareket, saga = onceki; Set bitti = titresim + 90 sn dinlenme, set telefona)
  *  2 Gun     - protein / hedef, 7-gun kcal ort., 7-gun kilo farki, adim (telefonun yazdigi /wellness/summary)
  *  3 Yuruyus - sure + nabiz bolgesi; kayit Samsung'dan gelir, burada yalniz takip (cift kayit olmasin)
  *  Cekmece   - eski teknik satirlar: ham bpm, durum, ornek araligi, gonder, guncelle, yetenekler
@@ -74,7 +78,10 @@ class MainActivity : Activity() {
     // Seans
     private lateinit var exerciseView: TextView
     private lateinit var setView: TextView
-    private lateinit var targetView: TextView
+    private lateinit var rampView: TextView
+    private lateinit var totalView: TextView
+    private lateinit var skipButton: TextView
+    private lateinit var stopButton: TextView
     private lateinit var sessionBpmView: TextView
     private lateinit var restView: TextView
     private lateinit var setButton: TextView
@@ -125,8 +132,12 @@ class MainActivity : Activity() {
                     if (!drawerOpen && dy < 0 && pages.displayedChild == PAGE_HOME) { openDrawer(); return true }
                     return false
                 }
-                // Alt sayfada yatay kaydirma giris ekranina doner.
                 if (drawerOpen || abs(dx) < FLING_PX || pages.displayedChild == PAGE_HOME) return false
+                // Seansta sola = sonraki hareket, saga = onceki; diger sayfalarda giris ekranina doner.
+                if (pages.displayedChild == PAGE_SEANS && session != null) {
+                    moveExercise(forward = dx < 0)
+                    return true
+                }
                 show(PAGE_HOME)
                 return true
             }
@@ -210,14 +221,67 @@ class MainActivity : Activity() {
         val cur = ses.current
         if (cur == null) {
             exerciseView.text = "Seans bitti"
-            setView.text = ""
-            targetView.text = ""
-            setButton.visibility = View.GONE
+            rampView.visibility = View.GONE
+            setView.text = "sağa kaydır: son harekete dön"
+            totalView.text = "${ses.doneSets}/${ses.totalSets} set yapıldı"
+            listOf(setButton, skipButton, stopButton).forEach { it.visibility = View.GONE }
             return
         }
         exerciseView.text = cur.name
-        setView.text = "set ${ses.setNo}/${cur.sets}"
-        targetView.text = (cur.lastKg?.let { "%.0f kg × ".format(it) } ?: "") + "${Session.REPS} tekrar"
+        rampView.text = if (cur.isRamp) rampLine(cur.kgs, ses.setNo) else ""
+        rampView.visibility = if (cur.isRamp) View.VISIBLE else View.GONE
+        setView.text = "set ${ses.setNo}/${cur.totalSets} · " +
+            (cur.targetKg(ses.setNo)?.let { "${kg(it)} kg × " } ?: "") + "${Session.REPS}"
+        totalView.text = "toplam ${ses.doneSets}/${ses.totalSets} set"
+        listOf(setButton, skipButton, stopButton).forEach { it.visibility = View.VISIBLE }
+    }
+
+    /** "25 › 30 › 35": bu setin kilosu sari ve kalin, digerleri gri. */
+    private fun rampLine(kgs: List<Double>, setNo: Int): CharSequence {
+        val out = SpannableStringBuilder("rampa ")
+        kgs.forEachIndexed { i, v ->
+            if (i > 0) out.append(" › ")
+            val start = out.length
+            out.append(kg(v))
+            val now = i == (setNo - 1).coerceAtMost(kgs.size - 1)
+            out.setSpan(ForegroundColorSpan(if (now) YELLOW else GRAY), start, out.length, 0)
+            if (now) out.setSpan(StyleSpan(Typeface.BOLD), start, out.length, 0)
+        }
+        return out
+    }
+
+    private fun kg(v: Double): String = if (v % 1.0 == 0.0) "%.0f".format(v) else "%.1f".format(v)
+
+    /** Sola kaydir / Gec: hareket set sayilmadan atlanir. Saga kaydir: onceki hareket. */
+    private fun moveExercise(forward: Boolean) {
+        val ses = session ?: return
+        if (forward) ses.skip() else ses.previous()
+        restJob?.cancel()
+        restView.text = ""
+        setButton.isEnabled = true
+        setButton.alpha = 1f
+        vibrate(60)
+        renderSession()
+    }
+
+    /** Durdur iki dokunus ister: yanlislikla biten seans geri gelmesin diye. */
+    private var stopArmedAt = 0L
+
+    private fun stopSession() {
+        val now = System.currentTimeMillis()
+        if (now - stopArmedAt > STOP_CONFIRM_MS) {
+            stopArmedAt = now
+            stopButton.text = "Emin?"
+            scope.launch { delay(STOP_CONFIRM_MS); stopButton.text = "Dur" }
+            return
+        }
+        stopArmedAt = 0L
+        stopButton.text = "Dur"
+        session?.stop()
+        restJob?.cancel()
+        restView.text = ""
+        vibrate(300)
+        renderSession()
     }
 
     private fun finishSet() {
@@ -226,7 +290,7 @@ class MainActivity : Activity() {
         vibrate(200)
         val setNo = ses.setNo
         scope.launch {
-            sender.sendSet(cur.id, setNo, Session.REPS, cur.lastKg)
+            sender.sendSet(cur.id, setNo, Session.REPS, cur.targetKg(setNo))
                 .onFailure { restView.text = "Gönderilemedi: ${it.message}" }
         }
         ses.next()
@@ -384,12 +448,16 @@ class MainActivity : Activity() {
             circle(r2, "Yürüyüş", ORANGE, 60) { show(PAGE_WALK) }
             circle(r2, "⚙", DARK, 40) { openDrawer() }
         })
-        pages.addView(page { c ->
-            exerciseView = line(c, "Bugün plan yok", sizeSp = 16f, color = CYAN, bold = true)
-            setView = line(c, "")
-            targetView = line(c, "", color = GRAY)
-            sessionBpmView = line(c, "—", sizeSp = 40f, bold = true)
-            setButton = circle(row(c), "Set\nbitti", GREEN, 76) { finishSet() }
+        pages.addView(page(top = 26, bottom = 20) { c ->
+            exerciseView = line(c, "Bugün plan yok", sizeSp = 15f, color = CYAN, bold = true)
+            rampView = line(c, "", sizeSp = 12f)
+            setView = line(c, "", sizeSp = 14f, bold = true)
+            totalView = line(c, "", sizeSp = 11f, color = GRAY)
+            sessionBpmView = line(c, "—", sizeSp = 24f, bold = true)
+            val r = row(c)
+            skipButton = circle(r, "Geç", DARK, 42) { moveExercise(forward = true) }
+            setButton = circle(r, "Set\nbitti", GREEN, 66) { finishSet() }
+            stopButton = circle(r, "Dur", RED, 42) { stopSession() }
             restView = line(c, "", color = YELLOW)
         })
         pages.addView(page { c ->
@@ -536,7 +604,7 @@ class MainActivity : Activity() {
 
     /** Yuvarlak dugme: dolu daire + dokunma dalgasi + basinca kisa kuculme. */
     private fun circle(parent: LinearLayout, label: String, color: Int, sizeDp: Int, onClick: () -> Unit): TextView =
-        tappable(label, color, GradientDrawable.OVAL, if (sizeDp < 50) 18f else 12f, onClick).also {
+        tappable(label, color, GradientDrawable.OVAL, if (label.length == 1) 18f else 12f, onClick).also {
             parent.addView(it, LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp)).apply { setMargins(dp(5), 0, dp(5), 0) })
         }
 
@@ -619,6 +687,7 @@ class MainActivity : Activity() {
         /** Ekrandaki aralik icin son birkac ornek yeter. */
         const val MAX_SAMPLES = 8
         const val FLING_PX = 80f
+        const val STOP_CONFIRM_MS = 3000L
         const val PAGE_HOME = 0
         const val PAGE_SEANS = 1
         const val PAGE_GUN = 2

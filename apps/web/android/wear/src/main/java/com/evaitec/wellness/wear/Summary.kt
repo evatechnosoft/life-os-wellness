@@ -26,7 +26,9 @@ data class Summary(
                 val p = planArr.optJSONObject(i) ?: return@mapNotNull null
                 val id = p.optString("id", "")
                 if (id.isEmpty()) return@mapNotNull null
-                PlanItem(id, p.optString("name", id), p.optInt("sets", 2).coerceAtLeast(1), p.dbl("last_kg"))
+                val kgArr = p.optJSONArray("last_kgs") ?: JSONArray()
+                val kgs = (0 until kgArr.length()).mapNotNull { k -> kgArr.optDouble(k).takeUnless { it.isNaN() } }
+                PlanItem(id, p.optString("name", id), p.optInt("sets", 2).coerceAtLeast(1), p.dbl("last_kg"), kgs)
             }
             return Summary(
                 date = o.str("date"),
