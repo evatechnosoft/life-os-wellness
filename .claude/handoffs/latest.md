@@ -647,3 +647,5 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
   Not: saatin yedek planı Çarşamba için sunucudan farklı (eski liste) — telefon özeti gelince sunucu planı geçerli.
 - OKOK 14 Eki 11 metrik + daily 106.4 · kahvaltı `1014a0e2-…0001` 08:00 38 g/525.
 - Açık: kelebek setleri (bugün), kolluk/saat TA, bel, 13 Eki visseral teyidi, yumurta sayısı.
+- **Dean cevapları (14 Eki):** visseral 13 Eki bilinmiyor → 25.0 kalsın (kapandı). Tansiyon için **saat yeterli**, kolluk eşli ölçüm istenmeyecek (saat TA yalnız Samsung zip ile gelir). Bel yarın. Yumurta 4 küçük, paylaşıldı → 3 sayıldı (kayıt değişmedi).
+- **Bekleyen set:** Butterfly **35 kg** (tekrar/set sayısı belirsiz, varsayım 2×12). Bugün sunucuda salon seansı YOK → saat seansı senkronla gelince setleri ONA ekle (ayrı seans açma = çift kayıt) + whey 24 g/120 kcal `1014a0e2-…-0000000000e1` seans sonrası saatle.
