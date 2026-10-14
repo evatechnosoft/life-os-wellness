@@ -654,3 +654,6 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - Not: bash `curl -d` Türkçe karakterde 400 veriyor → UTF-8 gövde Python urllib ile.
 - **Çözüldü (Dean):** 30 dk yüzme gerçek. Salon ~09:00–09:50 saate KAYDEDİLMEDİ → `1014a0e2-…-0000000000b1` resistance 50 dk, Butterfly 35 kg 2×12 (set sayısı varsayım), diğer B hareketleri bilinmiyor. Whey `…0000000000e1` 10:30 24 g/120. Gün: 62 g protein (kahvaltı + whey).
 - **Next:** öğle/akşam öğünleri; B'nin diğer hareketleri (leg ext, abductor, row, Pallof) gelirse aynı seansa ekle — POST'ta `sets` TAM liste (mevcut 2 kelebek seti dahil) gönder, yoksa silinir.
+- **Salon B tam liste (Dean: "diğer hepsi tamam"):** b1 seansı 12 set — Leg ext 35×2, Abductor (kg yok)×2, Iso row 45×2, Butterfly 35×2, Pallof 15×4; kg = son seans tahmini, tekrar 12 varsayım (GET teyitli).
+- **0.45.0** (PR #62 `10cf50f`, release `4f0a07f`, CI yeşil, `/ota` 206, latest.json fit): saat OTA'sı Wi-Fi'yi açıkça ister (`WifiNetwork.kt`), BT vekiline düşmez. **Saatte DOĞRULANMADI.**
+  Tavuk-yumurta: 0.45'i inen eski sürüm hâlâ BT'den çeker → Dean'e bu sefer telefonda Bluetooth'u kapatıp güncelle denildi.
