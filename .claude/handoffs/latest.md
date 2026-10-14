@@ -632,3 +632,10 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - 13 Eki visseral: bugünkü ekran 25.5 → 13 Eki de büyük olasılıkla 25.5 (Dean teyidi yok, 25.0 kayıtlı).
 - Kahvaltı 08:00 (foto): kıymalı yumurta (~3 yumurta + kıyma ~60 g, soğan, domates) + beyaz peynir ~25 g + 1 zeytin → **~38 g / ~525 kcal**.
 - Hâlâ yok: kolluk/saat eşli TA, bel. Çar salon B setleri + whey (gelince).
+
+## 14 Eki öğle — saat 0.44.0 (seans: geç/dur/rampa/kaydırma), Çar-Cum takası
+- PR #61 `7496f36`, release `59d7001`, tag v0.44.0 CI yeşil. **latest.json (0.43 ve 0.44) GitHub release adreslerine çevrildi** (ZimaOS kapalı); sha eşleşti.
+  ZimaOS açılınca `node ops/publish_ota.mjs 0.44.0` → katalog + /ota tekrar sunucudan.
+- Seans: Geç / Set bitti / Dur(2 dokunuş), toplam set, rampa (telefon `last_kgs`), sola=sonraki, sağa=önceki; sistem kaydır-kapat KAPALI (geri = fiziksel tuş).
+- **Dean 14 Eki:** Çarşamba Smith press yerine **kelebek (butterfly)** yaptı → Cuma'ya Smith press (düz / alt göğüs). Yedek plan (saat) değişti;
+  **sunucu `workout_plan` (weekday 3 ↔ 5) ZimaOS açılınca güncellenmeli** — doğrulanmadı. Bugünün kelebek setleri sorulacak.
