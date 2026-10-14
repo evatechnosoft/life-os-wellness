@@ -19,7 +19,8 @@ export interface WatchSummary {
   kcal_max: number | null
   weight_delta7: number | null
   steps: number | null
-  plan: { id: string; name: string; sets: number; last_kg: number | null }[]
+  /** last_kgs: son seansta set sirasiyla kg; farkliysa rampa (saat gosterir). */
+  plan: { id: string; name: string; sets: number; last_kg: number | null; last_kgs: number[] }[]
 }
 
 export interface WatchSummaryInput {
@@ -52,6 +53,7 @@ export function buildWatchSummary(input: WatchSummaryInput): WatchSummary {
       name: find(e.id)?.name ?? e.id,
       sets: e.sets ?? 2,
       last_kg: lastWeight(input.workouts, e.id),
+      last_kgs: lastWeights(input.workouts, e.id),
     })),
   }
 }
@@ -63,6 +65,17 @@ export function lastWeight(workouts: Workout[], exerciseId: string): number | nu
     if (sets.length > 0) return sets[sets.length - 1]!.weight_kg
   }
   return null
+}
+
+/** O hareketin kg'li setleri olan en son seansi: set_no sirasiyla kg listesi; hic yoksa bos. */
+export function lastWeights(workouts: Workout[], exerciseId: string): number[] {
+  for (let i = workouts.length - 1; i >= 0; i--) {
+    const sets = (workouts[i]!.sets ?? [])
+      .filter((s) => s.exercise_id === exerciseId && typeof s.weight_kg === 'number')
+      .sort((a, b) => a.set_no - b.set_no)
+    if (sets.length > 0) return sets.map((s) => s.weight_kg as number)
+  }
+  return []
 }
 
 const WearBridge = registerPlugin<{ pushSummary(opts: { json: string }): Promise<void> }>('WearBridge')

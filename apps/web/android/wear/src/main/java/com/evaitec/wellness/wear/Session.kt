@@ -2,8 +2,22 @@ package com.evaitec.wellness.wear
 
 import java.time.DayOfWeek
 
-/** Gunun planindaki tek hareket. Telefon ozeti (Summary) ya da yedek liste uretir. */
-data class PlanItem(val id: String, val name: String, val sets: Int, val lastKg: Double?)
+/**
+ * Gunun planindaki tek hareket. Telefon ozeti (Summary) ya da yedek liste uretir.
+ * kgs: son seansta set sirasiyla kg (25, 30, 35 = rampa); bossa her set lastKg.
+ */
+data class PlanItem(
+    val id: String,
+    val name: String,
+    val sets: Int,
+    val lastKg: Double?,
+    val kgs: List<Double> = emptyList(),
+) {
+    /** Rampa gecen sefer 3 set surduyse plan 2 dese de 3 set. */
+    val totalSets: Int get() = maxOf(sets, kgs.size)
+    val isRamp: Boolean get() = kgs.distinct().size > 1
+    fun targetKg(setNo: Int): Double? = kgs.getOrNull(setNo - 1) ?: kgs.lastOrNull() ?: lastKg
+}
 
 /**
  * Seans sayaci: hangi hareket, kacinci set. Saf - ekran/sensor/ag yok, JUnit ile sinanir.
@@ -15,14 +29,40 @@ class Session(val plan: List<PlanItem>) {
     var setNo = 1
         private set
 
+    /** Biten set sayisi (gecilen setler sayilmaz). */
+    var doneSets = 0
+        private set
+
     val current: PlanItem? get() = plan.getOrNull(index)
     val done: Boolean get() = index >= plan.size
+    val totalSets: Int get() = plan.sumOf { it.totalSets }
 
     /** Seti kapatir; sonraki sete ya da harekete gecer. Kalan var mi doner. */
     fun next(): Boolean {
         val cur = current ?: return false
-        if (setNo < cur.sets) setNo++ else { index++; setNo = 1 }
+        doneSets++
+        if (setNo < cur.totalSets) setNo++ else { index++; setNo = 1 }
         return !done
+    }
+
+    /** Hareketi set saymadan gecer (alet dolu, yapilmayacak). */
+    fun skip() {
+        if (done) return
+        index++
+        setNo = 1
+    }
+
+    /** Onceki harekete doner, ilk setinden. */
+    fun previous() {
+        if (index == 0) return
+        index = (index - 1).coerceAtMost(plan.size - 1)
+        setNo = 1
+    }
+
+    /** Seansi bitirir; biten setler kalir. */
+    fun stop() {
+        index = plan.size
+        setNo = 1
     }
 
     companion object {
@@ -34,6 +74,7 @@ class Session(val plan: List<PlanItem>) {
 
         // ponytail: sabit A/B/A' listesi - telefondan ozet (plan + son kg) gelince kalkar.
         // Kaynak: docs/PROGRAM-2026-09.md (29 Eyl plan, 2-3 Eki ve 5 Eki Pzt/Car takasi), adlar exercises.json.
+        // 14 Eki (Dean): Car press yerine kelebek yapildi -> Car Butterfly, Cum Smith press (duz ya da alt gogus).
         fun fallbackPlan(day: DayOfWeek): List<PlanItem>? = when (day) {
             DayOfWeek.MONDAY -> listOf(
                 "Leg_Press" to "Leg press",
@@ -49,14 +90,14 @@ class Session(val plan: List<PlanItem>) {
                 "Barbell_Hip_Thrust" to "Hip thrust",
                 "Romanian_Deadlift" to "Romanian deadlift",
                 "Leverage_Iso_Row" to "Makine row",
-                "Smith_Machine_Bench_Press" to "Smith makinesinde bench press (düz)",
+                "Butterfly" to "Butterfly / pec deck",
                 "Pallof_Press" to "Pallof press",
             )
             DayOfWeek.FRIDAY -> listOf(
                 "Leg_Press" to "Leg press",
                 "Leg_Extensions" to "Leg extension",
                 "Wide-Grip_Lat_Pulldown" to "Lat pulldown (geniş tutuş)",
-                "Butterfly" to "Butterfly / pec deck",
+                "Smith_Machine_Bench_Press" to "Smith bench press (düz / alt göğüs)",
                 "Machine_Bicep_Curl" to "Biseps curl (makine)",
                 "Standing_Dumbbell_Calf_Raise" to "Ayakta calf raise (vücut ağırlığı / dambıl)",
                 "Arnold_Dumbbell_Press" to "Arnold press (dambıl)",

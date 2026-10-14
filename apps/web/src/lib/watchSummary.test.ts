@@ -7,7 +7,7 @@ vi.mock('@capacitor/core', () => ({
 
 import type { Meal, Workout } from './db'
 import { DEFAULT_GOALS } from './settings'
-import { buildWatchSummary, lastWeight } from './watchSummary'
+import { buildWatchSummary, lastWeight, lastWeights } from './watchSummary'
 
 const meal = (date: string, protein_g: number, kcal: number): Meal =>
   ({ id: `${date}-${kcal}`, date, time: '12:00', protein_g, kcal, note: null, estimated: false }) as Meal
@@ -43,8 +43,8 @@ describe('buildWatchSummary', () => {
       weight_delta7: -0.4,
       steps: 6382,
       plan: [
-        { id: 'Leg_Press', name: 'Leg press', sets: 2, last_kg: 35 },
-        { id: 'Nope', name: 'Nope', sets: 2, last_kg: null },
+        { id: 'Leg_Press', name: 'Leg press', sets: 2, last_kg: 35, last_kgs: [35] },
+        { id: 'Nope', name: 'Nope', sets: 2, last_kg: null, last_kgs: [] },
       ],
     })
   })
@@ -69,5 +69,21 @@ describe('buildWatchSummary', () => {
   it('lastWeight skips sets without kg', () => {
     expect(lastWeight([workout('2026-10-01', 'Leg_Press', 35), workout('2026-10-02', 'Leg_Press', null)], 'Leg_Press')).toBe(35)
     expect(lastWeight([], 'Leg_Press')).toBeNull()
+  })
+
+  it('lastWeights gives the latest session per set in set order (ramp)', () => {
+    const ramp: Workout = {
+      id: 'r', date: '2026-10-12', type: 'resistance', muscle_groups: [],
+      sets: [
+        { id: 'a', exercise_id: 'Row', set_no: 3, weight_kg: 35, reps: 12, done_at: null },
+        { id: 'b', exercise_id: 'Row', set_no: 1, weight_kg: 25, reps: 12, done_at: null },
+        { id: 'c', exercise_id: 'Other', set_no: 1, weight_kg: 99, reps: 12, done_at: null },
+        { id: 'd', exercise_id: 'Row', set_no: 2, weight_kg: 30, reps: 12, done_at: null },
+        { id: 'e', exercise_id: 'Row', set_no: 4, weight_kg: null, reps: 12, done_at: null },
+      ],
+    }
+    expect(lastWeights([workout('2026-10-01', 'Row', 20), ramp], 'Row')).toEqual([25, 30, 35])
+    expect(lastWeights([workout('2026-10-01', 'Row', 20), ramp, workout('2026-10-13', 'Other', 5)], 'Row')).toEqual([25, 30, 35])
+    expect(lastWeights([], 'Row')).toEqual([])
   })
 })
