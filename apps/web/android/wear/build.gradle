@@ -43,6 +43,13 @@ android {
         }
     }
     buildTypes {
+        // CI ve OTA debug APK'sini dagitiyor (sabit debug imzasi). Kucultulmemis hali 13 MB:
+        // telefondan saate Bluetooth aktarimi dakikalar suruyordu (Dean 14 Eki). R8 debug'da da acik.
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
         release {
             // Saat APK'si Bluetooth vekili uzerinden iniyor; her megabayt kurulum suresi.
             minifyEnabled true
