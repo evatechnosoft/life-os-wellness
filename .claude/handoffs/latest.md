@@ -684,3 +684,5 @@ life-os-wellness (dal dev) — önce .claude/handoffs/latest.md '★ 14 Eki KAPA
 Sıra: (1) Dean saat 0.46 güncellemesini denedi mi (süre, Wi-Fi/telefon, giriş ekranı) (2) öğle/akşam öğünleri (3) 15 Eki sabah OKOK + bel.
 Uyarı: workouts POST'ta sets TAM liste; Türkçe gövde Python ile; ZimaOS açılışta konteyner + tünel.
 ```
+- **14 Eki akşam:** `1014a0e2-…-000000000003` 19:00 palamut/torik 3 dilim (~270 g, 6 pişmiş dilimden Dean payı VARSAYIM) + marul → 68 g/630. Gün: **130 g / 1275 kcal**, öğle öğünü bildirilmedi (yenmediyse gün böyle kapanır). Sorulu: kaç dilim yedi, öğle var mı.
+- Not: hafıza dizini artık `~/.claude-team/projects/.../memory/` (ortam değişti).
