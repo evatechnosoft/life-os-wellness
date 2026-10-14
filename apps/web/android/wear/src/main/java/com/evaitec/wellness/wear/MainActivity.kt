@@ -391,15 +391,19 @@ class MainActivity : Activity() {
             // boyunca ekran acik kalir, bitince bayrak kalkar.
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             try {
+                otaView.text = "Wi-Fi isteniyor…"
+                // Telefon bagliyken trafik Bluetooth vekilinden gider (yavas, kopuyor); Wi-Fi acikca istenir.
+                WifiNetwork.use(this@MainActivity) { onWifi ->
+                val via = if (onWifi) "Wi-Fi" else "telefon (yavaş)"
                 when (val decision = withContext(Dispatchers.IO) { updater.check() }) {
                     is OtaManifest.Decision.UpToDate -> otaView.text = "Guncel"
                     is OtaManifest.Decision.Blocked -> otaView.text = "Guncelleme yok: ${decision.reason}"
                     is OtaManifest.Decision.Available -> {
                         val app = decision.app
-                        otaView.text = "${app.versionName} indiriliyor…"
+                        otaView.text = "${app.versionName} indiriliyor ($via)…"
                         val result = withContext(Dispatchers.IO) {
                             updater.download(app) { pct ->
-                                runOnUiThread { otaView.text = "${app.versionName} indiriliyor %$pct" }
+                                runOnUiThread { otaView.text = "${app.versionName} indiriliyor %$pct ($via)" }
                             }
                         }
                         otaView.text = result.fold(
@@ -407,6 +411,7 @@ class MainActivity : Activity() {
                             { "Guncellenemedi: ${it.message} - tekrar dokun, kaldigi yerden surer" },
                         )
                     }
+                }
                 }
             } finally {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
