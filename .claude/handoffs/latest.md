@@ -649,3 +649,6 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - Açık: kelebek setleri (bugün), kolluk/saat TA, bel, 13 Eki visseral teyidi, yumurta sayısı.
 - **Dean cevapları (14 Eki):** visseral 13 Eki bilinmiyor → 25.0 kalsın (kapandı). Tansiyon için **saat yeterli**, kolluk eşli ölçüm istenmeyecek (saat TA yalnız Samsung zip ile gelir). Bel yarın. Yumurta 4 küçük, paylaşıldı → 3 sayıldı (kayıt değişmedi).
 - **Bekleyen set:** Butterfly **35 kg** (tekrar/set sayısı belirsiz, varsayım 2×12). Bugün sunucuda salon seansı YOK → saat seansı senkronla gelince setleri ONA ekle (ayrı seans açma = çift kayıt) + whey 24 g/120 kcal `1014a0e2-…-0000000000e1` seans sonrası saatle.
+- **Samsung zip 11:23** `--from 2026-10-14 --no-workouts`: adım 2982, TA 128/77 (saat 07:35, nabız 59); kilo 106.4 (OKOK) korundu. Saat seansları HC'den zaten vardı (yürüyüş 08:40 11 dk, "Yüzme" 09:49 30 dk) → notlara Samsung kcal (88 / 285) yazıldı.
+  Samsung tartı (saat BIA) 106.0, yağ %33.4, iskelet 37.8 — OKOK ile karıştırma. **Soru:** 30 dk "Yüzme" salon mu (kelebek 35 kg)? Salonsa resistance'a çevir + setleri ekle + whey.
+- Not: bash `curl -d` Türkçe karakterde 400 veriyor → UTF-8 gövde Python urllib ile.
