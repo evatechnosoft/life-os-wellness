@@ -652,3 +652,5 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - **Samsung zip 11:23** `--from 2026-10-14 --no-workouts`: adım 2982, TA 128/77 (saat 07:35, nabız 59); kilo 106.4 (OKOK) korundu. Saat seansları HC'den zaten vardı (yürüyüş 08:40 11 dk, "Yüzme" 09:49 30 dk) → notlara Samsung kcal (88 / 285) yazıldı.
   Samsung tartı (saat BIA) 106.0, yağ %33.4, iskelet 37.8 — OKOK ile karıştırma. **Soru:** 30 dk "Yüzme" salon mu (kelebek 35 kg)? Salonsa resistance'a çevir + setleri ekle + whey.
 - Not: bash `curl -d` Türkçe karakterde 400 veriyor → UTF-8 gövde Python urllib ile.
+- **Çözüldü (Dean):** 30 dk yüzme gerçek. Salon ~09:00–09:50 saate KAYDEDİLMEDİ → `1014a0e2-…-0000000000b1` resistance 50 dk, Butterfly 35 kg 2×12 (set sayısı varsayım), diğer B hareketleri bilinmiyor. Whey `…0000000000e1` 10:30 24 g/120. Gün: 62 g protein (kahvaltı + whey).
+- **Next:** öğle/akşam öğünleri; B'nin diğer hareketleri (leg ext, abductor, row, Pallof) gelirse aynı seansa ekle — POST'ta `sets` TAM liste (mevcut 2 kelebek seti dahil) gönder, yoksa silinir.
