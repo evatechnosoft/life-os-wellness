@@ -484,3 +484,11 @@ Başlangıç: seans sırasında set sayacı + nabız + "gönder" geri bildirimi;
 **Kabul / toplu test:** saf mantık (set sayacı, dinlenme sayacı, özet JSON ayrıştırma) Kotlin unit test; Wear emülatörü 454 px yuvarlak
 ekran görüntüsü her ekran için; telefon tarafı özet yazıcısı vitest; sonra tek OTA (saat) + tek bundle. Dean saatte: seans ekranında
 bir set → telefonda/sunucuda set görünür (GET).
+
+### S-next v2 — giriş ekranı (14 Eki, Dean)
+Dean: "set direkt başladı, giriş olmalı; butonlar küt, yuvarlak olsun; yazılar renkli ve hareketli; gönder/güncelle alttan çekilen
+ayarlar çekmecesine." Uygulandı (0.43.0): açılış hep **giriş** (akan renkli "Bugün" + tarih, yuvarlak Seans/Gün/Yürüyüş + ⚙).
+Seans sayfası eski mantık, nabız bölge renginde atar. **Yürüyüş**: süre + Z1–Z5 bölgesi (SAAT-RUTIN bantları, `Walk.kt`), kayıt
+YAZMAZ — Samsung zaten kaydediyor, çift seans olmasın. **⚙ / giriste yukarı kaydır** → alttan çekmece (eski Teknik satırları);
+aşağı kaydır / geri / boşluğa dokun kapatır. Geri: alt sayfadan girişe, girişten çıkış (API 33+ `OnBackInvokedCallback`).
+Emülatör (wearos_large_round 454 px) ekran görüntüsüyle doğrulandı; saatte doğrulanmadı.
