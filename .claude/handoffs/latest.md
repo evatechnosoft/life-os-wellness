@@ -614,3 +614,21 @@ life-os-wellness (dal dev) — dean-pt günlük kayıt. Önce .claude/handoffs/l
 Sıra: (1) 14 Eki sabah OKOK + kolluk/saat eşli TA + bel (2) kahvaltı 08:00 (3) Çar salon B setleri + whey.
 Uyarı: workouts POST'ta `sets` alanını not güncellerken GÖNDERME (siler). ZimaOS kapalıysa WOL; fit 530 + api yerelde ayaktaysa `docker restart wellness-tunnel`.
 ```
+
+## 14 Eki sabah — saat arayüzü 0.43.0 (kod), ZimaOS KAPALI (kayıt yazılamadı)
+
+**ZimaOS:** WOL 2 kez (08:0x, 08:1x) cevap yok, fit 530, ssh timeout → Dean'e "elle aç" denildi.
+
+**Kod (kanıtlı):** PR #60 squash `3d94e52` → dev; `chore(release): 0.43.0` `f1cf518`; tag `v0.43.0` CI yeşil, release'te
+`wellness-0.43.0.apk`, `wellness-wear-0.43.0.apk`, `latest.json`. Saat: giriş ekranı (Seans/Gün/Yürüyüş/⚙), yürüyüş sayacı + Z1–Z5,
+alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyle doğrulandı; **saatte DOĞRULANMADI.**
+- ⚠ `latest.json` APK'yı `fit.evaitec.com/ota/`'dan gösteriyor ama dosya ZimaOS'ta YOK → ZimaOS açılınca İLK İŞ:
+  `node ops/publish_ota.mjs 0.43.0` (scp `zima:/DATA/AppData/life-os-wellness/ota/`). O zamana kadar "Güncelle" 404 verir.
+- Not: yerel `dev` (ana checkout) origin'den geride + 4 devir commit'i cherry-pick ile origin'e gitti → ana checkout'ta `git pull --rebase`.
+
+**Bekleyen POST (ZimaOS açılınca, 14 Eki):**
+- OKOK `source=okok`: kilo 106.4, BMI 34.7, yağ %34.4 / 36.6 kg, iskelet kası 34.9 kg %32.8, kas 66.7 kg %62.7, su %49.1 / 52.2 kg,
+  visseral 25.5, kemik 3.16, bmr 2005.1, protein %13.6, yağsız 69.83 → metrik adları 13 Eki okok kaydından kopyala. + daily weight 106.4.
+- 13 Eki visseral: bugünkü ekran 25.5 → 13 Eki de büyük olasılıkla 25.5 (Dean teyidi yok, 25.0 kayıtlı).
+- Kahvaltı 08:00 (foto): kıymalı yumurta (~3 yumurta + kıyma ~60 g, soğan, domates) + beyaz peynir ~25 g + 1 zeytin → **~38 g / ~525 kcal**.
+- Hâlâ yok: kolluk/saat eşli TA, bel. Çar salon B setleri + whey (gelince).
