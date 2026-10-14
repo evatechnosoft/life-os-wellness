@@ -660,3 +660,27 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - Abductor 25 kg yazıldı (b1 seansı 12 set, GET teyitli).
 - **0.46.0** (PR #63): saat APK'sı debug'da R8 → **1.6 MB** (13 MB idi); `/ota/wellness-wear-0.46.0.apk` 1 646 315 B, katalog 4600. Emülatörde giriş/seans/çekmece/Güncelle("Guncel") OK, FATAL yok. Saatte DOĞRULANMADI.
   Dean bulgusu: telefon BT kapalıyken bile eski saat sürümü indirmeyi telefon üzerinden (Wi-Fi/bulut vekili) deniyor → asıl çözüm küçük APK; 0.45+ ayrıca Wi-Fi'yi doğrudan ister.
+
+## ★ 14 Eki KAPANIŞ DEVRİ (güncel tek kaynak — yukarıdaki 14 Eki maddelerinin özeti)
+**Goal:** (1) saat uygulaması kullanılır olsun: giriş ekranı, seans geç/dur/rampa, hızlı güncelleme; (2) günlük dean-pt kaydı.
+
+**State — kanıtlı (GET / CI / emülatör):**
+- Sürümler: 0.43 giriş ekranı (#60) · 0.44 seans geç/dur/toplam/rampa/sağa-sola (#61) · 0.45 OTA Wi-Fi ister (#62) · **0.46 saat APK 1.6 MB, R8** (#63). Hepsi `/ota`'da, katalog 4600, latest.json fit adresi.
+  Emülatörde doğrulandı; **saatte hiçbiri DOĞRULANMADI** — Dean güncellemeyi deniyor (BT kapalıyken bile eski sürüm telefon vekilinden çekiyordu).
+- Sunucu plan: Çar `…Iso_Row, Butterfly, Pallof` · Cum `…Lat_Pulldown, Smith_Machine_Bench_Press, …` (Dean: press yerine kelebek; Cuma düz/alt göğüs).
+- 14 Eki kayıtlar: OKOK 11 metrik + daily 106.4 · adım 2982 · TA 128/77 (saat 07:35) · kahvaltı 38/525 · whey 10:30 24/120 → **62 g** ·
+  seanslar: yürüyüş 11 dk (Samsung 88 kcal), **salon b1 50 dk 12 set** (LegExt 35, Abductor 25, IsoRow 45, Butterfly 35 ×2; Pallof 15 ×4; tekrar 12 varsayım), yüzme 30 dk (Samsung 285 kcal).
+
+**Decisions:** tansiyon için saat yeterli (kolluk istenmez) · 13 Eki visseral 25.0 kalır · yumurta 3 sayılır · saat yürüyüşü kayıt yazmaz (Samsung kaydeder) · sistem kaydır-kapat kapalı, geri = fiziksel tuş.
+
+**Don't repeat:** workouts POST `sets` = TAM liste (eksik gönderilen silinir; not güncellerken `sets` hiç gönderme) · bash `curl -d` Türkçe → 400, Python urllib kullan · ZimaOS açılışı → konteyner başlat + tünel restart (hafıza `zima-compose-sudo`) · Samsung zip klasörünün İÇİNDEKİ `samsunghealth_*` dizinini ver, `--no-workouts` (saat seansları HC'den zaten geliyor).
+
+**Next — tek adım:** Dean'den saat güncelleme sonucu (süre, "Wi-Fi/telefon" yazısı, yeni giriş ekranı) → sorun varsa logcat/ekran fotoğrafı. Sonra öğle/akşam öğünleri (protein açığı ~90 g), bel yarın sabah.
+Temizlik: `.claude/worktrees/wear-ux` worktree'si + `rel*` yerel dallar silinebilir; ana checkout `dev` origin'den geride → `git pull --rebase`.
+
+### <yeniden başlangıç> promptu (14 Eki öğleden sonra)
+```
+life-os-wellness (dal dev) — önce .claude/handoffs/latest.md '★ 14 Eki KAPANIŞ DEVRİ' bölümünü oku.
+Sıra: (1) Dean saat 0.46 güncellemesini denedi mi (süre, Wi-Fi/telefon, giriş ekranı) (2) öğle/akşam öğünleri (3) 15 Eki sabah OKOK + bel.
+Uyarı: workouts POST'ta sets TAM liste; Türkçe gövde Python ile; ZimaOS açılışta konteyner + tünel.
+```
