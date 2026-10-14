@@ -639,3 +639,11 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - Seans: Geç / Set bitti / Dur(2 dokunuş), toplam set, rampa (telefon `last_kgs`), sola=sonraki, sağa=önceki; sistem kaydır-kapat KAPALI (geri = fiziksel tuş).
 - **Dean 14 Eki:** Çarşamba Smith press yerine **kelebek (butterfly)** yaptı → Cuma'ya Smith press (düz / alt göğüs). Yedek plan (saat) değişti;
   **sunucu `workout_plan` (weekday 3 ↔ 5) ZimaOS açılınca güncellenmeli** — doğrulanmadı. Bugünün kelebek setleri sorulacak.
+
+## 14 Eki ~11:00 — ZimaOS açıldı (Dean elle), bekleyenler yazıldı (GET teyitli)
+- Açılışta wellness konteynerleri **Exited** (restart yok) → `compose up -d db api backup` + `docker start wellness-tunnel`; ilk dakikada 502 → `docker restart wellness-tunnel` → health 200. **Açılış sonrası iki adım şart** (konteyner başlat + tünel restart). netmovies/evaisys tünelleri ve `cloudflared` de Exited — dokunulmadı.
+- `publish_ota.mjs 0.44.0` → katalog 4400, `/ota/wellness{,-wear}-0.44.0.apk` 206. latest.json 0.44 tekrar fit.evaitec.com adresinde.
+- Plan (GET): Çar `…Leverage_Iso_Row, Butterfly, Pallof_Press` · Cum `…Wide-Grip_Lat_Pulldown, Smith_Machine_Bench_Press, …`.
+  Not: saatin yedek planı Çarşamba için sunucudan farklı (eski liste) — telefon özeti gelince sunucu planı geçerli.
+- OKOK 14 Eki 11 metrik + daily 106.4 · kahvaltı `1014a0e2-…0001` 08:00 38 g/525.
+- Açık: kelebek setleri (bugün), kolluk/saat TA, bel, 13 Eki visseral teyidi, yumurta sayısı.
