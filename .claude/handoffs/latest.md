@@ -657,3 +657,6 @@ alttan ayarlar çekmecesi. Emülatör (wearos_large_round) ekran görüntüsüyl
 - **Salon B tam liste (Dean: "diğer hepsi tamam"):** b1 seansı 12 set — Leg ext 35×2, Abductor (kg yok)×2, Iso row 45×2, Butterfly 35×2, Pallof 15×4; kg = son seans tahmini, tekrar 12 varsayım (GET teyitli).
 - **0.45.0** (PR #62 `10cf50f`, release `4f0a07f`, CI yeşil, `/ota` 206, latest.json fit): saat OTA'sı Wi-Fi'yi açıkça ister (`WifiNetwork.kt`), BT vekiline düşmez. **Saatte DOĞRULANMADI.**
   Tavuk-yumurta: 0.45'i inen eski sürüm hâlâ BT'den çeker → Dean'e bu sefer telefonda Bluetooth'u kapatıp güncelle denildi.
+- Abductor 25 kg yazıldı (b1 seansı 12 set, GET teyitli).
+- **0.46.0** (PR #63): saat APK'sı debug'da R8 → **1.6 MB** (13 MB idi); `/ota/wellness-wear-0.46.0.apk` 1 646 315 B, katalog 4600. Emülatörde giriş/seans/çekmece/Güncelle("Guncel") OK, FATAL yok. Saatte DOĞRULANMADI.
+  Dean bulgusu: telefon BT kapalıyken bile eski saat sürümü indirmeyi telefon üzerinden (Wi-Fi/bulut vekili) deniyor → asıl çözüm küçük APK; 0.45+ ayrıca Wi-Fi'yi doğrudan ister.
