@@ -102,7 +102,7 @@ try {
      join(dir, phoneApk), join(dir, wearApk))
 }
 
-const file = gh('api', `repos/${CATALOG}/contents/apps.json`)
+const file = gh('api', `repos/evatechnosoft/evaitec-ota/contents/apps.json`)
 const { sha, content } = JSON.parse(file)
 const catalog = JSON.parse(Buffer.from(content, 'base64').toString('utf8'))
 
@@ -130,5 +130,5 @@ const body = JSON.stringify({
   content: Buffer.from(JSON.stringify(catalog, null, 2) + '\n', 'utf8').toString('base64'),
   sha,
 })
-gh('api', `repos/${CATALOG}/contents/apps.json`, '-X', 'PUT', '--input', '-', { input: body })
+gh('api', `repos/evatechnosoft/evaitec-ota/contents/apps.json`, '-X', 'PUT', '--input', '-', { input: body })
 console.log(`katalog guncellendi: wellness ${version} (versionCode ${versionCode})`)
