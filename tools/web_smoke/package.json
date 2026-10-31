@@ -1,0 +1,7 @@
+{
+  "name": "wellness-web-smoke",
+  "private": true,
+  "type": "module",
+  "scripts": { "smoke": "node smoke.mjs ../../apps/web/dist" },
+  "devDependencies": { "playwright": "1.56.1" }
+}

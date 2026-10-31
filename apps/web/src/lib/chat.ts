@@ -18,6 +18,7 @@ import {
 } from './nutrition'
 import { askCloud, CLOUD_NOTE } from './cloudAi'
 import { askLocal, LOCAL_NOTE, localModelReady } from './localLlm'
+import { featureOn } from './remoteFlags'
 import { OFFLINE_NOTE, offlineReply } from './offline'
 import { productLines } from './products'
 import { EMPTY_PROFILE, profileLines, type Profile } from './profile'
@@ -343,7 +344,7 @@ export async function ask(
     // bayrak ve bilinen konular (protein/antrenman/kilo) modele hic gitmez.
     const rule = offlineReply(text, ctx, known)
     const ruled = { role: 'eva' as const, text: rule.text, via: 'text' as const, draft: rule.draft ?? undefined }
-    if (!rule.free || !(await localModelReady())) return remember(ruled)
+    if (!rule.free || !featureOn('local_llm') || !(await localModelReady())) return remember(ruled)
     try {
       const facts = rule.text.replace(OFFLINE_NOTE, '').trim()
       const r = await askLocal(`Hesaplanmış durum: ${facts}

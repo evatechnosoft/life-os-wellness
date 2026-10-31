@@ -13,6 +13,7 @@ import { listenReminderActions, refreshNotifications } from './lib/reminders'
 import { REJECTED_KEY, hasServer, pullRange, startSyncLoop, syncOutbox } from './lib/store'
 import { getApiBase } from './lib/api'
 import { syncBadge } from './lib/syncStatus'
+import { featureOn } from './lib/remoteFlags'
 import { applyWebBundle, checkWebBundle } from './lib/webBundle'
 
 /** Indirilen yeni paket varsa hemen ona gecer (ayni origin: yerel veri kaybolmaz). */
@@ -23,6 +24,7 @@ function updateScreens(): Promise<void> {
   // ponytail: form doldururken arka plandan donulurse sayfa yenilenir; sorun olursa
   // yalniz soguk acilista uygula.
   updating ??= (async () => {
+    if (!featureOn('web_bundle')) return
     const path = await checkWebBundle().catch(() => null)
     if (path) await applyWebBundle(path).catch(() => {})
   })().finally(() => { updating = null })

@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { setToken } from './lib/api'
 import { loadCatalog } from './lib/catalog'
+import { initRemoteFlags } from './lib/remoteFlags'
 import { restoreToken } from './lib/tokenFile'
 import './index.css'
 
@@ -18,6 +19,9 @@ if (tokenFromUrl) history.replaceState(null, '', location.pathname)
 
 const root = document.getElementById('root')
 if (!root) throw new Error('#root is missing from index.html')
+
+// Kill-switch'ler arka planda: acilis bunu beklemez, ozellikler kullanilirken okur.
+void initRemoteFlags()
 
 // Katalog once yerine otursun: ekran acildiktan sonra degisirse listeler eski kalir.
 // Basarisizlik acilisi durdurmaz - `loadCatalog` zaten gomulu kopyaya duser.
