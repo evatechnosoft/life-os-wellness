@@ -1,5 +1,7 @@
 # Handoff: 11 Eki Pazar akşam — saat verisi akıyor, kopyalar geri döndü, BIA iki cihaz
 
+> BAYAT (2026-11-10): bu devir 11 Eki'ye aittir. Sonraki devirler 12-14 Eki (`git log`: `docs(devir)` commitleri, `.claude/handoffs/latest.md`); checkout şu an `wip/tasima-20261015` @ 6d21830.
+
 > 2026-10-11 ~22:45 · `dev` @ bu devir commit'i (öncesi `b38efd4`) · untracked `.claude/plan-backup-2026-09-29.json`, `.claude/worktrees/` (dokunma)
 > Öğleden önceki kök neden + kanıt zinciri: `.claude/handoffs/latest.md` § "11 Eki sabah" ve sonrası. Kod: PR #55/#56/#57, 0.42.0, bundle `4aa1a381` (sunucuda doğrulandı).
 
