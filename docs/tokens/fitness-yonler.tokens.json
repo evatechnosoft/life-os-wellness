@@ -1,0 +1,85 @@
+{
+  "$meta": {
+    "note": "Aday temalar, evaglass.tokens.json -> themes ile ayni sema. Dean secince secilenler evaglass'a tasinir. Kaynak: docs/img/bolt-prompt-tema-2026-11-11.md, arastirma tools/docs/research/fitness-ui-trend-2027.md",
+    "date": "2026-11-11",
+    "existing": ["aurora", "wash", "graffiti"]
+  },
+  "themes": {
+    "kagit": {
+      "$label": "Kâğıt (L1) — beyaz, sıcak editoryal",
+      "mode": "light",
+      "color": {
+        "surface": { "bg": "#F0EEE9", "soft": "#E7E4DD", "paper": "#F0EEE9" },
+        "ink": { "default": "#1C1A17", "dim": "rgba(28,26,23,0.70)", "faint": "rgba(28,26,23,0.45)" },
+        "edge": { "default": "rgba(28,26,23,0.15)", "soft": "rgba(28,26,23,0.08)" },
+        "accent": { "a1": "#E85D3F", "a2": "#1F5C63", "a3": "#5F6F52", "a4": "#E9C46A", "default": "#E85D3F" },
+        "gradient": null
+      },
+      "font": { "display": "Fraunces", "kinetic": null, "body": "Instrument Sans", "mono": null },
+      "hero": { "family": "display", "size": 96, "case": "sentence" },
+      "effects": ["hairline-dividers", "paper-grain", "no-cards", "editorial-columns"]
+    },
+    "pop": {
+      "$label": "Pop (L2) — beyaz, ekspresif spor",
+      "mode": "light",
+      "color": {
+        "surface": { "bg": "#FFFBF2", "soft": "#FFD9CC", "paper": "#FFFBF2" },
+        "ink": { "default": "#121212", "dim": "rgba(18,18,18,0.72)", "faint": "rgba(18,18,18,0.45)" },
+        "edge": { "default": "rgba(18,18,18,0.14)", "soft": "rgba(18,18,18,0.07)" },
+        "accent": { "a1": "#C6F432", "a2": "#FF6B4A", "a3": "#3A2E8F", "default": "#C6F432" },
+        "gradient": null
+      },
+      "font": { "display": "Roboto Flex", "kinetic": "Roboto Flex", "body": "Roboto Flex", "mono": null },
+      "hero": { "family": "kinetic", "size": 88, "case": "sentence", "kineticAxes": ["wght", "wdth"] },
+      "effects": ["asymmetric-bento", "shape-morph", "spring-press", "scalloped-badge"]
+    },
+    "karbon": {
+      "$label": "Karbon (D1) — koyu, mono + tek turuncu",
+      "mode": "dark",
+      "color": {
+        "surface": { "bg": "#0E0F10", "soft": "#17181A", "raised": "#1F2023", "top": "#2A2B2F" },
+        "ink": { "default": "#E8E8E6", "dim": "#8A8C90", "faint": "rgba(232,232,230,0.40)" },
+        "edge": { "default": "rgba(255,255,255,0.12)", "soft": "rgba(255,255,255,0.06)" },
+        "accent": { "a1": "#FF5A1F", "good": "#3DDC97", "default": "#FF5A1F" },
+        "gradient": null
+      },
+      "font": { "display": "Space Grotesk", "kinetic": null, "body": "IBM Plex Sans", "mono": "IBM Plex Mono" },
+      "hero": { "family": "display", "size": 64, "case": "sentence" },
+      "effects": ["one-big-thing-hero", "surface-levels-4", "carbon-weave-hero", "bottom-sheet", "no-blur"]
+    },
+    "toprak": {
+      "$label": "Toprak Gecesi (D2) — koyu, sıcak",
+      "mode": "dark",
+      "color": {
+        "surface": { "bg": "#14110F", "soft": "#2A2420", "raised": "#3A322C" },
+        "ink": { "default": "#EDE6DC", "dim": "rgba(237,230,220,0.70)", "faint": "rgba(237,230,220,0.42)" },
+        "edge": { "default": "rgba(237,230,220,0.14)", "soft": "rgba(237,230,220,0.07)" },
+        "accent": { "a1": "#D9A066", "a2": "#7FA88A", "a3": "#C4553A", "default": "#D9A066" },
+        "gradient": null
+      },
+      "font": { "display": "DM Serif Display", "kinetic": null, "body": "Manrope", "mono": null },
+      "hero": { "family": "display", "size": 56, "case": "sentence" },
+      "effects": ["radial-dial", "week-heatmap", "readiness-color-word-number"]
+    },
+    "graffiti-sokak": {
+      "$label": "Graffiti Sokak (N1) — mevcut graffiti teması, koyu",
+      "$ref": "evaglass.tokens.json#/themes/graffiti",
+      "mode": "dark",
+      "effects": ["gradient-wash-card", "corner-spot", "marquee", "sticker-labels", "spray-texture", "cta-sheen", "accent-cycle", "graffiti-display"]
+    },
+    "neon-afis": {
+      "$label": "Neon Afiş (N2) — graffiti renkleri kâğıt üstünde, açık poster",
+      "mode": "light",
+      "color": {
+        "surface": { "bg": "#F4F4F0", "soft": "#E9E9E3", "paper": "#F4F4F0" },
+        "ink": { "default": "#0A0A0A", "dim": "rgba(10,10,10,0.74)", "faint": "rgba(10,10,10,0.45)" },
+        "edge": { "default": "#0A0A0A", "soft": "rgba(10,10,10,0.12)" },
+        "accent": { "a1": "#C6FF3D", "a2": "#FF2D9B", "a3": "#17E1F2", "default": "#C6FF3D" },
+        "gradient": null
+      },
+      "font": { "display": "Anybody", "kinetic": "Anybody", "body": "Space Mono", "mono": "Space Mono", "stamp": "Bangers" },
+      "hero": { "family": "kinetic", "size": 96, "case": "uppercase", "kineticAxes": ["wght", "wdth"] },
+      "effects": ["poster-grid", "hard-border-3px", "halftone", "tape-labels", "press-offset-shadow", "bleed-numbers"]
+    }
+  }
+}
