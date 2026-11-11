@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wellness — Bugün ekranı varyasyonları (2026-11-11)</title>
+<style>
+  /* evaglass Aurora tokens, same values as apps/web/src/index.css */
+  :root {
+    --bg:#0b0d12; --solid:#0d1017; --glass:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.1);
+    --inset:rgba(255,255,255,.05); --ink:#f4f6fb; --dim:rgba(244,246,251,.62); --faint:rgba(244,246,251,.38);
+    --edge:rgba(255,255,255,.14); --edge2:rgba(255,255,255,.07);
+    --a1:#2dd4bf; --a2:#6366f1; --a3:#ec4899; --work:#4ade80; --assist:#fbbf24; --load:#f87171;
+  }
+  * { box-sizing:border-box; margin:0; padding:0 }
+  body { background:#05060a; color:var(--ink); font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:32px 24px 48px }
+  header.page { max-width:1240px; margin:0 auto 28px }
+  header.page h1 { font-size:22px; font-weight:700 }
+  header.page p { color:var(--dim); margin-top:6px; max-width:780px }
+  .row { display:flex; gap:28px; justify-content:center; flex-wrap:wrap }
+  figure { width:360px }
+  figcaption { margin-top:14px }
+  figcaption b { display:block; font-size:15px }
+  figcaption span { color:var(--dim); font-size:13px; display:block; margin-top:4px }
+  figcaption em { color:var(--faint); font-size:12px; font-style:normal; display:block; margin-top:6px }
+
+  .phone { position:relative; width:360px; height:760px; border-radius:40px; overflow:hidden;
+    border:1px solid var(--edge); background:
+      radial-gradient(120% 50% at 0% 0%, rgba(45,212,191,.14), transparent 60%),
+      radial-gradient(100% 50% at 100% 0%, rgba(99,102,241,.16), transparent 60%), var(--bg) }
+  .scroll { height:100%; overflow:hidden; padding:18px 16px 110px }
+  .status { display:flex; justify-content:space-between; font-size:11px; color:var(--dim); padding:0 6px 14px }
+  .glass { background:var(--glass); border:1px solid var(--edge2); border-radius:18px; backdrop-filter:blur(14px) }
+  .lbl { font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--faint) }
+  .num { font-variant-numeric:tabular-nums }
+  .grad { background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3)); -webkit-background-clip:text; background-clip:text; color:transparent }
+  .nav { position:absolute; left:16px; right:16px; bottom:16px; display:flex; align-items:center; gap:10px }
+  .tabs { flex:1; display:flex; justify-content:space-around; padding:8px 6px; border-radius:100px;
+    background:rgba(17,20,27,.85); border:1px solid var(--edge); backdrop-filter:blur(16px) }
+  .tabs span { font-size:10px; color:var(--faint); padding:6px 10px; border-radius:100px }
+  .tabs span.on { color:var(--ink); background:var(--glass2) }
+  .fab { width:52px; height:52px; border-radius:50%; background:var(--a1); color:#04201c; font-size:26px; font-weight:600;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(45,212,191,.35) }
+  .chip { display:inline-block; font-size:11px; padding:4px 10px; border-radius:100px; background:var(--glass); border:1px solid var(--edge2); color:var(--dim) }
+  .bar { height:6px; border-radius:6px; background:var(--inset); overflow:hidden }
+  .bar i { display:block; height:100% }
+
+  /* A: rings dashboard */
+  .rings { display:flex; align-items:center; gap:16px; padding:16px }
+  .tiles { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px }
+  .tile { padding:12px }
+  .tile .v { font-size:20px; font-weight:700; margin-top:2px }
+  .tile .h { font-size:11px; color:var(--faint) }
+  .spark { margin-top:8px; height:26px }
+
+  /* B: timeline */
+  .tl { position:relative; margin-top:12px; padding-left:26px }
+  .tl:before { content:""; position:absolute; left:9px; top:6px; bottom:6px; width:2px; background:var(--edge2) }
+  .ev { position:relative; margin-bottom:10px; padding:11px 13px }
+  .ev:before { content:""; position:absolute; left:-22px; top:15px; width:12px; height:12px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--edge) }
+  .ev.done:before { background:var(--a1); border-color:var(--a1) }
+  .ev.now { border-color:rgba(45,212,191,.5); background:rgba(45,212,191,.08) }
+  .ev.now:before { border-color:var(--a1); box-shadow:0 0 0 4px rgba(45,212,191,.2) }
+  .ev .t { display:flex; justify-content:space-between; font-size:11px; color:var(--faint) }
+  .ev .m { font-weight:600; margin-top:2px }
+  .ev .s { font-size:12px; color:var(--dim); margin-top:2px }
+
+  /* C: focus card */
+  .hero { padding:20px; border-radius:24px; background:
+    linear-gradient(160deg, rgba(99,102,241,.35), rgba(236,72,153,.18) 60%, rgba(45,212,191,.12)); border:1px solid var(--edge) }
+  .hero h2 { font-size:26px; line-height:1.15; font-weight:800; margin-top:6px }
+  .ex { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--edge2); font-size:13px }
+  .ex:last-child { border:0 }
+  .btn { display:block; text-align:center; margin-top:14px; padding:13px; border-radius:100px; background:var(--ink); color:#0b0d12; font-weight:700 }
+  .mini { display:flex; gap:8px; margin-top:12px }
+  .mini .glass { flex:1; padding:10px 12px }
+  .coach { margin-top:12px; padding:13px 14px; display:flex; gap:10px }
+  .orb { flex:none; width:28px; height:28px; border-radius:50%; background:conic-gradient(var(--a1),var(--a2),var(--a3),var(--a1)) }
+  .fold { margin-top:10px; padding:12px 14px; display:flex; justify-content:space-between; color:var(--dim); font-size:13px }
+</style>
+</head>
+<body>
+<header class="page">
+  <h1>Bugün ekranı — 3 varyasyon</h1>
+  <p>İçerik bugünkü ekrandaki verinin aynısı: 7 günlük kilo ortalaması, protein halkası, günün antrenman bölgesi,
+  öğünler, Koç önerisi, saat verisi. Alt menü yine Bugün · Plan · Ölçüm · Koç ve + düğmesi. Renkler evaglass Aurora.
+  Değişen yalnızca düzen: dışarıdaki fitness uygulamalarında yaygın olan üç yaklaşım. Sayılar örnek.</p>
+</header>
+
+<div class="row">
+
+<!-- A ─────────────────────────────── -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="status"><span>09:14</span><span>Salı 11 Kasım</span></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 12px">
+    <div style="font-size:24px;font-weight:800" class="grad">Bugün</div><span class="chip">Sırt + Biceps</span>
+  </div>
+
+  <section class="glass rings">
+    <svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label="Protein %61, kalori %48, adım %72">
+      <g fill="none" stroke-width="11" stroke-linecap="round" transform="rotate(-90 66 66)">
+        <circle cx="66" cy="66" r="58" stroke="rgba(45,212,191,.15)"/>
+        <circle cx="66" cy="66" r="58" stroke="var(--a1)" stroke-dasharray="364" stroke-dashoffset="142"/>
+        <circle cx="66" cy="66" r="44" stroke="rgba(99,102,241,.18)"/>
+        <circle cx="66" cy="66" r="44" stroke="var(--a2)" stroke-dasharray="276" stroke-dashoffset="144"/>
+        <circle cx="66" cy="66" r="30" stroke="rgba(236,72,153,.18)"/>
+        <circle cx="66" cy="66" r="30" stroke="var(--a3)" stroke-dasharray="188" stroke-dashoffset="53"/>
+      </g>
+    </svg>
+    <div style="display:grid;gap:9px">
+      <div><div class="lbl" style="color:var(--a1)">Protein</div><div class="num" style="font-weight:700">92 <span style="color:var(--faint);font-weight:400">/ 150 g</span></div></div>
+      <div><div class="lbl" style="color:var(--a2)">Kalori</div><div class="num" style="font-weight:700">1.020 <span style="color:var(--faint);font-weight:400">/ 2.120</span></div></div>
+      <div><div class="lbl" style="color:var(--a3)">Adım</div><div class="num" style="font-weight:700">5.760 <span style="color:var(--faint);font-weight:400">/ 8.000</span></div></div>
+    </div>
+  </section>
+
+  <div class="tiles">
+    <div class="glass tile"><div class="lbl">7 gün ort.</div><div class="v num">— kg</div><div class="h num" style="color:var(--work)">−0,4 kg/hf</div>
+      <svg class="spark" viewBox="0 0 120 26" width="100%"><polyline fill="none" stroke="var(--work)" stroke-width="2" points="0,6 20,8 40,7 60,12 80,14 100,17 120,20"/></svg></div>
+    <div class="glass tile"><div class="lbl">Uyku</div><div class="v num">6 sa 48 dk</div><div class="h">saatten</div>
+      <div class="bar" style="margin-top:14px"><i style="width:85%;background:var(--a2)"></i></div></div>
+    <div class="glass tile"><div class="lbl">Nabız (dinlenme)</div><div class="v num">61</div><div class="h">bpm</div></div>
+    <div class="glass tile"><div class="lbl">Sebze</div><div class="v num">2 / 5</div><div class="h">porsiyon</div></div>
+  </div>
+
+  <div class="glass coach"><div class="orb"></div><div><div class="lbl">Koç</div>
+    <div style="font-size:13px;margin-top:2px">Öğle için 43 g açık: 200 g tavuk göğsü (62 g).</div></div></div>
+</div>
+<div class="nav"><div class="tabs"><span class="on">Bugün</span><span>Plan</span><span>Ölçüm</span><span>Koç</span></div><div class="fab">+</div></div>
+</div>
+<figcaption><b>A · Halka panosu</b>
+  <span>Üstte üç hedef halkası, altında ölçüm kutuları. Günün durumu tek bakışta okunur.</span>
+  <em>Artısı: hızlı okunur. Eksisi: ne yapacağını söylemez, yalnızca durumu gösterir.</em></figcaption>
+</figure>
+
+<!-- B ─────────────────────────────── -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="status"><span>13:40</span><span>Salı 11 Kasım</span></div>
+  <div style="padding:0 4px">
+    <div class="lbl">Gün akışı</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+      <div style="font-size:22px;font-weight:800">4 / 7 tamam</div>
+      <div class="num" style="font-size:12px;color:var(--dim)">92 / 150 g protein</div>
+    </div>
+    <div class="bar" style="margin-top:8px"><i style="width:57%;background:linear-gradient(90deg,var(--a1),var(--a2))"></i></div>
+  </div>
+
+  <div class="tl">
+    <div class="glass ev done"><div class="t"><span>07:10</span><span>saat</span></div><div class="m">Sabah tartısı</div><div class="s">Aç karnına girildi</div></div>
+    <div class="glass ev done"><div class="t"><span>08:00</span><span class="num">31 g</span></div><div class="m">Kahvaltı</div><div class="s">Yumurta beyazı, lor, domates</div></div>
+    <div class="glass ev done"><div class="t"><span>10:30</span><span>Health Connect</span></div><div class="m">Yürüyüş · 32 dk</div><div class="s">3.400 adım, 140 kcal</div></div>
+    <div class="glass ev now"><div class="t"><span>Şimdi</span><span class="num" style="color:var(--a1)">43 g açık</span></div><div class="m">Öğle</div>
+      <div class="s">Koç: 200 g tavuk göğsü + bulgur. Tabak fotoğrafı ekle.</div></div>
+    <div class="glass ev"><div class="t"><span>18:30</span><span>salon</span></div><div class="m">Sırt + Biceps</div><div class="s">5 hareket · ~55 dk</div></div>
+    <div class="glass ev"><div class="t"><span>20:00</span><span class="num">43 g</span></div><div class="m">Akşam yemeği</div></div>
+    <div class="glass ev"><div class="t"><span>22:30</span><span></span></div><div class="m">Akşam retrosu</div></div>
+  </div>
+</div>
+<div class="nav"><div class="tabs"><span class="on">Bugün</span><span>Plan</span><span>Ölçüm</span><span>Koç</span></div><div class="fab">+</div></div>
+</div>
+<figcaption><b>B · Gün akışı</b>
+  <span>Gün saat sırasına dizilir. Tartı, öğün, saat verisi ve seans tek çizgide; “Şimdi” öne çıkar.</span>
+  <em>Artısı: mevcut kartların hepsi bir sıraya oturur, kaydırma anlamlı olur. Eksisi: en uzun liste bu.</em></figcaption>
+</figure>
+
+<!-- C ─────────────────────────────── -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="status"><span>18:05</span><span>Salı 11 Kasım</span></div>
+  <div class="hero">
+    <div class="lbl" style="color:var(--ink);opacity:.7">Sırada · 18:30</div>
+    <h2>Sırt + Biceps</h2>
+    <div style="font-size:12px;color:var(--dim);margin-top:4px">5 hareket · ~55 dk · geçen hafta +2,5 kg</div>
+    <div style="margin-top:12px">
+      <div class="ex"><span>Lat pulldown</span><span class="num" style="color:var(--dim)">3 × 10 · 45 kg</span></div>
+      <div class="ex"><span>Seated row</span><span class="num" style="color:var(--dim)">3 × 10 · 40 kg</span></div>
+      <div class="ex"><span>Biceps curl</span><span class="num" style="color:var(--dim)">2 × 12 · 10 kg</span></div>
+      <div class="ex" style="color:var(--faint)"><span>+2 hareket</span><span></span></div>
+    </div>
+    <span class="btn">Seansı başlat</span>
+  </div>
+
+  <div class="mini">
+    <div class="glass"><div class="lbl">Protein</div><div class="num" style="font-weight:700">92<span style="color:var(--faint);font-weight:400"> / 150</span></div>
+      <div class="bar" style="margin-top:6px"><i style="width:61%;background:var(--a1)"></i></div></div>
+    <div class="glass"><div class="lbl">Kilo</div><div class="num" style="font-weight:700;color:var(--work)">−0,4</div><div style="font-size:10px;color:var(--faint)">kg/hf</div></div>
+    <div class="glass"><div class="lbl">Uyku</div><div class="num" style="font-weight:700">6:48</div><div style="font-size:10px;color:var(--faint)">saat</div></div>
+  </div>
+
+  <div class="glass coach"><div class="orb"></div><div><div class="lbl">Koç</div>
+    <div style="font-size:13px;margin-top:2px">Seanstan sonra 43 g protein: 200 g tavuk göğsü ya da shake.</div></div></div>
+
+  <div class="glass fold"><span>Öğünler · 2 kayıt</span><span>›</span></div>
+  <div class="glass fold"><span>Ölçüm ve saat verisi</span><span>›</span></div>
+</div>
+<div class="nav"><div class="tabs"><span class="on">Bugün</span><span>Plan</span><span>Ölçüm</span><span>Koç</span></div><div class="fab">+</div></div>
+</div>
+<figcaption><b>C · Sıradaki iş</b>
+  <span>Ekranın yarısı tek işe ayrılır: sıradaki seans ya da öğün. Geri kalanı üç küçük sayı ve katlanmış bölümler.</span>
+  <em>Artısı: “bugün ne var” sorusuna doğrudan cevap verir, PLAN-UI’daki “Bugün’ü seyrelt” hedefine en yakın olan bu. Eksisi: ayrıntı bir dokunuş geride kalır.</em></figcaption>
+</figure>
+
+</div>
+</body>
+</html>
