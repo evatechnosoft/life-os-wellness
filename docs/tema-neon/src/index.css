@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0a;
+  --soft: #131313;
+  --paper: #f4f4f0;
+  --ink: #f4f4f0;
+  --ink-dim: rgba(244, 244, 240, 0.74);
+  --edge: rgba(255, 255, 255, 0.14);
+  --a1: #c6ff3d;
+  --a2: #ff2d9b;
+  --a3: #17e1f2;
+  --sig: linear-gradient(120deg, #17e1f2, #c6ff3d 50%, #ff2d9b);
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  margin: 0;
+  background: #050505;
+  color: var(--ink);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
+.f-bang { font-family: Bangers, Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 400; }
+.f-any { font-family: Anybody, Inter, sans-serif; font-variation-settings: 'wdth' 130; font-variant-numeric: tabular-nums; }
+.f-mono { font-family: 'Space Mono', ui-monospace, monospace; }
+
+/* Spray-dot texture */
+.spray {
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.4px),
+    radial-gradient(rgba(198, 255, 61, 0.05) 1px, transparent 1.6px);
+  background-size: 7px 7px, 13px 13px;
+  background-position: 0 0, 3px 5px;
+}
+
+/* Signature gradient wash — only one hero card */
+.g-wash { background: var(--sig); color: #0a0a0a; }
+.g-text { background: var(--sig); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Corner-spot glow */
+.corner-glow { position: relative; isolation: isolate; }
+.corner-glow::before {
+  content: '';
+  position: absolute;
+  width: 160px; height: 160px;
+  top: -60px; right: -60px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, var(--glow, var(--a1)) 0%, transparent 70%);
+  opacity: 0.35;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Sticker label */
+.sticker {
+  display: inline-block;
+  transform: rotate(-3deg);
+  padding: 2px 8px;
+  color: #0a0a0a;
+  box-shadow: 2px 2px 0 #000;
+  border: 1.5px solid #000;
+}
+
+/* Sticker button with offset shadow */
+.btn-stk {
+  box-shadow: 3px 3px 0 #000;
+  border: 2px solid #000;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-stk:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #000; }
+.btn-stk:active, .btn-stk.is-pressed { transform: translate(3px, 3px); box-shadow: 0 0 0 #000; }
+.btn-stk:disabled { box-shadow: none; transform: none; cursor: not-allowed; }
+
+/* CTA sheen */
+.cta-sheen { position: relative; overflow: hidden; }
+.cta-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.65) 48%, transparent 62%);
+  transform: translateX(-120%);
+  animation: sheen 3.2s ease-in-out infinite;
+}
+@keyframes sheen { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+/* Marquee */
+.marquee { overflow: hidden; white-space: nowrap; }
+.marquee__track { display: inline-flex; animation: marq 14s linear infinite; }
+@keyframes marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Phone scroll */
+.phone-scroll { overflow-y: auto; scrollbar-width: none; }
+.phone-scroll::-webkit-scrollbar { display: none; }
+
+:focus-visible { outline: 2px solid var(--a1); outline-offset: 3px; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.5s cubic-bezier(.2,.8,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
