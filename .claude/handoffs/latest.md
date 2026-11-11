@@ -614,3 +614,23 @@ life-os-wellness (dal dev) — dean-pt günlük kayıt. Önce .claude/handoffs/l
 Sıra: (1) 14 Eki sabah OKOK + kolluk/saat eşli TA + bel (2) kahvaltı 08:00 (3) Çar salon B setleri + whey.
 Uyarı: workouts POST'ta `sets` alanını not güncellerken GÖNDERME (siler). ZimaOS kapalıysa WOL; fit 530 + api yerelde ayaktaysa `docker restart wellness-tunnel`.
 ```
+
+## 11 Kas — UI varyasyon turu + Kâğıt teması (oturum 48c7894f)
+- **Dal `docs/ui-varyasyon`** (push'lu, PR yok), son `0ef62bb`. Bolt (ZimaOS, model `claude-opus`) ile 3 aile × 2 yön, hepsi ayrı vite projesi + `ekran/*.png`:
+  - `docs/tema-beyaz` Kâğıt + Pop; koyu mod `?mode=dark` (`7917236`)
+  - `docs/tema-karbon` Karbon + Toprak; açık mod `?mode=light` (`0ef62bb`)
+  - `docs/tema-neon` Graffiti Sokak + Neon Afiş (`dffc923`)
+  - Aday token: `docs/tokens/fitness-yonler.tokens.json` (altMode paletleri dahil). Prompt: `docs/img/bolt-prompt-tema-2026-11-11.md`.
+  - Ekranlardaki ad/kilo verisini Bolt uydurdu, gerçek veri değil.
+- **Dean Kâğıt'ı seçti → PR #66** (`feature/tema-kagit` → `dev`, OPEN, `2418453`):
+  - Kâğıt / Gece / Aurora; Ayarlar > Görünüm; varsayılan Kâğıt.
+  - Palet `apps/web/src/index.css` içinde `:root[data-theme]`; Fraunces `@fontsource-variable`.
+  - Kanıt: tsc temiz, vitest 455/455, yerel derlemede iki mod görsel kontrol.
+  - Android'de durum çubuğu denenmedi.
+- **Dean'e açık sorular:**
+  - PR #66 birleşsin mi?
+  - Kâğıt evaglass token dosyasına girsin mi?
+  - screenshot-to-code ws-ping düzeltmesi Zima'da uygulansın mı? (`uvicorn ... --ws-ping-interval 60 --ws-ping-timeout 600`)
+- Notlar:
+  - Bolt büyük görevde dosya okuyup yazmadan tur atıyor (8k çıktı sınırı). Mekanik palet işi elle daha hızlı.
+  - Bolt tüneli: `ssh -f -N -L 8953:127.0.0.1:8953 zima`. Kapatıldı.
