@@ -4,7 +4,7 @@ import { Tile, Eyebrow, Icon, Cookie } from './parts.jsx';
 import { Destructive } from './buttons.jsx';
 import { Toggle } from './controls.jsx';
 
-const SWATCH = ['bg-pop-lime', 'bg-pop-peach', 'bg-pop-coral', 'bg-pop-cobalt text-white', 'bg-pop-ink text-pop-lime'];
+const SWATCH = ['bg-pop-lime', 'bg-pop-peach', 'bg-pop-coral', 'bg-pop-cobalt text-white', 'bg-pop-fill text-pop-lime'];
 const SHAPE = ['rounded-full', 'rounded-[12px]', 'rounded-[12px] rotate-45', 'rounded-full', 'rounded-[12px]'];
 
 function Item({ o, i }) {
@@ -30,7 +30,7 @@ export default function Diger() {
     <PopScreen active="Koç">
       <PopHeader kicker="Profil ve ayarlar" title="Diğer" />
 
-      <Tile className="bg-pop-ink text-white flex items-center gap-4" shape="rounded-[32px] rounded-br-[12px]">
+      <Tile className="bg-pop-fill text-white flex items-center gap-4" shape="rounded-[32px] rounded-br-[12px]">
         <Cookie size={72} lobes={10} depth={0.09} fill="#C6F432">
           <span className="pop-num text-[28px] text-pop-ink">EK</span>
         </Cookie>

@@ -1,3 +1,4 @@
+import { c } from '../../theme.js';
 import { ozet } from '../../data/mock.js';
 import PopScreen, { PopHeader } from './shell.jsx';
 import { Cookie, Capsule, Tile, Eyebrow, Icon } from './parts.jsx';
@@ -46,7 +47,7 @@ export default function Ozet() {
 
         {/* streak cookie */}
         <div className="flex items-center justify-center">
-          <Cookie size={108} fill="#3A2E8F" ring={antrenman.yapilan / antrenman.hedef} ringColor="#C6F432"
+          <Cookie size={108} fill={c['pop-cobalt']} ring={antrenman.yapilan / antrenman.hedef} ringColor="#C6F432"
             label={`Bu hafta ${antrenman.yapilan} / ${antrenman.hedef} antrenman`}>
             <span className="pop-num text-[30px] leading-none text-white">{antrenman.yapilan}/{antrenman.hedef}</span>
             <span className="pop-label text-[10px] text-white/85 mt-0.5">ANTRENMAN</span>
@@ -54,7 +55,7 @@ export default function Ozet() {
         </div>
 
         {/* kilo trend */}
-        <Tile className="bg-pop-ink text-white flex flex-col" shape="rounded-[24px] rounded-bl-[44px]">
+        <Tile className="bg-pop-fill text-white flex flex-col" shape="rounded-[24px] rounded-bl-[44px]">
           <Eyebrow className="text-white/75">Kilo</Eyebrow>
           <p className="pop-num text-[30px] leading-none mt-1 text-pop-lime">{kilo.trend}</p>
           <p className="pop-label text-[10px] text-white/75">{kilo.birim}</p>
@@ -70,21 +71,21 @@ export default function Ozet() {
         </Cookie>
         <dl className="flex-1 grid gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-[12px] bg-pop-ink text-pop-lime flex items-center justify-center"><Icon name="moon" size={18} /></span>
+            <span className="w-9 h-9 rounded-[12px] bg-pop-fill text-pop-lime flex items-center justify-center"><Icon name="moon" size={18} /></span>
             <div><dt className="pop-label text-[11px] text-pop-ink/75">Uyku</dt><dd className="pop-num-md text-[26px] leading-none">{uyku}</dd></div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-full bg-pop-ink text-pop-coral flex items-center justify-center"><Icon name="heart" size={18} /></span>
+            <span className="w-9 h-9 rounded-full bg-pop-fill text-pop-coral flex items-center justify-center"><Icon name="heart" size={18} /></span>
             <div><dt className="pop-label text-[11px] text-pop-ink/75">Dinlenme nabzı</dt><dd className="pop-num-md text-[26px] leading-none">{nabiz}<span className="text-[13px] ml-1">bpm</span></dd></div>
           </div>
         </dl>
       </Tile>
 
       {/* kalori + adım capsules */}
-      <Tile className="mt-2 bg-white border-2 border-pop-ink grid gap-4" shape="rounded-[28px]">
+      <Tile className="mt-2 bg-pop-tile border-2 border-pop-ink grid gap-4" shape="rounded-[28px]">
         {[
           { ad: 'Kalori', m: kalori, color: '#FF6B4A' },
-          { ad: 'Adım', m: adim, color: '#3A2E8F' },
+          { ad: 'Adım', m: adim, color: c['pop-cobalt'] },
         ].map(({ ad, m, color }) => (
           <div key={ad}>
             <div className="flex items-baseline justify-between mb-1.5">

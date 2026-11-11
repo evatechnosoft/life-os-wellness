@@ -4,20 +4,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: '#F0EEE9',
-        ink: '#1C1A17',
-        terra: '#E85D3F',
-        teal: '#1F5C63',
-        olive: '#5F6F52',
-        mustard: '#E9C46A',
-        pop: {
-          bg: '#FFFBF2',
-          ink: '#121212',
-          lime: '#C6F432',
-          coral: '#FF6B4A',
-          cobalt: '#3A2E8F',
-          peach: '#FFD9CC',
-        },
+        canvas: 'rgb(var(--canvas) / <alpha-value>)', paper: 'rgb(var(--paper) / <alpha-value>)', ink: 'rgb(var(--ink) / <alpha-value>)', terra: 'rgb(var(--terra) / <alpha-value>)', teal: 'rgb(var(--teal) / <alpha-value>)', olive: 'rgb(var(--olive) / <alpha-value>)', mustard: 'rgb(var(--mustard) / <alpha-value>)',
+        pop: { bg: 'rgb(var(--pop-bg) / <alpha-value>)', ink: 'rgb(var(--pop-ink) / <alpha-value>)', fill: 'rgb(var(--pop-fill) / <alpha-value>)', onfill: 'rgb(var(--pop-onfill) / <alpha-value>)', tile: 'rgb(var(--pop-tile) / <alpha-value>)', lime: 'rgb(var(--pop-lime) / <alpha-value>)', coral: 'rgb(var(--pop-coral) / <alpha-value>)', cobalt: 'rgb(var(--pop-cobalt) / <alpha-value>)', peach: 'rgb(var(--pop-peach) / <alpha-value>)' },
       },
       fontFamily: {
         fraunces: ['Fraunces', 'serif'],

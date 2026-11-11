@@ -63,7 +63,7 @@ export default function Butonlar() {
               {STATES.map((s, i) => (
                 <th key={s} scope="col" className="pb-2 text-left font-normal">
                   <span className={`inline-flex items-center gap-1.5 h-7 px-3 rounded-full pop-label text-[11px] uppercase
-                    ${i === 0 ? 'bg-pop-lime' : i === 1 ? 'bg-pop-ink text-pop-lime' : 'bg-pop-ink/10 text-pop-ink/70'}`}>
+                    ${i === 0 ? 'bg-pop-lime' : i === 1 ? 'bg-pop-fill text-pop-lime' : 'bg-pop-ink/10 text-pop-ink/70'}`}>
                     {s}
                   </span>
                 </th>

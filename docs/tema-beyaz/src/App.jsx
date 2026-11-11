@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { mode } from './theme.js';
 import DirectionSwitcher from './components/DirectionSwitcher.jsx';
 import KagitDirection from './directions/kagit/index.jsx';
 import PopDirection from './directions/pop/index.jsx';
@@ -26,8 +27,8 @@ export default function App() {
   const { View } = dir;
 
   return (
-    <main className="min-h-screen font-isans text-ink bg-[#E4E1DA]">
-      <header className="sticky top-0 z-40 bg-[#E4E1DA]/95 border-b border-ink/15">
+    <main className="min-h-screen font-isans text-ink bg-canvas">
+      <header className="sticky top-0 z-40 bg-canvas/95 border-b border-ink/15">
         <div className="px-10 py-5 flex flex-wrap items-center gap-6 justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-ink/60">Fitness takip · Tasarım yönleri</p>
@@ -36,6 +37,12 @@ export default function App() {
             </h1>
           </div>
           <DirectionSwitcher directions={DIRECTIONS} active={active} onChange={setActive} />
+          <a
+            href={`?d=${active}${mode === 'dark' ? '' : '&mode=dark'}`}
+            className="text-[13px] uppercase tracking-[0.16em] border border-ink/30 rounded-full px-4 py-2 hover:bg-ink/5"
+          >
+            {mode === 'dark' ? 'Açık' : 'Koyu'}
+          </a>
         </div>
       </header>
 

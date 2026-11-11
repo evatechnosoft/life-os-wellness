@@ -1,20 +1,21 @@
+import { c } from '../../theme.js';
 import BottomNav from '../../components/BottomNav.jsx';
 
 /* Typographic / geometric nav marks — solid, not a thin outline set */
 const Mark = ({ ad, on }) => {
-  const c = on ? '#E85D3F' : 'currentColor';
+  const col = on ? c.terra : 'currentColor';
   switch (ad) {
     case 'Bugün':
       return (
         <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true">
-          <path d="M3 13a8 8 0 0 1 16 0z" fill={c} />
+          <path d="M3 13a8 8 0 0 1 16 0z" fill={col} />
           <rect x="0" y="12.5" width="22" height="1.5" fill="currentColor" />
         </svg>
       );
     case 'Plan':
       return (
         <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true">
-          <rect x="0" y="0" width="22" height="3" fill={c} />
+          <rect x="0" y="0" width="22" height="3" fill={col} />
           <rect x="0" y="5.5" width="15" height="3" fill="currentColor" />
           <rect x="0" y="11" width="9" height="3" fill="currentColor" />
         </svg>
@@ -24,13 +25,13 @@ const Mark = ({ ad, on }) => {
         <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true">
           <rect x="0" y="12.5" width="22" height="1.5" fill="currentColor" />
           {[0, 5, 10, 15, 20].map((x, i) => (
-            <rect key={x} x={x} y={i % 2 ? 6 : 0} width="2" height={i % 2 ? 7 : 13} fill={i === 2 ? c : 'currentColor'} />
+            <rect key={x} x={x} y={i % 2 ? 6 : 0} width="2" height={i % 2 ? 7 : 13} fill={i === 2 ? col : 'currentColor'} />
           ))}
         </svg>
       );
     default:
       return (
-        <span aria-hidden="true" className="font-fraunces text-[30px] leading-[14px] h-[14px] -mt-1" style={{ color: c }}>
+        <span aria-hidden="true" className="font-fraunces text-[30px] leading-[14px] h-[14px] -mt-1" style={{ color: col }}>
           “
         </span>
       );
@@ -76,7 +77,7 @@ export function KagitScreen({ children, active = 'Bugün' }) {
 }
 
 /* Thin underline progress rule */
-export function Rule({ value, max, color = '#E85D3F', thick = 2 }) {
+export function Rule({ value, max, color = c.terra, thick = 2 }) {
   const pct = Math.min(100, (value / max) * 100);
   return (
     <div className="relative h-[6px]" role="progressbar" aria-valuenow={value} aria-valuemax={max} aria-valuemin={0}>

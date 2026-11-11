@@ -1,3 +1,4 @@
+import { c } from '../../theme.js';
 /* L2 · Pop — shared visual parts */
 
 export function scallopPath(size = 100, lobes = 12, depth = 0.07) {
@@ -33,7 +34,7 @@ export function Cookie({ size = 120, lobes = 12, depth = 0.07, fill = '#C6F432',
 }
 
 /** Thick capsule progress bar */
-export function Capsule({ value, max, color = '#C6F432', track = 'rgba(18,18,18,0.08)', h = 20, label }) {
+export function Capsule({ value, max, color = '#C6F432', track = 'rgb(var(--pop-ink) / 0.08)', h = 20, label }) {
   const p = Math.min(1, value / max);
   return (
     <div
@@ -96,7 +97,7 @@ export function NavGlyph({ i, on }) {
   ];
   return (
     <span className={`pop-spring flex items-center justify-center h-8 w-[56px] rounded-full ${on ? 'bg-pop-lime' : ''}`}>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill={on ? '#121212' : 'none'} stroke="#121212" strokeWidth="2.5" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill={on ? '#121212' : 'none'} stroke={on ? '#121212' : c['pop-ink']} strokeWidth="2.5" aria-hidden="true">
         {shapes[i]}
       </svg>
     </span>
@@ -111,7 +112,7 @@ export function PopAdd({ pressed, disabled, label = 'Ekle' }) {
       className="pop-spring relative w-[64px] h-[64px] -mt-6 disabled:opacity-40 disabled:cursor-not-allowed group"
     >
       <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:rotate-[30deg]" aria-hidden="true">
-        <path d={scallopPath(100, 10, 0.08)} fill={disabled ? '#D9D6CE' : '#C6F432'} stroke="#121212" strokeWidth="3" />
+        <path d={scallopPath(100, 10, 0.08)} fill={disabled ? c['pop-off'] : '#C6F432'} stroke="#121212" strokeWidth="3" />
       </svg>
       <span className="relative flex items-center justify-center text-pop-ink"><Icon name="plus" size={26} stroke={3.5} /></span>
     </button>

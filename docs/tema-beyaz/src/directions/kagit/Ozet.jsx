@@ -1,3 +1,4 @@
+import { c } from '../../theme.js';
 import { ozet } from '../../data/mock.js';
 import { KagitScreen, Rule, Eyebrow, fmt } from './parts.jsx';
 import { Segment } from './controls.jsx';
@@ -11,13 +12,13 @@ function Sparkline({ seri, gunler }) {
     <div>
       <svg width="100%" viewBox={`0 -6 ${w} ${h + 12}`} aria-label="7 günlük kilo eğrisi" role="img">
         {[0, h / 2, h].map((y) => (
-          <line key={y} x1="0" x2={w} y1={y} y2={y} stroke="#1C1A17" strokeOpacity="0.12" strokeDasharray="2 3" />
+          <line key={y} x1="0" x2={w} y1={y} y2={y} stroke={c.ink} strokeOpacity="0.12" strokeDasharray="2 3" />
         ))}
-        <path d={d} fill="none" stroke="#1F5C63" strokeWidth="1.75" />
+        <path d={d} fill="none" stroke={c.teal} strokeWidth="1.75" />
         {pts.map(([x, y], i) => (
-          <rect key={i} x={x - 2} y={y - 2} width="4" height="4" fill={i === pts.length - 1 ? '#E85D3F' : '#1C1A17'} />
+          <rect key={i} x={x - 2} y={y - 2} width="4" height="4" fill={i === pts.length - 1 ? c.terra : c.ink} />
         ))}
-        <circle cx={last[0]} cy={last[1]} r="7" fill="none" stroke="#E85D3F" strokeWidth="1" />
+        <circle cx={last[0]} cy={last[1]} r="7" fill="none" stroke={c.terra} strokeWidth="1" />
       </svg>
       <div className="flex justify-between text-[11px] text-ink/55 mt-1 tnum">
         {gunler.map((g, i) => <span key={i}>{g}</span>)}
@@ -64,13 +65,13 @@ export default function Ozet() {
           <Eyebrow>Kalori</Eyebrow>
           <p className="font-fraunces text-[40px] leading-none mt-2 tnum">{fmt(kalori.deger)}</p>
           <p className="text-[13px] text-ink/60 mt-1 tnum">/ {fmt(kalori.hedef)} {kalori.birim}</p>
-          <div className="mt-3"><Rule value={kalori.deger} max={kalori.hedef} color="#E9C46A" thick={3} /></div>
+          <div className="mt-3"><Rule value={kalori.deger} max={kalori.hedef} color={c.mustard} thick={3} /></div>
         </div>
         <div className="px-5 py-5">
           <Eyebrow>Adım</Eyebrow>
           <p className="font-fraunces text-[30px] leading-none mt-3 tnum">{fmt(adim.deger)}</p>
           <p className="text-[13px] text-ink/60 mt-1 tnum">/ {fmt(adim.hedef)}</p>
-          <div className="mt-3"><Rule value={adim.deger} max={adim.hedef} color="#5F6F52" /></div>
+          <div className="mt-3"><Rule value={adim.deger} max={adim.hedef} color={c.olive} /></div>
         </div>
       </section>
 

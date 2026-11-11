@@ -8,7 +8,7 @@ export function Primary({ pressed, disabled, children = 'Başlat', icon = 'play'
   return (
     <button
       type="button" disabled={disabled} data-pressed={pressed || undefined}
-      className={`${base} bg-pop-ink text-pop-lime disabled:bg-[#E4E0D6] disabled:text-pop-ink/45 ${className}`}
+      className={`${base} bg-pop-fill text-pop-lime disabled:bg-pop-ink/10 disabled:text-pop-ink/45 ${className}`}
     >
       {icon && <Icon name={icon} size={18} />}
       {children}
@@ -55,7 +55,7 @@ export function Destructive({ pressed, disabled, children = 'Sil', className = '
 
 /** Icon button — squircle that morphs to a circle when pressed */
 export function IconBtn({ pressed, disabled, icon = 'bell', label = 'Bildirimler', tone = 'peach' }) {
-  const tones = { peach: 'bg-pop-peach text-pop-ink', ink: 'bg-pop-ink text-pop-lime', lime: 'bg-pop-lime text-pop-ink' };
+  const tones = { peach: 'bg-pop-peach text-pop-ink', ink: 'bg-pop-fill text-pop-lime', lime: 'bg-pop-lime text-pop-ink' };
   return (
     <button
       type="button" aria-label={label} disabled={disabled} data-pressed={pressed || undefined}

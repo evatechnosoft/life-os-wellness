@@ -10,7 +10,7 @@ export function Segment({ options = ['Gün', 'Hafta', 'Ay'], value, onChange, pr
   return (
     <div
       role="radiogroup" aria-label="Zaman aralığı" aria-disabled={disabled || undefined}
-      className={`relative grid h-[48px] p-1 rounded-full bg-pop-ink ${disabled ? 'opacity-40' : ''}`}
+      className={`relative grid h-[48px] p-1 rounded-full bg-pop-fill ${disabled ? 'opacity-40' : ''}`}
       style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}
     >
       <span
@@ -25,7 +25,7 @@ export function Segment({ options = ['Gün', 'Hafta', 'Ay'], value, onChange, pr
             key={o} type="button" role="radio" aria-checked={on} disabled={disabled}
             data-pressed={i === pressedIdx || undefined} onClick={() => set(o)}
             className={`pop-spring relative z-10 rounded-full pop-label text-[15px] disabled:cursor-not-allowed
-              ${on ? 'text-pop-ink' : 'text-pop-bg'} ${i === pressedIdx && !on ? 'bg-white/15' : ''}`}
+              ${on ? 'text-pop-ink' : 'text-pop-onfill'} ${i === pressedIdx && !on ? 'bg-white/15' : ''}`}
           >
             {o}
           </button>
@@ -64,7 +64,7 @@ export function Toggle({ on: onProp = false, pressed, disabled, label }) {
     >
       <span
         aria-hidden="true"
-        className={`pop-spring absolute top-1/2 -translate-y-1/2 rounded-full bg-pop-ink flex items-center justify-center text-pop-lime
+        className={`pop-spring absolute top-1/2 -translate-y-1/2 rounded-full bg-pop-fill flex items-center justify-center text-pop-lime
           ${on ? 'left-[30px] w-[24px] h-[24px]' : 'left-[5px] w-[16px] h-[16px]'} ${pressed ? '!w-[28px] !h-[28px]' : ''}`}
       >
         {on && <Icon name="check" size={14} stroke={4} />}

@@ -11,7 +11,7 @@ function Row({ a }) {
   if (acik) {
     return (
       <li className="pop-spring flex items-center gap-3 p-3 pr-4 rounded-[24px] bg-pop-coral border-2 border-pop-ink">
-        <span className="h-[44px] px-3 rounded-full bg-pop-ink text-pop-lime pop-num text-[20px] flex items-center">{a.saat}</span>
+        <span className="h-[44px] px-3 rounded-full bg-pop-fill text-pop-lime pop-num text-[20px] flex items-center">{a.saat}</span>
         <div className="flex-1 min-w-0">
           <p className="pop-num-md text-[24px] leading-none uppercase">{a.baslik}</p>
           <p className="pop-label text-[12px] mt-1">{a.detay}</p>

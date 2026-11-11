@@ -1,9 +1,10 @@
+import { c } from '../../theme.js';
 import { akis, seans } from '../../data/mock.js';
 import { KagitScreen, Eyebrow } from './parts.jsx';
 
 const Check = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" aria-label="Tamamlandı" role="img">
-    <path d="M1.5 7.5 5.2 11 12.5 2.5" fill="none" stroke="#5F6F52" strokeWidth="2" strokeLinecap="square" />
+    <path d="M1.5 7.5 5.2 11 12.5 2.5" fill="none" stroke={c.olive} strokeWidth="2" strokeLinecap="square" />
   </svg>
 );
 
