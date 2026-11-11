@@ -5,7 +5,7 @@ const nf1 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFr
 const PAD = { left: 4, right: 34, top: 10, bottom: 8 }
 
 /** Tek serilik egri, son deger etiketli. Inline SVG: grafik icin paket eklemeye deger bir is degil. */
-export function Sparkline({ points, label, color = '#2dd4bf' }: { points: (number | null)[]; label: string; color?: string }) {
+export function Sparkline({ points, label, color = 'var(--color-a1)' }: { points: (number | null)[]; label: string; color?: string }) {
   // Ayni ekranda birden cok egri: gradyan id'si cakismasin.
   const gradient = useId()
   const known = points.filter((p): p is number => p != null)
@@ -31,21 +31,21 @@ export function Sparkline({ points, label, color = '#2dd4bf' }: { points: (numbe
     <svg viewBox="0 0 200 60" width="100%" className="mt-2 block" role="img" aria-label={label}>
       <defs>
         <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
+          <stop offset="0%" style={{ stopColor: color }} stopOpacity="0.35" />
+          <stop offset="100%" style={{ stopColor: color }} stopOpacity="0" />
         </linearGradient>
       </defs>
       {[0, 0.5, 1].map((t) => (
-        <line key={t} x1={PAD.left} x2={200 - PAD.right} y1={PAD.top + t * height} y2={PAD.top + t * height} stroke="rgba(255,255,255,.07)" strokeWidth="1" />
+        <line key={t} x1={PAD.left} x2={200 - PAD.right} y1={PAD.top + t * height} y2={PAD.top + t * height} style={{ stroke: 'var(--color-edge-soft)' }} strokeWidth="1" />
       ))}
       <path d={area} fill={`url(#${gradient})`} />
-      <path d={line} stroke={color} strokeWidth="2" fill="none" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={x(last.i)} cy={y(last.v)} r="6" fill="none" stroke={color} strokeOpacity=".4" />
-      <circle cx={x(last.i)} cy={y(last.v)} r="3.5" fill={color} />
-      <text x={PAD.left} y={PAD.top - 3} fontSize="7" fill="rgba(244,246,251,.38)">
+      <path d={line} style={{ stroke: color }} strokeWidth="2" fill="none" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={x(last.i)} cy={y(last.v)} r="6" fill="none" style={{ stroke: color }} strokeOpacity=".4" />
+      <circle cx={x(last.i)} cy={y(last.v)} r="3.5" style={{ fill: color }} />
+      <text x={PAD.left} y={PAD.top - 3} fontSize="7" style={{ fill: 'var(--color-ink-faint)' }}>
         {nf1.format(peak.v)}
       </text>
-      <text x={x(last.i) + 8} y={y(last.v) + 2.5} fontSize="7" fill={color}>
+      <text x={x(last.i) + 8} y={y(last.v) + 2.5} fontSize="7" style={{ fill: color }}>
         {nf1.format(last.v)}
       </text>
     </svg>

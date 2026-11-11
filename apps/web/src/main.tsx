@@ -4,8 +4,12 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { setToken } from './lib/api'
 import { loadCatalog } from './lib/catalog'
+import { applyTheme } from './lib/theme'
 import { restoreToken } from './lib/tokenFile'
 import './index.css'
+
+// Before first paint, so the saved theme never flashes the default.
+applyTheme()
 
 // The launcher hands the phone a ?token=... link so the token never has to be typed in.
 // It is dropped from the address bar right after it is stored.

@@ -225,7 +225,7 @@ export function BodyReport() {
           </div>
 
           <h3 className="mt-4 text-[10px] uppercase tracking-wide text-ink-faint">Yağ · kg</h3>
-          <Sparkline points={line('fat_kg')} label="Yağ kütlesi eğrisi" color="#6366f1" />
+          <Sparkline points={line('fat_kg')} label="Yağ kütlesi eğrisi" color="var(--color-a2)" />
           <h3 className="mt-3 text-[10px] uppercase tracking-wide text-ink-faint">Yağsız kütle · kg</h3>
           <Sparkline points={line('lean_kg')} label="Yağsız kütle eğrisi" />
 

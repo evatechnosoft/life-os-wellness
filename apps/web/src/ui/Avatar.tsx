@@ -14,14 +14,14 @@ export function Avatar({ listening = false, size = 56 }: { listening?: boolean; 
     >
       <defs>
         <linearGradient id="eva-ring" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#2dd4bf" />
-          <stop offset="55%" stopColor="#6366f1" />
-          <stop offset="100%" stopColor="#ec4899" />
+          <stop offset="0%" style={{ stopColor: 'var(--color-a1)' }} />
+          <stop offset="55%" style={{ stopColor: 'var(--color-a2)' }} />
+          <stop offset="100%" style={{ stopColor: 'var(--color-a3)' }} />
         </linearGradient>
       </defs>
 
       <circle cx="32" cy="32" r="29" fill="none" stroke="url(#eva-ring)" strokeWidth="2.5" opacity="0.9" />
-      <circle cx="32" cy="32" r="24" fill="rgba(255,255,255,0.05)" />
+      <circle cx="32" cy="32" r="24" style={{ fill: 'var(--color-glass-inset)' }} />
 
       {/* A breathing waveform: quiet when idle, taller bars while listening. */}
       <g stroke="url(#eva-ring)" strokeWidth="3" strokeLinecap="round">

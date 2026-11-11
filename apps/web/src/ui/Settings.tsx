@@ -28,6 +28,7 @@ import {
   type PhoneUpdate,
 } from '../lib/watch'
 import { isNative, scheduleBackgroundSync, syncHealth } from '../lib/health'
+import { applyTheme, getTheme, THEME_OPTIONS } from '../lib/theme'
 import { Card, NumberField } from './Field'
 import { ProfileCard } from './Profile'
 
@@ -430,6 +431,7 @@ export function Settings() {
   const [token, setLocalToken] = useState(getToken())
   const [editingToken, setEditingToken] = useState(getToken() === '')
   const [tokenFileAccess, setTokenFileAccess] = useState(true)
+  const [theme, setTheme] = useState(getTheme)
   // Izin ekranindan donunce (focus) dosya yeniden okunur; bos token oradan dolar.
   useEffect(() => {
     const check = () =>
@@ -573,6 +575,17 @@ export function Settings() {
           <p className="mb-2 mt-4 text-xs text-ink-faint">Gün notu</p>
           <SplitNoteEditor />
         </Card>
+      </Card>
+
+      <Card id="ayar-gorunum" title="Görünüm" summary={THEME_OPTIONS.find((o) => o.value === theme)?.label} collapsible>
+        <div className="flex min-h-11 items-center justify-between gap-3 py-2">
+          <span className="text-sm text-ink-dim">Tema</span>
+          <Segmented
+            value={theme}
+            options={THEME_OPTIONS}
+            onChange={(v) => { applyTheme(v); setTheme(v) }}
+          />
+        </div>
       </Card>
 
       {/* Web'de cihaz bolgesi hic cizilmez: calismayan dugme, olmayan dugmeden kotudur. */}
