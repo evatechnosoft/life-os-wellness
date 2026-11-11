@@ -290,7 +290,7 @@ export function App() {
           type="button"
           aria-label="Hızlı ekle"
           onClick={() => setQuickAdd(true)}
-          className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-a1 text-2xl leading-none text-solid shadow-[0_10px_24px_rgba(45,212,191,0.35)] active:scale-95"
+          className="pointer-events-auto flex size-11 items-center justify-center rounded-full bg-a1 text-2xl leading-none text-solid shadow-[0_10px_24px_color-mix(in_srgb,var(--color-a1)_35%,transparent)] active:scale-95"
         >
           +
         </button>
