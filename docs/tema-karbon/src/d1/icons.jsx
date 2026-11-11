@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 // Karbon ikon seti – kalın, köşeli, dolgulu geometrik glifler (ince outline değil)
 const S = ({ children, size = 20, className = '' }) => (
   <svg
@@ -41,7 +42,7 @@ export const IOlcum = (p) => (
 export const IKoc = (p) => (
   <S {...p}>
     <path d="M2 3h16v11h-7l-5 4v-4H2z" />
-    <rect x="5" y="7" width="10" height="2" fill="#0E0F10" />
+    <rect x="5" y="7" width="10" height="2" fill={c.kon} />
   </S>
 );
 

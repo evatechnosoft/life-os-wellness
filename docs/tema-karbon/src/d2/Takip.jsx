@@ -8,7 +8,7 @@ import { ITik, IOynat, IYaprak } from './icons.jsx';
 function Dugum({ durum }) {
   if (durum === 'tamam')
     return (
-      <span className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-tgs text-tg0">
+      <span className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-tgs text-tgon">
         <ITik size={14} />
       </span>
     );

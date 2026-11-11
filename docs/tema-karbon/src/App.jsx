@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { directions } from './directions.js';
+import { mode } from './theme.js';
 
 export default function App() {
   const [aktif, setAktif] = useState(new URLSearchParams(location.search).get('d') || 'd1'); // ?d=d2 for direct links
@@ -7,12 +8,12 @@ export default function App() {
   const Comp = yon?.comp;
 
   return (
-    <div className="min-h-screen bg-[#0b0b0c]">
-      <header className="sticky top-0 z-50 border-b border-neutral-800 bg-[#0b0b0c]/95">
+    <div className="min-h-screen bg-canvas">
+      <header className="sticky top-0 z-50 border-b border-k3 bg-canvas/95">
         <div className="flex flex-wrap items-center gap-6 px-8 py-4">
           <div className="flex items-baseline gap-3">
-            <span className="font-grotesk text-lg font-semibold text-neutral-100">Fitness Takip</span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-neutral-500">
+            <span className="font-grotesk text-lg font-semibold text-kt">Fitness Takip</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-km">
               Tasarım yönleri
             </span>
           </div>
@@ -28,19 +29,25 @@ export default function App() {
                   onClick={() => setAktif(d.id)}
                   className={`flex items-center gap-3 rounded-md border px-4 py-2 text-left transition-colors ${
                     on
-                      ? 'border-neutral-300 bg-neutral-100 text-neutral-900'
-                      : 'border-neutral-800 text-neutral-300 hover:border-neutral-600'
+                      ? 'border-kt bg-kt text-k0'
+                      : 'border-k3 text-kt/80 hover:border-kl'
                   } disabled:cursor-not-allowed disabled:opacity-40`}
                 >
                   <span className="font-mono text-[11px] tracking-widest">{d.kod}</span>
                   <span className="font-grotesk text-sm font-semibold">{d.ad}</span>
-                  <span className={`hidden text-xs md:inline ${on ? 'text-neutral-600' : 'text-neutral-500'}`}>
+                  <span className={`hidden text-xs md:inline ${on ? 'text-k0/70' : 'text-km'}`}>
                     {d.not}
                   </span>
                 </button>
               );
             })}
           </nav>
+          <a
+            href={`?d=${aktif}${mode === 'light' ? '' : '&mode=light'}`}
+            className="ml-auto rounded-md border border-k3 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-kt hover:border-kl"
+          >
+            {mode === 'light' ? 'Koyu' : 'Açık'}
+          </a>
         </div>
       </header>
       <main className="overflow-x-auto px-8 py-10">

@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 // Tek kadran: üç eş merkezli yay, halka değil tik işaretleriyle çizilir (270° açılı)
 const BAS = 135; // derece, sol alt
 const ARALIK = 270;
@@ -16,7 +17,7 @@ function TikYayi({ r, n, oran, renk, uzun, kalin, gecikme }) {
           <line
             key={i}
             x1={x1} y1={y1} x2={uc ? 150 + Math.cos(a) * (r - uzun - 5) : x2} y2={uc ? 150 + Math.sin(a) * (r - uzun - 5) : y2}
-            stroke={on ? renk : '#3A322C'}
+            stroke={on ? renk : c.tg2}
             strokeWidth={uc ? kalin + 1.5 : kalin}
             strokeLinecap="round"
             className={on ? 'd2-tick' : ''}

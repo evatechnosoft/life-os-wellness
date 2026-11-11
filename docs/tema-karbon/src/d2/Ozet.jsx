@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 import { useState } from 'react';
 import { ozet, kiloSerisi, fmt } from '../data/mock.js';
 import { StatusBar, Header, Eyebrow, Hazirlik, IsiSeridi, Segmented, BottomNav } from './parts.jsx';
@@ -14,8 +15,8 @@ function Egri({ data }) {
   const path = p.map(([x, y], i) => (i ? `L${x},${y}` : `M${x},${y}`)).join(' ');
   return (
     <svg width={w} height={h} aria-hidden="true">
-      <path d={path} fill="none" stroke="#7FA88A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={p[p.length - 1][0]} cy={p[p.length - 1][1]} r="3.5" fill="#7FA88A" />
+      <path d={path} fill="none" stroke={c.tgs} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={p[p.length - 1][0]} cy={p[p.length - 1][1]} r="3.5" fill={c.tgs} />
     </svg>
   );
 }
@@ -24,9 +25,9 @@ export default function Ozet() {
   const [per, setPer] = useState('Gün');
   const d = ozet[per];
   const halkalar = [
-    { ad: 'Protein', v: d.protein.v, max: d.protein.max, renk: '#D9A066' },
-    { ad: 'Kalori', v: d.kalori.v, max: d.kalori.max, renk: '#EDE6DC' },
-    { ad: 'Adım', v: d.adim.v, max: d.adim.max, renk: '#7FA88A' },
+    { ad: 'Protein', v: d.protein.v, max: d.protein.max, renk: c.tga },
+    { ad: 'Kalori', v: d.kalori.v, max: d.kalori.max, renk: c.tgt },
+    { ad: 'Adım', v: d.adim.v, max: d.adim.max, renk: c.tgs },
   ];
 
   return (
@@ -47,7 +48,7 @@ export default function Ozet() {
             <span className="text-[14px] font-semibold text-tgm">/ {d.protein.max} g</span>
           </Dial>
           <div className="mx-6 mt-3 grid grid-cols-2 gap-2 text-center">
-            {[['Kalori', d.kalori, '#EDE6DC'], ['Adım', d.adim, '#7FA88A']].map(([ad, m, c]) => (
+            {[['Kalori', d.kalori, c.tgt], ['Adım', d.adim, c.tgs]].map(([ad, m, c]) => (
               <div key={ad} className="rounded-[20px] bg-tg1/70 px-3 py-3">
                 <div className="text-[18px] font-bold leading-none" style={{ color: c }}>{fmt(m.v)}</div>
                 <div className="mt-1 text-[12px] font-medium text-tgm">/ {fmt(m.max)} {m.unit}</div>
@@ -68,8 +69,8 @@ export default function Ozet() {
             <Egri data={kiloSerisi} />
           </div>
           <div className="flex divide-x divide-tg2/70">
-            <MiniSatir Ic={IAy} renk="#D9A066" etiket="Uyku" deger={d.uyku} birim="sa" />
-            <MiniSatir Ic={IKalp} renk="#C4553A" etiket="Dinlenme nabzı" deger={d.nabiz} birim="bpm" />
+            <MiniSatir Ic={IAy} renk={c.tga} etiket="Uyku" deger={d.uyku} birim="sa" />
+            <MiniSatir Ic={IKalp} renk={c.tgr} etiket="Dinlenme nabzı" deger={d.nabiz} birim="bpm" />
           </div>
         </section>
 

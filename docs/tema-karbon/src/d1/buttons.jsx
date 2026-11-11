@@ -5,8 +5,8 @@ const base =
 
 const variants = {
   primary: {
-    d: 'h-12 rounded-lg bg-ko px-5 font-grotesk text-[15px] font-semibold text-k0 hover:bg-[#FF6A33] active:bg-kod active:translate-y-[1px]',
-    p: 'h-12 rounded-lg bg-kod px-5 font-grotesk text-[15px] font-semibold text-k0 translate-y-[1px] shadow-[inset_0_2px_0_rgba(0,0,0,.25)]',
+    d: 'h-12 rounded-lg bg-ko px-5 font-grotesk text-[15px] font-semibold text-kon hover:bg-[#FF6A33] active:bg-kod active:translate-y-[1px]',
+    p: 'h-12 rounded-lg bg-kod px-5 font-grotesk text-[15px] font-semibold text-kon translate-y-[1px] shadow-[inset_0_2px_0_rgba(0,0,0,.25)]',
     x: 'h-12 rounded-lg bg-k2 px-5 font-grotesk text-[15px] font-semibold text-km hazard',
   },
   secondary: {
@@ -20,8 +20,8 @@ const variants = {
     x: 'h-10 rounded-lg px-3 font-mono text-[12px] uppercase tracking-[0.14em] text-km/50 line-through decoration-k3',
   },
   destructive: {
-    d: 'h-12 rounded-lg border border-[#E5484D]/60 bg-[#E5484D]/10 px-5 font-grotesk text-[15px] font-semibold text-[#FF6B6E] hover:bg-[#E5484D]/20 active:bg-[#E5484D] active:text-k0',
-    p: 'h-12 rounded-lg border border-[#E5484D] bg-[#E5484D] px-5 font-grotesk text-[15px] font-semibold text-k0',
+    d: 'h-12 rounded-lg border border-[#E5484D]/60 bg-[#E5484D]/10 px-5 font-grotesk text-[15px] font-semibold text-[#FF6B6E] hover:bg-[#E5484D]/20 active:bg-[#E5484D] active:text-kon',
+    p: 'h-12 rounded-lg border border-[#E5484D] bg-[#E5484D] px-5 font-grotesk text-[15px] font-semibold text-kon',
     x: 'h-12 rounded-lg border border-k3 px-5 font-grotesk text-[15px] font-semibold text-km/50',
   },
   icon: {
@@ -30,8 +30,8 @@ const variants = {
     x: 'h-11 w-11 rounded-lg border border-k2 bg-k0 text-km/40',
   },
   fab: {
-    d: 'h-14 w-[72px] rounded-lg bg-ko text-k0 hover:bg-[#FF6A33] active:scale-95 active:bg-kod',
-    p: 'h-14 w-[72px] rounded-lg bg-kod text-k0 scale-95 shadow-[inset_0_2px_0_rgba(0,0,0,.25)]',
+    d: 'h-14 w-[72px] rounded-lg bg-ko text-kon hover:bg-[#FF6A33] active:scale-95 active:bg-kod',
+    p: 'h-14 w-[72px] rounded-lg bg-kod text-kon scale-95 shadow-[inset_0_2px_0_rgba(0,0,0,.25)]',
     x: 'h-14 w-[72px] rounded-lg bg-k2 text-km/50 hazard',
   },
 };

@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 import { useState } from 'react';
 import { digerListe } from '../data/mock.js';
 import { StatusBar, Header, Hazirlik, BottomNav } from './parts.jsx';
@@ -12,8 +13,8 @@ const gruplar = [
 
 // Her öğe için küçük renkli taş
 const tas = {
-  hedef: '#D9A066', kutuphane: '#EDE6DC', tabak: '#7FA88A', shake: '#E3AE78',
-  hatirlatma: '#D9A066', saat: '#7FA88A', disa: '#A8998A', ayar: '#A8998A',
+  hedef: c.tga, kutuphane: c.tgt, tabak: c.tgs, shake: '#E3AE78',
+  hatirlatma: c.tga, saat: c.tgs, disa: c.tgm, ayar: c.tgm,
 };
 
 export default function Diger() {
@@ -33,7 +34,7 @@ export default function Diger() {
             ))}
           </svg>
           <div className="relative flex items-center gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-tga font-serif text-[24px] text-tg0">E</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-tga font-serif text-[24px] text-tgon">E</span>
             <div className="flex flex-1 flex-col gap-1">
               <span className="font-serif text-[24px] leading-none">Emre K.</span>
               <span className="text-[13px] text-tgm">81,98 kg · hedef 78,0 kg</span>

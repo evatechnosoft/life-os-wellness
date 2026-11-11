@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 import { navItems } from '../data/mock.js';
 import { IGunes, ITakvim, IOlcu, IKocY, IArti } from './icons.jsx';
 
@@ -36,7 +37,7 @@ export function Header({ ust, baslik, sag }) {
 
 // Hazırlık: renk + kelime + sayı her zaman birlikte
 export const hazirlikSeviye = (n) =>
-  n >= 75 ? { kelime: 'Hazır', renk: '#7FA88A' } : n >= 55 ? { kelime: 'Dengeli', renk: '#D9A066' } : { kelime: 'Dinlen', renk: '#C4553A' };
+  n >= 75 ? { kelime: 'Hazır', renk: c.tgs } : n >= 55 ? { kelime: 'Dengeli', renk: c.tga } : { kelime: 'Dinlen', renk: c.tgr };
 
 export function Hazirlik({ n, buyuk = false }) {
   const s = hazirlikSeviye(n);
@@ -59,7 +60,7 @@ export function Hazirlik({ n, buyuk = false }) {
 const gunler = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 export function IsiSeridi({ degerler, bugun = 1 }) {
   const ton = (v) =>
-    v === null ? 'transparent' : ['#3A322C', '#5A4532', '#8A6440', '#B9834D', '#D9A066'][v];
+    v === null ? 'transparent' : [c.tg2, '#5A4532', '#8A6440', c.tgad, c.tga][v];
   return (
     <div className="grid grid-cols-7 gap-2" role="list" aria-label="Haftalık yoğunluk">
       {degerler.map((v, i) => (
@@ -126,7 +127,7 @@ export function BottomNav({ aktif = 0, onAdd }) {
           <button
             onClick={onAdd}
             aria-label="Kayıt ekle"
-            className="absolute -top-6 flex h-[64px] w-[64px] items-center justify-center rounded-full bg-tga text-tg0 shadow-[0_8px_24px_rgba(217,160,102,.35)] ring-[6px] ring-tg0 transition-transform active:scale-95 active:bg-tgad"
+            className="absolute -top-6 flex h-[64px] w-[64px] items-center justify-center rounded-full bg-tga text-tgon shadow-[0_8px_24px_rgba(217,160,102,.35)] ring-[6px] ring-tg0 transition-transform active:scale-95 active:bg-tgad"
           >
             <IArti size={24} />
           </button>

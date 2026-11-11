@@ -2,84 +2,345 @@
   "$meta": {
     "note": "Aday temalar, evaglass.tokens.json -> themes ile ayni sema. Dean secince secilenler evaglass'a tasinir. Kaynak: docs/img/bolt-prompt-tema-2026-11-11.md, arastirma tools/docs/research/fitness-ui-trend-2027.md",
     "date": "2026-11-11",
-    "existing": ["aurora", "wash", "graffiti"]
+    "existing": [
+      "aurora",
+      "wash",
+      "graffiti"
+    ]
   },
   "themes": {
     "kagit": {
       "$label": "Kâğıt (L1) — beyaz, sıcak editoryal",
       "mode": "light",
       "color": {
-        "surface": { "bg": "#F0EEE9", "soft": "#E7E4DD", "paper": "#F0EEE9" },
-        "ink": { "default": "#1C1A17", "dim": "rgba(28,26,23,0.70)", "faint": "rgba(28,26,23,0.45)" },
-        "edge": { "default": "rgba(28,26,23,0.15)", "soft": "rgba(28,26,23,0.08)" },
-        "accent": { "a1": "#E85D3F", "a2": "#1F5C63", "a3": "#5F6F52", "a4": "#E9C46A", "default": "#E85D3F" },
+        "surface": {
+          "bg": "#F0EEE9",
+          "soft": "#E7E4DD",
+          "paper": "#F0EEE9"
+        },
+        "ink": {
+          "default": "#1C1A17",
+          "dim": "rgba(28,26,23,0.70)",
+          "faint": "rgba(28,26,23,0.45)"
+        },
+        "edge": {
+          "default": "rgba(28,26,23,0.15)",
+          "soft": "rgba(28,26,23,0.08)"
+        },
+        "accent": {
+          "a1": "#E85D3F",
+          "a2": "#1F5C63",
+          "a3": "#5F6F52",
+          "a4": "#E9C46A",
+          "default": "#E85D3F"
+        },
         "gradient": null
       },
-      "font": { "display": "Fraunces", "kinetic": null, "body": "Instrument Sans", "mono": null },
-      "hero": { "family": "display", "size": 96, "case": "sentence" },
-      "effects": ["hairline-dividers", "paper-grain", "no-cards", "editorial-columns"]
+      "font": {
+        "display": "Fraunces",
+        "kinetic": null,
+        "body": "Instrument Sans",
+        "mono": null
+      },
+      "hero": {
+        "family": "display",
+        "size": 96,
+        "case": "sentence"
+      },
+      "effects": [
+        "hairline-dividers",
+        "paper-grain",
+        "no-cards",
+        "editorial-columns"
+      ],
+      "altMode": {
+        "mode": "dark",
+        "$label": "Kâğıt Gece",
+        "color": {
+          "surface": {
+            "bg": "#1A1714",
+            "soft": "#23201C"
+          },
+          "ink": {
+            "default": "#F0EEE9"
+          },
+          "accent": {
+            "a1": "#F0714F",
+            "a2": "#5FA3AB",
+            "a3": "#9AAA8A",
+            "a4": "#E9C46A",
+            "default": "#F0714F"
+          }
+        }
+      }
     },
     "pop": {
       "$label": "Pop (L2) — beyaz, ekspresif spor",
       "mode": "light",
       "color": {
-        "surface": { "bg": "#FFFBF2", "soft": "#FFD9CC", "paper": "#FFFBF2" },
-        "ink": { "default": "#121212", "dim": "rgba(18,18,18,0.72)", "faint": "rgba(18,18,18,0.45)" },
-        "edge": { "default": "rgba(18,18,18,0.14)", "soft": "rgba(18,18,18,0.07)" },
-        "accent": { "a1": "#C6F432", "a2": "#FF6B4A", "a3": "#3A2E8F", "default": "#C6F432" },
+        "surface": {
+          "bg": "#FFFBF2",
+          "soft": "#FFD9CC",
+          "paper": "#FFFBF2"
+        },
+        "ink": {
+          "default": "#121212",
+          "dim": "rgba(18,18,18,0.72)",
+          "faint": "rgba(18,18,18,0.45)"
+        },
+        "edge": {
+          "default": "rgba(18,18,18,0.14)",
+          "soft": "rgba(18,18,18,0.07)"
+        },
+        "accent": {
+          "a1": "#C6F432",
+          "a2": "#FF6B4A",
+          "a3": "#3A2E8F",
+          "default": "#C6F432"
+        },
         "gradient": null
       },
-      "font": { "display": "Roboto Flex", "kinetic": "Roboto Flex", "body": "Roboto Flex", "mono": null },
-      "hero": { "family": "kinetic", "size": 88, "case": "sentence", "kineticAxes": ["wght", "wdth"] },
-      "effects": ["asymmetric-bento", "shape-morph", "spring-press", "scalloped-badge"]
+      "font": {
+        "display": "Roboto Flex",
+        "kinetic": "Roboto Flex",
+        "body": "Roboto Flex",
+        "mono": null
+      },
+      "hero": {
+        "family": "kinetic",
+        "size": 88,
+        "case": "sentence",
+        "kineticAxes": [
+          "wght",
+          "wdth"
+        ]
+      },
+      "effects": [
+        "asymmetric-bento",
+        "shape-morph",
+        "spring-press",
+        "scalloped-badge"
+      ],
+      "altMode": {
+        "mode": "dark",
+        "$label": "Pop Gece",
+        "color": {
+          "surface": {
+            "bg": "#121212",
+            "soft": "#3A2622",
+            "tile": "#1E1E1E",
+            "fill": "#2A2A2A"
+          },
+          "ink": {
+            "default": "#FFFBF2",
+            "onAccent": "#121212"
+          },
+          "accent": {
+            "a1": "#C6F432",
+            "a2": "#FF6B4A",
+            "a3": "#7B6CF0",
+            "default": "#C6F432"
+          }
+        }
+      }
     },
     "karbon": {
       "$label": "Karbon (D1) — koyu, mono + tek turuncu",
       "mode": "dark",
       "color": {
-        "surface": { "bg": "#0E0F10", "soft": "#17181A", "raised": "#1F2023", "top": "#2A2B2F" },
-        "ink": { "default": "#E8E8E6", "dim": "#8A8C90", "faint": "rgba(232,232,230,0.40)" },
-        "edge": { "default": "rgba(255,255,255,0.12)", "soft": "rgba(255,255,255,0.06)" },
-        "accent": { "a1": "#FF5A1F", "good": "#3DDC97", "default": "#FF5A1F" },
+        "surface": {
+          "bg": "#0E0F10",
+          "soft": "#17181A",
+          "raised": "#1F2023",
+          "top": "#2A2B2F"
+        },
+        "ink": {
+          "default": "#E8E8E6",
+          "dim": "#8A8C90",
+          "faint": "rgba(232,232,230,0.40)"
+        },
+        "edge": {
+          "default": "rgba(255,255,255,0.12)",
+          "soft": "rgba(255,255,255,0.06)"
+        },
+        "accent": {
+          "a1": "#FF5A1F",
+          "good": "#3DDC97",
+          "default": "#FF5A1F"
+        },
         "gradient": null
       },
-      "font": { "display": "Space Grotesk", "kinetic": null, "body": "IBM Plex Sans", "mono": "IBM Plex Mono" },
-      "hero": { "family": "display", "size": 64, "case": "sentence" },
-      "effects": ["one-big-thing-hero", "surface-levels-4", "carbon-weave-hero", "bottom-sheet", "no-blur"]
+      "font": {
+        "display": "Space Grotesk",
+        "kinetic": null,
+        "body": "IBM Plex Sans",
+        "mono": "IBM Plex Mono"
+      },
+      "hero": {
+        "family": "display",
+        "size": 64,
+        "case": "sentence"
+      },
+      "effects": [
+        "one-big-thing-hero",
+        "surface-levels-4",
+        "carbon-weave-hero",
+        "bottom-sheet",
+        "no-blur"
+      ],
+      "altMode": {
+        "mode": "light",
+        "$label": "Karbon Gündüz",
+        "color": {
+          "surface": {
+            "bg": "#F4F4F2",
+            "soft": "#FFFFFF",
+            "raised": "#EBEBE8",
+            "top": "#DCDCD8"
+          },
+          "ink": {
+            "default": "#121314",
+            "dim": "#5E6166",
+            "onAccent": "#0E0F10"
+          },
+          "accent": {
+            "a1": "#E8480C",
+            "good": "#12A26A",
+            "default": "#E8480C"
+          }
+        }
+      }
     },
     "toprak": {
       "$label": "Toprak Gecesi (D2) — koyu, sıcak",
       "mode": "dark",
       "color": {
-        "surface": { "bg": "#14110F", "soft": "#2A2420", "raised": "#3A322C" },
-        "ink": { "default": "#EDE6DC", "dim": "rgba(237,230,220,0.70)", "faint": "rgba(237,230,220,0.42)" },
-        "edge": { "default": "rgba(237,230,220,0.14)", "soft": "rgba(237,230,220,0.07)" },
-        "accent": { "a1": "#D9A066", "a2": "#7FA88A", "a3": "#C4553A", "default": "#D9A066" },
+        "surface": {
+          "bg": "#14110F",
+          "soft": "#2A2420",
+          "raised": "#3A322C"
+        },
+        "ink": {
+          "default": "#EDE6DC",
+          "dim": "rgba(237,230,220,0.70)",
+          "faint": "rgba(237,230,220,0.42)"
+        },
+        "edge": {
+          "default": "rgba(237,230,220,0.14)",
+          "soft": "rgba(237,230,220,0.07)"
+        },
+        "accent": {
+          "a1": "#D9A066",
+          "a2": "#7FA88A",
+          "a3": "#C4553A",
+          "default": "#D9A066"
+        },
         "gradient": null
       },
-      "font": { "display": "DM Serif Display", "kinetic": null, "body": "Manrope", "mono": null },
-      "hero": { "family": "display", "size": 56, "case": "sentence" },
-      "effects": ["radial-dial", "week-heatmap", "readiness-color-word-number"]
+      "font": {
+        "display": "DM Serif Display",
+        "kinetic": null,
+        "body": "Manrope",
+        "mono": null
+      },
+      "hero": {
+        "family": "display",
+        "size": 56,
+        "case": "sentence"
+      },
+      "effects": [
+        "radial-dial",
+        "week-heatmap",
+        "readiness-color-word-number"
+      ],
+      "altMode": {
+        "mode": "light",
+        "$label": "Toprak Gündüz",
+        "color": {
+          "surface": {
+            "bg": "#F6F0E7",
+            "soft": "#EDE3D4",
+            "raised": "#E2D5C2"
+          },
+          "ink": {
+            "default": "#2A2420",
+            "dim": "#75685B",
+            "onAccent": "#14110F"
+          },
+          "accent": {
+            "a1": "#B9772F",
+            "a2": "#4F7A5C",
+            "a3": "#A8432C",
+            "default": "#B9772F"
+          }
+        }
+      }
     },
     "graffiti-sokak": {
       "$label": "Graffiti Sokak (N1) — mevcut graffiti teması, koyu",
       "$ref": "evaglass.tokens.json#/themes/graffiti",
       "mode": "dark",
-      "effects": ["gradient-wash-card", "corner-spot", "marquee", "sticker-labels", "spray-texture", "cta-sheen", "accent-cycle", "graffiti-display"]
+      "effects": [
+        "gradient-wash-card",
+        "corner-spot",
+        "marquee",
+        "sticker-labels",
+        "spray-texture",
+        "cta-sheen",
+        "accent-cycle",
+        "graffiti-display"
+      ]
     },
     "neon-afis": {
       "$label": "Neon Afiş (N2) — graffiti renkleri kâğıt üstünde, açık poster",
       "mode": "light",
       "color": {
-        "surface": { "bg": "#F4F4F0", "soft": "#E9E9E3", "paper": "#F4F4F0" },
-        "ink": { "default": "#0A0A0A", "dim": "rgba(10,10,10,0.74)", "faint": "rgba(10,10,10,0.45)" },
-        "edge": { "default": "#0A0A0A", "soft": "rgba(10,10,10,0.12)" },
-        "accent": { "a1": "#C6FF3D", "a2": "#FF2D9B", "a3": "#17E1F2", "default": "#C6FF3D" },
+        "surface": {
+          "bg": "#F4F4F0",
+          "soft": "#E9E9E3",
+          "paper": "#F4F4F0"
+        },
+        "ink": {
+          "default": "#0A0A0A",
+          "dim": "rgba(10,10,10,0.74)",
+          "faint": "rgba(10,10,10,0.45)"
+        },
+        "edge": {
+          "default": "#0A0A0A",
+          "soft": "rgba(10,10,10,0.12)"
+        },
+        "accent": {
+          "a1": "#C6FF3D",
+          "a2": "#FF2D9B",
+          "a3": "#17E1F2",
+          "default": "#C6FF3D"
+        },
         "gradient": null
       },
-      "font": { "display": "Anybody", "kinetic": "Anybody", "body": "Space Mono", "mono": "Space Mono", "stamp": "Bangers" },
-      "hero": { "family": "kinetic", "size": 96, "case": "uppercase", "kineticAxes": ["wght", "wdth"] },
-      "effects": ["poster-grid", "hard-border-3px", "halftone", "tape-labels", "press-offset-shadow", "bleed-numbers"]
+      "font": {
+        "display": "Anybody",
+        "kinetic": "Anybody",
+        "body": "Space Mono",
+        "mono": "Space Mono",
+        "stamp": "Bangers"
+      },
+      "hero": {
+        "family": "kinetic",
+        "size": 96,
+        "case": "uppercase",
+        "kineticAxes": [
+          "wght",
+          "wdth"
+        ]
+      },
+      "effects": [
+        "poster-grid",
+        "hard-border-3px",
+        "halftone",
+        "tape-labels",
+        "press-offset-shadow",
+        "bleed-numbers"
+      ]
     }
   }
 }

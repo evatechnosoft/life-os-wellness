@@ -70,7 +70,7 @@ export function BottomNav({ aktif = 0, onAdd }) {
           <button
             onClick={onAdd}
             aria-label="Kayıt ekle"
-            className="flex h-11 w-14 items-center justify-center rounded-lg bg-ko text-k0 transition-transform active:scale-95 active:bg-kod"
+            className="flex h-11 w-14 items-center justify-center rounded-lg bg-ko text-kon transition-transform active:scale-95 active:bg-kod"
           >
             <IPlus size={18} />
           </button>

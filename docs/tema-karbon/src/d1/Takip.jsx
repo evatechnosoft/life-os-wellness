@@ -44,7 +44,7 @@ export default function Takip() {
                 <span className="font-mono text-[11px] text-km">{a.detay}</span>
               </div>
               {now && (
-                <button onClick={() => setAcik(true)} className="rounded-lg bg-ko px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-k0 active:bg-kod">
+                <button onClick={() => setAcik(true)} className="rounded-lg bg-ko px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-kon active:bg-kod">
                   Kaydet
                 </button>
               )}

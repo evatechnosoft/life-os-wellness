@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 import { useState } from 'react';
 import { Btn, Chip, Toggle } from './buttons.jsx';
 import { Segmented } from './parts.jsx';
@@ -79,7 +80,7 @@ export default function Butonlar() {
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex gap-2" aria-label="Palet">
-            {['#D9A066', '#7FA88A', '#C4553A', '#EDE6DC', '#3A322C'].map((c) => (
+            {[c.tga, c.tgs, c.tgr, c.tgt, c.tg2].map((c) => (
               <span key={c} className="h-5 w-5 rounded-full ring-2 ring-tg0" style={{ background: c }} />
             ))}
           </div>

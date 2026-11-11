@@ -5,14 +5,14 @@ const base =
 
 const v = {
   primary: {
-    d: 'h-[52px] rounded-full bg-tga px-7 text-[16px] font-bold text-tg0 shadow-[0_6px_20px_rgba(217,160,102,.25)] hover:bg-[#E3AE78] active:scale-[.97] active:bg-tgad',
-    p: 'h-[52px] rounded-full bg-tgad px-7 text-[16px] font-bold text-tg0 scale-[.97] shadow-[inset_0_2px_6px_rgba(0,0,0,.25)]',
+    d: 'h-[52px] rounded-full bg-tga px-7 text-[16px] font-bold text-tgon shadow-[0_6px_20px_rgba(217,160,102,.25)] hover:bg-[#E3AE78] active:scale-[.97] active:bg-tgad',
+    p: 'h-[52px] rounded-full bg-tgad px-7 text-[16px] font-bold text-tgon scale-[.97] shadow-[inset_0_2px_6px_rgba(0,0,0,.25)]',
     x: 'h-[52px] rounded-full bg-tg2 px-7 text-[16px] font-bold text-tgm/60',
   },
   secondary: {
-    d: 'h-[52px] rounded-full px-7 text-[16px] font-semibold text-tgs shadow-[inset_0_0_0_1.5px_#7FA88A] hover:bg-tgs/10 active:bg-tgs/20',
+    d: 'h-[52px] rounded-full px-7 text-[16px] font-semibold text-tgs shadow-[inset_0_0_0_1.5px_rgb(var(--tgs))] hover:bg-tgs/10 active:bg-tgs/20',
     p: 'h-[52px] rounded-full bg-tgs/20 px-7 text-[16px] font-semibold text-[#A5C7AE] shadow-[inset_0_0_0_1.5px_#A5C7AE] scale-[.97]',
-    x: 'h-[52px] rounded-full px-7 text-[16px] font-semibold text-tgm/50 shadow-[inset_0_0_0_1.5px_#3A322C]',
+    x: 'h-[52px] rounded-full px-7 text-[16px] font-semibold text-tgm/50 shadow-[inset_0_0_0_1.5px_rgb(var(--tg2))]',
   },
   ghost: {
     d: 'h-11 rounded-full px-4 text-[15px] font-semibold text-tga underline decoration-tga/40 underline-offset-4 hover:decoration-tga active:bg-tga/10',
@@ -26,12 +26,12 @@ const v = {
   },
   icon: {
     d: 'h-12 w-12 rounded-full bg-tg1 text-tgt hover:bg-tg2 active:scale-95',
-    p: 'h-12 w-12 rounded-full bg-tg2 text-tga scale-95 shadow-[inset_0_0_0_1.5px_#D9A066]',
+    p: 'h-12 w-12 rounded-full bg-tg2 text-tga scale-95 shadow-[inset_0_0_0_1.5px_rgb(var(--tga))]',
     x: 'h-12 w-12 rounded-full bg-tgx text-tgm/40',
   },
   fab: {
-    d: 'h-16 w-16 rounded-full bg-tga text-tg0 shadow-[0_8px_24px_rgba(217,160,102,.35)] hover:bg-[#E3AE78] active:scale-95',
-    p: 'h-16 w-16 rounded-full bg-tgad text-tg0 scale-95 shadow-[0_2px_8px_rgba(217,160,102,.3)]',
+    d: 'h-16 w-16 rounded-full bg-tga text-tgon shadow-[0_8px_24px_rgba(217,160,102,.35)] hover:bg-[#E3AE78] active:scale-95',
+    p: 'h-16 w-16 rounded-full bg-tgad text-tgon scale-95 shadow-[0_2px_8px_rgba(217,160,102,.3)]',
     x: 'h-16 w-16 rounded-full bg-tg2 text-tgm/50',
   },
 };
@@ -53,7 +53,7 @@ export function Chip({ on, state = 'default', children, onClick }) {
   const cls = dis
     ? 'bg-tgx text-tgm/40'
     : on
-    ? `${pr ? 'bg-tgad' : 'bg-tga/90'} text-tg0`
+    ? `${pr ? 'bg-tgad' : 'bg-tga/90'} text-tgon`
     : `${pr ? 'bg-tg2 text-tgt' : 'bg-tg1 text-tgm hover:text-tgt'}`;
   return (
     <button onClick={onClick} disabled={dis} aria-pressed={!!on}

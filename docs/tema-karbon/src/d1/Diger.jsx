@@ -18,7 +18,7 @@ export default function Diger() {
 
       {/* Profil şeridi */}
       <div className="carbon-weave mx-5 flex items-center gap-4 rounded-lg border border-k3 p-4">
-        <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-ko font-grotesk text-[18px] font-bold text-k0">
+        <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-ko font-grotesk text-[18px] font-bold text-kon">
           EK
         </span>
         <div className="flex flex-1 flex-col">

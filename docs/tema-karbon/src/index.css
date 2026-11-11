@@ -10,8 +10,8 @@ body,
 
 body {
   margin: 0;
-  background: #0b0b0c;
-  color: #e8e8e6;
+  background: rgb(var(--canvas));
+  color: rgb(var(--kt));
   font-family: 'IBM Plex Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -33,7 +33,7 @@ body {
 
 /* Karbon fiber deseni – yalnızca hero */
 .carbon-weave {
-  background-color: #17181a;
+  background-color: rgb(var(--k1));
   background-image:
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 6px),
     repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 6px);
@@ -48,7 +48,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid #ff5a1f;
+  outline: 2px solid rgb(var(--ko));
   outline-offset: 2px;
 }
 
@@ -59,15 +59,15 @@ body {
   font-feature-settings: 'tnum' 1;
 }
 .d2 :focus-visible {
-  outline: 2px solid #d9a066;
+  outline: 2px solid rgb(var(--tga));
   outline-offset: 3px;
 }
 /* Sıcak toprak dokusu – çok hafif tahıl */
 .d2-grain {
-  background-color: #14110f;
+  background-color: rgb(var(--tg0));
   background-image:
     radial-gradient(120% 60% at 50% -10%, rgba(217, 160, 102, 0.1), transparent 60%),
-    radial-gradient(rgba(237, 230, 220, 0.025) 1px, transparent 1px);
+    radial-gradient(rgb(var(--tgt) / 0.04) 1px, transparent 1px);
   background-size: auto, 4px 4px;
 }
 @keyframes d2-tick {
@@ -85,4 +85,11 @@ body {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Gündüz: carbon weave goes dark-on-light */
+.light .carbon-weave {
+  background-image:
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.035) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.06) 0 2px, transparent 2px 6px);
 }

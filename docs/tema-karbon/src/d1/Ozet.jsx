@@ -1,3 +1,4 @@
+import { c } from '../theme.js';
 import { useState } from 'react';
 import { ozet, kiloSerisi, fmt } from '../data/mock.js';
 import { StatusBar, Header, Label, BottomNav, Gauge, Segmented } from './parts.jsx';
@@ -12,8 +13,8 @@ function Sparkline({ data }) {
     .join(' ');
   return (
     <svg width={w} height={h} aria-hidden="true">
-      <polyline points={pts} fill="none" stroke="#3DDC97" strokeWidth="2" strokeLinejoin="miter" />
-      <rect x={w - 4} y={2} width="4" height="4" fill="#3DDC97" />
+      <polyline points={pts} fill="none" stroke={c.kg} strokeWidth="2" strokeLinejoin="miter" />
+      <rect x={w - 4} y={2} width="4" height="4" fill={c.kg} />
     </svg>
   );
 }
